@@ -489,8 +489,16 @@ impl crate::TermWindow {
                     // First, resolve this glyph to a texture
                     let mut texture = glyph.texture.as_ref().cloned();
 
+                    let mut emoji_adjust = 0.0;
+                    if glyph.has_color {
+                        // Emoji specific adjustment: move down slightly to align better
+                        emoji_adjust = cell_height * 0.08;
+                    }
+
                     let mut top = cell_height
-                        + (params.render_metrics.descender.get() as f32 + valign_adjust
+                        + (params.render_metrics.descender.get() as f32
+                            + valign_adjust
+                            + emoji_adjust
                             - (glyph.y_offset + glyph.bearing_y).get() as f32)
                             * height_scale;
 

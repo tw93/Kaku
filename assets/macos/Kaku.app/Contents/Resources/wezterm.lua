@@ -161,11 +161,15 @@ config.font = wezterm.font_with_fallback({
 config.bold_brightens_ansi_colors = false
 config.font_size = 17.0
 config.line_height = 1.28
+config.cell_width = 1.0
 config.harfbuzz_features = { 'calt=0', 'clig=0', 'liga=0' }
 config.use_cap_height_to_scale_fallback_fonts = false
 
 config.allow_square_glyphs_to_overflow_width = 'WhenFollowedBySpace'
 config.custom_block_glyphs = true
+
+config.freetype_load_target = 'Light'
+config.freetype_render_target = 'HorizontalLcd'
 
 -- ===== Cursor =====
 config.default_cursor_style = 'BlinkingBar'
