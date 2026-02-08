@@ -43,7 +43,7 @@ echo "[3/5] Copying resources and binaries..."
 cp -R assets/shell-integration/* "$APP_BUNDLE_OUT/Contents/Resources/"
 cp -R assets/shell-completion "$APP_BUNDLE_OUT/Contents/Resources/"
 cp -R assets/fonts "$APP_BUNDLE_OUT/Contents/Resources/"
-cp assets/logo.icns "$APP_BUNDLE_OUT/Contents/Resources/AppIcon.icns"
+
 tic -xe kaku -o "$APP_BUNDLE_OUT/Contents/Resources/terminfo" termwiz/data/kaku.terminfo
 
 for bin in kaku kaku-gui; do
@@ -56,6 +56,10 @@ xattr -cr "$APP_BUNDLE_OUT"
 
 echo "[4/5] Signing app bundle..."
 codesign --force --deep --sign - "$APP_BUNDLE_OUT"
+
+touch "$APP_BUNDLE_OUT/Contents/Resources/terminal.icns"
+touch "$APP_BUNDLE_OUT/Contents/Info.plist"
+touch "$APP_BUNDLE_OUT"
 
 echo "[5/5] Done: $APP_BUNDLE_OUT"
 if [[ "$OPEN_APP" == "1" ]]; then

@@ -182,12 +182,11 @@ config.window_padding = {
 config.initial_cols = 110
 config.initial_rows = 22
 config.window_decorations = "INTEGRATED_BUTTONS|RESIZE"
-config.window_background_opacity = 1.0
-config.macos_window_background_blur = 0
-config.adjust_window_size_when_changing_font_size = false
 config.window_frame = {
   font = wezterm.font({ family = 'JetBrains Mono', weight = 'Bold' }),
   font_size = 13.0,
+  active_titlebar_bg = '#15141b',
+  inactive_titlebar_bg = '#15141b',
 }
 
 config.window_close_confirmation = 'NeverPrompt'
