@@ -92,6 +92,10 @@ export KAKU_ZSH_DIR="\$HOME/.config/kaku/zsh"
 # Add bundled binaries to PATH
 export PATH="\$KAKU_ZSH_DIR/bin:\$PATH"
 
+# Enable color output for ls
+export CLICOLOR=1
+export LSCOLORS=ExFxBxDxCxegedabagacad
+
 # Initialize Starship (Cross-shell prompt)
 if command -v starship &> /dev/null; then
     eval "\$(starship init zsh)"
