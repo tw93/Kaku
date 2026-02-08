@@ -36,6 +36,12 @@ rm -rf "$APP_BUNDLE_OUT"
 mkdir -p "$OUT_DIR"
 cp -R "$APP_BUNDLE_SRC" "$APP_BUNDLE_OUT"
 
+# Move libraries from root to Frameworks (macOS requirement)
+if ls "$APP_BUNDLE_OUT"/*.dylib 1>/dev/null 2>&1; then
+	mkdir -p "$APP_BUNDLE_OUT/Contents/Frameworks"
+	mv "$APP_BUNDLE_OUT"/*.dylib "$APP_BUNDLE_OUT/Contents/Frameworks/"
+fi
+
 mkdir -p "$APP_BUNDLE_OUT/Contents/MacOS"
 mkdir -p "$APP_BUNDLE_OUT/Contents/Resources"
 
@@ -43,6 +49,11 @@ echo "[3/5] Copying resources and binaries..."
 cp -R assets/shell-integration/* "$APP_BUNDLE_OUT/Contents/Resources/"
 cp -R assets/shell-completion "$APP_BUNDLE_OUT/Contents/Resources/"
 cp -R assets/fonts "$APP_BUNDLE_OUT/Contents/Resources/"
+
+# Explicitly use the logo.icns from assets if available
+if [[ -f "assets/logo.icns" ]]; then
+	cp "assets/logo.icns" "$APP_BUNDLE_OUT/Contents/Resources/terminal.icns"
+fi
 
 tic -xe kaku -o "$APP_BUNDLE_OUT/Contents/Resources/terminfo" termwiz/data/kaku.terminfo
 
