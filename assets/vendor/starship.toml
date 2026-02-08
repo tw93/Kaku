@@ -1,0 +1,22 @@
+# ~/.config/starship.toml
+
+add_newline = false
+command_timeout = 10000
+
+[directory]
+truncate_to_repo=true
+truncation_length=2
+
+[character]
+success_symbol = ""
+error_symbol = ""
+format = "$symbol"
+
+[line_break]
+disabled = true
+
+[nodejs]
+disabled = true
+
+[lua]
+disabled = true

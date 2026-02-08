@@ -70,4 +70,5 @@ dhat-heap.json
 /Kaku.app/
 AGENTS.md
 **/AGENTS.md
-/assets/vendor/
+/assets/vendor/*
+!/assets/vendor/starship.toml
