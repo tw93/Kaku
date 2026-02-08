@@ -37,7 +37,7 @@ use crate::terminalstate::kitty::*;
 
 lazy_static::lazy_static! {
     static ref DB: Database = {
-        let data = include_bytes!("../../../termwiz/data/wezterm");
+        let data = include_bytes!("../../../termwiz/data/kaku");
         Database::from_buffer(&data[..]).unwrap()
     };
 }
@@ -552,7 +552,7 @@ impl TerminalState {
             newline_mode: false,
             current_mouse_buttons: vec![],
             tabs: TabStop::new(size.cols, 8),
-            title: "wezterm".to_string(),
+            title: "kaku".to_string(),
             icon_title: None,
             palette: None,
             pixel_height: size.pixel_height,
