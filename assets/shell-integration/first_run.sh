@@ -53,10 +53,14 @@ if [[ $REPLY =~ ^[Yy]$ ]] || [[ -z $REPLY ]]; then
 	else
 		echo "Error: setup_zsh.sh not found at $SETUP_SCRIPT"
 	fi
+	mkdir -p ~/.config/kaku
+	touch ~/.config/kaku/.first_run_completed
 else
 	echo ""
 	echo "Skipping shell setup. You can run it manually later:"
 	echo "$SETUP_SCRIPT"
+	mkdir -p ~/.config/kaku
+	touch ~/.config/kaku/.first_run_completed
 fi
 
 echo ""

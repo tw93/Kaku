@@ -574,13 +574,6 @@ wezterm.on('gui-startup', function(cmd)
   -- Create the config directory if it doesn't exist
   os.execute("mkdir -p " .. home .. "/.config/kaku")
   
-  -- Mark as completed immediately to prevent loop if script fails
-  local f_out = io.open(installed_flag, "w")
-  if f_out then 
-    f_out:write(os.date())
-    f_out:close() 
-  end
-  
   -- Determine the path to the first_run.sh script within the app bundle
   local resource_dir = wezterm.executable_dir:gsub("MacOS/?$", "Resources")
   local first_run_script = resource_dir .. "/first_run.sh"
@@ -600,7 +593,6 @@ wezterm.on('gui-startup', function(cmd)
     width = 110,
     height = 30,
   }
-  window:gui_window():maximize()
 end)
 
 return config
