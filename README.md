@@ -1,6 +1,6 @@
 <div align="center">
   <h1>
-    <img src="assets/logo.png" width="40" style="vertical-align: middle; border-radius: 50%; margin-right: 10px;" />
+    <img src="assets/logo.png" width="24" style="vertical-align: middle; border-radius: 50%; margin-right: 10px;" />
     Kaku
   </h1>
   <p><em>A fast, out-of-the-box terminal built for AI coding.</em></p>
