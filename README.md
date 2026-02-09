@@ -1,5 +1,8 @@
 <div align="center">
-  <h1>Kaku</h1>
+  <h1>
+    <img src="assets/logo.png" width="40" style="vertical-align: middle; border-radius: 50%; margin-right: 10px;" />
+    Kaku
+  </h1>
   <p><em>A fast, out-of-the-box terminal built for AI coding.</em></p>
 </div>
 
@@ -70,7 +73,7 @@ Kaku is fully configurable via standard Lua scripts and is 100% compatible with 
 
 ## Why Kaku?
 
-I heavily rely on the CLI for both work and personal projects. Tools I've built, like [Mole](https://github.com/tw93/mole) and [Pake](https://github.com/tw93/pake), reflect this workflow.
+I heavily rely on the CLI for both work and personal projects. Tools I've built, like [Mole](https://github.com/tw93/mole) and [Pake](https://github.com/tw93/pake), reflect this.
 
 I used Alacritty for years, but its lack of multi-tab support became cumbersome for AI-assisted coding. Kitty has some aesthetic and positioning quirks I couldn't get past. Ghostty shows promise but font rendering needs work. Warp feels bloated and requires a login. iTerm2 is reliable but showing its age and harder to deeply customize.
 
