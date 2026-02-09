@@ -1,6 +1,8 @@
 <div align="center">
   <h1>Kaku</h1>
   <p><em>A fast, out-of-the-box terminal built for AI coding.</em></p>
+
+  <p>🚧 Early Development - Features and APIs may change</p>
 </div>
 
 <p align="center">
