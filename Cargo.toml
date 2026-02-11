@@ -272,8 +272,8 @@ wezterm-term = { path = "term" }
 wezterm-toast-notification = { path = "crates/wezterm-toast-notification" }
 wezterm-uds = { path = "crates/wezterm-uds" }
 wezterm-version = { path = "crates/wezterm-version" }
-# macOS-only: only compile Metal backend (removes Vulkan, DX12, GL)
-wgpu = { version = "25.0.2", default-features = false, features = ["metal", "wgsl"] }
+# GPU backends: Metal for macOS, Vulkan for Linux, DX12 for Windows (each is cfg-gated by target OS)
+wgpu = { version = "25.0.2", default-features = false, features = ["metal", "vulkan", "dx12", "wgsl"] }
 whoami = "1.5"
 winapi = "0.3.9"
 window = {path="window"}

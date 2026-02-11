@@ -480,6 +480,13 @@ impl ImgCatCommand {
     }
 
     fn run(&self) -> anyhow::Result<()> {
+        #[cfg(not(unix))]
+        {
+            anyhow::bail!("imgcat is not supported on this platform");
+        }
+
+        #[cfg(unix)]
+        {
         let (data, image_info) = self.get_image_data()?;
 
         let caps = Capabilities::new_from_env()?;
@@ -593,6 +600,7 @@ impl ImgCatCommand {
         }
 
         Ok(())
+        }
     }
 }
 

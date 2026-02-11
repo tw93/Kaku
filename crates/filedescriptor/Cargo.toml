@@ -22,5 +22,9 @@ winapi = { workspace=true, features = [
     "namedpipeapi",
     "processthreadsapi",
     "winsock2",
-    "processenv"
+    "ws2def",
+    "processenv",
+    "minwinbase",
+    "winbase",
+    "winnt"
 ]}

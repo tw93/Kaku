@@ -41,7 +41,9 @@ use crate::caps::{Capabilities, ProbeHints};
 use crate::input::{InputEvent, KeyCode, KeyEvent, Modifiers};
 use crate::surface::change::ChangeSequence;
 use crate::surface::{Change, Position};
-use crate::terminal::{new_terminal, Terminal};
+use crate::terminal::Terminal;
+#[cfg(unix)]
+use crate::terminal::new_terminal;
 use crate::{bail, ensure, Result};
 
 mod actions;
@@ -854,6 +856,7 @@ impl<'term> LineEditor<'term> {
 
 /// Create a `Terminal` with the recommended settings for use with
 /// a `LineEditor`.
+#[cfg(unix)]
 pub fn line_editor_terminal() -> Result<impl Terminal> {
     let hints = ProbeHints::new_from_env().mouse_reporting(Some(false));
     let caps = Capabilities::new_with_hints(hints)?;

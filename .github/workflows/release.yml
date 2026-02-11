@@ -7,9 +7,114 @@ on:
   workflow_dispatch:
 
 jobs:
-  Release:
-    name: Release
+  build-macos:
+    name: macOS (${{ matrix.name }})
     runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Apple Silicon
+            target: aarch64-apple-darwin
+            arch: aarch64
+          - name: Intel
+            target: x86_64-apple-darwin
+            arch: x86_64
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Cache Cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          key: macos-${{ matrix.arch }}
+
+      - name: Build Kaku
+        env:
+          BUILD_TARGET: ${{ matrix.target }}
+        run: ./scripts/build.sh
+
+      - name: Rename DMG with arch suffix
+        run: mv dist/Kaku.dmg "dist/Kaku-macos-${{ matrix.arch }}.dmg"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Kaku-macos-${{ matrix.arch }}
+          path: dist/Kaku-macos-${{ matrix.arch }}.dmg
+
+  build-linux:
+    name: Linux (x86_64)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            pkg-config \
+            cmake \
+            perl \
+            libssl-dev \
+            libfontconfig1-dev \
+            libfreetype6-dev \
+            ncurses-bin \
+            libegl1-mesa-dev \
+            libx11-dev \
+            libx11-xcb-dev \
+            libxcb1-dev \
+            libxcb-render0-dev \
+            libxcb-shape0-dev \
+            libxcb-xfixes0-dev \
+            libxcb-ewmh-dev \
+            libxcb-icccm4-dev \
+            libxcb-image0-dev \
+            libxcb-keysyms1-dev \
+            libxcb-xkb-dev \
+            libxcb-util-dev \
+            libxcb-randr0-dev \
+            libxcb-present-dev \
+            libxcb-dri2-0-dev \
+            libxkbcommon-dev \
+            libxkbcommon-x11-dev \
+            libwayland-dev \
+            wayland-protocols \
+            libdbus-1-dev \
+            libvulkan-dev \
+            xorg-dev
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          key: linux-x86_64
+
+      - name: Build Kaku
+        run: ./scripts/build-linux.sh
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Kaku-linux-x86_64
+          path: dist/Kaku-linux-x86_64.tar.gz
+
+  build-windows:
+    name: Windows (x86_64)
+    runs-on: windows-latest
     permissions:
       contents: write
     steps:
@@ -21,15 +126,46 @@ jobs:
 
       - name: Cache Cargo
         uses: Swatinem/rust-cache@v2
+        with:
+          key: windows-x86_64
 
       - name: Build Kaku
+        run: cargo build --release -p kaku-gui -p kaku
+
+      - name: Package
+        shell: bash
         run: |
-          ./scripts/build.sh
+          mkdir -p dist
+          cp target/release/kaku.exe dist/
+          cp target/release/kaku-gui.exe dist/
+          cd dist && 7z a -tzip Kaku-windows-x86_64.zip kaku.exe kaku-gui.exe
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Kaku-windows-x86_64
+          path: dist/Kaku-windows-x86_64.zip
+
+  release:
+    name: Create Release
+    needs: [build-macos, build-linux, build-windows]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: List artifacts
+        run: ls -lhR artifacts/
 
       - name: Upload to Release
         uses: ncipollo/release-action@v1
         with:
           allowUpdates: true
-          artifacts: "dist/*.dmg"
+          artifacts: "artifacts/*"
           token: ${{ secrets.GITHUB_TOKEN }}
           generateReleaseNotes: true

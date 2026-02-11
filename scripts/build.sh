@@ -14,6 +14,8 @@ TARGET_DIR="${TARGET_DIR:-target}"
 PROFILE="${PROFILE:-release}"
 OUT_DIR="${OUT_DIR:-dist}"
 OPEN_APP="${OPEN_APP:-0}"
+# Optional: set BUILD_TARGET for cross-compilation (e.g. x86_64-apple-darwin)
+BUILD_TARGET="${BUILD_TARGET:-}"
 
 if [[ "${1:-}" == "--open" ]]; then
 	OPEN_APP=1
@@ -22,16 +24,28 @@ fi
 APP_BUNDLE_SRC="assets/macos/Kaku.app"
 APP_BUNDLE_OUT="$OUT_DIR/$APP_NAME.app"
 
-echo "[1/6] Building binaries ($PROFILE)..."
+# Determine cargo target flag and binary output directory
+CARGO_TARGET_FLAG=""
+if [[ -n "$BUILD_TARGET" ]]; then
+	CARGO_TARGET_FLAG="--target $BUILD_TARGET"
+fi
+
+echo "[1/6] Building binaries ($PROFILE${BUILD_TARGET:+, target=$BUILD_TARGET})..."
 if [[ "$PROFILE" == "release" ]]; then
-	cargo build --release -p kaku-gui -p kaku
-	BIN_DIR="$TARGET_DIR/release"
+	cargo build --release $CARGO_TARGET_FLAG -p kaku-gui -p kaku
+	PROFILE_DIR="release"
 elif [[ "$PROFILE" == "release-opt" ]]; then
-	cargo build --profile release-opt -p kaku-gui -p kaku
-	BIN_DIR="$TARGET_DIR/release-opt"
+	cargo build --profile release-opt $CARGO_TARGET_FLAG -p kaku-gui -p kaku
+	PROFILE_DIR="release-opt"
 else
-	cargo build -p kaku-gui -p kaku
-	BIN_DIR="$TARGET_DIR/debug"
+	cargo build $CARGO_TARGET_FLAG -p kaku-gui -p kaku
+	PROFILE_DIR="debug"
+fi
+
+if [[ -n "$BUILD_TARGET" ]]; then
+	BIN_DIR="$TARGET_DIR/$BUILD_TARGET/$PROFILE_DIR"
+else
+	BIN_DIR="$TARGET_DIR/$PROFILE_DIR"
 fi
 
 echo "[2/6] Preparing app bundle..."

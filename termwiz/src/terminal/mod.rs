@@ -22,6 +22,17 @@ pub mod buffered;
 #[cfg(unix)]
 pub use self::unix::{UnixTerminal, UnixTerminalWaker as TerminalWaker};
 
+#[cfg(windows)]
+#[derive(Clone)]
+pub struct TerminalWaker;
+
+#[cfg(windows)]
+impl TerminalWaker {
+    pub fn wake(&self) -> std::result::Result<(), std::io::Error> {
+        Ok(())
+    }
+}
+
 /// Represents the size of the terminal screen.
 /// The number of rows and columns of character cells are expressed.
 /// Some implementations populate the size of those cells in pixels.
@@ -119,6 +130,7 @@ pub type SystemTerminal = UnixTerminal;
 /// functioning console with minimal headaches.
 /// If you have a more advanced use case you will want to look to the
 /// constructor for `UnixTerminal` and call it directly.
+#[cfg(unix)]
 pub fn new_terminal(caps: Capabilities) -> Result<impl Terminal> {
     SystemTerminal::new(caps)
 }
