@@ -130,7 +130,15 @@ impl super::TermWindow {
                     return;
                 }
                 if press == &MousePress::Left && self.dragging.take().is_some() {
-                    // Completed a drag
+                    // Completed a split drag: notify PTY of final sizes
+                    // using the tab_id captured at drag start.
+                    if let Some(state) = self.split_drag_state.take() {
+                        let mux = Mux::get();
+                        if let Some(tab) = mux.get_tab(state.tab_id) {
+                            tab.flush_pane_pty_sizes();
+                            context.invalidate();
+                        }
+                    }
                     return;
                 }
             }
@@ -261,17 +269,48 @@ impl super::TermWindow {
         context: &dyn WindowOps,
     ) {
         let mux = Mux::get();
-        let tab = match mux.get_active_tab_for_window(self.mux_window_id) {
-            Some(tab) => tab,
-            None => return,
+
+        // On the first drag event, capture the tab_id from the active tab.
+        // All subsequent frames (and the final release) use this tab_id
+        // so we always operate on the same tab even if tabs switch mid-drag.
+        let tab = if let Some(ref state) = self.split_drag_state {
+            match mux.get_tab(state.tab_id) {
+                Some(tab) => tab,
+                None => {
+                    // Tab was closed mid-drag; clear stale state and
+                    // fall back to the current active tab.
+                    self.split_drag_state = None;
+                    let tab = match mux.get_active_tab_for_window(self.mux_window_id) {
+                        Some(tab) => tab,
+                        None => return,
+                    };
+                    self.split_drag_state = Some(super::SplitDragState {
+                        tab_id: tab.tab_id(),
+                    });
+                    tab
+                }
+            }
+        } else {
+            let tab = match mux.get_active_tab_for_window(self.mux_window_id) {
+                Some(tab) => tab,
+                None => return,
+            };
+            self.split_drag_state = Some(super::SplitDragState {
+                tab_id: tab.tab_id(),
+            });
+            tab
         };
+
         let delta = match split.direction {
             SplitDirection::Horizontal => (x as isize).saturating_sub(split.left as isize),
             SplitDirection::Vertical => (y as isize).saturating_sub(split.top as isize),
         };
 
         if delta != 0 {
-            tab.resize_split_by(split.index, delta);
+            // Use visual-only resize during drag: updates terminal state
+            // for smooth content reflow but does NOT notify the PTY,
+            // so the shell won't receive rapid SIGWINCH signals.
+            tab.resize_split_by_visual(split.index, delta);
             if let Some(split) = tab.iter_splits().into_iter().nth(split.index) {
                 item.item_type = UIItemType::Split(split);
                 context.invalidate();

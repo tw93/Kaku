@@ -362,6 +362,11 @@ enum EventState {
     InProgressWithQueued(Option<PaneId>),
 }
 
+/// State tracked during a live split-divider drag.
+struct SplitDragState {
+    tab_id: TabId,
+}
+
 pub struct TermWindow {
     pub window: Option<Window>,
     pub config: ConfigHandle,
@@ -440,6 +445,9 @@ pub struct TermWindow {
 
     ui_items: Vec<UIItem>,
     dragging: Option<(UIItem, MouseEvent)>,
+    /// Tracks state during a live split-drag so we can defer PTY
+    /// notification until the drag ends.
+    split_drag_state: Option<SplitDragState>,
 
     modal: RefCell<Option<Rc<dyn Modal>>>,
 
@@ -783,6 +791,7 @@ impl TermWindow {
             semantic_zones: HashMap::new(),
             ui_items: vec![],
             dragging: None,
+            split_drag_state: None,
             last_ui_item: None,
             is_click_to_focus_window: false,
             key_table_state: KeyTableState::default(),

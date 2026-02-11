@@ -239,6 +239,13 @@ pub trait Pane: Downcast + Send + Sync {
     fn reader(&self) -> anyhow::Result<Option<Box<dyn std::io::Read + Send>>>;
     fn writer(&self) -> MappedMutexGuard<'_, dyn std::io::Write>;
     fn resize(&self, size: TerminalSize) -> anyhow::Result<()>;
+    /// Resize terminal state only without notifying the PTY.
+    /// Used during live split-drag to provide smooth visual feedback
+    /// without sending rapid SIGWINCH to the shell.
+    /// The default implementation falls back to `resize`.
+    fn resize_visual(&self, size: TerminalSize) -> anyhow::Result<()> {
+        self.resize(size)
+    }
     /// Called as a hint that the pane is being resized as part of
     /// a zoom-to-fill-all-the-tab-space operation.
     fn set_zoomed(&self, _zoomed: bool) {}

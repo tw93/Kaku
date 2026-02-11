@@ -640,6 +640,30 @@ impl Tab {
         self.inner.lock().resize_split_by(split_index, delta)
     }
 
+    /// Like `resize_split_by` but only updates terminal state without
+    /// notifying the PTY, so the shell does not receive SIGWINCH.
+    /// Used during live split-drag for smooth visual feedback.
+    pub fn resize_split_by_visual(&self, split_index: usize, delta: isize) {
+        self.inner.lock().resize_split_by_visual(split_index, delta)
+    }
+
+    /// Notify the PTY of the current size for every pane.
+    /// Called after a visual-only split drag completes so each shell
+    /// receives exactly one SIGWINCH with the final size.
+    pub fn flush_pane_pty_sizes(&self) {
+        for pos in self.iter_panes_ignoring_zoom() {
+            let dims = pos.pane.get_dimensions();
+            let size = TerminalSize {
+                rows: pos.height,
+                cols: pos.width,
+                pixel_width: pos.pixel_width,
+                pixel_height: pos.pixel_height,
+                dpi: dims.dpi,
+            };
+            let _ = pos.pane.resize(size);
+        }
+    }
+
     /// Adjusts the size of the active pane in the specified direction
     /// by the specified amount.
     pub fn adjust_pane_size(&self, direction: PaneDirection, amount: usize) {
@@ -1291,6 +1315,35 @@ impl TabInner {
         Mux::try_get().map(|mux| mux.notify(MuxNotification::TabResized(self.id)));
     }
 
+    fn resize_split_by_visual(&mut self, split_index: usize, delta: isize) {
+        if self.zoomed.is_some() {
+            return;
+        }
+
+        let mut cursor = self.pane.take().unwrap().cursor();
+        let mut index = 0;
+
+        loop {
+            if !cursor.is_leaf() {
+                if index == split_index {
+                    break;
+                }
+                index += 1;
+            }
+            match cursor.preorder_next() {
+                Ok(c) => cursor = c,
+                Err(c) => {
+                    self.pane.replace(c.tree());
+                    return;
+                }
+            }
+        }
+
+        self.adjust_node_at_cursor(&mut cursor, delta);
+        self.cascade_size_from_cursor_visual(cursor);
+        Mux::try_get().map(|mux| mux.notify(MuxNotification::TabResized(self.id)));
+    }
+
     fn adjust_node_at_cursor(&mut self, cursor: &mut Cursor, delta: isize) {
         let cell_dimensions = self.cell_dimensions();
         if let Ok(Some(node)) = cursor.node_mut() {
@@ -1360,6 +1413,45 @@ impl TabInner {
             if cursor.is_leaf() {
                 // Apply our size to the tty
                 cursor.leaf_mut().map(|pane| pane.resize(pane_size));
+            } else {
+                self.apply_pane_size(pane_size, &mut cursor);
+            }
+            match cursor.preorder_next() {
+                Ok(c) => cursor = c,
+                Err(c) => {
+                    self.pane.replace(c.tree());
+                    break;
+                }
+            }
+        }
+        Mux::try_get().map(|mux| mux.notify(MuxNotification::TabResized(self.id)));
+    }
+
+    /// Like `cascade_size_from_cursor` but calls `resize_visual` instead of
+    /// `resize`, so only terminal state is updated without PTY notification.
+    fn cascade_size_from_cursor_visual(&mut self, mut cursor: Cursor) {
+        match cursor.preorder_next() {
+            Ok(c) => cursor = c,
+            Err(c) => {
+                self.pane.replace(c.tree());
+                return;
+            }
+        }
+        let root_size = self.size;
+
+        loop {
+            let pane_size = if let Some((branch, Some(parent))) = cursor.path_to_root().next() {
+                if branch == PathBranch::IsRight {
+                    parent.second
+                } else {
+                    parent.first
+                }
+            } else {
+                root_size
+            };
+
+            if cursor.is_leaf() {
+                cursor.leaf_mut().map(|pane| pane.resize_visual(pane_size));
             } else {
                 self.apply_pane_size(pane_size, &mut cursor);
             }

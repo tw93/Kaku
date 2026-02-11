@@ -425,6 +425,11 @@ impl Pane for LocalPane {
         Ok(())
     }
 
+    fn resize_visual(&self, size: TerminalSize) -> Result<(), Error> {
+        self.terminal.lock().resize(size);
+        Ok(())
+    }
+
     fn writer(&self) -> MappedMutexGuard<'_, dyn std::io::Write> {
         Mux::get().record_input_for_current_identity();
         MutexGuard::map(self.writer.lock(), |writer| {
