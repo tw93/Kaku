@@ -58,6 +58,8 @@ fi
 if [[ $user_version -lt 6 ]]; then
 	echo "  • Added zsh-completions to default shell setup"
 	echo "  • Richer command and subcommand Tab completion coverage"
+	echo "  • Tab now accepts inline autosuggestions first"
+	echo "  • If no suggestion is shown, Tab still performs normal completion"
 fi
 echo ""
 

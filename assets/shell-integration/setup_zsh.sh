@@ -189,6 +189,25 @@ fi
 # Load zsh-autosuggestions - Async, minimal impact
 if [[ -f "\$KAKU_ZSH_DIR/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh" ]]; then
     source "\$KAKU_ZSH_DIR/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh"
+
+    # Smart Tab: accept inline autosuggestion if present, otherwise run completion.
+    # Avoids running completion immediately after accepting a suggestion, which can
+    # introduce unexpected spacing for some command completers.
+    # Keep this widget out of autosuggestions rebinding, otherwise POSTDISPLAY is
+    # cleared before our condition check and Tab always falls back to completion.
+    typeset -ga ZSH_AUTOSUGGEST_IGNORE_WIDGETS
+    ZSH_AUTOSUGGEST_IGNORE_WIDGETS+=(kaku_tab_accept_or_complete)
+    kaku_tab_accept_or_complete() {
+        if [[ -n "\$POSTDISPLAY" ]]; then
+            zle autosuggest-accept
+        else
+            zle expand-or-complete
+        fi
+    }
+    zle -N kaku_tab_accept_or_complete
+    bindkey -M emacs '^I' kaku_tab_accept_or_complete
+    bindkey -M main '^I' kaku_tab_accept_or_complete
+    bindkey -M viins '^I' kaku_tab_accept_or_complete
 fi
 
 # Defer zsh-syntax-highlighting to first prompt (~40ms saved at startup)
