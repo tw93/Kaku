@@ -3,6 +3,7 @@ use crate::utilsprites::RenderMetrics;
 use ::window::{Dimensions, ResizeIncrement, Window, WindowOps, WindowState};
 use config::{ConfigHandle, DimensionContext};
 use mux::Mux;
+use std::path::PathBuf;
 use std::rc::Rc;
 use wezterm_font::FontConfiguration;
 use wezterm_term::TerminalSize;
@@ -452,6 +453,8 @@ impl super::TermWindow {
             // Now revise the pty size to fit the window
             self.apply_dimensions(&dimensions, None, window);
         }
+
+        persist_current_font_size(&self.config, self.fonts.get_font_scale());
     }
 
     pub fn decrease_font_size(&mut self) {
@@ -553,6 +556,84 @@ impl super::TermWindow {
             },
         )
     }
+}
+
+fn font_size_state_file() -> PathBuf {
+    config::CONFIG_DIRS
+        .first()
+        .cloned()
+        .unwrap_or_else(|| config::HOME_DIR.join(".config").join("kaku"))
+        .join(".kaku_font_size")
+}
+
+fn persist_current_font_size(config: &ConfigHandle, font_scale: f64) {
+    let file_name = font_size_state_file();
+
+    if (font_scale - 1.0).abs() < 0.0001 {
+        if let Err(err) = std::fs::remove_file(&file_name) {
+            if err.kind() != std::io::ErrorKind::NotFound {
+                log::warn!("Failed to clear persisted font size at {:?}: {:#}", file_name, err);
+            }
+        }
+        return;
+    }
+
+    if let Some(parent) = file_name.parent() {
+        if let Err(err) = config::create_user_owned_dirs(parent) {
+            log::warn!(
+                "Failed to create config directory for persisted font size {:?}: {:#}",
+                parent,
+                err
+            );
+            return;
+        }
+    }
+
+    let font_size = config.font_size * font_scale;
+    if !font_size.is_finite() || font_size <= 0.0 {
+        return;
+    }
+
+    if let Err(err) = std::fs::write(&file_name, format!("{font_size:.3}\n")) {
+        log::warn!(
+            "Failed to persist font size {} to {:?}: {:#}",
+            font_size,
+            file_name,
+            err
+        );
+    }
+}
+
+pub(super) fn load_persisted_font_scale(config: &ConfigHandle) -> Option<f64> {
+    let file_name = font_size_state_file();
+    let saved_font_size = std::fs::read_to_string(&file_name)
+        .ok()
+        .and_then(|s| s.trim().parse::<f64>().ok())?;
+
+    if !saved_font_size.is_finite() || !(2.0..=256.0).contains(&saved_font_size) {
+        log::warn!(
+            "Ignoring invalid persisted font size {} from {:?}",
+            saved_font_size,
+            file_name
+        );
+        return None;
+    }
+
+    if !config.font_size.is_finite() || config.font_size <= 0.0 {
+        return None;
+    }
+
+    let scale = saved_font_size / config.font_size;
+    if !scale.is_finite() || !(0.1..=20.0).contains(&scale) {
+        log::warn!(
+            "Ignoring invalid persisted font scale {} from {:?}",
+            scale,
+            file_name
+        );
+        return None;
+    }
+
+    Some(scale)
 }
 
 /// Computes the effective padding for the RHS.

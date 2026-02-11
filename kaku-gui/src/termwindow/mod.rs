@@ -595,6 +595,9 @@ impl TermWindow {
         let config = configuration();
         let dpi = config.dpi.unwrap_or_else(|| ::window::default_dpi()) as usize;
         let fontconfig = Rc::new(FontConfiguration::new(Some(config.clone()), dpi)?);
+        if let Some(font_scale) = resize::load_persisted_font_scale(&config) {
+            fontconfig.change_scaling(font_scale, dpi);
+        }
 
         let mux = Mux::get();
         let size = match mux.get_active_tab_for_window(mux_window_id) {
