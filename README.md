@@ -66,8 +66,9 @@ Kaku comes with a carefully curated suite of CLI tools, pre-configured for immed
 
 Kaku is fully configurable via standard Lua scripts and is 100% compatible with WezTerm configuration. It loads configuration files in the following priority order:
 
-1. **Self-Contained**: `Kaku.app/Contents/Resources/kaku.lua` handles default settings.
-2. **User Overrides**: Create `~/.config/kaku/kaku.lua` and return your configuration table.
+1. **Explicit Override**: `KAKU_CONFIG_FILE=/path/to/kaku.lua` (if set).
+2. **User Config**: `~/.config/kaku/kaku.lua`.
+3. **Bundled Fallback**: `Kaku.app/Contents/Resources/kaku.lua`.
 
 ## Why Kaku?
 

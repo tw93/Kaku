@@ -25,7 +25,7 @@ use crate::{
     default_true, default_win32_acrylic_accent_color, CellWidth, GpuInfo,
     IntegratedTitleButtonColor, KeyMapPreference, LoadedConfig, MouseEventTriggerMods, RgbaColor,
     SerialDomain, SystemBackdrop, WebGpuPowerPreference, CONFIG_DIRS, CONFIG_FILE_OVERRIDE,
-    CONFIG_OVERRIDES, CONFIG_SKIP, HOME_DIR,
+    CONFIG_OVERRIDES, CONFIG_SKIP,
 };
 use anyhow::Context;
 use luahelper::impl_lua_conversion_dynamic;
@@ -1006,7 +1006,7 @@ impl Config {
         // multiple.  In addition, it spawns a lot of subprocesses,
         // so we do this bit "by-hand"
 
-        let mut paths = vec![PathPossibility::optional(HOME_DIR.join(".kaku.lua"))];
+        let mut paths = vec![];
         for dir in CONFIG_DIRS.iter() {
             paths.push(PathPossibility::optional(dir.join("kaku.lua")))
         }
@@ -1030,8 +1030,7 @@ impl Config {
         if cfg!(target_os = "macos") {
             if let Ok(exe_name) = std::env::current_exe() {
                 if let Some(contents_dir) = exe_name.parent().and_then(|p| p.parent()) {
-                    paths.insert(
-                        0,
+                    paths.push(
                         PathPossibility::optional(contents_dir.join("Resources").join("kaku.lua")),
                     );
                 }
