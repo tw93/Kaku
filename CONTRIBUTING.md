@@ -22,8 +22,9 @@ make install-hooks
 | `make fmt-check` | Check formatting without modifying files |
 | `make check` | Compile check, catch type/syntax errors |
 | `make test` | Run unit tests |
+| `make dev` | Fast local debug: build `kaku-gui` and run from `target/debug` |
 | `make build` | Compile binaries (no app bundle) |
-| `make app` | Debug build → `dist/Kaku.app` (fastest) |
+| `make app` | Build debug app bundle → `dist/Kaku.app` |
 
 **Recommended workflow:**
 
@@ -31,7 +32,13 @@ make install-hooks
 make fmt        # format first
 make check      # verify it compiles
 make test       # run tests
-make app        # build and run when needed
+make dev        # fast local run without packaging
+```
+
+You can override log level for `make dev`:
+
+```bash
+RUST_LOG=debug make dev
 ```
 
 ## Build Release

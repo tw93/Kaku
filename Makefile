@@ -1,6 +1,8 @@
-.PHONY: all fmt fmt-check build app check test install-hooks install-tools
+.PHONY: all fmt fmt-check build app dev check test install-hooks install-tools
 
 all: build
+
+RUST_LOG ?= info
 
 test:
 	cargo nextest run
@@ -15,6 +17,10 @@ check:
 
 app:
 	PROFILE=debug ./scripts/build.sh --app-only
+
+dev:
+	cargo build $(BUILD_OPTS) -p kaku-gui
+	RUST_LOG=$(RUST_LOG) ./target/debug/kaku-gui
 
 build:
 	cargo build $(BUILD_OPTS) -p kaku -p kaku-gui -p wezterm-mux-server-impl
