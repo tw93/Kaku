@@ -558,8 +558,6 @@ pub struct TermWindow {
 
     ui_items: Vec<UIItem>,
     dragging: Option<(UIItem, MouseEvent)>,
-    /// Tracks state during a live split-drag so we can defer PTY
-    /// notification until the drag ends.
     split_drag_state: Option<SplitDragState>,
 
     modal: RefCell<Option<Rc<dyn Modal>>>,
