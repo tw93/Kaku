@@ -582,6 +582,11 @@ pub struct TermWindow {
     gl: Option<Rc<glium::backend::Context>>,
     webgpu: Option<Rc<WebGpuState>>,
     config_subscription: Option<config::ConfigSubscription>,
+
+    /// 复制成功后的 toast 提示时间戳
+    copy_toast_at: Option<Instant>,
+    /// 标记本次 mouseDown 已完成"点击复制"，mouseUp 时跳过链接打开
+    did_copy_on_click: bool,
 }
 
 impl TermWindow {
@@ -914,6 +919,8 @@ impl TermWindow {
             key_table_state: KeyTableState::default(),
             modal: RefCell::new(None),
             opengl_info: None,
+            copy_toast_at: None,
+            did_copy_on_click: false,
         };
 
         let tw = Rc::new(RefCell::new(myself));
@@ -2974,7 +2981,45 @@ impl TermWindow {
                     }
                 }
             }
-            SelectTextAtMouseCursor(mode) => self.select_text_at_mouse_cursor(*mode, pane),
+            SelectTextAtMouseCursor(mode) => {
+                let text = self.selection_text(pane);
+                if !text.is_empty() {
+                    // 有选区 → 先取坐标（释放 pane_state 借用），再查选区
+                    let click_coords = {
+                        let ps = self.pane_state(pane.pane_id());
+                        ps.mouse_terminal_coords
+                    }; // ps 借用在此释放
+                    let click_in_selection = click_coords
+                        .map(|(click_pos, stable_row)| {
+                            let sel = self.selection(pane.pane_id());
+                            let rectangular = sel.rectangular;
+                            sel.range.as_ref().map_or(false, |range| {
+                                let norm = range.normalize();
+                                norm.rows().contains(&stable_row)
+                                    && norm
+                                        .cols_for_row(stable_row, rectangular)
+                                        .contains(&click_pos.column)
+                            })
+                        })
+                        .unwrap_or(false);
+
+                    if click_in_selection {
+                        // 选区内点击 → 复制 + 清除 + toast
+                        self.copy_to_clipboard(
+                            config::keyassignment::ClipboardCopyDestination::ClipboardAndPrimarySelection,
+                            text,
+                        );
+                        self.clear_selection(pane);
+                        self.show_copy_toast();
+                        self.did_copy_on_click = true;
+                    } else {
+                        // 选区外点击 → 清除选区，开始新选择
+                        self.select_text_at_mouse_cursor(*mode, pane);
+                    }
+                } else {
+                    self.select_text_at_mouse_cursor(*mode, pane);
+                }
+            }
             ExtendSelectionToMouseCursor(mode) => {
                 self.extend_selection_at_mouse_cursor(*mode, pane)
             }
@@ -2999,23 +3044,17 @@ impl TermWindow {
                     self.emit_window_event(name, None);
                 }
             }
-            CompleteSelectionOrOpenLinkAtMouseCursor(dest) => {
-                let text = self.selection_text(pane);
-                if !text.is_empty() {
-                    self.copy_to_clipboard(*dest, text);
-                    let window = self.window.as_ref().unwrap();
-                    window.invalidate();
-                } else {
+            CompleteSelectionOrOpenLinkAtMouseCursor(_dest) => {
+                if self.did_copy_on_click {
+                    // mouseDown 已完成复制，跳过链接打开
+                    self.did_copy_on_click = false;
+                } else if self.selection_text(pane).is_empty() {
                     self.do_open_link_at_mouse_cursor(pane);
                 }
+                // 有选区时保留，不复制——等用户再次点击
             }
-            CompleteSelection(dest) => {
-                let text = self.selection_text(pane);
-                if !text.is_empty() {
-                    self.copy_to_clipboard(*dest, text);
-                    let window = self.window.as_ref().unwrap();
-                    window.invalidate();
-                }
+            CompleteSelection(_dest) => {
+                // 保留选区，不自动复制——等用户再次点击
             }
             ClearScrollback(erase_mode) => {
                 pane.erase_scrollback(*erase_mode);

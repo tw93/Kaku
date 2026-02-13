@@ -1,10 +1,18 @@
-use crate::termwindow::{RenderFrame, TermWindowNotif};
+use crate::termwindow::box_model::*;
+use crate::termwindow::render::corners::{
+    BOTTOM_LEFT_ROUNDED_CORNER, BOTTOM_RIGHT_ROUNDED_CORNER, TOP_LEFT_ROUNDED_CORNER,
+    TOP_RIGHT_ROUNDED_CORNER,
+};
+use crate::termwindow::{DimensionContext, RenderFrame, TermWindowNotif};
+use crate::utilsprites::RenderMetrics;
 use ::window::bitmaps::atlas::OutOfTextureSpace;
 use ::window::WindowOps;
 use anyhow::Context;
+use config::Dimension;
 use smol::Timer;
 use std::time::{Duration, Instant};
 use wezterm_font::ClearShapeCache;
+use window::color::LinearRgba;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum AllowImage {
@@ -275,6 +283,120 @@ impl crate::TermWindow {
             .context("paint_window_borders")?;
         drop(layers);
         self.paint_modal().context("paint_modal")?;
+        self.paint_toast().context("paint_toast")?;
+
+        Ok(())
+    }
+
+    /// 渲染 "Copied!" toast 提示
+    pub fn paint_toast(&mut self) -> anyhow::Result<()> {
+        let toast_at = match self.copy_toast_at {
+            Some(t) if t.elapsed() < Duration::from_millis(1500) => t,
+            _ => return Ok(()),
+        };
+
+        let font = self.fonts.title_font()?;
+        let metrics = RenderMetrics::with_font_metrics(&font.metrics());
+
+        // 淡出效果：最后 500ms 逐渐透明
+        let elapsed_ms = toast_at.elapsed().as_millis() as f32;
+        let alpha = if elapsed_ms > 1000.0 {
+            1.0 - (elapsed_ms - 1000.0) / 500.0
+        } else {
+            1.0
+        };
+
+        let bg_color = LinearRgba(0.15, 0.15, 0.15, 0.85 * alpha);
+        let text_color = LinearRgba(1.0, 1.0, 1.0, alpha);
+
+        let element = Element::new(&font, ElementContent::Text("Copied!".to_string()))
+            .colors(ElementColors {
+                border: BorderColor::new(bg_color.into()),
+                bg: bg_color.into(),
+                text: text_color.into(),
+            })
+            .padding(BoxDimension {
+                left: Dimension::Cells(0.75),
+                right: Dimension::Cells(0.75),
+                top: Dimension::Cells(0.25),
+                bottom: Dimension::Cells(0.25),
+            })
+            .border(BoxDimension::new(Dimension::Pixels(1.)))
+            .border_corners(Some(Corners {
+                top_left: SizedPoly {
+                    width: Dimension::Cells(0.25),
+                    height: Dimension::Cells(0.25),
+                    poly: TOP_LEFT_ROUNDED_CORNER,
+                },
+                top_right: SizedPoly {
+                    width: Dimension::Cells(0.25),
+                    height: Dimension::Cells(0.25),
+                    poly: TOP_RIGHT_ROUNDED_CORNER,
+                },
+                bottom_left: SizedPoly {
+                    width: Dimension::Cells(0.25),
+                    height: Dimension::Cells(0.25),
+                    poly: BOTTOM_LEFT_ROUNDED_CORNER,
+                },
+                bottom_right: SizedPoly {
+                    width: Dimension::Cells(0.25),
+                    height: Dimension::Cells(0.25),
+                    poly: BOTTOM_RIGHT_ROUNDED_CORNER,
+                },
+            }));
+
+        let dimensions = self.dimensions;
+        let border = self.get_os_border();
+        let top_bar_height = if self.show_tab_bar && !self.config.tab_bar_at_bottom {
+            self.tab_bar_pixel_height().unwrap_or(0.)
+        } else {
+            0.
+        };
+        // 顶部中间，紧贴 tab bar 下方
+        let approx_width = 10.0 * metrics.cell_size.width as f32;
+        let center_x = (dimensions.pixel_width as f32 - approx_width) / 2.0;
+        let top_y = border.top.get() as f32 + top_bar_height
+            + metrics.cell_size.height as f32 * 0.5;
+
+        let computed = self.compute_element(
+            &LayoutContext {
+                height: DimensionContext {
+                    dpi: dimensions.dpi as f32,
+                    pixel_max: dimensions.pixel_height as f32,
+                    pixel_cell: metrics.cell_size.height as f32,
+                },
+                width: DimensionContext {
+                    dpi: dimensions.dpi as f32,
+                    pixel_max: dimensions.pixel_width as f32,
+                    pixel_cell: metrics.cell_size.width as f32,
+                },
+                bounds: euclid::rect(
+                    center_x,
+                    top_y,
+                    approx_width,
+                    metrics.cell_size.height as f32 * 2.0,
+                ),
+                metrics: &metrics,
+                gl_state: self.render_state.as_ref().unwrap(),
+                zindex: 120,
+            },
+            &element,
+        )?;
+
+        let gl_state = self.render_state.as_ref().unwrap();
+        self.render_element(&computed, gl_state, None)?;
+
+        // 淡出期间持续重绘
+        if elapsed_ms > 1000.0 {
+            let next = Instant::now() + Duration::from_millis(16);
+            let mut anim = self.has_animation.borrow_mut();
+            match *anim {
+                Some(existing) if existing <= next => {}
+                _ => {
+                    *anim = Some(next);
+                }
+            }
+        }
 
         Ok(())
     }

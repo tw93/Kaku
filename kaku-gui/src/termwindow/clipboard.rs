@@ -3,7 +3,9 @@ use crate::TermWindow;
 use config::keyassignment::{ClipboardCopyDestination, ClipboardPasteSource};
 use mux::pane::Pane;
 use mux::Mux;
+use smol::Timer;
 use std::sync::Arc;
+use std::time::{Duration, Instant};
 use window::{Clipboard, WindowOps};
 
 impl TermWindow {
@@ -20,6 +22,25 @@ impl TermWindow {
             if let Some(c) = c {
                 self.window.as_ref().unwrap().set_clipboard(c, text.clone());
             }
+        }
+    }
+
+    /// 显示 "Copied!" toast 提示，1.5 秒后自动消失
+    pub fn show_copy_toast(&mut self) {
+        self.copy_toast_at = Some(Instant::now());
+        if let Some(window) = self.window.clone() {
+            let win = window.clone();
+            promise::spawn::spawn(async move {
+                Timer::after(Duration::from_millis(1500)).await;
+                window.notify(TermWindowNotif::Apply(Box::new(move |tw| {
+                    tw.copy_toast_at.take();
+                    win.invalidate();
+                })));
+            })
+            .detach();
+        }
+        if let Some(window) = self.window.as_ref() {
+            window.invalidate();
         }
     }
 
