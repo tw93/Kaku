@@ -237,12 +237,12 @@ impl ScreenOrAlt {
         }
     }
 
-    /// 访问主屏（无论哪个 screen 活跃）
+    /// Access the primary screen (regardless of which screen is active)
     pub fn primary_screen(&self) -> &Screen {
         &self.screen
     }
 
-    /// 可变访问主屏
+    /// Mutably access the primary screen
     pub fn primary_screen_mut(&mut self) -> &mut Screen {
         &mut self.screen
     }
@@ -331,7 +331,7 @@ pub struct TerminalState {
     last_mouse_move: Option<MouseEvent>,
     cursor_visible: bool,
 
-    /// Alt screen 时是否显示 primary screen 内容（Primary Screen Peek 模式）
+    /// Whether to show primary screen content in alt screen (Primary Screen Peek mode)
     primary_peek: bool,
 
     keyboard_encoding: KeyboardEncoding,
@@ -770,7 +770,7 @@ impl TerminalState {
         self.screen.is_alt_screen_active()
     }
 
-    /// Primary Screen Peek: alt screen 时切换渲染到 primary screen
+    /// Primary Screen Peek: switch rendering to primary screen while in alt screen
     pub fn is_primary_peek(&self) -> bool {
         self.primary_peek && self.screen.is_alt_screen_active()
     }
@@ -779,7 +779,7 @@ impl TerminalState {
         self.primary_peek = peek;
     }
 
-    /// 访问 primary screen（无论哪个 screen 活跃）
+    /// Access the primary screen (regardless of which screen is active)
     pub fn primary_screen(&self) -> &Screen {
         self.screen.primary_screen()
     }
@@ -1302,7 +1302,7 @@ impl TerminalState {
                 self.top_and_bottom_margins = 0..self.screen().physical_rows as i64;
                 self.left_and_right_margins = 0..self.screen().physical_cols;
                 self.left_and_right_margin_mode = false;
-                // 退出 alt screen 时清除 primary_peek，防止状态泄漏
+                // Clear primary_peek when exiting alt screen to prevent state leakage
                 self.primary_peek = false;
                 self.screen.activate_alt_screen(self.seqno);
                 self.screen.saved_cursor().take();

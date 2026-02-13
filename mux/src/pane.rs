@@ -318,7 +318,7 @@ pub trait Pane: Downcast + Send + Sync {
     fn is_mouse_grabbed(&self) -> bool;
     fn is_alt_screen_active(&self) -> bool;
 
-    /// Primary Screen Peek: alt screen 时查看 primary screen 历史
+    /// Primary Screen Peek: view primary screen history while in alt screen
     fn is_primary_peek(&self) -> bool {
         false
     }

@@ -49,7 +49,7 @@ impl_lua_conversion_dynamic!(RenderableDimensions);
 
 /// Implements Pane::get_cursor_position for Terminal
 pub fn terminal_get_cursor_position(term: &mut Terminal) -> StableCursorPosition {
-    // Peek 模式下隐藏光标（primary screen 光标位置已过时）
+    // Hide cursor in peek mode (primary screen cursor position is stale)
     if term.is_primary_peek() {
         return StableCursorPosition {
             x: 0,

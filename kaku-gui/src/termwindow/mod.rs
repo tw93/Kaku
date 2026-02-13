@@ -2648,7 +2648,7 @@ impl TermWindow {
     }
 
     fn scroll_to_prompt(&mut self, amount: isize, pane: &Arc<dyn Pane>) -> anyhow::Result<()> {
-        // scroll_to_prompt 离开当前视口，退出 peek 模式
+        // Exit peek mode when scroll_to_prompt leaves current viewport
         if pane.is_primary_peek() {
             pane.set_primary_peek(false);
         }
@@ -2681,7 +2681,7 @@ impl TermWindow {
             .unwrap_or(dims.physical_top) as f64
             + (amount * dims.viewport_rows as f64);
         self.set_viewport(pane.pane_id(), Some(position as isize), dims);
-        // 滚到底部时退出 peek 模式
+        // Exit peek mode when scrolling to bottom
         if pane.is_primary_peek() && self.get_viewport(pane.pane_id()).is_none() {
             pane.set_primary_peek(false);
         }
@@ -2706,7 +2706,7 @@ impl TermWindow {
         let alt = pane.is_alt_screen_active();
         let was_peeking = pane.is_primary_peek();
 
-        // Alt screen + 向上滚 → 进入 Primary Screen Peek
+        // Alt screen + scroll up → enter Primary Screen Peek
         if alt && amount < 0 && !was_peeking {
             pane.set_primary_peek(true);
         }
@@ -2719,7 +2719,7 @@ impl TermWindow {
 
         self.set_viewport(pane.pane_id(), Some(position), dims);
 
-        // 滚到底部 → 退出 peek，回到 alt screen
+        // Scroll to bottom → exit peek, return to alt screen
         if pane.is_primary_peek() && self.get_viewport(pane.pane_id()).is_none() {
             pane.set_primary_peek(false);
         }
@@ -3560,7 +3560,7 @@ impl TermWindow {
     }
 
     fn scroll_to_top(&mut self, pane: &Arc<dyn Pane>) {
-        // scroll_to_top 跳转到历史顶部，退出 peek 模式
+        // Exit peek mode when scroll_to_top jumps to scrollback top
         if pane.is_primary_peek() {
             pane.set_primary_peek(false);
         }

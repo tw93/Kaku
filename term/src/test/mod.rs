@@ -1374,24 +1374,24 @@ fn test_hyperlinks() {
     );
 }
 
-// ========== Primary Screen Peek 测试 ==========
+// ========== Primary Screen Peek Tests ==========
 
 #[test]
 fn test_primary_peek_basic() {
-    // 基础: alt screen 下设置 peek，退出 alt screen 后 peek 无效
+    // Basic: set peek in alt screen, peek should be invalid after exiting alt screen
     let mut term = TestTerm::new(5, 10, 100);
     term.print("line1\nline2\nline3\nline4\nline5");
 
-    // 进入 alt screen
+    // Enter alt screen
     term.set_mode("?1049", true);
     assert!(term.is_alt_screen_active());
     assert!(!term.is_primary_peek());
 
-    // 设置 peek
+    // Set peek
     term.set_primary_peek(true);
     assert!(term.is_primary_peek());
 
-    // 退出 alt screen → peek 应自动失效（is_primary_peek 检查 alt screen 状态）
+    // Exit alt screen → peek should automatically become invalid (is_primary_peek checks alt screen state)
     term.set_mode("?1049", false);
     assert!(!term.is_alt_screen_active());
     assert!(!term.is_primary_peek());
@@ -1399,7 +1399,7 @@ fn test_primary_peek_basic() {
 
 #[test]
 fn test_primary_peek_cleared_on_decset_exit() {
-    // DECSET 1049 退出 alt screen 时清除 primary_peek flag
+    // Clear primary_peek flag when DECSET 1049 exits alt screen
     let mut term = TestTerm::new(5, 10, 100);
     term.print("hello");
     term.set_mode("?1049", true);
@@ -1408,18 +1408,18 @@ fn test_primary_peek_cleared_on_decset_exit() {
 
     // DECSET 1049 reset
     term.set_mode("?1049", false);
-    // flag 本身应被清除，不只是 is_primary_peek() 返回 false
-    // 重新进入 alt screen 不应残留 peek
+    // The flag itself should be cleared, not just is_primary_peek() returning false
+    // Re-entering alt screen should not have residual peek
     term.set_mode("?1049", true);
     assert!(
         !term.is_primary_peek(),
-        "peek flag 不应泄漏到新 alt screen 会话"
+        "peek flag should not leak to new alt screen session"
     );
 }
 
 #[test]
 fn test_primary_peek_cleared_on_soft_reset() {
-    // Soft Reset (DECSTR) 应清除 primary_peek flag
+    // Soft Reset (DECSTR) should clear primary_peek flag
     let mut term = TestTerm::new(5, 10, 100);
     term.print("hello");
     term.set_mode("?1049", true);
@@ -1428,56 +1428,56 @@ fn test_primary_peek_cleared_on_soft_reset() {
 
     // Soft Reset
     term.soft_reset();
-    // Soft Reset 会退出 alt screen，peek flag 应被清除
-    assert!(!term.is_primary_peek(), "soft reset 后 peek 不应残留");
+    // Soft Reset exits alt screen, peek flag should be cleared
+    assert!(!term.is_primary_peek(), "peek should not remain after soft reset");
 
-    // 重新进入 alt screen 不应有残留 peek
+    // Re-entering alt screen should not have residual peek
     term.set_mode("?1049", true);
     assert!(
         !term.is_primary_peek(),
-        "soft reset 后重新进入 alt screen 不应触发 peek"
+        "re-entering alt screen after soft reset should not trigger peek"
     );
 }
 
 #[test]
 fn test_primary_peek_not_active_outside_alt_screen() {
-    // 非 alt screen 下 is_primary_peek 应始终返回 false
+    // is_primary_peek should always return false outside alt screen
     let mut term = TestTerm::new(5, 10, 100);
     term.print("hello");
     assert!(!term.is_alt_screen_active());
 
-    // 即使手动设置 flag，is_primary_peek 也返回 false
+    // Even if manually setting flag, is_primary_peek returns false
     term.set_primary_peek(true);
-    assert!(!term.is_primary_peek(), "非 alt screen 下 peek 不应激活");
+    assert!(!term.is_primary_peek(), "peek should not activate outside alt screen");
 }
 
 #[test]
 fn test_primary_peek_renders_primary_screen() {
-    // Peek 模式应显示 primary screen 的内容
-    // 注意: \n 是纯 LF，不含 CR，需要用 \r\n 让光标回到行首
+    // Peek mode should display primary screen content
+    // Note: \n is pure LF, no CR, need to use \r\n to return cursor to line start
     let mut term = TestTerm::new(3, 10, 100);
     term.print("primary1\r\nprimary2\r\nprimary3");
 
-    // 进入 alt screen，内容变空
+    // Enter alt screen, content becomes empty
     term.set_mode("?1049", true);
     term.print("alt1\r\nalt2\r\nalt3");
 
-    // 开启 peek → 应看到 primary screen
+    // Enable peek → should see primary screen
     term.set_primary_peek(true);
     assert!(term.is_primary_peek());
 
-    // 验证 primary_screen() 仍有原始内容
+    // Verify primary_screen() still has original content
     let primary_lines = term.primary_screen().visible_lines();
     let first_line = primary_lines[0].as_str();
     assert!(
         first_line.contains("primary1"),
-        "peek 应能访问 primary screen 内容"
+        "peek should be able to access primary screen content"
     );
 }
 
 #[test]
 fn test_primary_peek_no_leak_across_sessions() {
-    // 多次进出 alt screen，peek 不泄漏
+    // Multiple in/out of alt screen, peek should not leak
     let mut term = TestTerm::new(5, 10, 100);
     term.print("data");
 
@@ -1485,7 +1485,7 @@ fn test_primary_peek_no_leak_across_sessions() {
         term.set_mode("?1049", true);
         assert!(
             !term.is_primary_peek(),
-            "进入 alt screen 时 peek 应为 false"
+            "peek should be false when entering alt screen"
         );
         term.set_primary_peek(true);
         assert!(term.is_primary_peek());
@@ -1493,7 +1493,7 @@ fn test_primary_peek_no_leak_across_sessions() {
         assert!(!term.is_primary_peek());
     }
 
-    // 最后确认没有残留
+    // Finally confirm no residual
     term.set_mode("?1049", true);
-    assert!(!term.is_primary_peek(), "多轮进出后 peek 不应残留");
+    assert!(!term.is_primary_peek(), "peek should not remain after multiple rounds");
 }
