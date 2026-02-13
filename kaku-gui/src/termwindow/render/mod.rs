@@ -168,6 +168,9 @@ pub struct RenderScreenLineParams<'a> {
     pub render_metrics: RenderMetrics,
     pub shape_key: Option<LineToEleShapeCacheKey>,
     pub password_input: bool,
+
+    /// 复制飞行动画：目标坐标和进度 (0.0=开始, 1.0=结束)
+    pub selection_fly: Option<(f32, f32, f32)>, // (target_x, target_y, progress)
 }
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone)]

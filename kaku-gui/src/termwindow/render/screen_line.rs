@@ -289,20 +289,36 @@ impl crate::TermWindow {
         // This always uses a physical x position, regardles of the line
         // direction.
         let selection_pixel_range = if !params.selection.is_empty() {
-            let start = params.left_pixel_x + (params.selection.start as f32 * cell_width);
-            let width = (params.selection.end - params.selection.start) as f32 * cell_width;
+            let orig_x = params.left_pixel_x + (params.selection.start as f32 * cell_width);
+            let orig_w = (params.selection.end - params.selection.start) as f32 * cell_width;
+            let orig_y = params.top_pixel_y;
+            let orig_h = cell_height;
+
+            // 飞行动画：矩形从原位向鼠标收缩
+            let (rx, ry, rw, rh, bg) = if let Some((tx, ty, t)) = params.selection_fly {
+                let dest_w = 2.0_f32;
+                let dest_h = 2.0_f32;
+                let rx = orig_x + (tx - orig_x) * t;
+                let ry = orig_y + (ty - orig_y) * t;
+                let rw = orig_w + (dest_w - orig_w) * t;
+                let rh = orig_h + (dest_h - orig_h) * t;
+                (rx, ry, rw.max(1.0), rh.max(1.0), params.selection_bg)
+            } else {
+                (orig_x, orig_y, orig_w, orig_h, params.selection_bg)
+            };
+
             let mut quad = self
                 .filled_rectangle(
                     layers,
                     0,
-                    euclid::rect(start, params.top_pixel_y, width, cell_height),
-                    params.selection_bg,
+                    euclid::rect(rx, ry, rw, rh),
+                    bg,
                 )
                 .context("filled_rectangle")?;
 
             quad.set_hsv(hsv);
 
-            start..start + width
+            orig_x..orig_x + orig_w
         } else {
             0.0..0.0
         };

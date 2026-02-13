@@ -317,14 +317,121 @@ impl crate::TermWindow {
             .context("filled_rectangle")?;
         }
 
-        let (selrange, rectangular) = {
+        // 获取活跃选区、淡出选区、或飞行动画选区
+        const SELECTION_FADE_DURATION: f32 = 0.3; // 300ms 淡出
+        const COPY_FLY_DURATION: f32 = 0.4; // 400ms 飞行
+
+        // 超时兜底：防止 tab 切换后 copy_fly 残留（2 秒安全上限）
+        if self
+            .copy_fly
+            .as_ref()
+            .map_or(false, |f| f.started.elapsed().as_secs_f32() > 2.0)
+        {
+            self.copy_fly = None;
+        }
+
+        // 飞行动画进度（ease-out cubic）
+        let fly_info: Option<(f32, f32, f32)> = if let Some(ref fly) = self.copy_fly {
+            if fly.pane_id == pos.pane.pane_id() {
+                let elapsed = fly.started.elapsed().as_secs_f32();
+                let t = (elapsed / COPY_FLY_DURATION).min(1.0);
+                let eased = 1.0 - (1.0 - t).powi(3); // ease-out cubic
+                if t < 1.0 {
+                    Some((fly.target_x, fly.target_y, eased))
+                } else {
+                    None // 动画结束
+                }
+            } else {
+                None
+            }
+        } else {
+            None
+        };
+
+        // 先检查是否有活跃选区（优先级最高，会取消所有动画）
+        let (active_range, active_rect) = {
             let sel = self.selection(pos.pane.pane_id());
             (sel.range.clone(), sel.rectangular)
         };
 
+        // 有活跃选区时立即取消飞行动画（Fix #3: 新选区优先）
+        let fly_info = if active_range.is_some() {
+            if self
+                .copy_fly
+                .as_ref()
+                .map_or(false, |f| f.pane_id == pos.pane.pane_id())
+            {
+                self.copy_fly = None;
+            }
+            None
+        } else {
+            fly_info
+        };
+
+        let (selrange, rectangular, selection_fade_alpha) = if let Some((_tx, _ty, progress)) =
+            fly_info
+        {
+            // 飞行动画期间：使用 copy_fly 的选区
+            let fly = self.copy_fly.as_ref().unwrap();
+            let alpha = 1.0 - progress * 0.7; // 1.0 → 0.3
+            (Some(fly.range.clone()), fly.rectangular, alpha)
+        } else {
+            // 清理已结束的飞行动画
+            if self
+                .copy_fly
+                .as_ref()
+                .map_or(false, |f| f.pane_id == pos.pane.pane_id())
+            {
+                self.copy_fly = None;
+            }
+
+            if active_range.is_some() {
+                self.fading_selection = None;
+                (active_range, active_rect, 1.0f32)
+            } else if let Some(ref fade) = self.fading_selection {
+                if fade.pane_id == pos.pane.pane_id() {
+                    let elapsed = fade.started.elapsed().as_secs_f32();
+                    let alpha = (1.0 - elapsed / SELECTION_FADE_DURATION).max(0.0);
+                    if alpha > 0.0 {
+                        (Some(fade.range.clone()), fade.rectangular, alpha)
+                    } else {
+                        (None, false, 1.0)
+                    }
+                } else {
+                    (active_range, active_rect, 1.0)
+                }
+            } else {
+                (active_range, active_rect, 1.0)
+            }
+        };
+        // 清理过期的淡出选区
+        if let Some(ref fade) = self.fading_selection {
+            if fade.started.elapsed().as_secs_f32() >= SELECTION_FADE_DURATION {
+                self.fading_selection = None;
+            }
+        }
+        // 动画期间持续重绘 (16ms ≈ 60fps)
+        let has_anim = fly_info.is_some()
+            || (selection_fade_alpha > 0.0 && selection_fade_alpha < 1.0);
+        if has_anim {
+            let next = Instant::now() + std::time::Duration::from_millis(16);
+            let mut anim = self.has_animation.borrow_mut();
+            match *anim {
+                Some(existing) if existing <= next => {}
+                _ => {
+                    *anim = Some(next);
+                }
+            }
+        }
+
         let start = Instant::now();
-        let selection_fg = palette.selection_fg.to_linear();
-        let selection_bg = palette.selection_bg.to_linear();
+        // 飞行/淡出时：fg 设为透明让文字保持原色
+        let selection_fg = if selection_fade_alpha < 1.0 {
+            LinearRgba::TRANSPARENT
+        } else {
+            palette.selection_fg.to_linear()
+        };
+        let selection_bg = palette.selection_bg.to_linear().mul_alpha(selection_fade_alpha);
         let cursor_fg = palette.cursor_fg.to_linear();
         let cursor_bg = palette.cursor_bg.to_linear();
         let cursor_is_default_color =
@@ -364,6 +471,10 @@ impl crate::TermWindow {
                 window_is_transparent: bool,
                 layers: &'a mut TripleLayerQuadAllocator<'b>,
                 error: Option<anyhow::Error>,
+                /// 飞行动画参数: (target_x, target_y, progress)
+                selection_fly: Option<(f32, f32, f32)>,
+                /// 动画期间绕过行缓存（飞行或淡出）
+                bypass_line_cache: bool,
             }
 
             // Content starts exactly at the cell position allocated by the mux gutter.
@@ -402,6 +513,8 @@ impl crate::TermWindow {
                 window_is_transparent,
                 layers,
                 error: None,
+                selection_fly: fly_info,
+                bypass_line_cache: has_anim,
             };
 
             impl<'a, 'b> LineRender<'a, 'b> {
@@ -479,28 +592,31 @@ impl crate::TermWindow {
                         reverse_video: self.dims.reverse_video,
                     };
 
-                    if let Some(cached_quad) =
-                        self.term_window.line_quad_cache.borrow_mut().get(&quad_key)
-                    {
-                        let expired = cached_quad
-                            .expires
-                            .map(|i| Instant::now() >= i)
-                            .unwrap_or(false);
-                        let hover_changed = if cached_quad.invalidate_on_hover_change {
-                            !same_hyperlink(
-                                cached_quad.current_highlight.as_ref(),
-                                self.term_window.current_highlight.as_ref(),
-                            )
-                        } else {
-                            false
-                        };
-                        if !expired && !hover_changed {
-                            cached_quad
-                                .layers
-                                .apply_to(self.layers)
-                                .context("cached_quad.layers.apply_to")?;
-                            self.term_window.update_next_frame_time(cached_quad.expires);
-                            return Ok(());
+                    // 飞行动画期间跳过行缓存（每帧位置都变）
+                    if !self.bypass_line_cache {
+                        if let Some(cached_quad) =
+                            self.term_window.line_quad_cache.borrow_mut().get(&quad_key)
+                        {
+                            let expired = cached_quad
+                                .expires
+                                .map(|i| Instant::now() >= i)
+                                .unwrap_or(false);
+                            let hover_changed = if cached_quad.invalidate_on_hover_change {
+                                !same_hyperlink(
+                                    cached_quad.current_highlight.as_ref(),
+                                    self.term_window.current_highlight.as_ref(),
+                                )
+                            } else {
+                                false
+                            };
+                            if !expired && !hover_changed {
+                                cached_quad
+                                    .layers
+                                    .apply_to(self.layers)
+                                    .context("cached_quad.layers.apply_to")?;
+                                self.term_window.update_next_frame_time(cached_quad.expires);
+                                return Ok(());
+                            }
                         }
                     }
 
@@ -559,6 +675,7 @@ impl crate::TermWindow {
                                 render_metrics: self.term_window.render_metrics,
                                 shape_key: Some(shape_key),
                                 password_input,
+                                selection_fly: self.selection_fly,
                             },
                             &mut TripleLayerQuadAllocator::Heap(&mut buf),
                         )
@@ -570,21 +687,24 @@ impl crate::TermWindow {
                     buf.apply_to(self.layers)
                         .context("HeapQuadAllocator::apply_to")?;
 
-                    let quad_value = LineQuadCacheValue {
-                        layers: buf,
-                        expires,
-                        invalidate_on_hover_change: render_result.invalidate_on_hover_change,
-                        current_highlight: if render_result.invalidate_on_hover_change {
-                            self.term_window.current_highlight.clone()
-                        } else {
-                            None
-                        },
-                    };
+                    // 飞行动画期间不写入缓存（变形矩形会污染后续正常渲染）
+                    if !self.bypass_line_cache {
+                        let quad_value = LineQuadCacheValue {
+                            layers: buf,
+                            expires,
+                            invalidate_on_hover_change: render_result.invalidate_on_hover_change,
+                            current_highlight: if render_result.invalidate_on_hover_change {
+                                self.term_window.current_highlight.clone()
+                            } else {
+                                None
+                            },
+                        };
 
-                    self.term_window
-                        .line_quad_cache
-                        .borrow_mut()
-                        .put(quad_key, quad_value);
+                        self.term_window
+                            .line_quad_cache
+                            .borrow_mut()
+                            .put(quad_key, quad_value);
+                    }
 
                     Ok(())
                 }

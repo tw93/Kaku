@@ -12,7 +12,7 @@ use crate::overlay::{
 use crate::resize_increment_calculator::ResizeIncrementCalculator;
 use crate::scripting::guiwin::GuiWin;
 use crate::scrollbar::*;
-use crate::selection::Selection;
+use crate::selection::{Selection, SelectionRange};
 use crate::shapecache::*;
 use crate::tabbar::{TabBarItem, TabBarState};
 use crate::termwindow::background::{
@@ -587,6 +587,28 @@ pub struct TermWindow {
     copy_toast_at: Option<Instant>,
     /// 标记本次 mouseDown 已完成"点击复制"，mouseUp 时跳过链接打开
     did_copy_on_click: bool,
+    /// 选区淡出动画状态
+    pub(crate) fading_selection: Option<FadingSelection>,
+    /// 复制时选区飞向鼠标的动画
+    pub(crate) copy_fly: Option<CopyFlyAnimation>,
+}
+
+/// 选区清除后的淡出动画数据
+pub(crate) struct FadingSelection {
+    pub range: SelectionRange,
+    pub rectangular: bool,
+    pub pane_id: PaneId,
+    pub started: Instant,
+}
+
+/// 复制时选区"飞向鼠标"的动画数据
+pub(crate) struct CopyFlyAnimation {
+    pub range: SelectionRange,
+    pub rectangular: bool,
+    pub pane_id: PaneId,
+    pub started: Instant,
+    pub target_x: f32, // 鼠标像素坐标（窗口内）
+    pub target_y: f32,
 }
 
 impl TermWindow {
@@ -921,6 +943,8 @@ impl TermWindow {
             opengl_info: None,
             copy_toast_at: None,
             did_copy_on_click: false,
+            fading_selection: None,
+            copy_fly: None,
         };
 
         let tw = Rc::new(RefCell::new(myself));
@@ -3004,11 +3028,29 @@ impl TermWindow {
                         .unwrap_or(false);
 
                     if click_in_selection {
-                        // 选区内点击 → 复制 + 清除 + toast
+                        // 选区内点击 → 复制 + 飞行动画 + toast
                         self.copy_to_clipboard(
                             config::keyassignment::ClipboardCopyDestination::ClipboardAndPrimarySelection,
                             text,
                         );
+                        // 创建飞行动画（在 clear_selection 之前，用选区数据）
+                        if let Some(mouse_evt) = self.current_mouse_event.as_ref() {
+                            let (tx, ty) =
+                                (mouse_evt.coords.x as f32, mouse_evt.coords.y as f32);
+                            let sel = self.selection(pane.pane_id());
+                            if let Some(range) = sel.range.clone() {
+                                let rectangular = sel.rectangular;
+                                drop(sel);
+                                self.copy_fly = Some(CopyFlyAnimation {
+                                    range,
+                                    rectangular,
+                                    pane_id: pane.pane_id(),
+                                    started: Instant::now(),
+                                    target_x: tx,
+                                    target_y: ty,
+                                });
+                            }
+                        }
                         self.clear_selection(pane);
                         self.show_copy_toast();
                         self.did_copy_on_click = true;

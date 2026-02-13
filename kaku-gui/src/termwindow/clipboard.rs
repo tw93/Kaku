@@ -25,9 +25,25 @@ impl TermWindow {
         }
     }
 
-    /// 显示 "Copied!" toast 提示，1.5 秒后自动消失
+    /// 显示 "Copied!" toast 提示，1.5 秒后自动消失，并播放轻柔提示音
     pub fn show_copy_toast(&mut self) {
         self.copy_toast_at = Some(Instant::now());
+        // 播放 macOS 系统提示音（Tink，轻柔短促）
+        #[cfg(target_os = "macos")]
+        {
+            use cocoa::base::{id, nil};
+            use cocoa::foundation::NSString;
+            use objc::{class, msg_send, sel, sel_impl};
+            unsafe {
+                // soundNamed: 接受 &NSString，用 autorelease 避免泄漏
+                let name: id = msg_send![NSString::alloc(nil).init_str("Tink"), autorelease];
+                let sound: id = msg_send![class!(NSSound), soundNamed: name];
+                if sound != nil {
+                    let () = msg_send![sound, setVolume: 0.3_f32];
+                    let () = msg_send![sound, play];
+                }
+            }
+        }
         if let Some(window) = self.window.clone() {
             let win = window.clone();
             promise::spawn::spawn(async move {

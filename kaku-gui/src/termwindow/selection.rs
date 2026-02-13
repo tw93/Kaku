@@ -1,8 +1,10 @@
 use crate::selection::{Selection, SelectionCoordinate, SelectionMode, SelectionRange, SelectionX};
+use crate::termwindow::FadingSelection;
 use ::window::WindowOps;
 use mux::pane::{Pane, PaneId};
 use std::cell::RefMut;
 use std::sync::Arc;
+use std::time::Instant;
 use termwiz::surface::Line;
 use wezterm_term::StableRowIndex;
 
@@ -110,10 +112,34 @@ impl super::TermWindow {
     }
 
     pub fn clear_selection(&mut self, pane: &Arc<dyn Pane>) {
+        // copy_fly 动画已接管该 pane 的选区视觉效果，跳过普通淡出
+        let has_fly = self
+            .copy_fly
+            .as_ref()
+            .map_or(false, |f| f.pane_id == pane.pane_id());
+        if !has_fly {
+            self.start_selection_fade(pane.pane_id());
+        }
         let mut selection = self.selection(pane.pane_id());
         selection.clear();
         selection.seqno = pane.get_current_seqno();
         self.window.as_ref().unwrap().invalidate();
+    }
+
+    /// 保存当前选区到淡出动画状态（如果有选区的话）
+    fn start_selection_fade(&mut self, pane_id: PaneId) {
+        let (range, rectangular) = {
+            let sel = self.selection(pane_id);
+            (sel.range.clone(), sel.rectangular)
+        };
+        if let Some(range) = range {
+            self.fading_selection = Some(FadingSelection {
+                range,
+                rectangular,
+                pane_id,
+                started: Instant::now(),
+            });
+        }
     }
 
     pub fn extend_selection_at_mouse_cursor(&mut self, mode: SelectionMode, pane: &Arc<dyn Pane>) {
@@ -241,6 +267,8 @@ impl super::TermWindow {
     }
 
     pub fn select_text_at_mouse_cursor(&mut self, mode: SelectionMode, pane: &Arc<dyn Pane>) {
+        // 保存旧选区用于淡出动画
+        self.start_selection_fade(pane.pane_id());
         let (x, y) = match self.pane_state(pane.pane_id()).mouse_terminal_coords {
             Some(coords) => (coords.0.column, coords.1),
             None => return,

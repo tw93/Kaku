@@ -109,6 +109,7 @@ window.workspace = true
 
 [target.'cfg(target_os="macos")'.dependencies]
 cocoa.workspace = true
+objc.workspace = true
 
 [target.'cfg(windows)'.dependencies]
 shared_library.workspace = true

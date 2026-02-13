@@ -2454,6 +2454,7 @@ dependencies = [
  "mux",
  "mux-lua",
  "nucleo-matcher",
+ "objc",
  "ordered-float 4.6.0",
  "parking_lot",
  "portable-pty",
