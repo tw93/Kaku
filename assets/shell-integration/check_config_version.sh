@@ -8,7 +8,7 @@ YELLOW='\033[1;33m'
 BOLD='\033[1m'
 NC='\033[0m'
 
-CURRENT_CONFIG_VERSION=6
+CURRENT_CONFIG_VERSION=7
 VERSION_FILE="$HOME/.config/kaku/.kaku_config_version"
 
 detect_login_shell() {
@@ -96,6 +96,11 @@ if [[ $user_version -lt 6 ]]; then
 	echo "  • Richer command and subcommand Tab completion coverage"
 	echo "  • Tab now accepts inline autosuggestions first"
 	echo "  • If no suggestion is shown, Tab still performs normal completion"
+fi
+if [[ $user_version -lt 7 ]]; then
+	echo "  • Migrate legacy inline Kaku shell blocks out of .zshrc"
+	echo "  • Keep only one Kaku source line in .zshrc"
+	echo "  • Hide default cloud context segments in Starship prompt"
 fi
 echo ""
 

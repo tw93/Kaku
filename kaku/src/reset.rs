@@ -32,6 +32,10 @@ mod imp {
     use super::*;
 
     const KAKU_SOURCE_PATTERN: &str = "kaku/zsh/kaku.zsh";
+    const KAKU_LEGACY_INLINE_MARKER: &str = "# Kaku Shell Integration";
+    const KAKU_LEGACY_INLINE_VAR: &str = "KAKU_ZSH_DIR";
+    const KAKU_LEGACY_SYNTAX_HINT: &str =
+        "zsh-syntax-highlighting/zsh-syntax-highlighting.zsh";
 
     const KAKU_GIT_DEFAULTS: &[(&str, &str)] = &[
         ("core.pager", "delta"),
@@ -190,23 +194,37 @@ mod imp {
 
         let original =
             std::fs::read_to_string(&zshrc).with_context(|| format!("read {}", zshrc.display()))?;
-        if !original.contains(KAKU_SOURCE_PATTERN) {
-            report.skipped(format!("no Kaku source line found in {}", zshrc.display()));
-            return Ok(());
-        }
-
         let filtered: Vec<&str> = original
             .lines()
             .filter(|line| !line.contains(KAKU_SOURCE_PATTERN))
             .collect();
+        let removed_source_line = filtered.len() != original.lines().count();
 
         let mut updated = filtered.join("\n");
         if !updated.is_empty() {
             updated.push('\n');
         }
 
+        let (updated, removed_legacy_block) = strip_legacy_inline_block(&updated);
+        if !removed_source_line && !removed_legacy_block {
+            report.skipped(format!("no Kaku shell integration found in {}", zshrc.display()));
+            return Ok(());
+        }
+
         std::fs::write(&zshrc, updated).with_context(|| format!("write {}", zshrc.display()))?;
-        report.changed(format!("removed Kaku source line from {}", zshrc.display()));
+        if removed_source_line && removed_legacy_block {
+            report.changed(format!(
+                "removed Kaku source line and legacy inline block from {}",
+                zshrc.display()
+            ));
+        } else if removed_source_line {
+            report.changed(format!("removed Kaku source line from {}", zshrc.display()));
+        } else {
+            report.changed(format!(
+                "removed legacy inline Kaku block from {}",
+                zshrc.display()
+            ));
+        }
         Ok(())
     }
 
@@ -348,6 +366,71 @@ mod imp {
             merged.push('\n');
         }
 
+        (merged, true)
+    }
+
+    fn strip_legacy_inline_block(content: &str) -> (String, bool) {
+        let lines: Vec<&str> = content.lines().collect();
+        if lines.is_empty() {
+            return (content.to_string(), false);
+        }
+
+        let mut out = Vec::with_capacity(lines.len());
+        let mut i = 0usize;
+        let mut changed = false;
+
+        while i < lines.len() {
+            let current = lines[i].trim();
+            if current == KAKU_LEGACY_INLINE_MARKER {
+                let mut j = i + 1;
+                let mut saw_kaku_var = false;
+                let mut saw_syntax_line = false;
+                let mut end = None;
+
+                while j < lines.len() {
+                    let line = lines[j];
+                    if line.contains(KAKU_LEGACY_INLINE_VAR) {
+                        saw_kaku_var = true;
+                    }
+                    if line.contains(KAKU_LEGACY_SYNTAX_HINT) {
+                        saw_syntax_line = true;
+                    }
+                    if saw_syntax_line && line.trim() == "fi" {
+                        end = Some(j);
+                        break;
+                    }
+                    if j.saturating_sub(i) > 600 {
+                        break;
+                    }
+                    j += 1;
+                }
+
+                if saw_kaku_var {
+                    if let Some(end_idx) = end {
+                        changed = true;
+                        i = end_idx + 1;
+                        while i < lines.len() && lines[i].trim().is_empty() {
+                            i += 1;
+                        }
+                        continue;
+                    } else {
+                        return (content.to_string(), false);
+                    }
+                }
+            }
+
+            out.push(lines[i]);
+            i += 1;
+        }
+
+        if !changed {
+            return (content.to_string(), false);
+        }
+
+        let mut merged = out.join("\n");
+        if !merged.is_empty() {
+            merged.push('\n');
+        }
         (merged, true)
     }
 

@@ -20,3 +20,24 @@ disabled = true
 
 [lua]
 disabled = true
+
+[aws]
+disabled = true
+
+[gcloud]
+disabled = true
+
+[azure]
+disabled = true
+
+[kubernetes]
+disabled = true
+
+[openstack]
+disabled = true
+
+[docker_context]
+disabled = true
+
+[terraform]
+disabled = true

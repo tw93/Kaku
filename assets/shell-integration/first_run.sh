@@ -8,7 +8,7 @@ set -euo pipefail
 # when optional setup steps fail on user machines.
 persist_config_version() {
 	mkdir -p "$HOME/.config/kaku"
-	echo "6" >"$HOME/.config/kaku/.kaku_config_version"
+	echo "7" >"$HOME/.config/kaku/.kaku_config_version"
 }
 trap persist_config_version EXIT
 
@@ -85,6 +85,11 @@ echo "  - z - Smart Directory Jumper"
 echo "  - zsh-completions - Rich Tab Completions"
 echo "  - Zsh Syntax Highlighting"
 echo "  - Zsh Autosuggestions"
+echo ""
+echo "Shell config model:"
+echo "  - Kaku writes managed shell config to ~/.config/kaku/zsh/kaku.zsh"
+echo "  - .zshrc only gets one source line"
+echo "  - You can roll back anytime with: kaku reset"
 echo "--------------------------------------------------------"
 echo ""
 

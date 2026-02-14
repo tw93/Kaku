@@ -64,6 +64,14 @@ KAKU_INIT_FILE="$USER_CONFIG_DIR/kaku.zsh"
 STARSHIP_CONFIG="$HOME/.config/starship.toml"
 ZSHRC="${ZDOTDIR:-$HOME}/.zshrc"
 BACKUP_SUFFIX=".kaku-backup-$(date +%s)"
+ZSHRC_BACKED_UP=0
+
+backup_zshrc_once() {
+	if [[ -f "$ZSHRC" ]] && [[ "$ZSHRC_BACKED_UP" -eq 0 ]]; then
+		cp "$ZSHRC" "$ZSHRC$BACKUP_SUFFIX"
+		ZSHRC_BACKED_UP=1
+	fi
+}
 
 # Ensure vendor resources exist
 if [[ ! -d "$VENDOR_DIR" ]]; then
@@ -106,11 +114,39 @@ cp -R "$VENDOR_DIR/zsh-completions" "$USER_CONFIG_DIR/plugins/"
 echo -e "  ${GREEN}✓${NC} ${BOLD}Tools${NC}       Installed Starship & Zsh plugins ${NC}(~/.config/kaku/zsh)${NC}"
 
 # Copy Starship Config (if not exists)
+STARSHIP_CONFIG_CREATED=false
 if [[ ! -f "$STARSHIP_CONFIG" ]]; then
 	if [[ -f "$VENDOR_DIR/starship.toml" ]]; then
 		mkdir -p "$(dirname "$STARSHIP_CONFIG")"
 		cp "$VENDOR_DIR/starship.toml" "$STARSHIP_CONFIG"
+		STARSHIP_CONFIG_CREATED=true
 		echo -e "  ${GREEN}✓${NC} ${BOLD}Config${NC}      Initialized starship.toml ${NC}(~/.config/starship.toml)${NC}"
+	fi
+fi
+
+# Keep default prompt clean for local development.
+# User-owned starship.toml should not be modified after creation.
+if [[ "$STARSHIP_CONFIG_CREATED" == "true" ]] && [[ -f "$STARSHIP_CONFIG" ]]; then
+	starship_cloud_patched=false
+
+	ensure_starship_cloud_module_disabled() {
+		local module="$1"
+		if ! grep -Eq "^[[:space:]]*\\[$module\\]" "$STARSHIP_CONFIG"; then
+			cat <<EOF >>"$STARSHIP_CONFIG"
+
+[$module]
+disabled = true
+EOF
+			starship_cloud_patched=true
+		fi
+	}
+
+	for module in aws gcloud azure kubernetes openstack docker_context terraform; do
+		ensure_starship_cloud_module_disabled "$module"
+	done
+
+	if [[ "$starship_cloud_patched" == "true" ]]; then
+		echo -e "  ${GREEN}✓${NC} ${BOLD}Prompt${NC}      Initialized cloud context defaults in starship.toml"
 	fi
 fi
 
@@ -271,14 +307,87 @@ echo -e "  ${GREEN}✓${NC} ${BOLD}Script${NC}      Generated kaku.zsh init scri
 # 4. Configure .zshrc
 SOURCE_LINE="[[ -f \"\$HOME/.config/kaku/zsh/kaku.zsh\" ]] && source \"\$HOME/.config/kaku/zsh/kaku.zsh\" # Kaku Shell Integration"
 
+# Migrate legacy inline block from older versions to the single source-line model.
+cleanup_legacy_inline_block() {
+	if [[ ! -f "$ZSHRC" ]]; then
+		return
+	fi
+
+	if ! grep -q "^# Kaku Shell Integration$" "$ZSHRC"; then
+		return
+	fi
+
+	if ! grep -q "zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" "$ZSHRC"; then
+		return
+	fi
+
+	if ! grep -q "KAKU_ZSH_DIR" "$ZSHRC"; then
+		return
+	fi
+
+	local tmp_file
+	tmp_file="$(mktemp "${TMPDIR:-/tmp}/kaku-zshrc.XXXXXX")"
+
+	if awk '
+BEGIN { in_block = 0; saw_syntax = 0; saw_kaku_var = 0 }
+{
+	if (!in_block && $0 == "# Kaku Shell Integration") {
+		in_block = 1
+		saw_syntax = 0
+		saw_kaku_var = 0
+		next
+	}
+
+	if (in_block) {
+		if ($0 ~ /KAKU_ZSH_DIR/) {
+			saw_kaku_var = 1
+			next
+		}
+
+		if ($0 ~ /zsh-syntax-highlighting\/zsh-syntax-highlighting\.zsh/) {
+			saw_syntax = 1
+			next
+		}
+
+		if (saw_kaku_var && saw_syntax && $0 ~ /^[[:space:]]*fi[[:space:]]*$/) {
+			in_block = 0
+			saw_syntax = 0
+			saw_kaku_var = 0
+			next
+		}
+
+		next
+	}
+
+	print
+}
+END {
+	if (in_block) {
+		exit 42
+	}
+}
+' "$ZSHRC" >"$tmp_file"; then
+		if ! cmp -s "$ZSHRC" "$tmp_file"; then
+			backup_zshrc_once
+			mv "$tmp_file" "$ZSHRC"
+			echo -e "  ${GREEN}✓${NC} ${BOLD}Migrate${NC}     Removed legacy inline Kaku block from .zshrc"
+		else
+			rm -f "$tmp_file"
+		fi
+	else
+		rm -f "$tmp_file"
+		echo -e "${YELLOW}Warning: found legacy Kaku block but failed to migrate it safely; leaving .zshrc unchanged.${NC}"
+	fi
+}
+
+cleanup_legacy_inline_block
+
 # Check if the source line already exists
 if grep -q "kaku/zsh/kaku.zsh" "$ZSHRC" 2>/dev/null; then
 	echo -e "  ${GREEN}✓${NC} ${BOLD}Integrate${NC}   Already linked in .zshrc"
 else
 	# Backup existing .zshrc only if it doesn't have Kaku logic yet
-	if [[ -f "$ZSHRC" ]]; then
-		cp "$ZSHRC" "$ZSHRC$BACKUP_SUFFIX"
-	fi
+	backup_zshrc_once
 
 	# Append the single source line
 	echo -e "\n$SOURCE_LINE" >>"$ZSHRC"
