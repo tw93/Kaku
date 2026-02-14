@@ -482,6 +482,22 @@ impl CommandDef {
                         ));
                         menu.add_item(&reload_item);
 
+                        let set_default_terminal_item = MenuItem::new_with(
+                            "Set as Default Terminal",
+                            Some(kaku_perform_key_assignment_sel),
+                            "",
+                        );
+                        set_default_terminal_item.set_tool_tip(
+                            "Set Kaku as the default terminal for shell scripts and executables",
+                        );
+                        set_default_terminal_item
+                            .set_represented_item(RepresentedItem::KeyAssignment(
+                                KeyAssignment::EmitEvent(
+                                    crate::frontend::SET_DEFAULT_TERMINAL_EVENT.to_string(),
+                                ),
+                            ));
+                        menu.add_item(&set_default_terminal_item);
+
                         menu.add_item(&MenuItem::new_separator());
 
                         let check_update = MenuItem::new_with(

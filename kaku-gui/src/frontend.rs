@@ -19,6 +19,8 @@ use std::sync::{Arc, Mutex};
 use wezterm_term::{Alert, ClipboardSelection};
 use wezterm_toast_notification::*;
 
+pub const SET_DEFAULT_TERMINAL_EVENT: &str = "set-default-terminal";
+
 pub struct GuiFrontEnd {
     connection: Rc<Connection>,
     switching_workspaces: RefCell<bool>,
@@ -114,6 +116,45 @@ pub fn open_kaku_config() {
             .detach();
         }
     });
+}
+
+pub fn set_default_terminal_with_feedback() {
+    fn show_window_toast(message: &str) -> bool {
+        let windows = front_end().gui_windows();
+        if windows.is_empty() {
+            return false;
+        }
+
+        for gui in windows {
+            let text = message.to_string();
+            gui.window.notify(TermWindowNotif::Apply(Box::new(move |tw| {
+                tw.show_toast(text);
+            })));
+        }
+
+        true
+    }
+
+    match Connection::get() {
+        Some(conn) => match conn.set_default_terminal() {
+            Ok(()) => {
+                let message = "Kaku is now the default terminal";
+                if !show_window_toast(message) {
+                    conn.alert("Default Terminal", message);
+                }
+            }
+            Err(err) => {
+                let message = format!("Failed to set Kaku as default terminal: {err:#}");
+                log::error!("{message}");
+                if !show_window_toast("Failed to set default terminal") {
+                    conn.alert("Default Terminal", &message);
+                }
+            }
+        },
+        None => {
+            log::error!("Cannot set default terminal because no GUI connection is available");
+        }
+    }
 }
 
 impl GuiFrontEnd {
@@ -422,6 +463,9 @@ impl GuiFrontEnd {
                     }
                     KeyAssignment::EmitEvent(event) if event == "open-kaku-config" => {
                         open_kaku_config();
+                    }
+                    KeyAssignment::EmitEvent(event) if event == SET_DEFAULT_TERMINAL_EVENT => {
+                        set_default_terminal_with_feedback();
                     }
                     KeyAssignment::ReloadConfiguration => {
                         // Reload is handled by the active window showing a toast

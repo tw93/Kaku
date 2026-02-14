@@ -3022,6 +3022,24 @@ impl TermWindow {
                     pane.writer().write_all(b"kaku\n")?;
                 } else if name == "open-kaku-config" {
                     crate::frontend::open_kaku_config();
+                } else if name == crate::frontend::SET_DEFAULT_TERMINAL_EVENT {
+                    match Connection::get() {
+                        Some(conn) => match conn.set_default_terminal() {
+                            Ok(()) => {
+                                self.show_toast("Kaku is now the default terminal".to_string());
+                            }
+                            Err(err) => {
+                                log::error!("Failed to set Kaku as default terminal: {err:#}");
+                                self.show_toast("Failed to set default terminal".to_string());
+                            }
+                        },
+                        None => {
+                            log::error!(
+                                "Cannot set default terminal because no GUI connection is available"
+                            );
+                            self.show_toast("Failed to set default terminal".to_string());
+                        }
+                    }
                 } else {
                     self.emit_window_event(name, None);
                 }

@@ -82,6 +82,13 @@ pub trait ConnectionOps {
         false
     }
 
+    /// Set this app as the system default terminal handler.
+    fn set_default_terminal(&self) -> Fallible<()> {
+        Err(anyhow::anyhow!(
+            "setting default terminal is not supported on this platform"
+        ))
+    }
+
     /// Perform the system beep/notification sound
     fn beep(&self) {}
 
