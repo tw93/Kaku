@@ -1249,6 +1249,10 @@ fi
 # Guard: only define if no existing ssh function is present, so user-defined
 # wrappers (e.g. from fzf-ssh, autossh plugins) are not silently replaced.
 if ! typeset -f ssh > /dev/null 2>&1; then
+    # Remove any existing alias to allow function definition
+    if alias ssh > /dev/null 2>&1; then
+        unalias ssh
+    fi
 ssh() {
     local -a extra_opts=()
 

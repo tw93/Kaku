@@ -44,6 +44,10 @@ esac
 # Set KAKU_SSH_SKIP_TERM_FIX=1 to disable. If the user already defined ssh(),
 # keep their function untouched.
 if ! typeset -f ssh >/dev/null 2>&1; then
+    # Remove any existing alias to allow function definition
+    if alias ssh > /dev/null 2>&1; then
+        unalias ssh
+    fi
   ssh() {
     if [[ -z "${KAKU_SSH_SKIP_TERM_FIX-}" && "${TERM:-}" == "kaku" ]]; then
       TERM=xterm-256color command ssh "$@"
