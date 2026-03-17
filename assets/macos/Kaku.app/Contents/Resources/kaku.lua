@@ -2426,6 +2426,14 @@ wezterm.on('bell', function(window, pane)
   _bell_panes[tostring(pane:pane_id())] = true
 end)
 
+local function evict_stale_bell_panes(live_pane_ids)
+  for pane_id in pairs(_bell_panes) do
+    if not live_pane_ids[pane_id] then
+      _bell_panes[pane_id] = nil
+    end
+  end
+end
+
 wezterm.on('format-tab-title', function(tab, tabs, _, effective_config, hover, max_width)
   -- Evict stale cache only on the first tab to avoid O(n²) across the render cycle
   if tab.tab_index == 0 then
@@ -2436,6 +2444,7 @@ wezterm.on('format-tab-title', function(tab, tabs, _, effective_config, hover, m
       end
     end
     evict_stale_cache(live_pane_ids)
+    evict_stale_bell_panes(live_pane_ids)
   end
 
   -- Use user-set tab title if available
@@ -2953,6 +2962,7 @@ config.pane_close_confirmation = false
 config.enable_tab_bar = true
 config.tab_bar_at_bottom = true
 config.use_fancy_tab_bar = false
+config.bell_tab_indicator = false
 config.tab_max_width = 32
 config.hide_tab_bar_if_only_one_tab = true
 config.show_tab_index_in_tab_bar = true

@@ -20,3 +20,5 @@
 15	Tab and pane close protection defaults are available in the bundled config and Settings TUI for safer multi-pane workflows
 16	Homebrew installed in a non-standard path (e.g. ~/homebrew) is now detected correctly during kaku init
 16	Bundled shell setup now keeps helper paths working when Homebrew lives outside the standard macOS prefixes
+17	Background tabs now show a bell prefix in the bundled tab bar, and the previous duplicate unread-bell dot is disabled
+17	内置标签栏现在会为后台标签显示铃声前缀提示，并关闭原先重复的未读铃声圆点
