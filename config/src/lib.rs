@@ -780,6 +780,7 @@ end
 -- 8) Tab bar
 -- config.hide_tab_bar_if_only_one_tab = true
 -- config.tab_bar_at_bottom = true
+-- config.tab_title_show_basename_only = true
 --
 -- 9) Working directory inheritance
 -- config.window_inherit_working_directory = true

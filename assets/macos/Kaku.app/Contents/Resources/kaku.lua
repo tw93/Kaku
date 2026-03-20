@@ -104,6 +104,7 @@ local user_has_custom_padding = false
 local user_has_custom_font = false
 local user_has_custom_font_rules = false
 local remember_last_cwd = true
+local tab_title_show_basename_only = false
 
 local function check_user_custom_config()
   local user_config_path = kaku_user_config_path()
@@ -129,6 +130,9 @@ local function check_user_custom_config()
       end
       if trimmed:match('^config%.remember_last_cwd%s*=%s*false') then
         remember_last_cwd = false
+      end
+      if trimmed:match('^config%.tab_title_show_basename_only%s*=%s*true') then
+        tab_title_show_basename_only = true
       end
     end
   end
@@ -2521,7 +2525,7 @@ wezterm.on('format-tab-title', function(tab, tabs, _, effective_config, hover, m
   if text == '' then
     local parent, current = tab_path_parts(tab)
     text = current
-    if parent ~= '' and current ~= '' then
+    if not tab_title_show_basename_only and parent ~= '' and current ~= '' then
       text = parent .. '/' .. current
     end
   end

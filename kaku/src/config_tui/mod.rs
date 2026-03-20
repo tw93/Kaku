@@ -320,6 +320,15 @@ impl App {
             },
             ConfigField {
                 section: "Window",
+                key: "Basename-only Tab Titles",
+                lua_key: "tab_title_show_basename_only",
+                value: String::new(),
+                default: "Off".into(),
+                options: vec!["On", "Off"],
+                skip_write: false,
+            },
+            ConfigField {
+                section: "Window",
                 key: "Scrollbar",
                 lua_key: "enable_scroll_bar",
                 value: String::new(),
@@ -676,7 +685,8 @@ impl App {
             | "pane_close_confirmation"
             | "bell_tab_indicator"
             | "bell_dock_badge"
-            | "remember_last_cwd" => {
+            | "remember_last_cwd"
+            | "tab_title_show_basename_only" => {
                 if raw == "true" {
                     Some("On".into())
                 } else if raw == "false" {
@@ -1182,7 +1192,8 @@ impl App {
             | "pane_close_confirmation"
             | "bell_tab_indicator"
             | "bell_dock_badge"
-            | "remember_last_cwd" => {
+            | "remember_last_cwd"
+            | "tab_title_show_basename_only" => {
                 if field.value == "On" {
                     "true".into()
                 } else {
@@ -1396,6 +1407,31 @@ mod tests {
         );
         assert_eq!(
             App::normalize_value("enable_scroll_bar", "false"),
+            Some("Off".into())
+        );
+    }
+
+    #[test]
+    fn basename_only_tab_titles_default_to_off() {
+        let app = test_app();
+        let field = app
+            .fields
+            .iter()
+            .find(|f| f.lua_key == "tab_title_show_basename_only")
+            .expect("tab_title_show_basename_only field to exist");
+
+        assert_eq!(field.default, "Off");
+        assert_eq!(app.to_lua_value(field), "false");
+    }
+
+    #[test]
+    fn normalize_basename_only_tab_titles_bool_values() {
+        assert_eq!(
+            App::normalize_value("tab_title_show_basename_only", "true"),
+            Some("On".into())
+        );
+        assert_eq!(
+            App::normalize_value("tab_title_show_basename_only", "false"),
             Some("Off".into())
         );
     }
