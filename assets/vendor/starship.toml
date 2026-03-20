@@ -2,7 +2,7 @@
 
 add_newline = false
 command_timeout = 10000
-format = "$directory$git_branch$package$character"
+format = "$directory$git_branch$python$conda$package$character"
 
 [directory]
 truncate_to_repo = true
@@ -17,6 +17,20 @@ format = "$symbol"
 
 [git_branch]
 format = " [$symbol$branch(:$remote_branch)]($style)"
+
+[python]
+format = ' [\($virtualenv\)]($style)'
+style = 'bold green'
+python_binary = ['python3', 'python']
+detect_extensions = []
+detect_files = []
+detect_folders = []
+detect_env_vars = ['VIRTUAL_ENV']
+
+[conda]
+format = ' [\($environment\)]($style)'
+style = 'bold green'
+ignore_base = false
 
 [package]
 format = " is [$symbol$version]($style)"
