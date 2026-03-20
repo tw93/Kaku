@@ -320,7 +320,7 @@ impl App {
             },
             ConfigField {
                 section: "Window",
-                key: "Basename-only Tab Titles",
+                key: "Short Tab Titles",
                 lua_key: "tab_title_show_basename_only",
                 value: String::new(),
                 default: "Off".into(),

@@ -503,6 +503,11 @@ pub struct Config {
     #[dynamic(default)]
     pub tab_bar_at_bottom: bool,
 
+    /// If true, auto-generated tab titles use only the current folder name
+    /// instead of the default parent/current path pair.
+    #[dynamic(default)]
+    pub tab_title_show_basename_only: bool,
+
     #[dynamic(default = "default_true")]
     pub mouse_wheel_scrolls_tabs: bool,
 
