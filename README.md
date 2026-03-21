@@ -128,7 +128,7 @@ config.color_overrides = {
 }
 ```
 
-Run `kaku` in your terminal to see all available commands such as `kaku ai`, `kaku config`, `kaku doctor`, `kaku update`, `kaku reset`, and `kaku set-tab-title`.
+Run `kaku` in your terminal to see all available commands such as `kaku ai`, `kaku config`, `kaku doctor`, `kaku update`, and `kaku reset`.
 
 ## Kaku AI
 
