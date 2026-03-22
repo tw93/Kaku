@@ -3597,7 +3597,8 @@ impl TermWindow {
         let position = self
             .effective_viewport(pane)
             .unwrap_or(dims.physical_top)
-            .saturating_add(amount);
+            .saturating_add(amount)
+            .max(dims.scrollback_top);
 
         self.reveal_scrollbar();
         self.set_viewport(pane.pane_id(), Some(position), dims);
