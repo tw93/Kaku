@@ -1394,6 +1394,14 @@ impl super::TermWindow {
             return;
         }
 
+        if bypass_wheel_assignment_in_alt {
+            if let Err(err) = self.scroll_by_current_event_wheel_delta(&pane) {
+                log::debug!("scroll_by_current_event_wheel_delta failed: {err:#}");
+            }
+            context.invalidate();
+            return;
+        }
+
         if allow_action && !self.edge_drag_in_progress && !bypass_wheel_assignment_in_alt {
             if let Some(mut event_trigger_type) = event_trigger_type {
                 self.current_event = Some(event_trigger_type.to_dynamic());
