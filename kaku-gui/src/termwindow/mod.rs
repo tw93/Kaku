@@ -933,6 +933,7 @@ impl TermWindow {
 
     fn close_requested(&mut self, _window: &Window) {
         let mux = Mux::get();
+        let _ = crate::session_restore::save_window_snapshot(self.mux_window_id);
         match self.config.window_close_confirmation {
             WindowCloseConfirmation::NeverPrompt => {
                 mux.kill_window(self.mux_window_id);

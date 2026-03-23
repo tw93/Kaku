@@ -340,27 +340,37 @@ impl GuiFrontEnd {
                         if let Err(err) = mux.focus_pane_and_containing_tab(pane_id) {
                             log::error!("Error reconciling PaneFocused notification: {err:#}");
                         }
-                        crate::session_restore::schedule_snapshot_save();
                     })
                     .detach();
                 }
-                MuxNotification::TabTitleChanged { .. } => {
-                    crate::session_restore::schedule_snapshot_save();
+                MuxNotification::TabTitleChanged { tab_id, .. } => {
+                    let mux = Mux::get();
+                    if let Some(window_id) = mux.window_containing_tab(tab_id) {
+                        crate::session_restore::request_save_window_snapshot(window_id);
+                    }
                 }
-                MuxNotification::WindowTitleChanged { .. } => {
-                    crate::session_restore::schedule_snapshot_save();
+                MuxNotification::WindowTitleChanged { window_id, .. } => {
+                    crate::session_restore::request_save_window_snapshot(window_id);
                 }
-                MuxNotification::TabResized(_) => {}
-                MuxNotification::TabAddedToWindow { .. } => {}
-                MuxNotification::PaneRemoved(_) => {
-                    crate::session_restore::schedule_snapshot_save();
+                MuxNotification::TabResized(tab_id) => {
+                    let mux = Mux::get();
+                    if let Some(window_id) = mux.window_containing_tab(tab_id) {
+                        crate::session_restore::request_save_window_snapshot(window_id);
+                    }
                 }
-                MuxNotification::WindowInvalidated(_) => {
-                    crate::session_restore::schedule_snapshot_save();
+                MuxNotification::TabAddedToWindow { window_id, .. } => {
+                    crate::session_restore::request_save_window_snapshot(window_id);
+                }
+                MuxNotification::PaneRemoved(_) => {}
+                MuxNotification::WindowInvalidated(window_id) => {
+                    crate::session_restore::request_save_window_snapshot(window_id);
                 }
                 MuxNotification::PaneOutput(_) => {}
-                MuxNotification::PaneAdded(_) => {
-                    crate::session_restore::schedule_snapshot_save();
+                MuxNotification::PaneAdded(pane_id) => {
+                    let mux = Mux::get();
+                    if let Some((_, window_id, _)) = mux.resolve_pane_id(pane_id) {
+                        crate::session_restore::request_save_window_snapshot(window_id);
+                    }
                 }
                 MuxNotification::Alert {
                     pane_id,

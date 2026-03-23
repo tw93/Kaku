@@ -669,6 +669,15 @@ impl MuxWindowBuilder {
             .detach();
         }
     }
+
+    pub fn cancel(mut self) {
+        self.notified = true;
+        if let Some(activity) = self.activity.take() {
+            drop(activity);
+        }
+        let mux = Mux::get();
+        mux.kill_window(self.window_id);
+    }
 }
 
 impl Drop for MuxWindowBuilder {
