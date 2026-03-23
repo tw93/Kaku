@@ -236,6 +236,7 @@ impl CommandDef {
             // Window menu
             ToggleFullScreen,
             Hide,
+            RestorePreviousWindow,
             ToggleAlwaysOnTop,
             ToggleAlwaysOnBottom,
             ActivateWindowRelative(-1),
@@ -355,6 +356,7 @@ impl CommandDef {
                     | SplitVertical(_)
                     | Search(_)
                     | QuickSelect
+                    | RestorePreviousWindow
                     | ShowLauncher
                     | ShowLauncherArgs(_)
                     | ShowTabNavigator
@@ -740,6 +742,7 @@ impl CommandDef {
                 "Window" => match action {
                     Hide => 10,
                     ToggleFullScreen => 12,
+                    RestorePreviousWindow => 15,
                     ActivateWindowRelative(-1) => 20,
                     ActivateWindowRelative(1) => 21,
                     ActivateWindow(_) => 22,
@@ -1180,6 +1183,14 @@ pub fn derive_command_from_key_assignment(action: &KeyAssignment) -> Option<Comm
             keys: vec![],
             args: &[ArgType::ActiveWindow],
             menubar: &[],
+            icon: None,
+        },
+        RestorePreviousWindow => CommandDef {
+            brief: "Restore Previous Window".into(),
+            doc: "Restore the last saved multi-tab window snapshot".into(),
+            keys: vec![],
+            args: &[],
+            menubar: &["Window"],
             icon: None,
         },
         HideApplication => CommandDef {
@@ -2550,6 +2561,7 @@ fn compute_default_actions() -> Vec<KeyAssignment> {
         // ----------------- Window
         ToggleFullScreen,
         Hide,
+        RestorePreviousWindow,
         Search(Pattern::CurrentSelectionOrEmptyString),
         PaneSelect(PaneSelectArguments {
             alphabet: String::new(),

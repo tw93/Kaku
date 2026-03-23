@@ -340,17 +340,28 @@ impl GuiFrontEnd {
                         if let Err(err) = mux.focus_pane_and_containing_tab(pane_id) {
                             log::error!("Error reconciling PaneFocused notification: {err:#}");
                         }
+                        crate::session_restore::schedule_snapshot_save();
                     })
                     .detach();
                 }
-                MuxNotification::TabTitleChanged { .. } => {}
-                MuxNotification::WindowTitleChanged { .. } => {}
+                MuxNotification::TabTitleChanged { .. } => {
+                    crate::session_restore::schedule_snapshot_save();
+                }
+                MuxNotification::WindowTitleChanged { .. } => {
+                    crate::session_restore::schedule_snapshot_save();
+                }
                 MuxNotification::TabResized(_) => {}
                 MuxNotification::TabAddedToWindow { .. } => {}
-                MuxNotification::PaneRemoved(_) => {}
-                MuxNotification::WindowInvalidated(_) => {}
+                MuxNotification::PaneRemoved(_) => {
+                    crate::session_restore::schedule_snapshot_save();
+                }
+                MuxNotification::WindowInvalidated(_) => {
+                    crate::session_restore::schedule_snapshot_save();
+                }
                 MuxNotification::PaneOutput(_) => {}
-                MuxNotification::PaneAdded(_) => {}
+                MuxNotification::PaneAdded(_) => {
+                    crate::session_restore::schedule_snapshot_save();
+                }
                 MuxNotification::Alert {
                     pane_id,
                     alert:
@@ -677,6 +688,9 @@ impl GuiFrontEnd {
                     KeyAssignment::EmitEvent(event) if event == SET_DEFAULT_TERMINAL_EVENT => {
                         set_default_terminal_with_feedback();
                     }
+                    KeyAssignment::RestorePreviousWindow => {
+                        crate::session_restore::restore_previous_window_from_menu();
+                    }
                     KeyAssignment::ReloadConfiguration => {
                         // Manual reload is intentionally disabled.
                     }
@@ -947,6 +961,13 @@ impl GuiFrontEnd {
             }
         }
         None
+    }
+
+    pub fn focused_mux_window_id(&self) -> Option<MuxWindowId> {
+        let mux = Mux::get();
+        mux.resolve_focused_pane(&self.client_id)
+            .map(|(_, window_id, _, _)| window_id)
+            .or_else(|| self.gui_windows().first().map(|w| w.mux_window_id))
     }
 }
 

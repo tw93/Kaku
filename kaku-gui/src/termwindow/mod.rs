@@ -3828,6 +3828,9 @@ impl TermWindow {
             }
             CloseCurrentTab { confirm } => self.close_current_tab(*confirm),
             CloseCurrentPane { confirm } => self.close_current_pane(*confirm),
+            RestorePreviousWindow => {
+                crate::session_restore::restore_previous_window_from_menu();
+            }
             ReopenLastClosedTab => {
                 if let Some(cwd) = self.pop_closed_tab_cwd() {
                     let spawn = SpawnCommand {

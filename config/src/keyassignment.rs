@@ -682,6 +682,7 @@ pub enum KeyAssignment {
         confirm: bool,
     },
     ReopenLastClosedTab,
+    RestorePreviousWindow,
     ReloadConfiguration,
     MoveTabRelative(isize),
     MoveTab(usize),

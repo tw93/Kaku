@@ -102,6 +102,7 @@ mod resize_increment_calculator;
 mod scripting;
 mod scrollbar;
 mod selection;
+mod session_restore;
 mod shapecache;
 mod spawn;
 mod startup_trace;
@@ -843,6 +844,9 @@ fn main() {
     notify_on_panic();
     if let Err(e) = run() {
         terminate_with_error(e);
+    }
+    if let Err(err) = session_restore::save_focused_window_snapshot() {
+        log::warn!("failed to save last window snapshot on exit: {err:#}");
     }
     Mux::shutdown();
     frontend::shutdown();
