@@ -199,7 +199,13 @@ fn build_snapshot_for_window(
         .get_window(window_id)
         .ok_or_else(|| anyhow!("window {window_id} not found"))?;
 
-    if window.len() <= 1 {
+    let tab_count = window.len();
+    let pane_count: usize = window
+        .iter()
+        .map(|tab| tab.iter_panes_ignoring_zoom().len())
+        .sum();
+
+    if tab_count <= 1 && pane_count <= 1 {
         return Ok(None);
     }
 
