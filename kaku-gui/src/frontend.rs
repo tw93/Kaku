@@ -343,15 +343,8 @@ impl GuiFrontEnd {
                     })
                     .detach();
                 }
-                MuxNotification::TabTitleChanged { tab_id, .. } => {
-                    let mux = Mux::get();
-                    if let Some(window_id) = mux.window_containing_tab(tab_id) {
-                        crate::session_restore::request_save_window_snapshot(window_id);
-                    }
-                }
-                MuxNotification::WindowTitleChanged { window_id, .. } => {
-                    crate::session_restore::request_save_window_snapshot(window_id);
-                }
+                MuxNotification::TabTitleChanged { .. } => {}
+                MuxNotification::WindowTitleChanged { .. } => {}
                 MuxNotification::TabResized(tab_id) => {
                     let mux = Mux::get();
                     if let Some(window_id) = mux.window_containing_tab(tab_id) {
@@ -362,9 +355,7 @@ impl GuiFrontEnd {
                     crate::session_restore::request_save_window_snapshot(window_id);
                 }
                 MuxNotification::PaneRemoved(_) => {}
-                MuxNotification::WindowInvalidated(window_id) => {
-                    crate::session_restore::request_save_window_snapshot(window_id);
-                }
+                MuxNotification::WindowInvalidated(_) => {}
                 MuxNotification::PaneOutput(_) => {}
                 MuxNotification::PaneAdded(pane_id) => {
                     let mux = Mux::get();
