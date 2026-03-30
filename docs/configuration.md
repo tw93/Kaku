@@ -91,6 +91,16 @@ config.window_background_opacity = 0.92
 config.macos_window_background_blur = 20  -- optional blur (0–100)
 ```
 
+**Traffic lights (macOS)**
+
+By default, Kaku embeds the macOS traffic light buttons into the tab bar area using `INTEGRATED_BUTTONS|RESIZE`. To hide the traffic lights while keeping resize edges and tab-bar dragging:
+
+```lua
+config.window_decorations = "RESIZE"
+```
+
+`RESIZE` preserves the ability to resize the window from its edges and drag it by the tab bar — it only removes the close/minimize/zoom buttons.
+
 **Padding**
 
 ```lua
