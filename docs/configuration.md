@@ -99,7 +99,7 @@ By default, Kaku embeds the macOS traffic light buttons into the tab bar area us
 config.window_decorations = "RESIZE"
 ```
 
-`RESIZE` preserves the ability to resize the window from its edges and drag it by the tab bar — it only removes the close/minimize/zoom buttons.
+`RESIZE` preserves the ability to resize the window from its edges and drag it by the tab bar; it only removes the close/minimize/zoom buttons.
 
 **Padding**
 

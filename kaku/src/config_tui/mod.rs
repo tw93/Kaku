@@ -249,6 +249,8 @@ struct App {
     dirty: bool,
     /// True if save_config() was called at least once (for signaling on exit)
     has_saved: bool,
+    /// Preserve whether the current window_decorations state keeps resize edges.
+    window_decorations_resize: bool,
 }
 
 impl App {
@@ -439,6 +441,7 @@ impl App {
             select_index: 0,
             dirty: false,
             has_saved: false,
+            window_decorations_resize: true,
         }
     }
 
@@ -486,7 +489,7 @@ impl App {
         }
 
         // Load window_decorations into the Traffic Lights / Shadow pseudo-fields.
-        Self::load_window_decorations(&content, &mut self.fields);
+        self.load_window_decorations(&content);
     }
 
     /// Returns true if a non-commented `config.<key>` assignment exists in content.
@@ -507,13 +510,13 @@ impl App {
 
     /// Parse the raw `window_decorations` value from the Lua file and populate
     /// the two pseudo-fields (`__wdeco_traffic_lights__` and `__wdeco_shadow__`).
-    fn load_window_decorations(content: &str, fields: &mut [ConfigField]) {
+    fn load_window_decorations(&mut self, content: &str) {
         let raw = match Self::extract_lua_value(content, "window_decorations") {
             Some(val) => val,
             None => {
                 // Line exists but value is unparseable (e.g. wezterm.* API call).
                 if Self::has_config_line(content, "window_decorations") {
-                    for f in fields.iter_mut() {
+                    for f in self.fields.iter_mut() {
                         if f.lua_key == "__wdeco_traffic_lights__"
                             || f.lua_key == "__wdeco_shadow__"
                         {
@@ -528,9 +531,10 @@ impl App {
         let is_supported = Self::parse_window_decorations(&raw).is_some();
         // Always extract the recognizable bits so that toggling one field
         // does not silently flip the other when the value is unsupported.
-        let (traffic_lights, shadow) = Self::extract_window_decoration_bits(&raw);
+        let (traffic_lights, shadow, resize) = Self::extract_window_decoration_state(&raw);
+        self.window_decorations_resize = resize;
 
-        for f in fields.iter_mut() {
+        for f in self.fields.iter_mut() {
             if f.lua_key == "__wdeco_traffic_lights__" {
                 f.value = if traffic_lights { "On" } else { "Off" }.into();
                 if !is_supported {
@@ -545,9 +549,10 @@ impl App {
         }
     }
 
-    /// Decompose a raw `window_decorations` string into (traffic_lights_on, shadow_on).
+    /// Decompose a raw `window_decorations` string into
+    /// (traffic_lights_on, shadow_on, resize_on).
     /// Returns `None` for unsupported flag combinations.
-    fn parse_window_decorations(raw: &str) -> Option<(bool, bool)> {
+    fn parse_window_decorations(raw: &str) -> Option<(bool, bool, bool)> {
         let value = raw.trim().trim_matches('\'').trim_matches('"');
         let flags: Vec<&str> = value.split('|').map(|s| s.trim()).collect();
 
@@ -555,37 +560,44 @@ impl App {
         let has_resize = flags.iter().any(|&f| f == "RESIZE");
         let has_shadow_off = flags.iter().any(|&f| f == "MACOS_FORCE_DISABLE_SHADOW");
 
-        if !has_resize {
+        if !has_ib && !has_resize {
             return None;
         }
 
-        let expected_count = has_ib as usize + 1 + has_shadow_off as usize;
+        let expected_count = has_ib as usize + has_resize as usize + has_shadow_off as usize;
         if flags.len() != expected_count {
             return None;
         }
 
-        Some((has_ib, !has_shadow_off))
+        Some((has_ib, !has_shadow_off, has_resize))
     }
 
-    /// Best-effort extraction of the two modeled bits from any `window_decorations`
+    /// Best-effort extraction of the modeled bits from any `window_decorations`
     /// string, including unsupported combinations. Used so that toggling one field
     /// does not silently flip the other when the original value had extra flags.
-    fn extract_window_decoration_bits(raw: &str) -> (bool, bool) {
+    fn extract_window_decoration_state(raw: &str) -> (bool, bool, bool) {
         let value = raw.trim().trim_matches('\'').trim_matches('"');
         let flags: Vec<&str> = value.split('|').map(|s| s.trim()).collect();
         let has_ib = flags.iter().any(|&f| f == "INTEGRATED_BUTTONS");
+        let has_resize = flags.iter().any(|&f| f == "RESIZE");
         let has_shadow_off = flags.iter().any(|&f| f == "MACOS_FORCE_DISABLE_SHADOW");
-        (has_ib, !has_shadow_off)
+        (has_ib, !has_shadow_off, has_resize)
     }
 
     /// Build the Lua-ready `window_decorations` value (with quotes) from the two
     /// boolean states.
-    fn compose_window_decorations(traffic_lights: bool, shadow: bool) -> &'static str {
-        match (traffic_lights, shadow) {
-            (true, true) => "'INTEGRATED_BUTTONS|RESIZE'",
-            (true, false) => "'INTEGRATED_BUTTONS|RESIZE|MACOS_FORCE_DISABLE_SHADOW'",
-            (false, true) => "'RESIZE'",
-            (false, false) => "'RESIZE|MACOS_FORCE_DISABLE_SHADOW'",
+    fn compose_window_decorations(
+        traffic_lights: bool,
+        shadow: bool,
+        resize: bool,
+    ) -> &'static str {
+        match (traffic_lights, shadow, resize) {
+            (true, true, true) => "'INTEGRATED_BUTTONS|RESIZE'",
+            (true, true, false) => "'INTEGRATED_BUTTONS'",
+            (true, false, true) => "'INTEGRATED_BUTTONS|RESIZE|MACOS_FORCE_DISABLE_SHADOW'",
+            (true, false, false) => "'INTEGRATED_BUTTONS|MACOS_FORCE_DISABLE_SHADOW'",
+            (false, true, true) | (false, true, false) => "'RESIZE'",
+            (false, false, true) | (false, false, false) => "'RESIZE|MACOS_FORCE_DISABLE_SHADOW'",
         }
     }
 
@@ -1080,11 +1092,16 @@ impl App {
             if !tl.skip_write || !sh.skip_write {
                 let tl_on = self.display_value(tl) == "On";
                 let sh_on = self.display_value(sh) == "On";
-                if tl_on && sh_on {
+                let resize = if tl_on {
+                    self.window_decorations_resize
+                } else {
+                    true
+                };
+                if tl_on && sh_on && resize {
                     // Default state: remove explicit override so bundled default applies.
                     content = self.remove_lua_config(&content, "window_decorations");
                 } else {
-                    let lua_value = Self::compose_window_decorations(tl_on, sh_on);
+                    let lua_value = Self::compose_window_decorations(tl_on, sh_on, resize);
                     content = self.set_lua_config(&content, "window_decorations", lua_value);
                 }
             }
@@ -1803,19 +1820,30 @@ mod tests {
     // ── window_decorations: Traffic Lights + Shadow ───────────────────
 
     #[test]
-    fn parse_window_decorations_all_four_supported_values() {
+    fn parse_window_decorations_all_six_supported_values() {
+        assert_eq!(
+            App::parse_window_decorations("INTEGRATED_BUTTONS"),
+            Some((true, true, false))
+        );
         assert_eq!(
             App::parse_window_decorations("INTEGRATED_BUTTONS|RESIZE"),
-            Some((true, true))
+            Some((true, true, true))
         );
-        assert_eq!(App::parse_window_decorations("RESIZE"), Some((false, true)));
+        assert_eq!(
+            App::parse_window_decorations("RESIZE"),
+            Some((false, true, true))
+        );
+        assert_eq!(
+            App::parse_window_decorations("INTEGRATED_BUTTONS|MACOS_FORCE_DISABLE_SHADOW"),
+            Some((true, false, false))
+        );
         assert_eq!(
             App::parse_window_decorations("INTEGRATED_BUTTONS|RESIZE|MACOS_FORCE_DISABLE_SHADOW"),
-            Some((true, false))
+            Some((true, false, true))
         );
         assert_eq!(
             App::parse_window_decorations("RESIZE|MACOS_FORCE_DISABLE_SHADOW"),
-            Some((false, false))
+            Some((false, false, true))
         );
     }
 
@@ -1830,18 +1858,26 @@ mod tests {
     }
 
     #[test]
-    fn window_decorations_load_all_four_supported_values() {
+    fn window_decorations_load_all_six_supported_values() {
         let cases = [
-            ("INTEGRATED_BUTTONS|RESIZE", "On", "On"),
-            ("RESIZE", "Off", "On"),
+            ("INTEGRATED_BUTTONS", "On", "On", false),
+            ("INTEGRATED_BUTTONS|RESIZE", "On", "On", true),
+            (
+                "INTEGRATED_BUTTONS|MACOS_FORCE_DISABLE_SHADOW",
+                "On",
+                "Off",
+                false,
+            ),
             (
                 "INTEGRATED_BUTTONS|RESIZE|MACOS_FORCE_DISABLE_SHADOW",
                 "On",
                 "Off",
+                true,
             ),
-            ("RESIZE|MACOS_FORCE_DISABLE_SHADOW", "Off", "Off"),
+            ("RESIZE", "Off", "On", true),
+            ("RESIZE|MACOS_FORCE_DISABLE_SHADOW", "Off", "Off", true),
         ];
-        for (lua_val, expected_tl, expected_shadow) in &cases {
+        for (lua_val, expected_tl, expected_shadow, expected_resize) in &cases {
             let dir = tempdir().expect("tempdir");
             let config_path = dir.path().join("kaku.lua");
             std::fs::write(
@@ -1874,6 +1910,11 @@ mod tests {
                 sh.value.as_str(),
                 *expected_shadow,
                 "shadow for {}",
+                lua_val
+            );
+            assert_eq!(
+                app.window_decorations_resize, *expected_resize,
+                "resize for {}",
                 lua_val
             );
             assert!(!tl.skip_write, "tl skip_write for {}", lua_val);
@@ -1938,6 +1979,61 @@ mod tests {
                 ),
             }
         }
+    }
+
+    #[test]
+    fn window_decorations_integrated_buttons_no_resize_preserved_on_save() {
+        let dir = tempdir().expect("tempdir");
+        let config_path = dir.path().join("kaku.lua");
+        std::fs::write(
+            &config_path,
+            "local wezterm = require 'wezterm'\nlocal config = {}\nconfig.window_decorations = \"INTEGRATED_BUTTONS\"\nreturn config\n",
+        )
+        .expect("write config");
+
+        let mut app = App::new(config_path.clone());
+        app.load_config();
+        app.save_config().expect("save_config");
+
+        let content = std::fs::read_to_string(&config_path).expect("read config");
+        assert!(
+            content.contains("config.window_decorations = 'INTEGRATED_BUTTONS'"),
+            "expected INTEGRATED_BUTTONS to be preserved, got:\n{}",
+            content
+        );
+    }
+
+    #[test]
+    fn window_decorations_integrated_buttons_no_resize_preserved_on_shadow_toggle() {
+        let dir = tempdir().expect("tempdir");
+        let config_path = dir.path().join("kaku.lua");
+        std::fs::write(
+            &config_path,
+            "local wezterm = require 'wezterm'\nlocal config = {}\nconfig.window_decorations = \"INTEGRATED_BUTTONS\"\nreturn config\n",
+        )
+        .expect("write config");
+
+        let mut app = App::new(config_path.clone());
+        app.load_config();
+
+        let shadow_idx = app
+            .fields
+            .iter()
+            .position(|f| f.lua_key == "__wdeco_shadow__")
+            .unwrap();
+        app.selected = shadow_idx;
+        app.start_edit();
+
+        app.save_config().expect("save_config");
+
+        let content = std::fs::read_to_string(&config_path).expect("read config");
+        assert!(
+            content.contains(
+                "config.window_decorations = 'INTEGRATED_BUTTONS|MACOS_FORCE_DISABLE_SHADOW'"
+            ),
+            "expected shadow toggle to preserve no-resize integrated buttons, got:\n{}",
+            content
+        );
     }
 
     #[test]
