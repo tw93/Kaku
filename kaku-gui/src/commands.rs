@@ -1101,6 +1101,14 @@ pub fn derive_command_from_key_assignment(action: &KeyAssignment) -> Option<Comm
             menubar: &["Edit"],
             icon: None,
         },
+        SelectAll => CommandDef {
+            brief: "Select all".into(),
+            doc: "Selects all visible text in the active pane".into(),
+            keys: vec![(Modifiers::SUPER, "a".into())],
+            args: &[ArgType::ActivePane],
+            menubar: &["Edit"],
+            icon: None,
+        },
         CopyTextTo {
             text: _,
             destination: ClipboardCopyDestination::ClipboardAndPrimarySelection,
@@ -2536,6 +2544,7 @@ fn compute_default_actions() -> Vec<KeyAssignment> {
         #[cfg(not(target_os = "macos"))]
         CopyTo(ClipboardCopyDestination::PrimarySelection),
         CopyTo(ClipboardCopyDestination::Clipboard),
+        SelectAll,
         PasteFrom(ClipboardPasteSource::Clipboard),
         ClearScrollback(ScrollbackEraseMode::ScrollbackOnly),
         ClearScrollback(ScrollbackEraseMode::ScrollbackAndViewport),
@@ -2677,5 +2686,21 @@ mod tests {
         assert!(CommandDef::default_key_assignments(&config)
             .iter()
             .any(|(_, _, action)| *action == KeyAssignment::ToggleAllPanesInputBroadcast));
+    }
+
+    #[test]
+    fn select_all_has_default_shortcut() {
+        let cmd = derive_command_from_key_assignment(&KeyAssignment::SelectAll).expect("command");
+
+        assert_eq!(cmd.keys, vec![(Modifiers::SUPER, "a".into())]);
+    }
+
+    #[test]
+    fn select_all_is_in_default_assignments() {
+        let config = ConfigHandle::default_config();
+
+        assert!(CommandDef::default_key_assignments(&config)
+            .iter()
+            .any(|(_, _, action)| *action == KeyAssignment::SelectAll));
     }
 }

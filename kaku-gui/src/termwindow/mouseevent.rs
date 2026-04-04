@@ -232,7 +232,7 @@ impl super::TermWindow {
         self.current_mouse_event.replace(event.clone());
         self.update_scrollbar_hovering(&pane, context);
         // Mouse interaction should cancel any synthetic prompt-selection state
-        // tracked from keyboard shortcuts (Cmd+A/Shift+Arrow, etc).
+        // tracked from keyboard shortcuts such as Shift+Arrow.
         self.clear_line_editor_selection();
 
         if matches!(event.kind, WMEK::VertWheel(_) | WMEK::HorzWheel(_))

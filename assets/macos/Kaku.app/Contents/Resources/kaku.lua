@@ -3788,6 +3788,13 @@ config.keys = {
   },
 
   -- Shell Editing
+  -- Cmd+A: select all visible text in the current pane
+  {
+    key = 'a',
+    mods = 'CMD',
+    action = wezterm.action.SelectAll,
+  },
+
   -- Alt+Left / Alt+Right: word jump
   {
     key = 'LeftArrow',

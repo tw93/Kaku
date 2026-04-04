@@ -115,6 +115,24 @@ impl super::TermWindow {
         self.window.as_ref().unwrap().invalidate();
     }
 
+    pub fn select_all(&mut self, pane: &Arc<dyn Pane>) {
+        let dims = pane.get_dimensions();
+        let top = self.effective_viewport(pane).unwrap_or(dims.physical_top);
+        let bottom = top + dims.viewport_rows.saturating_sub(1) as StableRowIndex;
+        let selection_range = SelectionRange {
+            start: SelectionCoordinate::x_y(0, top),
+            end: SelectionCoordinate {
+                x: SelectionX::Cell(usize::MAX),
+                y: bottom,
+            },
+        };
+
+        self.selection(pane.pane_id()).origin = Some(selection_range.start);
+        self.selection(pane.pane_id()).range = Some(selection_range);
+        self.selection(pane.pane_id()).rectangular = false;
+        self.window.as_ref().unwrap().invalidate();
+    }
+
     pub fn extend_selection_at_mouse_cursor(&mut self, mode: SelectionMode, pane: &Arc<dyn Pane>) {
         let (position, y) = match self.pane_state(pane.pane_id()).mouse_terminal_coords {
             Some(coords) => coords,

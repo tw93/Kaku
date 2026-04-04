@@ -742,12 +742,6 @@ impl super::TermWindow {
             {
                 out.push(0x05); // Ctrl-E (end-of-line)
             }
-            (WK::Char('a') | WK::Char('A'), Modifiers::SUPER) => {
-                // Send special sequence to invoke shell-side widget.
-                out.extend_from_slice(b"\x1b[990~");
-                self.line_editor_selection = Sel::All;
-                keep_selection_anchor = true;
-            }
             (WK::Char('\u{1b}'), Modifiers::NONE) if self.has_line_editor_selection() => {
                 // Cancel selection: clear GUI state and notify the shell to deactivate
                 // its REGION_ACTIVE. We send a dedicated CSI sequence rather than bare
@@ -830,9 +824,6 @@ impl super::TermWindow {
             {
                 self.line_editor_selection = Sel::ToEnd;
             }
-            (WK::Char('a') | WK::Char('A'), Modifiers::SUPER) => {
-                self.line_editor_selection = Sel::All;
-            }
             _ => {
                 // Any other handled shortcut should not keep stale selection state.
                 self.clear_line_editor_selection();
@@ -850,9 +841,6 @@ impl super::TermWindow {
 
         let mods = key.modifiers.remove_positional_mods();
         match (key.phys_code, mods) {
-            (Some(PK::A), Modifiers::SUPER) => {
-                self.line_editor_selection = Sel::All;
-            }
             (Some(PK::LeftArrow), m) if m == (Modifiers::SUPER | Modifiers::SHIFT) => {
                 self.line_editor_selection = Sel::ToStart;
             }
@@ -885,11 +873,10 @@ impl super::TermWindow {
         is_shift: bool,
         is_shift_arrow: bool,
         is_cmd_shift_arrow: bool,
-        is_cmd_a: bool,
         is_delete: bool,
         is_esc: bool,
     ) -> bool {
-        is_shift || is_shift_arrow || is_cmd_shift_arrow || is_cmd_a || is_delete || is_esc
+        is_shift || is_shift_arrow || is_cmd_shift_arrow || is_delete || is_esc
     }
 
     fn should_preserve_line_editor_selection_for_raw_key(&self, key: &RawKeyEvent) -> bool {
@@ -915,7 +902,6 @@ impl super::TermWindow {
             matches!(key.phys_code, Some(PK::LeftArrow | PK::RightArrow)) && m == Modifiers::SHIFT,
             matches!(key.phys_code, Some(PK::LeftArrow | PK::RightArrow))
                 && m == (Modifiers::SUPER | Modifiers::SHIFT),
-            matches!(key.phys_code, Some(PK::A)) && m == Modifiers::SUPER,
             matches!(key.phys_code, Some(PK::Backspace | PK::Delete)),
             // Preserve ESC in the raw path only when a selection is active, so the
             // subsequent key_event_impl handler can still cancel it.  Without this,
@@ -970,7 +956,6 @@ impl super::TermWindow {
                     | WK::RightArrow
                     | WK::ApplicationRightArrow
             ) && m == (Modifiers::SUPER | Modifiers::SHIFT),
-            matches!(k, WK::Char('a') | WK::Char('A')) && m == Modifiers::SUPER,
             matches!(k, WK::Char('\u{8}') | WK::Char('\u{7f}')),
             // ESC: only preserve when selection is active so the cancel branch in
             // maybe_handle_native_line_editor_shortcut can clear it.

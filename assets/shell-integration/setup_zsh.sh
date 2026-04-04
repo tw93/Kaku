@@ -896,15 +896,6 @@ zle -N _kaku_select_line_start
 zle -N _kaku_select_line_end
 
 # Terminal-assisted selection shortcuts (Kaku GUI sends these directly).
-_kaku_cmd_a_select_all() {
-    emulate -L zsh
-    # Move to beginning first so MARK is anchored there, then extend to end.
-    # If set-mark-command were called first, MARK would be at the current cursor
-    # position and only the text after it would be selected.
-    zle beginning-of-line
-    zle set-mark-command
-    zle end-of-line
-}
 _kaku_cmd_shift_left() {
     emulate -L zsh
     zle set-mark-command
@@ -915,7 +906,6 @@ _kaku_cmd_shift_right() {
     zle set-mark-command
     zle end-of-line
 }
-zle -N _kaku_cmd_a_select_all
 zle -N _kaku_cmd_shift_left
 zle -N _kaku_cmd_shift_right
 
@@ -933,7 +923,6 @@ bindkey '^[[1;2H' _kaku_select_line_start
 bindkey '^[[1;2F' _kaku_select_line_end
 
 # Terminal-assisted selection shortcuts (distinct CSI sequences from Kaku GUI).
-bindkey '^[[990~' _kaku_cmd_a_select_all
 bindkey '^[[991~' _kaku_cmd_shift_left
 bindkey '^[[992~' _kaku_cmd_shift_right
 bindkey '^[[995~' _kaku_cancel_selection

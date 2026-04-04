@@ -4081,6 +4081,9 @@ impl TermWindow {
             ClearSelection => {
                 self.clear_selection(pane);
             }
+            SelectAll => {
+                self.select_all(pane);
+            }
             StartWindowDrag => {
                 self.window_drag_position = self.current_mouse_event.clone();
                 self.is_window_dragging = self.window_drag_position.is_some();
