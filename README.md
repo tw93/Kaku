@@ -55,12 +55,11 @@ Full keybinding reference: [docs/keybindings.md](docs/keybindings.md)
 
 ## Kaku AI
 
-Kaku includes a built-in assistant for command-line error recovery and a single AI settings page for coding tools.
+Kaku includes a built-in assistant with two modes, plus a single settings page for AI coding tools.
 
-- **Kaku Assistant**: Automatically analyzes failed commands and suggests a safe fix. Press `Cmd + Shift + E` to apply. Enable or disable it from `kaku ai`.
+- **Error recovery**: When a command fails, Kaku automatically suggests a fix. Press `Cmd + Shift + E` to apply.
+- **Natural language to command**: Type `# <description>` at the prompt and press Enter. Kaku sends the query to the LLM and injects the resulting command back into the prompt, ready to review and run.
 - **AI Tools Config**: Manage settings for Claude Code, Codex, Gemini CLI, Copilot CLI, Kimi Code, and more.
-
-Tip: DeepSeek-V3.2 via VivGrid is a great low-cost option to start with for everyday AI coding tasks.
 
 ### Provider Presets
 
@@ -68,9 +67,8 @@ Kaku Assistant supports built-in provider presets for quick setup. Select a prov
 
 | Provider | Base URL | Models |
 | :--- | :--- | :--- |
-| VivGrid (default) | `https://api.vivgrid.com/v1` | DeepSeek-V3.2 |
+| OpenAI | `https://api.openai.com/v1` | gpt-5.4-mini (recommended), gpt-5.4, (auto-detected) |
 | [MiniMax](https://www.minimax.io) | `https://api.minimax.io/v1` | MiniMax-M2.7, M2.7-highspeed, M2.5, M2.5-highspeed |
-| OpenAI | `https://api.openai.com/v1` | (auto-detected) |
 | Custom | (manual) | (manual) |
 
 To use MiniMax, select "MiniMax" as the provider, enter your API key from [MiniMax Platform](https://platform.minimax.chat), and choose a model. MiniMax-M2.7 (1M context) is recommended for everyday AI coding tasks.

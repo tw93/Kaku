@@ -2,7 +2,7 @@
 
 ## Kaku Assistant
 
-Kaku Assistant monitors your shell for failed commands and automatically suggests a fix. When a command exits with an error, the assistant sends the context to an LLM and displays a safe correction inline.
+Kaku Assistant has two modes: automatic error recovery and on-demand command generation from natural language.
 
 **Setup**
 
@@ -10,12 +10,29 @@ Run `kaku ai` to open the AI settings panel. Enable Kaku Assistant, pick a provi
 
 | Provider | Base URL | Models |
 | :--- | :--- | :--- |
-| VivGrid (default) | `https://api.vivgrid.com/v1` | DeepSeek-V3.2 |
+| OpenAI | `https://api.openai.com/v1` | gpt-5.4-mini (recommended), gpt-5.4, (free text) |
 | MiniMax | `https://api.minimax.io/v1` | MiniMax-M2.7, M2.7-highspeed, M2.5, M2.5-highspeed |
-| OpenAI | `https://api.openai.com/v1` | (free text) |
 | Custom | (manual) | (free text) |
 
 Selecting a provider auto-fills the base URL and populates the model dropdown.
+
+**Error recovery**
+
+When a command exits with a non-zero status, Kaku Assistant automatically sends the failed command, exit code, working directory, and git branch to the LLM and displays a suggested fix inline. Press `Cmd + Shift + E` to paste the suggestion into the terminal. Dangerous commands (e.g. `rm -rf`, `git reset --hard`) are pasted but never auto-executed.
+
+The assistant does not trigger on: `Ctrl+C` exits, help flags, bare package manager calls, git pull conflicts, or non-shell foreground processes.
+
+**Natural language to command**
+
+Type `# <description>` at the prompt and press Enter to generate a shell command from plain English. Kaku intercepts the line before the shell sees it, sends your query along with the current directory and git branch to the LLM, and injects the resulting command back into the prompt ready to review and run.
+
+```
+# list all files modified in the last 7 days
+# find and kill the process on port 3000
+# compress the src folder excluding node_modules
+```
+
+The `#` prefix works in both zsh and fish. The original query stays visible while the request is in flight. If the model cannot produce a safe command, it injects a short explanation instead. Dangerous commands are loaded but flagged for review, never auto-executed.
 
 **assistant.toml fields**
 
@@ -28,14 +45,6 @@ The config lives at `~/.config/kaku/assistant.toml`:
 | `model` | Model identifier, e.g. `DeepSeek-V3.2` |
 | `base_url` | OpenAI-compatible API root URL |
 | `custom_headers` | Extra HTTP headers for enterprise proxies, e.g. `["X-Customer-ID: your-id"]` |
-
-**Applying a suggestion**
-
-When a suggestion is ready, press `Cmd + Shift + E` to paste it into the terminal. Dangerous commands (e.g. `rm -rf`, `git reset --hard`) are pasted but never auto-executed.
-
-**What gets skipped**
-
-The assistant does not trigger on: `Ctrl+C` exits, help flags, bare package manager calls, git pull conflicts, or non-shell foreground processes.
 
 ---
 

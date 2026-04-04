@@ -248,6 +248,51 @@ fn summarize_bell_source(value: &str) -> Option<String> {
     summarize_bell_tokens(&tokens).or(Some(normalized))
 }
 
+/// Number of tokens to skip past `sudo` and its option-arguments.
+/// Returns the count of tokens consumed (not counting sudo itself).
+fn sudo_args_skip_count(tokens: &[&str]) -> usize {
+    const SUDO_OPT_WITH_ARG: &[&str] = &[
+        "-u", "-g", "-C", "-D", "-R", "-T", "-h", "--user", "--group",
+    ];
+    let mut count = 0;
+    while count < tokens.len() {
+        let t = tokens[count];
+        if SUDO_OPT_WITH_ARG.contains(&t) {
+            if count + 1 < tokens.len() {
+                count += 2; // skip flag + its argument
+            } else {
+                break;
+            }
+        } else if t.starts_with('-') {
+            count += 1; // skip standalone flag
+        } else {
+            break;
+        }
+    }
+    count
+}
+
+/// For commands that take subcommands (git, cargo, docker, ...), build the
+/// display label. Returns `"{cmd} {sub} {sub2}"` for two-level subcommands
+/// (e.g. `docker compose up`), `"{cmd} {sub}"` otherwise.
+fn subcommand_label(command: &str, tokens_after_cmd: &[&str]) -> Option<String> {
+    const TWO_LEVEL_PREFIX: &[&str] = &[
+        "run", "exec", "compose", "get", "describe", "apply", "delete", "create",
+    ];
+    let next = tokens_after_cmd.first()?;
+    if next.starts_with('-') || next.contains('=') {
+        return None;
+    }
+    if TWO_LEVEL_PREFIX.contains(next) {
+        if let Some(next2) = tokens_after_cmd.get(1) {
+            if !next2.starts_with('-') && !next2.contains('=') {
+                return Some(format!("{command} {next} {next2}"));
+            }
+        }
+    }
+    Some(format!("{command} {next}"))
+}
+
 fn summarize_bell_tokens(tokens: &[&str]) -> Option<String> {
     if tokens.is_empty() {
         return None;
@@ -269,23 +314,8 @@ fn summarize_bell_tokens(tokens: &[&str]) -> Option<String> {
             continue;
         }
 
-        // sudo may carry option-argument flags like `-u root`, `-g staff`.
-        // Skip sudo itself, then consume any flags and their arguments.
         if token_lower == "sudo" {
-            idx += 1;
-            const SUDO_OPT_WITH_ARG: &[&str] = &[
-                "-u", "-g", "-C", "-D", "-R", "-T", "-h", "--user", "--group",
-            ];
-            while idx < tokens.len() {
-                let t = tokens[idx];
-                if SUDO_OPT_WITH_ARG.contains(&t) {
-                    idx += 2; // skip flag + its argument
-                } else if t.starts_with('-') {
-                    idx += 1; // skip standalone flag
-                } else {
-                    break;
-                }
-            }
+            idx += 1 + sudo_args_skip_count(&tokens[idx + 1..]);
             continue;
         }
 
@@ -332,24 +362,9 @@ fn summarize_bell_tokens(tokens: &[&str]) -> Option<String> {
                 | "docker"
                 | "kubectl"
         );
-        if include_subcommand && idx + 1 < tokens.len() {
-            let next = tokens[idx + 1];
-            if !next.starts_with('-') && !next.contains('=') {
-                // Some tools have two-level subcommands: npm run build,
-                // docker compose up, kubectl get pods.
-                const TWO_LEVEL_PREFIX: &[&str] = &[
-                    "run", "exec", "compose", "get", "describe", "apply", "delete", "create",
-                ];
-                if idx + 2 < tokens.len() {
-                    let next2 = tokens[idx + 2];
-                    if TWO_LEVEL_PREFIX.contains(&next)
-                        && !next2.starts_with('-')
-                        && !next2.contains('=')
-                    {
-                        return Some(format!("{command} {next} {next2}"));
-                    }
-                }
-                return Some(format!("{command} {next}"));
+        if include_subcommand {
+            if let Some(label) = subcommand_label(&command, &tokens[idx + 1..]) {
+                return Some(label);
             }
         }
         return Some(command);
@@ -1047,6 +1062,7 @@ pub struct TermWindow {
     /// Toast notification: (start_time, message, lifetime)
     toast: Option<(Instant, String, Duration)>,
     selection_copy_disabled_hint_shown: bool,
+    last_window_title: String,
 }
 
 impl TermWindow {
@@ -1595,6 +1611,7 @@ impl TermWindow {
             opengl_info: None,
             toast: None,
             selection_copy_disabled_hint_shown: false,
+            last_window_title: String::new(),
             live_resizing: false,
             pending_screen_change_resize: false,
         };
@@ -3291,7 +3308,10 @@ impl TermWindow {
         };
 
         if let Some(window) = self.window.as_ref().cloned() {
-            window.set_title(&title);
+            if title != self.last_window_title {
+                self.last_window_title = title.clone();
+                window.set_title(&title);
+            }
 
             // If the number of tabs changed and caused the tab bar to
             // hide/show, then we'll need to resize things. We only update

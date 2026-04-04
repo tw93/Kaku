@@ -23,10 +23,7 @@
 16	Background tabs now show a bell prefix without the duplicate unread bell dot
 17	Fish shell is now fully supported; run kaku init to configure prompt, yazi, and theme sync
 17	Zsh integration now handles ssh alias conflicts and autosuggest widget detection automatically
-18	zoxide replaces zsh-z for faster directory jumping; run zi for interactive fzf-powered selection
-18	fast-syntax-highlighting replaces zsh-syntax-highlighting with richer colors and better performance
-18	zoxide is installed via Homebrew automatically; your existing z history is preserved after import
-18	zoxide uses frecency (frequency + recency): if z kaku goes to Kaku/kaku instead of Kaku, use z Kaku/ or zi to select
-19	zsh-z replaces zoxide for directory jumping; your existing ~/.z history works immediately
-19	cd+Tab falls back to zsh-z history when filesystem completion has no match
-
+18	fast-syntax-highlighting replaces zsh-syntax-highlighting for richer colors and faster startup
+18	zsh-z is bundled for directory jumping; your existing ~/.z history works immediately
+18	cd+Tab falls back to zsh-z history when filesystem completion has no match
+18	Zsh updates now preserve custom inline Kaku blocks when they contain user changes

@@ -27,6 +27,9 @@ pub struct ProviderPreset {
 }
 
 /// Built-in provider presets for the Kaku Assistant.
+/// To add a new provider: add an entry here. The TUI and provider detection
+/// derive everything (base_url, model list, auto-fill on selection) from this
+/// table via provider_preset() and detect_provider(). No other changes needed.
 pub const PROVIDER_PRESETS: &[ProviderPreset] = &[
     ProviderPreset {
         name: "VivGrid",
@@ -75,7 +78,9 @@ pub fn provider_names() -> Vec<String> {
 pub fn detect_provider(base_url: &str) -> &'static str {
     let normalized = base_url.trim().trim_end_matches('/').to_ascii_lowercase();
     for preset in PROVIDER_PRESETS {
-        if !preset.base_url.is_empty() && normalized == preset.base_url.trim_end_matches('/') {
+        if !preset.base_url.is_empty()
+            && normalized == preset.base_url.trim_end_matches('/').to_ascii_lowercase()
+        {
             return preset.name;
         }
     }

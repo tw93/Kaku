@@ -71,17 +71,17 @@ if [[ $user_version -eq 0 || $user_version -ge $CURRENT_CONFIG_VERSION ]]; then
 	exit 0
 fi
 
-echo -e "${BOLD}Kaku config update available!${NC} v$user_version -> v$CURRENT_CONFIG_VERSION"
+echo -e "${BOLD}Kaku shell integration update${NC}  ${YELLOW}v$user_version${NC} → ${GREEN}v$CURRENT_CONFIG_VERSION${NC}"
 echo ""
 
-echo -e "${BOLD}What's new in V$user_version to V$CURRENT_CONFIG_VERSION:${NC}"
+echo -e "${BOLD}What's new:${NC}"
 if ! print_config_update_highlights "$SCRIPT_DIR" "$user_version" "$CURRENT_CONFIG_VERSION"; then
 	echo "  • Shell integration and reliability improvements"
 	echo "  • See project release notes for full details"
 fi
 echo ""
 
-read -p "Apply update now? Press Enter to continue, type n to skip: " -n 1 -r
+read -p "Apply now? Press Enter to continue, or type n to skip: " -n 1 -r
 echo
 
 if [[ $REPLY =~ ^[Nn]$ ]]; then
@@ -95,7 +95,14 @@ fi
 
 # Apply updates
 if [[ -f "$SETUP_SCRIPT" ]]; then
-	KAKU_SKIP_TOOL_BOOTSTRAP=1 bash "$SETUP_SCRIPT" --update-only
+	if ! KAKU_SKIP_TOOL_BOOTSTRAP=1 bash "$SETUP_SCRIPT" --update-only; then
+		echo ""
+		echo -e "${YELLOW}Update failed. Run 'kaku init' manually to retry.${NC}"
+		echo ""
+		echo "Press any key to continue..."
+		read -n 1 -s
+		exit 1
+	fi
 else
 	echo -e "${YELLOW}Error: missing setup script at $SETUP_SCRIPT${NC}"
 	exit 1

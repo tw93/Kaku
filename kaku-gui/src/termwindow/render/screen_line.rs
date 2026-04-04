@@ -398,22 +398,21 @@ impl crate::TermWindow {
                 }
 
                 if draw_basic {
-                    let (cursor_top, cursor_bottom) = match shape {
-                        CursorShape::BlinkingBlock | CursorShape::SteadyBlock => {
-                            block_cursor_vertical_bounds(
-                                pos_y,
-                                cell_height,
-                                params.render_metrics.line_height_y_adjust,
-                            )
+                    let (cursor_top, cursor_bottom) = if full_cell_block_cursor {
+                        // Block cursor covers the full cell height, including any
+                        // line_height padding, so it matches the selection highlight.
+                        (pos_y, pos_y + cell_height)
+                    } else {
+                        match shape {
+                            CursorShape::BlinkingBlock | CursorShape::SteadyBlock => {
+                                block_cursor_vertical_bounds(
+                                    pos_y,
+                                    cell_height,
+                                    params.render_metrics.line_height_y_adjust,
+                                )
+                            }
+                            _ => (pos_y, pos_y + cell_height),
                         }
-                        CursorShape::Default if full_cell_block_cursor => {
-                            block_cursor_vertical_bounds(
-                                pos_y,
-                                cell_height,
-                                params.render_metrics.line_height_y_adjust,
-                            )
-                        }
-                        _ => (pos_y, pos_y + cell_height),
                     };
                     quad.set_position(
                         pos_x,
@@ -456,7 +455,7 @@ impl crate::TermWindow {
         for item in shaped.iter() {
             let cluster = &item.cluster;
             let glyph_info = &item.glyph_info;
-            let images = cluster.attrs.images().unwrap_or_else(|| vec![]);
+            let images = cluster.attrs.images().unwrap_or_default();
             let valign_adjust = match cluster.attrs.vertical_align() {
                 termwiz::cell::VerticalAlign::BaseLine => 0.,
                 termwiz::cell::VerticalAlign::SuperScript => {

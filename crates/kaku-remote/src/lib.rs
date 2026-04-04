@@ -15,6 +15,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::net::SocketAddr;
 use std::sync::Arc;
+use std::time::{Duration, Instant};
 use tokio::sync::broadcast;
 
 // ── Token ─────────────────────────────────────────────────────────────────────
@@ -32,6 +33,9 @@ fn get_or_init_token() -> &'static str {
 // ── Shared state ──────────────────────────────────────────────────────────────
 
 type PaneSenders = Arc<Mutex<HashMap<usize, broadcast::Sender<ScreenUpdate>>>>;
+type PaneThrottle = Arc<Mutex<HashMap<usize, Instant>>>;
+
+const CAPTURE_INTERVAL: Duration = Duration::from_millis(16);
 
 #[derive(Clone)]
 struct AppState {
@@ -176,7 +180,13 @@ async fn route_config(
         font_size: cfg.font_size,
     };
 
-    axum::Json(serde_json::to_value(&info).unwrap_or_default()).into_response()
+    match serde_json::to_value(&info) {
+        Ok(v) => axum::Json(v).into_response(),
+        Err(e) => {
+            log::error!("kaku-remote: failed to serialize config: {}", e);
+            (StatusCode::INTERNAL_SERVER_ERROR, "serialization error").into_response()
+        }
+    }
 }
 
 async fn route_panes(
@@ -204,7 +214,13 @@ async fn route_panes(
         })
         .unwrap_or_default();
 
-    axum::Json(serde_json::to_value(&panes).unwrap_or_default()).into_response()
+    match serde_json::to_value(&panes) {
+        Ok(v) => axum::Json(v).into_response(),
+        Err(e) => {
+            log::error!("kaku-remote: failed to serialize panes: {}", e);
+            (StatusCode::INTERNAL_SERVER_ERROR, "serialization error").into_response()
+        }
+    }
 }
 
 fn check_token(query: &WsQuery, headers: &axum::http::HeaderMap) -> bool {
@@ -382,7 +398,7 @@ async fn handle_ws(
 
 // ── Mux subscriber ────────────────────────────────────────────────────────────
 
-fn on_pane_output(pane_id: usize, senders: PaneSenders) {
+fn on_pane_output(pane_id: usize, senders: PaneSenders, throttle: PaneThrottle) {
     let tx = {
         let guard = senders.lock();
         guard.get(&pane_id).cloned()
@@ -390,6 +406,16 @@ fn on_pane_output(pane_id: usize, senders: PaneSenders) {
     if let Some(tx) = tx {
         if tx.receiver_count() == 0 {
             return;
+        }
+        {
+            let mut times = throttle.lock();
+            let now = Instant::now();
+            if let Some(last) = times.get(&pane_id) {
+                if now.duration_since(*last) < CAPTURE_INTERVAL {
+                    return;
+                }
+            }
+            times.insert(pane_id, now);
         }
         if let Some(update) = capture_pane(pane_id) {
             if let Err(e) = tx.send(update) {
@@ -630,11 +656,21 @@ pub fn start() {
 
     let pane_senders: PaneSenders = Arc::new(Mutex::new(HashMap::new()));
     let senders_for_sub = pane_senders.clone();
+    let pane_throttle: PaneThrottle = Arc::new(Mutex::new(HashMap::new()));
+    let throttle_for_sub = pane_throttle.clone();
 
     if let Some(mux) = Mux::try_get() {
         mux.subscribe(move |notification| {
-            if let MuxNotification::PaneOutput(pane_id) = notification {
-                on_pane_output(pane_id.into(), senders_for_sub.clone());
+            match notification {
+                MuxNotification::PaneOutput(pane_id) => {
+                    on_pane_output(pane_id.into(), senders_for_sub.clone(), throttle_for_sub.clone());
+                }
+                MuxNotification::PaneRemoved(pane_id) => {
+                    let id: usize = pane_id.into();
+                    senders_for_sub.lock().remove(&id);
+                    throttle_for_sub.lock().remove(&id);
+                }
+                _ => {}
             }
             true
         });

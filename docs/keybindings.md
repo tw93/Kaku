@@ -77,6 +77,7 @@ All keybindings use macOS-native modifier keys. `Opt` = Option/Alt, `Ctrl` = Con
 | :--- | :--- |
 | Copy selection to clipboard | Release left mouse button after selecting |
 | Open link | `Cmd + Click` |
+| Move cursor to clicked column | `Opt + Click` (same row, shell prompt only) |
 
 ## Custom Keybindings
 

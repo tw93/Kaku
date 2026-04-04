@@ -37,6 +37,9 @@ mod imp {
     const KAKU_LEGACY_INLINE_MARKER: &str = "# Kaku Shell Integration";
     const KAKU_LEGACY_INLINE_VAR: &str = "KAKU_ZSH_DIR";
     const KAKU_LEGACY_SYNTAX_HINT: &str = "zsh-syntax-highlighting/zsh-syntax-highlighting.zsh";
+    // SYNC: this list must stay in sync with the heredoc in
+    // assets/shell-integration/setup_zsh.sh legacy_inline_block_has_only_kaku_managed_lines().
+    // When adding or removing lines, update both places.
     const KAKU_LEGACY_INLINE_KNOWN_LINES: &[&str] = &[
         "# Kaku Zsh Integration - DO NOT EDIT MANUALLY",
         "# This file is managed by Kaku.app. Any changes may be overwritten.",

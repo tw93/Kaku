@@ -45,56 +45,188 @@ struct TitleText {
     items: Vec<FormatItem>,
 }
 
-fn call_format_tab_title(
+#[derive(Clone, Debug)]
+struct BatchTabTitles {
+    callback_present: bool,
+    titles: Vec<Option<TitleText>>,
+}
+
+impl BatchTabTitles {
+    fn without_callback(count: usize) -> Self {
+        Self {
+            callback_present: false,
+            titles: vec![None; count],
+        }
+    }
+}
+
+fn parse_format_tab_title_result<'lua>(
+    v: mlua::Value<'lua>,
+    lua: &'lua mlua::Lua,
+) -> mlua::Result<Option<TitleText>> {
+    match &v {
+        mlua::Value::Nil => Ok(None),
+        mlua::Value::Table(_) => {
+            let items = <Vec<FormatItem>>::from_lua(v, lua)?;
+            // Validate table payload from Lua early so downstream
+            // format_as_escapes(...).expect() stays infallible.
+            let _ = format_as_escapes(items.clone()).map_err(mlua::Error::external)?;
+            Ok(Some(TitleText { items }))
+        }
+        _ => {
+            let s = String::from_lua(v, lua)?;
+            Ok(Some(TitleText {
+                items: vec![FormatItem::Text(s)],
+            }))
+        }
+    }
+}
+
+fn has_format_tab_title_callback(lua: &mlua::Lua) -> mlua::Result<bool> {
+    let tbl: mlua::Value = lua.named_registry_value("wezterm-event-format-tab-title")?;
+    Ok(matches!(tbl, mlua::Value::Table(_)))
+}
+
+fn call_format_tab_titles_batch_with_lua(
+    lua: &mlua::Lua,
+    tab_info: &[TabInformation],
+    pane_info: &[PaneInformation],
+    config: &ConfigHandle,
+    tab_max_width: usize,
+) -> mlua::Result<BatchTabTitles> {
+    let n = tab_info.len();
+    if !has_format_tab_title_callback(lua)? {
+        return Ok(BatchTabTitles::without_callback(n));
+    }
+
+    // Serialize shared data once for all tabs.
+    let tabs = lua.create_sequence_from(tab_info.iter().cloned())?;
+    let panes = lua.create_sequence_from(pane_info.iter().cloned())?;
+    let lua_config = luahelper::to_lua(lua, (**config).clone())?;
+
+    let mut results = Vec::with_capacity(n);
+    for tab in tab_info {
+        // SSH tabs skip Lua; caller will use build_default_title fallback.
+        if let Some(pane) = &tab.active_pane {
+            if tab.tab_title.is_empty() && ssh_destination_for_pane(pane).is_some() {
+                results.push(None);
+                continue;
+            }
+        }
+
+        let result = config::lua::emit_sync_callback(
+            lua,
+            (
+                "format-tab-title".to_string(),
+                (
+                    tab.clone(),
+                    tabs.clone(),
+                    panes.clone(),
+                    lua_config.clone(),
+                    false,
+                    tab_max_width,
+                ),
+            ),
+        )
+        .and_then(|v| parse_format_tab_title_result(v, lua));
+        match result {
+            Ok(title) => results.push(title),
+            Err(err) => {
+                log::warn!("format-tab-title: {}", err);
+                results.push(None);
+            }
+        }
+    }
+
+    Ok(BatchTabTitles {
+        callback_present: true,
+        titles: results,
+    })
+}
+
+/// Calls format-tab-title for all tabs in a single Lua scope, serializing
+/// Config, tabs, and panes sequences only once instead of once per tab.
+/// Returns None for SSH tabs (which skip Lua) or when no callback is registered.
+fn call_format_tab_titles_batch(
+    tab_info: &[TabInformation],
+    pane_info: &[PaneInformation],
+    config: &ConfigHandle,
+    tab_max_width: usize,
+) -> BatchTabTitles {
+    let n = tab_info.len();
+    match config::run_immediate_with_lua_config(|lua| {
+        let Some(lua) = lua else {
+            return Ok(BatchTabTitles::without_callback(n));
+        };
+        Ok(call_format_tab_titles_batch_with_lua(
+            &lua,
+            tab_info,
+            pane_info,
+            config,
+            tab_max_width,
+        )?)
+    }) {
+        Ok(v) => v,
+        Err(err) => {
+            log::warn!("format-tab-title (batch): {}", err);
+            BatchTabTitles::without_callback(n)
+        }
+    }
+}
+
+/// Calls format-tab-title for a single tab with hover=true.
+/// Only invoked when the mouse is actually over a non-active tab and a
+/// format-tab-title callback is registered.
+fn call_format_tab_title_hover_with_lua(
+    lua: &mlua::Lua,
     tab: &TabInformation,
     tab_info: &[TabInformation],
     pane_info: &[PaneInformation],
     config: &ConfigHandle,
-    hover: bool,
+    tab_max_width: usize,
+) -> mlua::Result<Option<TitleText>> {
+    let tabs = lua.create_sequence_from(tab_info.iter().cloned())?;
+    let panes = lua.create_sequence_from(pane_info.iter().cloned())?;
+    let v = config::lua::emit_sync_callback(
+        lua,
+        (
+            "format-tab-title".to_string(),
+            (
+                tab.clone(),
+                tabs,
+                panes,
+                (**config).clone(),
+                true,
+                tab_max_width,
+            ),
+        ),
+    )?;
+    parse_format_tab_title_result(v, lua)
+}
+
+fn call_format_tab_title_hover(
+    tab: &TabInformation,
+    tab_info: &[TabInformation],
+    pane_info: &[PaneInformation],
+    config: &ConfigHandle,
     tab_max_width: usize,
 ) -> Option<TitleText> {
     match config::run_immediate_with_lua_config(|lua| {
-        if let Some(lua) = lua {
-            let tabs = lua.create_sequence_from(tab_info.iter().cloned())?;
-            let panes = lua.create_sequence_from(pane_info.iter().cloned())?;
-
-            let v = config::lua::emit_sync_callback(
-                &*lua,
-                (
-                    "format-tab-title".to_string(),
-                    (
-                        tab.clone(),
-                        tabs,
-                        panes,
-                        (**config).clone(),
-                        hover,
-                        tab_max_width,
-                    ),
-                ),
-            )?;
-            match &v {
-                mlua::Value::Nil => Ok(None),
-                mlua::Value::Table(_) => {
-                    let items = <Vec<FormatItem>>::from_lua(v, &*lua)?;
-                    // Validate table payload from Lua early so downstream
-                    // format_as_escapes(...).expect() stays infallible.
-                    let _ = format_as_escapes(items.clone())?;
-                    Ok(Some(TitleText { items }))
-                }
-                _ => {
-                    let s = String::from_lua(v, &*lua)?;
-                    Ok(Some(TitleText {
-                        items: vec![FormatItem::Text(s)],
-                    }))
-                }
-            }
-        } else {
-            Ok(None)
-        }
+        let Some(lua) = lua else {
+            return Ok(None);
+        };
+        Ok(call_format_tab_title_hover_with_lua(
+            &lua,
+            tab,
+            tab_info,
+            pane_info,
+            config,
+            tab_max_width,
+        )?)
     }) {
         Ok(s) => s,
         Err(err) => {
-            log::warn!("format-tab-title: {}", err);
+            log::warn!("format-tab-title (hover): {}", err);
             None
         }
     }
@@ -127,13 +259,10 @@ fn pct_to_glyph(pct: u8) -> char {
     }
 }
 
-fn compute_tab_title(
+fn compute_tab_title_from_precomputed(
     tab: &TabInformation,
-    tab_info: &[TabInformation],
-    pane_info: &[PaneInformation],
     config: &ConfigHandle,
-    hover: bool,
-    tab_max_width: usize,
+    precomputed: Option<TitleText>,
 ) -> TitleText {
     if let Some(pane) = &tab.active_pane {
         if tab.tab_title.is_empty() {
@@ -142,10 +271,7 @@ fn compute_tab_title(
             }
         }
     }
-
-    let title = call_format_tab_title(tab, tab_info, pane_info, config, hover, tab_max_width);
-
-    match title {
+    match precomputed {
         Some(title) => title,
         None => {
             if let Some(pane) = &tab.active_pane {
@@ -668,20 +794,30 @@ impl TabBarState {
             line.append_line(left_status_line, SEQ_ZERO);
         }
 
+        // Pre-compute all tab titles in a single Lua scope to avoid serializing
+        // Config, tabs, and panes sequences once per tab.
+        let precomputed_titles = if number_of_tabs > 0 {
+            call_format_tab_titles_batch(
+                tab_info,
+                pane_info,
+                config,
+                tab_title_max_width_for_callback,
+            )
+        } else {
+            BatchTabTitles::without_callback(0)
+        };
+
         for tab_idx in 0..number_of_tabs {
             let active = tab_idx == active_tab_no;
             let mut hover = false;
 
-            // Compute once with hover=false and only recompute when this tab is hovered.
-            // This avoids doubling Lua callback cost for every tab on every refresh.
-            let mut tab_title = compute_tab_title(
-                &tab_info[tab_idx],
-                tab_info,
-                pane_info,
-                config,
-                false,
-                tab_title_max_width_for_callback,
-            );
+            let precomputed = precomputed_titles
+                .titles
+                .get(tab_idx)
+                .and_then(|t| t.clone());
+
+            let mut tab_title =
+                compute_tab_title_from_precomputed(&tab_info[tab_idx], config, precomputed.clone());
             let mut cell_attrs = if active {
                 &active_cell_attrs
             } else {
@@ -708,13 +844,33 @@ impl TabBarState {
                 hover = is_tab_hover(mouse_x, x, width);
             }
             if hover {
-                tab_title = compute_tab_title(
+                // The normal callback may return nil to opt into the default
+                // title while still customizing the hover state.
+                // SSH tabs skip Lua entirely: compute_tab_title_from_precomputed
+                // returns the SSH default title regardless of hover_precomputed.
+                let is_ssh_tab = tab_info[tab_idx]
+                    .active_pane
+                    .as_ref()
+                    .map(|p| {
+                        tab_info[tab_idx].tab_title.is_empty()
+                            && ssh_destination_for_pane(p).is_some()
+                    })
+                    .unwrap_or(false);
+                let hover_precomputed = if precomputed_titles.callback_present && !is_ssh_tab {
+                    call_format_tab_title_hover(
+                        &tab_info[tab_idx],
+                        tab_info,
+                        pane_info,
+                        config,
+                        tab_title_max_width_for_callback,
+                    )
+                } else {
+                    None
+                };
+                tab_title = compute_tab_title_from_precomputed(
                     &tab_info[tab_idx],
-                    tab_info,
-                    pane_info,
                     config,
-                    true,
-                    tab_title_max_width_for_callback,
+                    hover_precomputed,
                 );
                 cell_attrs = &inactive_hover_attrs;
                 esc = format_as_escapes(tab_title.items.clone()).expect("already parsed ok above");
@@ -830,8 +986,9 @@ impl TabBarState {
             width: status_space_available,
         });
 
-        while right_status_line.len() > status_space_available {
-            right_status_line.remove_cell(0, SEQ_ZERO);
+        if right_status_line.len() > status_space_available {
+            let excess = right_status_line.len() - status_space_available;
+            right_status_line = right_status_line.split_off(excess, SEQ_ZERO);
         }
 
         line.append_line(right_status_line, SEQ_ZERO);
@@ -976,6 +1133,29 @@ pub fn parse_status_text(text: &str, default_cell: CellAttributes) -> Line {
 mod test {
     use super::*;
 
+    fn plain_text(title: &TitleText) -> String {
+        title
+            .items
+            .iter()
+            .filter_map(|item| match item {
+                FormatItem::Text(text) => Some(text.as_str()),
+                _ => None,
+            })
+            .collect()
+    }
+
+    fn make_tab(tab_id: usize, tab_index: usize, is_active: bool, title: &str) -> TabInformation {
+        TabInformation {
+            tab_id: tab_id.into(),
+            tab_index,
+            is_active,
+            is_last_active: false,
+            active_pane: None,
+            window_id: 0,
+            tab_title: title.to_string(),
+        }
+    }
+
     #[test]
     fn parse_plain_ssh_target() {
         assert_eq!(
@@ -995,5 +1175,51 @@ mod test {
     #[test]
     fn ignore_non_ssh_command() {
         assert!(ssh_target_from_command("ls -la").is_none());
+    }
+
+    #[test]
+    fn hover_title_callback_runs_even_when_normal_returns_nil() -> anyhow::Result<()> {
+        let lua = mlua::Lua::new();
+        let callback = lua.create_function(
+            |lua,
+             (_tab, _tabs, _panes, _config, hover, _max_width): (
+                mlua::Value,
+                mlua::Value,
+                mlua::Value,
+                mlua::Value,
+                bool,
+                usize,
+            )| {
+                if hover {
+                    Ok(mlua::Value::String(lua.create_string("HOVER")?))
+                } else {
+                    Ok(mlua::Value::Nil)
+                }
+            },
+        )?;
+        config::lua::register_event(&lua, ("format-tab-title".to_string(), callback))?;
+
+        let config = ConfigHandle::default_config();
+        let tab_info = vec![make_tab(0, 0, true, "tab-0")];
+        let pane_info = vec![];
+
+        let batch =
+            call_format_tab_titles_batch_with_lua(&lua, &tab_info, &pane_info, &config, 32)?;
+        assert!(batch.callback_present);
+        assert_eq!(batch.titles.len(), 1);
+        assert!(batch.titles[0].is_none());
+
+        let hover = call_format_tab_title_hover_with_lua(
+            &lua,
+            &tab_info[0],
+            &tab_info,
+            &pane_info,
+            &config,
+            32,
+        )?
+        .expect("hover callback should produce a title");
+
+        assert_eq!(plain_text(&hover), "HOVER");
+        Ok(())
     }
 }

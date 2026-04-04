@@ -948,14 +948,15 @@ impl super::TermWindow {
                     context.set_window_drag_position(event.screen_coords);
                 }
                 TabBarItem::WindowButton(window::IntegratedTitleButton::Maximize) => {
-                    let item = self.last_ui_item.clone().unwrap();
-                    let bounds: ::window::ScreenRect = euclid::rect(
-                        item.x as isize - (event.coords.x as isize - event.screen_coords.x),
-                        item.y as isize - (event.coords.y as isize - event.screen_coords.y),
-                        item.width as isize,
-                        item.height as isize,
-                    );
-                    context.set_maximize_button_position(bounds);
+                    if let Some(item) = self.last_ui_item.clone() {
+                        let bounds: ::window::ScreenRect = euclid::rect(
+                            item.x as isize - (event.coords.x as isize - event.screen_coords.x),
+                            item.y as isize - (event.coords.y as isize - event.screen_coords.y),
+                            item.width as isize,
+                            item.height as isize,
+                        );
+                        context.set_maximize_button_position(bounds);
+                    }
                 }
                 TabBarItem::WindowButton(_)
                 | TabBarItem::Tab { .. }
@@ -1449,6 +1450,68 @@ impl super::TermWindow {
                     // Ensure that we scroll to the bottom if they try to
                     // use the mouse so that things are less surprising
                     self.scroll_to_bottom(&pane);
+                }
+
+                // Option+Click: move cursor to the clicked column on the same line.
+                // Only fires when the shell owns the prompt (no mouse grab, no alt screen).
+                if !pane.is_mouse_grabbed()
+                    && !pane.is_alt_screen_active()
+                    && matches!(event.kind, WMEK::Press(MousePress::Left))
+                    && modifiers.contains(window::Modifiers::ALT)
+                {
+                    let cursor = pane.get_cursor_position();
+                    if stable_row == cursor.y {
+                        let (from_col, to_col) = if column > cursor.x {
+                            (cursor.x, column)
+                        } else {
+                            (column, cursor.x)
+                        };
+
+                        // Count logical characters (not cells) between the two columns.
+                        // Wide chars (CJK etc.) occupy 2 cells but advance the cursor by 1 keypress.
+                        struct CountArrows {
+                            from_col: usize,
+                            to_col: usize,
+                            count: usize,
+                        }
+                        impl WithPaneLines for CountArrows {
+                            fn with_lines_mut(
+                                &mut self,
+                                _first_row: StableRowIndex,
+                                lines: &mut [&mut Line],
+                            ) {
+                                if let Some(line) = lines.first() {
+                                    for cell in line.visible_cells() {
+                                        let idx = cell.cell_index();
+                                        if idx < self.to_col && idx + cell.width() > self.from_col {
+                                            self.count += 1;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        let mut counter = CountArrows {
+                            from_col,
+                            to_col,
+                            count: 0,
+                        };
+                        pane.with_lines_mut(stable_row..stable_row + 1, &mut counter);
+
+                        if counter.count > 0 {
+                            let arrow: &[u8] = if column > cursor.x {
+                                b"\x1b[C"
+                            } else {
+                                b"\x1b[D"
+                            };
+                            let bytes: Vec<u8> = arrow.repeat(counter.count);
+                            if let Err(err) = self.write_terminal_input_bytes(&pane, &bytes) {
+                                log::debug!("option+click cursor move failed: {err:#}");
+                            }
+                            self.maybe_scroll_to_bottom_for_input(&pane);
+                        }
+                        return;
+                    }
                 }
 
                 // normalize delta and streak to make mouse assignment

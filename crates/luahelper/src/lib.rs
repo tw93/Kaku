@@ -81,14 +81,14 @@ pub fn dynamic_to_lua_value<'lua>(
         DynValue::F64(u) => u.into_lua(lua)?,
         DynValue::I64(u) => u.into_lua(lua)?,
         DynValue::Array(array) => {
-            let table = lua.create_table()?;
+            let table = lua.create_table_with_capacity(array.len(), 0)?;
             for (idx, value) in array.into_iter().enumerate() {
                 table.set(idx + 1, dynamic_to_lua_value(lua, value)?)?;
             }
             LuaValue::Table(table)
         }
         DynValue::Object(object) => {
-            let table = lua.create_table()?;
+            let table = lua.create_table_with_capacity(0, object.len())?;
             for (key, value) in object.into_iter() {
                 table.set(
                     dynamic_to_lua_value(lua, key)?,

@@ -167,6 +167,15 @@ async fn main() {
     let addr = std::net::SocketAddr::from(([0, 0, 0, 0], port));
     info!("kaku-relay listening on {}", addr);
 
-    let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
-    axum::serve(listener, app).await.unwrap();
+    let listener = match tokio::net::TcpListener::bind(addr).await {
+        Ok(l) => l,
+        Err(e) => {
+            eprintln!("kaku-relay: failed to bind {}: {}", addr, e);
+            std::process::exit(1);
+        }
+    };
+    if let Err(e) = axum::serve(listener, app).await {
+        eprintln!("kaku-relay: server error: {}", e);
+        std::process::exit(1);
+    }
 }

@@ -1,31 +1,27 @@
-# V0.8.0 Fish 🐟
+# V0.9.0
 
 <div align="center">
   <img src="https://raw.githubusercontent.com/tw93/Kaku/main/assets/logo.png" alt="Kaku Logo" width="120" height="120" />
-  <h1 style="margin: 12px 0 6px;">Kaku V0.8.0</h1>
+  <h1 style="margin: 12px 0 6px;">Kaku V0.9.0</h1>
   <p><em>A fast, out-of-the-box terminal built for AI coding.</em></p>
 </div>
 
 ### Changelog
 
-1. **Fish Shell Support**: Full fish shell integration via `kaku init`, including Starship prompt, Yazi launcher, theme sync, and conf.d entrypoint.
-2. **Bell Tab Indicator**: Background tabs show a bell prefix when tasks finish, with optional Dock badge and toggleable tab prefix.
-3. **Remember Last Directory**: Kaku restores the last working directory when opening new tabs or windows. Can be disabled via `kaku config`.
-4. **Update & Doctor in Tabs**: `kaku update` and `kaku doctor` now open in a dedicated tab instead of blocking the current session.
-5. **Basename-only Tab Titles**: New `tab_title_basename_only` option to show just the directory name instead of the full path.
-6. **Scrollback Fix**: Fixed viewport jumping to top during rapid output, snapping to bottom after scrolling up, and viewport jumping when using Claude Code.
-7. **Bug Fixes & Close Shortcuts**: Fixed window hide, Cmd+Click links, clipboard paste, emoji width, and SSH alias conflicts. Close dialogs now support Enter to confirm and Esc to cancel. Fixed Cmd+Q crash (RefCell double-borrow) and transparent corner arcs on macOS 26.
+1. **Lower CPU and Smarter Titles**: Reduced long-running idle CPU by batching tab title callbacks, coalescing title and status refreshes, and filtering mux notifications per window. Window titles now track the active tab and cwd more reliably.
+2. **Mouse and Link Handling**: `Option+Click` moves the shell cursor to the clicked column on the same line, with wide characters handled correctly. Wrapped hyperlinks now open as full URLs instead of truncated fragments.
+3. **Rendering and Theme Fixes**: Block cursor rendering now matches the full cell height in editors like Nvim. Dim text contrast is improved, and the bundled theme follows macOS light and dark appearance correctly by default.
+4. **macOS Polish**: Added a Traffic Lights toggle in Settings, exposed Always on Top in the Window menu, normalized Finder service file targets to their parent directory, and improved dock grouping and existing-window handoff behavior.
+5. **Shell Integration Hardening**: Zsh updates now preserve custom inline blocks, bundle `zsh-z`, improve `cd` + `Tab` fallback behavior, and surface clearer update feedback during managed shell refreshes.
+6. **Assistant and Provider Setup**: Added MiniMax as a built-in provider preset, improved provider auto-detection in `kaku ai`, and send `User-Agent: Kaku/<version>` on assistant API requests for better provider-side attribution.
 
 ### 更新日志
 
-1. **Fish Shell 完整支持**：`kaku init` 现支持 fish shell 完整引导，含 Starship 提示符、Yazi 启动器、主题同步及 conf.d 入口。
-2. **铃声标签指示器**：后台标签任务完成时显示铃声前缀，支持可选 Dock badge 和标签前缀开关。
-3. **记住上次目录**：新标签和新窗口打开时自动恢复上次工作目录，可通过 `kaku config` 关闭。
-4. **Update/Doctor 在标签中运行**：`kaku update` 和 `kaku doctor` 在独立标签中打开，不阻塞当前会话。
-5. **仅显示目录名标签**：新增 `tab_title_basename_only` 选项，只显示目录名而非完整路径。
-6. **滚动修复**：修复快速输出时 viewport 跳到顶部、往上滚动后自动跳回底部，以及 Claude Code 使用时 viewport 异常跳动的问题。
-7. **Bug 修复**：修复窗口隐藏、Cmd+Click 链接、剪贴板粘贴、emoji 宽度、SSH alias 冲突。关闭确认弹窗现支持回车确认、Esc 取消。修复 macOS 26 上 Cmd+Q 崩溃和透明圆角渲染问题。
-
-Special thanks to @mystersu, @ddotz, @rookie-ricardo, @s010s, @anzksdk, @cynosurech, and @XinCao for their contributions to this release.
+1. **更低 CPU 占用与更稳定的标题更新**：通过批量处理 tab title 回调、合并 title 和 status 刷新、按窗口过滤 mux 通知，修复了长时间运行后的高 CPU 问题。窗口标题现在也能更稳定地跟随当前 tab 和 cwd 更新。
+2. **鼠标与链接交互改进**：支持同一行上的 `Option+Click` 光标定位，并正确处理宽字符。换行后的长链接现在会作为完整 URL 打开，不再只打开被截断的一段。
+3. **渲染与主题修复**：Block cursor 在 Nvim 等编辑器里的高度现与完整 cell 对齐。半亮文本对比度更合理，内置主题在默认情况下也会正确跟随 macOS 明暗外观切换。
+4. **macOS 体验打磨**：设置中新增 Traffic Lights 开关，Window 菜单加入 Always on Top，Finder 服务会把文件目标规范化为父目录，并改进了 dock 分组和复用现有窗口的行为。
+5. **Shell 集成加固**：Zsh 更新流程现在会保留带有自定义内容的 inline block，默认集成 `zsh-z`，改进 `cd` + `Tab` 的兜底补全行为，并在受管 shell 刷新时提供更清晰的更新反馈。
+6. **Assistant 与 Provider 配置改进**：内置新增 MiniMax provider preset，`kaku ai` 中的 provider 自动识别更可靠，并会在 assistant API 请求中附带 `User-Agent: Kaku/<version>` 头。
 
 > https://github.com/tw93/Kaku

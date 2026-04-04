@@ -27,7 +27,12 @@ print_config_update_highlights() {
 	local highlights_file="$script_dir/config_update_highlights.tsv"
 	local found=1
 	local seen=$'\n'
-	local wrap_width=76
+	local wrap_width=72
+	local current_group=""
+
+	local GREEN=$'\033[0;32m'
+	local DIM=$'\033[2m'
+	local NC=$'\033[0m'
 
 	if [[ ! -f "$highlights_file" ]]; then
 		return 1
@@ -38,13 +43,20 @@ print_config_update_highlights() {
 			continue
 		fi
 
-		if [[ "$version" =~ ^[0-9]+$ ]] && (( version >= from_version && version <= target_version )); then
+		if [[ "$version" =~ ^[0-9]+$ ]] && (( version > from_version && version <= target_version )); then
 			if [[ "$seen" == *$'\n'"$highlight"$'\n'* ]]; then
 				continue
 			fi
 			seen+="$highlight"$'\n'
 			found=0
-			printf '%s\n' "$highlight" | fold -s -w "$wrap_width" | sed '1s/^/  • /; 2,$s/^/    /'
+
+			if [[ "$version" != "$current_group" ]]; then
+				current_group="$version"
+				printf "  ${DIM}─── v%s ${NC}\n" "$version"
+			fi
+
+			printf '%s\n' "$highlight" | fold -s -w "$wrap_width" | \
+				sed "1s|^|  ${GREEN}✦${NC} |; 2,\$s|^|    |"
 		fi
 	done < "$highlights_file"
 

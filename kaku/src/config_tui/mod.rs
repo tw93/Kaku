@@ -556,9 +556,9 @@ impl App {
         let value = raw.trim().trim_matches('\'').trim_matches('"');
         let flags: Vec<&str> = value.split('|').map(|s| s.trim()).collect();
 
-        let has_ib = flags.iter().any(|&f| f == "INTEGRATED_BUTTONS");
-        let has_resize = flags.iter().any(|&f| f == "RESIZE");
-        let has_shadow_off = flags.iter().any(|&f| f == "MACOS_FORCE_DISABLE_SHADOW");
+        let has_ib = flags.contains(&"INTEGRATED_BUTTONS");
+        let has_resize = flags.contains(&"RESIZE");
+        let has_shadow_off = flags.contains(&"MACOS_FORCE_DISABLE_SHADOW");
 
         if !has_ib && !has_resize {
             return None;
@@ -578,9 +578,9 @@ impl App {
     fn extract_window_decoration_state(raw: &str) -> (bool, bool, bool) {
         let value = raw.trim().trim_matches('\'').trim_matches('"');
         let flags: Vec<&str> = value.split('|').map(|s| s.trim()).collect();
-        let has_ib = flags.iter().any(|&f| f == "INTEGRATED_BUTTONS");
-        let has_resize = flags.iter().any(|&f| f == "RESIZE");
-        let has_shadow_off = flags.iter().any(|&f| f == "MACOS_FORCE_DISABLE_SHADOW");
+        let has_ib = flags.contains(&"INTEGRATED_BUTTONS");
+        let has_resize = flags.contains(&"RESIZE");
+        let has_shadow_off = flags.contains(&"MACOS_FORCE_DISABLE_SHADOW");
         (has_ib, !has_shadow_off, has_resize)
     }
 

@@ -799,6 +799,7 @@ function __kaku_ai_query_execute
             end
             set -l query (string replace -r '^#\s*' '' -- $cmd)
             if test -n "$query"
+                builtin history append -- $cmd
                 set -g __kaku_ai_waiting 1
                 set -g __kaku_ai_waiting_ts (date +%s)
                 __kaku_set_user_var kaku_ai_query $query

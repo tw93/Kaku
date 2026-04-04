@@ -535,7 +535,9 @@ for plugin in fast-syntax-highlighting zsh-autosuggestions zsh-completions zsh-z
 done
 
 # Remove legacy plugins replaced in this version
-rm -rf "$USER_CONFIG_DIR/plugins/zsh-syntax-highlighting"
+if [[ -n "$USER_CONFIG_DIR" ]]; then
+	rm -rf "$USER_CONFIG_DIR/plugins/zsh-syntax-highlighting"
+fi
 # Copy Plugins
 cp -R "$VENDOR_DIR/fast-syntax-highlighting" "$USER_CONFIG_DIR/plugins/"
 cp -R "$VENDOR_DIR/zsh-autosuggestions" "$USER_CONFIG_DIR/plugins/"
@@ -1275,6 +1277,7 @@ _kaku_ai_query_accept_line() {
         local query="\${BUFFER:1}"
         query="\${query# }"
         if [[ -n "\$query" ]]; then
+            print -s -- "\${BUFFER}"
             _kaku_set_user_var "kaku_ai_query" "\$query"
             _kaku_ai_waiting=1
             _kaku_ai_waiting_ts=\$EPOCHSECONDS
@@ -1513,6 +1516,8 @@ PATH_LINE='[[ ":$PATH:" != *":$HOME/.config/kaku/zsh/bin:"* ]] && export PATH="$
 SOURCE_LINE='[[ -f "$HOME/.config/kaku/zsh/kaku.zsh" ]] && source "$HOME/.config/kaku/zsh/kaku.zsh" # Kaku Shell Integration'
 LEGACY_INLINE_BLOCK_PRESERVED=0
 
+# SYNC: the heredoc below must stay in sync with KAKU_LEGACY_INLINE_KNOWN_LINES
+# in kaku/src/reset.rs. When adding or removing lines, update both places.
 legacy_inline_block_has_only_kaku_managed_lines() {
 	local line
 
