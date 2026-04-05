@@ -121,7 +121,7 @@ resolved_tool_path() {
 		return 0
 	fi
 
-	local candidates=("/opt/homebrew/bin/$tool_name" "/usr/local/bin/$tool_name")
+	local candidates=("/opt/homebrew/bin/$tool_name" "/usr/local/bin/$tool_name" "/opt/local/bin/$tool_name")
 
 	# If we already have a brew binary, derive the prefix for tool lookup
 	if [[ -n "${BREW_BIN:-}" && -x "$BREW_BIN" ]]; then

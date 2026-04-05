@@ -113,6 +113,7 @@ fn try_vscode(path: &Path) -> anyhow::Result<bool> {
         "code".to_string(),
         "/usr/local/bin/code".to_string(),
         "/opt/homebrew/bin/code".to_string(),
+        "/opt/local/bin/code".to_string(),
         "/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code".to_string(),
     ];
 

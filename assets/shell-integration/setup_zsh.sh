@@ -405,18 +405,22 @@ BLOCK
 
 resolve_real_yazi() {
 	local candidate
-	for candidate in /opt/homebrew/bin/yazi /usr/local/bin/yazi; do
+
+	# Check PATH first so any package manager (MacPorts, Nix, etc.) is found
+	local path_entry
+	IFS=':' read -r -a path_entries <<< "${PATH:-}"
+	for path_entry in "${path_entries[@]}"; do
+		[[ -z "$path_entry" || "$path_entry" == "$WRAPPER_DIR" ]] && continue
+		candidate="$path_entry/yazi"
 		if [[ -x "$candidate" && "$candidate" != "$WRAPPER_PATH" ]]; then
 			printf '%s\n' "$candidate"
 			return 0
 		fi
 	done
 
-	local path_entry
-	IFS=':' read -r -a path_entries <<< "${PATH:-}"
-	for path_entry in "${path_entries[@]}"; do
-		[[ -z "$path_entry" || "$path_entry" == "$WRAPPER_DIR" ]] && continue
-		candidate="$path_entry/yazi"
+	# Fallback to well-known install locations for GUI-launched shells
+	# where PATH may be minimal
+	for candidate in /opt/homebrew/bin/yazi /usr/local/bin/yazi /opt/local/bin/yazi; do
 		if [[ -x "$candidate" && "$candidate" != "$WRAPPER_PATH" ]]; then
 			printf '%s\n' "$candidate"
 			return 0
@@ -1491,6 +1495,8 @@ has_kaku_tmux_source_line() {
 ensure_kaku_tmux_integration() {
 	# GUI-launched shells inherit a minimal PATH (no Homebrew). Probe common
 	# install locations so tmux is found even when PATH is stripped down.
+	# GUI-launched shells inherit a minimal PATH (no Homebrew/MacPorts). Probe
+	# common install locations so tmux is found even when PATH is stripped down.
 	local tmux_cmd=""
 	if command -v tmux >/dev/null 2>&1; then
 		tmux_cmd="tmux"
@@ -1498,6 +1504,8 @@ ensure_kaku_tmux_integration() {
 		tmux_cmd=/opt/homebrew/bin/tmux
 	elif [[ -x /usr/local/bin/tmux ]]; then
 		tmux_cmd=/usr/local/bin/tmux
+	elif [[ -x /opt/local/bin/tmux ]]; then
+		tmux_cmd=/opt/local/bin/tmux
 	fi
 
 	if [[ -z "$tmux_cmd" ]]; then

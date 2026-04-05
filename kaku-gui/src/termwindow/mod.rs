@@ -153,6 +153,7 @@ const VSCODE_OPEN_CANDIDATES: &[&str] = &[
     "code",
     "/usr/local/bin/code",
     "/opt/homebrew/bin/code",
+    "/opt/local/bin/code",
     "/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code",
 ];
 
