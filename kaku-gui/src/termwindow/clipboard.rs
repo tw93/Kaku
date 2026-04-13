@@ -40,6 +40,18 @@ fn should_emit_ai_notice(kind: &str, message: &str) -> bool {
 }
 
 impl TermWindow {
+    pub fn copy_to_clipboard_if_present(
+        &self,
+        clipboard: ClipboardCopyDestination,
+        text: String,
+    ) -> bool {
+        let Some(text) = clipboard_text_if_present(text) else {
+            return false;
+        };
+        self.copy_to_clipboard(clipboard, text);
+        true
+    }
+
     pub fn copy_to_clipboard(&self, clipboard: ClipboardCopyDestination, text: String) {
         let clipboard = match clipboard {
             ClipboardCopyDestination::Clipboard => [Some(Clipboard::Clipboard), None],
@@ -210,6 +222,14 @@ impl TermWindow {
     }
 }
 
+fn clipboard_text_if_present(text: String) -> Option<String> {
+    if text.is_empty() {
+        None
+    } else {
+        Some(text)
+    }
+}
+
 fn data_to_paste_string(
     data: ClipboardData,
     quote_dropped_files: config::DroppedFileQuoting,
@@ -236,6 +256,24 @@ fn format_dropped_paths(
         .collect::<Vec<_>>()
         .join(" ")
         + " " // Trailing space so the shell treats this as ready-to-append arguments.
+}
+
+#[cfg(test)]
+mod tests {
+    use super::clipboard_text_if_present;
+
+    #[test]
+    fn clipboard_text_if_present_skips_empty_strings() {
+        assert_eq!(clipboard_text_if_present(String::new()), None);
+    }
+
+    #[test]
+    fn clipboard_text_if_present_keeps_non_empty_strings() {
+        assert_eq!(
+            clipboard_text_if_present("selected text".to_string()),
+            Some("selected text".to_string())
+        );
+    }
 }
 
 fn quote_path_for_clipboard_paste(
