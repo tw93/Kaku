@@ -1,0 +1,77 @@
+---
+---
+
+<section class="ai-section">
+  <div class="kk-container">
+    <div class="ai-tag">[4] 自然语言 → 命令</div>
+    <div class="ai-box">
+      <div class="row"><span class="muted"># 把今天的修改推到 feature 分支</span></div>
+      <div class="row arrow">↓ Kaku 自动生成</div>
+      <div class="row cmd">git add . &amp;&amp; git commit -m "..." &amp;&amp; git push -u origin feature</div>
+    </div>
+    <h2>自然语言 → 命令</h2>
+    <p>
+      在 shell 提示符前打 <code>#</code> 加自然语言，Kaku 调用 LLM 生成命令注入回提示符，
+      审查后按回车执行。配合 <kbd>⌘⇧A</kbd> 打开 AI 面板、<kbd>⌘⇧E</kbd> 应用修复建议。
+    </p>
+  </div>
+</section>
+
+<style>
+  .ai-section {
+    padding: var(--kk-space-16) 0;
+    border-bottom: 1px dashed var(--kk-border);
+  }
+  .ai-tag {
+    color: var(--kk-accent);
+    font-family: var(--kk-font-mono);
+    font-size: 11px;
+    letter-spacing: 1px;
+    opacity: 0.7;
+    margin-bottom: var(--kk-space-6);
+    text-align: center;
+  }
+  .ai-box {
+    background: #0d1a12;
+    border: 1px solid #1a3a25;
+    border-radius: var(--kk-radius-md);
+    padding: var(--kk-space-6);
+    font-family: var(--kk-font-mono);
+    font-size: 13px;
+    max-width: 520px;
+    margin: 0 auto var(--kk-space-8);
+  }
+  .row { margin-bottom: var(--kk-space-2); }
+  .row:last-child { margin-bottom: 0; }
+  .muted { color: var(--kk-accent); }
+  .arrow { color: var(--kk-text-dim); font-size: 11px; }
+  .cmd { color: var(--kk-text); }
+  h2 {
+    color: var(--kk-text);
+    font-size: 24px;
+    text-align: center;
+    margin: 0 0 var(--kk-space-3);
+  }
+  p {
+    color: var(--kk-text-dim);
+    font-size: 14px;
+    text-align: center;
+    max-width: 520px;
+    margin: 0 auto;
+  }
+  p code {
+    background: var(--kk-bg-card);
+    color: var(--kk-accent);
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: 12px;
+  }
+  p kbd {
+    background: var(--kk-bg-card);
+    color: var(--kk-text);
+    padding: 1px 5px;
+    border-radius: 3px;
+    border: 1px solid var(--kk-border-strong);
+    font-size: 12px;
+  }
+</style>
