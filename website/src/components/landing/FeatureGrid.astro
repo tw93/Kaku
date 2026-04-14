@@ -1,0 +1,88 @@
+---
+interface Feature {
+  icon: string;
+  title: string;
+  desc: string;
+  href: string;
+}
+
+const features: Feature[] = [
+  { icon: '▸', title: '零配置',       desc: 'JetBrains Mono 默认，开箱即用', href: '/Kaku/docs/start/first-config' },
+  { icon: '▸', title: 'AI 内建',      desc: '错误修复 / NL 转命令',          href: '/Kaku/docs/ai/overview' },
+  { icon: '▸', title: '主题感知',      desc: '跟随系统明暗自动切换',          href: '/Kaku/docs/config/theme' },
+  { icon: '▸', title: 'GPU 渲染',     desc: '继承 WezTerm 渲染栈',           href: '/Kaku/docs/config/font' },
+  { icon: '▸', title: 'Lua 兼容',     desc: 'WezTerm 配置零迁移',            href: '/Kaku/docs/config/lua' },
+  { icon: '▸', title: '集成全家桶',    desc: 'Lazygit / Yazi / Zsh',          href: '/Kaku/docs/features/integrations' },
+];
+---
+
+<section class="fg-section">
+  <div class="kk-container-wide">
+    <div class="fg-tag">[3] 6 核心特性</div>
+    <div class="grid">
+      {features.map(f => (
+        <a class="cell" href={f.href}>
+          <span class="icon">{f.icon}</span>
+          <strong>{f.title}</strong>
+          <span class="desc">{f.desc}</span>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .fg-section {
+    padding: var(--kk-space-16) 0;
+    border-bottom: 1px dashed var(--kk-border);
+  }
+  .fg-tag {
+    color: var(--kk-accent);
+    font-family: var(--kk-font-mono);
+    font-size: 11px;
+    letter-spacing: 1px;
+    opacity: 0.7;
+    margin-bottom: var(--kk-space-6);
+    text-align: center;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--kk-space-3);
+    max-width: 960px;
+    margin: 0 auto;
+  }
+  .cell {
+    background: var(--kk-bg-card);
+    border: 1px solid var(--kk-border);
+    border-radius: var(--kk-radius-md);
+    padding: var(--kk-space-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--kk-space-2);
+    transition: border-color 0.15s, transform 0.15s;
+    text-decoration: none;
+  }
+  .cell:hover {
+    border-color: var(--kk-accent);
+    transform: translateY(-2px);
+    text-decoration: none;
+  }
+  .cell .icon {
+    color: var(--kk-accent);
+    font-family: var(--kk-font-mono);
+    font-size: 14px;
+  }
+  .cell strong {
+    color: var(--kk-text);
+    font-size: 16px;
+    font-weight: 600;
+  }
+  .cell .desc {
+    color: var(--kk-text-dim);
+    font-size: 13px;
+  }
+  @media (max-width: 720px) {
+    .grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
