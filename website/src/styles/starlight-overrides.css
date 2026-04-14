@@ -12,6 +12,17 @@
   --sl-color-hairline-light: var(--kk-border);
   --sl-font: var(--kk-font-sans);
   --sl-font-mono: var(--kk-font-mono);
+
+  /* Starlight uses a gray scale for prose body and headings.
+     Map the brightest grays to our white text token so docs prose
+     is white instead of the default off-gray. */
+  --sl-color-white: var(--kk-text);
+  --sl-color-gray-1: var(--kk-text);
+  --sl-color-gray-2: var(--kk-text);
+  --sl-color-gray-3: #d4d4d4;
+  --sl-color-gray-4: #a8a8a8;
+  --sl-color-gray-5: var(--kk-text-dim);
+  --sl-color-gray-6: var(--kk-text-muted);
 }
 
 /* Hide theme selector since we're dark-only in v1 */

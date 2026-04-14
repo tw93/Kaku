@@ -1,11 +1,11 @@
 :root {
-  /* Colors — Terminal Hacker */
+  /* Colors — Terminal Hacker (warm-gray text + neon accent) */
   --kk-bg: #0a0a0a;
   --kk-bg-elev: #050505;
   --kk-bg-card: #111111;
   --kk-border: #1f1f1f;
   --kk-border-strong: #2a2a2a;
-  --kk-text: #e5e5e5;
+  --kk-text: #ffffff;
   --kk-text-dim: #888888;
   --kk-text-muted: #666666;
   --kk-accent: #00ff9f;
