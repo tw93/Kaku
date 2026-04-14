@@ -1,0 +1,151 @@
+---
+// Pure CSS animation. No JavaScript needed.
+// Respects prefers-reduced-motion via global.css.
+---
+
+<section class="td-section">
+  <div class="kk-container">
+    <div class="td-tag">[2] 错误自动修复</div>
+    <div class="terminal">
+      <div class="term-bar">
+        <span class="dot red"></span>
+        <span class="dot yellow"></span>
+        <span class="dot green"></span>
+        <span class="term-title">~/proj — kaku</span>
+      </div>
+      <div class="term-body">
+        <div class="line line-1">
+          <span class="prompt">~/proj $</span>
+          <span class="cmd">npm run buidl</span>
+          <span class="cursor">▌</span>
+        </div>
+        <div class="line line-2 err">npm ERR! Missing script: "buidl"</div>
+        <div class="line line-3 hint">
+          <span class="icon">💡</span>
+          <span>Kaku: Did you mean <code>npm run build</code>? Press <kbd>⌘⇧E</kbd> to apply</span>
+        </div>
+        <div class="line line-4">
+          <span class="prompt">~/proj $</span>
+          <span class="cmd">npm run build</span>
+          <span class="ok">✓</span>
+        </div>
+      </div>
+    </div>
+    <h2 class="td-title">一个会自己动的终端演示</h2>
+    <p class="td-desc">Kaku 检测到命令失败后自动建议修复，按 <kbd>⌘⇧E</kbd> 一键应用。这是 Kaku 最具差异化的卖点之一。</p>
+  </div>
+</section>
+
+<style>
+  .td-section {
+    padding: var(--kk-space-16) 0;
+    border-bottom: 1px dashed var(--kk-border);
+  }
+  .td-tag {
+    color: var(--kk-accent);
+    font-family: var(--kk-font-mono);
+    font-size: 11px;
+    letter-spacing: 1px;
+    opacity: 0.7;
+    margin-bottom: var(--kk-space-3);
+    text-align: center;
+  }
+  .terminal {
+    background: #000;
+    border: 1px solid var(--kk-border-strong);
+    border-radius: var(--kk-radius-md);
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 255, 159, 0.05);
+    max-width: 640px;
+    margin: 0 auto var(--kk-space-8);
+  }
+  .term-bar {
+    background: #111;
+    padding: var(--kk-space-2) var(--kk-space-4);
+    display: flex;
+    align-items: center;
+    gap: var(--kk-space-2);
+    border-bottom: 1px solid var(--kk-border);
+  }
+  .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .dot.red { background: #ff5f57; }
+  .dot.yellow { background: #febc2e; }
+  .dot.green { background: #28c840; }
+  .term-title {
+    color: var(--kk-text-muted);
+    font-size: 11px;
+    font-family: var(--kk-font-mono);
+    margin-left: auto;
+  }
+  .term-body {
+    padding: var(--kk-space-6);
+    font-family: var(--kk-font-mono);
+    font-size: 13px;
+    min-height: 160px;
+  }
+  .line { margin-bottom: var(--kk-space-2); opacity: 0; animation: appear 12s infinite; }
+  .line-1 { animation-delay: 0s; color: var(--kk-text); }
+  .line-2 { animation-delay: 2s; color: var(--kk-error); }
+  .line-3 { animation-delay: 3.5s; color: var(--kk-text-dim); }
+  .line-4 { animation-delay: 6s; color: var(--kk-text); }
+  .prompt { color: var(--kk-accent); margin-right: var(--kk-space-2); }
+  .cmd { color: var(--kk-text); }
+  .ok { color: var(--kk-accent); margin-left: var(--kk-space-2); }
+  .icon { margin-right: var(--kk-space-2); }
+  .line code {
+    background: rgba(0, 255, 159, 0.1);
+    color: var(--kk-accent);
+    padding: 1px 4px;
+    border-radius: 2px;
+  }
+  .line kbd {
+    background: var(--kk-bg-card);
+    color: var(--kk-text);
+    padding: 1px 5px;
+    border-radius: 3px;
+    border: 1px solid var(--kk-border-strong);
+    font-size: 11px;
+  }
+  .cursor {
+    display: inline-block;
+    color: var(--kk-accent);
+    animation: blink 1s steps(2) infinite;
+  }
+  @keyframes appear {
+    0% { opacity: 0; transform: translateY(4px); }
+    5%, 70% { opacity: 1; transform: translateY(0); }
+    80%, 100% { opacity: 0; }
+  }
+  @keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+  }
+  .td-title {
+    color: var(--kk-text);
+    font-size: 24px;
+    text-align: center;
+    margin: 0 0 var(--kk-space-3);
+  }
+  .td-desc {
+    color: var(--kk-text-dim);
+    font-size: 14px;
+    text-align: center;
+    max-width: 520px;
+    margin: 0 auto;
+  }
+  .td-desc code {
+    background: var(--kk-bg-card);
+    color: var(--kk-accent);
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: 12px;
+  }
+  .td-desc kbd {
+    background: var(--kk-bg-card);
+    color: var(--kk-text);
+    padding: 1px 5px;
+    border-radius: 3px;
+    border: 1px solid var(--kk-border-strong);
+    font-size: 12px;
+  }
+</style>
