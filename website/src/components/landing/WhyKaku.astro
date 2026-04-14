@@ -1,0 +1,75 @@
+---
+---
+
+<section class="wk-section">
+  <div class="kk-container">
+    <div class="wk-tag">[8] Why Kaku</div>
+    <div class="card">
+      <div class="avatar">
+        <img src="https://github.com/tw93.png" alt="Tw93" />
+      </div>
+      <div class="body">
+        <h2>为什么我做了 Kaku</h2>
+        <p>
+          我重度依赖终端工作，此前做过
+          <a href="https://github.com/tw93/Pake" target="_blank" rel="noopener noreferrer">Pake</a> 和
+          <a href="https://github.com/tw93/mole" target="_blank" rel="noopener noreferrer">Mole</a> —— 这些工具都是为了让日常开发更顺手。
+          Kaku 是我对"AI 编码时代的终端"的答案：把 WezTerm 的渲染性能和 Lua 扩展力保留下来，
+          默认更好看，并把 AI 助手做进来。希望你也喜欢。
+        </p>
+        <p class="signoff">—— Tw93 · <a href="https://twitter.com/HiTw93" target="_blank" rel="noopener noreferrer">@HiTw93</a></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .wk-section {
+    padding: var(--kk-space-16) 0;
+    border-bottom: 1px dashed var(--kk-border);
+  }
+  .wk-tag {
+    color: var(--kk-accent);
+    font-family: var(--kk-font-mono);
+    font-size: 11px;
+    letter-spacing: 1px;
+    opacity: 0.7;
+    margin-bottom: var(--kk-space-6);
+    text-align: center;
+  }
+  .card {
+    display: flex;
+    gap: var(--kk-space-6);
+    align-items: flex-start;
+    background: var(--kk-bg-card);
+    border: 1px solid var(--kk-border);
+    border-radius: var(--kk-radius-md);
+    padding: var(--kk-space-6);
+    max-width: 640px;
+    margin: 0 auto;
+  }
+  .avatar img {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    border: 1px solid var(--kk-accent);
+  }
+  .body { flex: 1; }
+  .body h2 {
+    color: var(--kk-text);
+    font-size: 18px;
+    margin: 0 0 var(--kk-space-3);
+  }
+  .body p {
+    color: var(--kk-text-dim);
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 0 0 var(--kk-space-3);
+  }
+  .body p:last-child { margin-bottom: 0; }
+  .body a { color: var(--kk-accent); }
+  .signoff { font-family: var(--kk-font-mono); font-size: 13px; }
+  @media (max-width: 600px) {
+    .card { flex-direction: column; align-items: center; text-align: center; }
+  }
+</style>
