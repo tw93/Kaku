@@ -51,14 +51,14 @@ const groups: LinkGroup[] = [
           <h4>{group.title}</h4>
           <ul>
             {group.links.map(link => (
-              <li><a href={link.href}>{link.label}</a></li>
+              <li><a href={link.href} {...(link.href.startsWith('http') ? { target: '_blank', rel: 'noopener noreferrer' } : {})}>{link.label}</a></li>
             ))}
           </ul>
         </div>
       ))}
     </div>
     <div class="footer-bottom">
-      <span>Kaku · Built on <a href="https://github.com/wez/wezterm">WezTerm</a> · MIT License · © {year} Tw93</span>
+      <span>Kaku · Built on <a href="https://github.com/wez/wezterm" target="_blank" rel="noopener noreferrer">WezTerm</a> · MIT License · © {year} Tw93</span>
     </div>
   </div>
 </footer>

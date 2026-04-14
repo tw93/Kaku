@@ -1,0 +1,116 @@
+---
+interface Props {
+  lang?: string;
+}
+const { lang = 'zh-CN' } = Astro.props;
+const isEn = lang === 'en';
+
+interface NavLink { label: string; href: string; }
+const links: NavLink[] = isEn ? [
+  { label: 'Docs',      href: '/Kaku/en/docs/' },
+  { label: 'Download',  href: '/Kaku/download' },
+  { label: 'Roadmap',   href: '/Kaku/roadmap' },
+  { label: 'Changelog', href: '/Kaku/changelog' },
+] : [
+  { label: '文档',      href: '/Kaku/docs/' },
+  { label: '下载',      href: '/Kaku/download' },
+  { label: 'Roadmap',   href: '/Kaku/roadmap' },
+  { label: 'Changelog', href: '/Kaku/changelog' },
+];
+
+const langSwitchHref = isEn ? '/Kaku/' : '/Kaku/en/';
+const langSwitchLabel = isEn ? '中' : 'EN';
+---
+
+<nav class="site-nav">
+  <div class="kk-container-wide nav-inner">
+    <a class="brand" href={isEn ? '/Kaku/en/' : '/Kaku/'}>
+      <span class="brand-mark">▸</span>
+      <span class="brand-name">Kaku</span>
+    </a>
+    <div class="nav-links">
+      {links.map(link => (
+        <a class="nav-link" href={link.href}>{link.label}</a>
+      ))}
+    </div>
+    <div class="nav-right">
+      <a class="lang-switch" href={langSwitchHref}>{langSwitchLabel}</a>
+      <a class="gh-link" href="https://github.com/tw93/Kaku" target="_blank" rel="noopener noreferrer">
+        <span>GitHub</span>
+        <span class="star">★</span>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<style>
+  .site-nav {
+    background: var(--kk-bg-elev);
+    border-bottom: 1px solid var(--kk-border);
+    padding: var(--kk-space-3) 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(8px);
+  }
+  .nav-inner {
+    display: flex;
+    align-items: center;
+    gap: var(--kk-space-6);
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: var(--kk-space-2);
+    text-decoration: none;
+    font-family: var(--kk-font-mono);
+    font-weight: 700;
+    color: var(--kk-text);
+  }
+  .brand-mark { color: var(--kk-accent); }
+  .brand-name { font-size: 16px; }
+  .nav-links {
+    display: flex;
+    gap: var(--kk-space-6);
+    flex: 1;
+  }
+  .nav-link {
+    color: var(--kk-text-dim);
+    font-size: 13px;
+    text-decoration: none;
+    font-family: var(--kk-font-mono);
+  }
+  .nav-link:hover { color: var(--kk-accent); text-decoration: none; }
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: var(--kk-space-4);
+  }
+  .lang-switch {
+    color: var(--kk-text-dim);
+    font-family: var(--kk-font-mono);
+    font-size: 12px;
+    padding: var(--kk-space-1) var(--kk-space-2);
+    border: 1px solid var(--kk-border-strong);
+    border-radius: var(--kk-radius-sm);
+    text-decoration: none;
+  }
+  .lang-switch:hover { color: var(--kk-accent); border-color: var(--kk-accent); text-decoration: none; }
+  .gh-link {
+    display: flex;
+    align-items: center;
+    gap: var(--kk-space-2);
+    color: var(--kk-text);
+    font-family: var(--kk-font-mono);
+    font-size: 12px;
+    padding: var(--kk-space-1) var(--kk-space-3);
+    border: 1px solid var(--kk-border-strong);
+    border-radius: var(--kk-radius-sm);
+    text-decoration: none;
+  }
+  .gh-link:hover { border-color: var(--kk-accent); text-decoration: none; }
+  .gh-link .star { color: var(--kk-accent); }
+  @media (max-width: 720px) {
+    .nav-links { display: none; }
+  }
+</style>
