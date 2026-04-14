@@ -1,0 +1,114 @@
+---
+---
+
+<section class="mt-section">
+  <div class="kk-container">
+    <div class="mt-tag">[5] 迁移指南</div>
+    <h2>从 iTerm2 或 WezTerm 迁移</h2>
+    <div class="tabs" role="tablist">
+      <button class="tab active" role="tab" data-tab="iterm2">我是 iTerm2 用户</button>
+      <button class="tab" role="tab" data-tab="wezterm">我是 WezTerm 用户</button>
+    </div>
+    <div class="tab-panel active" data-panel="iterm2">
+      <ul>
+        <li>✓ 保留你熟悉的 <kbd>⌘T</kbd> / <kbd>⌘W</kbd> / <kbd>⌘D</kbd> 习惯</li>
+        <li>✓ 启动更快，二进制体积更小</li>
+        <li>✓ 额外送你一套 AI 助手（错误修复 + 自然语言转命令）</li>
+        <li>✓ GPU 渲染，滚动大输出不卡</li>
+      </ul>
+      <a class="more" href="/Kaku/docs/start/migrate-iterm2">完整 iTerm2 迁移指南 →</a>
+    </div>
+    <div class="tab-panel" data-panel="wezterm">
+      <ul>
+        <li>✓ 你的 <code>.wezterm.lua</code> 配置零迁移直接可用</li>
+        <li>✓ 二进制体积比上游小 40%</li>
+        <li>✓ 默认字体、配色、字体渲染都更好看</li>
+        <li>✓ 内建 AI 功能是上游没有的</li>
+      </ul>
+      <a class="more" href="/Kaku/docs/start/migrate-wezterm">完整 WezTerm 迁移指南 →</a>
+    </div>
+  </div>
+</section>
+
+<script>
+  const tabs = document.querySelectorAll<HTMLButtonElement>('.mt-section .tab');
+  const panels = document.querySelectorAll<HTMLDivElement>('.mt-section .tab-panel');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const target = tab.dataset.tab;
+      tabs.forEach(t => t.classList.toggle('active', t === tab));
+      panels.forEach(p => p.classList.toggle('active', p.dataset.panel === target));
+    });
+  });
+</script>
+
+<style>
+  .mt-section {
+    padding: var(--kk-space-16) 0;
+    border-bottom: 1px dashed var(--kk-border);
+  }
+  .mt-tag {
+    color: var(--kk-accent);
+    font-family: var(--kk-font-mono);
+    font-size: 11px;
+    letter-spacing: 1px;
+    opacity: 0.7;
+    margin-bottom: var(--kk-space-3);
+    text-align: center;
+  }
+  h2 {
+    color: var(--kk-text);
+    font-size: 24px;
+    text-align: center;
+    margin: 0 0 var(--kk-space-8);
+  }
+  .tabs {
+    display: flex;
+    justify-content: center;
+    gap: var(--kk-space-2);
+    margin-bottom: var(--kk-space-6);
+  }
+  .tab {
+    background: transparent;
+    border: 1px solid var(--kk-border-strong);
+    color: var(--kk-text-dim);
+    padding: var(--kk-space-2) var(--kk-space-4);
+    font-family: var(--kk-font-mono);
+    font-size: 12px;
+    border-radius: var(--kk-radius-sm);
+    cursor: pointer;
+  }
+  .tab.active {
+    background: var(--kk-accent);
+    color: var(--kk-bg);
+    border-color: var(--kk-accent);
+  }
+  .tab-panel {
+    display: none;
+    background: var(--kk-bg-card);
+    border: 1px solid var(--kk-border);
+    border-radius: var(--kk-radius-md);
+    padding: var(--kk-space-6);
+  }
+  .tab-panel.active { display: block; }
+  .tab-panel ul { margin: 0; padding-left: var(--kk-space-6); }
+  .tab-panel li {
+    color: var(--kk-text);
+    font-size: 14px;
+    margin-bottom: var(--kk-space-2);
+  }
+  .tab-panel li code, .tab-panel li kbd {
+    background: var(--kk-bg);
+    color: var(--kk-accent);
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: 12px;
+  }
+  .more {
+    display: inline-block;
+    margin-top: var(--kk-space-4);
+    color: var(--kk-accent);
+    font-family: var(--kk-font-mono);
+    font-size: 13px;
+  }
+</style>
