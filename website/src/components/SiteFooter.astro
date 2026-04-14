@@ -1,0 +1,105 @@
+---
+const year = new Date().getFullYear();
+
+interface LinkGroup {
+  title: string;
+  links: { label: string; href: string }[];
+}
+
+const groups: LinkGroup[] = [
+  {
+    title: '产品',
+    links: [
+      { label: '下载', href: '/Kaku/download' },
+      { label: 'Changelog', href: '/Kaku/changelog' },
+      { label: '主题', href: '/Kaku/docs/config/theme' },
+    ],
+  },
+  {
+    title: '文档',
+    links: [
+      { label: '快速开始', href: '/Kaku/docs/start/install' },
+      { label: 'AI 功能', href: '/Kaku/docs/ai/overview' },
+      { label: '配置', href: '/Kaku/docs/config/lua' },
+      { label: 'FAQ', href: '/Kaku/docs/reference/faq' },
+    ],
+  },
+  {
+    title: '社区',
+    links: [
+      { label: 'GitHub', href: 'https://github.com/tw93/Kaku' },
+      { label: 'Issues', href: 'https://github.com/tw93/Kaku/issues' },
+      { label: 'X / Twitter', href: 'https://twitter.com/HiTw93' },
+    ],
+  },
+  {
+    title: '项目',
+    links: [
+      { label: 'Roadmap', href: '/Kaku/roadmap' },
+      { label: 'License', href: 'https://github.com/tw93/Kaku/blob/main/LICENSE.md' },
+      { label: '作者', href: 'https://github.com/tw93' },
+    ],
+  },
+];
+---
+
+<footer class="site-footer">
+  <div class="kk-container-wide footer-inner">
+    <div class="footer-cols">
+      {groups.map(group => (
+        <div class="footer-col">
+          <h4>{group.title}</h4>
+          <ul>
+            {group.links.map(link => (
+              <li><a href={link.href}>{link.label}</a></li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+    <div class="footer-bottom">
+      <span>Kaku · Built on <a href="https://github.com/wez/wezterm">WezTerm</a> · MIT License · © {year} Tw93</span>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background: var(--kk-bg-elev);
+    border-top: 1px solid var(--kk-border);
+    padding: var(--kk-space-12) 0 var(--kk-space-6);
+    margin-top: var(--kk-space-16);
+  }
+  .footer-inner { display: flex; flex-direction: column; gap: var(--kk-space-8); }
+  .footer-cols {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--kk-space-6);
+  }
+  .footer-col h4 {
+    color: var(--kk-text);
+    font-size: 12px;
+    font-family: var(--kk-font-mono);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 0 0 var(--kk-space-3);
+  }
+  .footer-col ul { list-style: none; padding: 0; margin: 0; }
+  .footer-col li { margin-bottom: var(--kk-space-2); }
+  .footer-col a {
+    color: var(--kk-text-dim);
+    font-size: 13px;
+  }
+  .footer-col a:hover { color: var(--kk-accent); }
+  .footer-bottom {
+    border-top: 1px dashed var(--kk-border);
+    padding-top: var(--kk-space-4);
+    font-size: 12px;
+    color: var(--kk-text-muted);
+    font-family: var(--kk-font-mono);
+  }
+  .footer-bottom a { color: var(--kk-text-dim); }
+  @media (max-width: 720px) {
+    .footer-cols { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
