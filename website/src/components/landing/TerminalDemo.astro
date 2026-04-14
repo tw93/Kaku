@@ -6,14 +6,14 @@
 <section class="td-section">
   <div class="kk-container">
     <div class="td-tag">[2] 错误自动修复</div>
-    <div class="terminal">
-      <div class="term-bar">
+    <div class="terminal" role="img" aria-label="终端演示：Kaku 检测到 npm run buidl 拼写错误，建议改为 npm run build 并按 ⌘⇧E 应用修复">
+      <div class="term-bar" aria-hidden="true">
         <span class="dot red"></span>
         <span class="dot yellow"></span>
         <span class="dot green"></span>
         <span class="term-title">~/proj — kaku</span>
       </div>
-      <div class="term-body">
+      <div class="term-body" aria-hidden="true">
         <div class="line line-1">
           <span class="prompt">~/proj $</span>
           <span class="cmd">npm run buidl</span>
@@ -55,7 +55,7 @@
     border: 1px solid var(--kk-border-strong);
     border-radius: var(--kk-radius-md);
     overflow: hidden;
-    box-shadow: 0 20px 60px rgba(0, 255, 159, 0.05);
+    box-shadow: 0 20px 60px color-mix(in srgb, var(--kk-accent) 5%, transparent);
     max-width: 640px;
     margin: 0 auto var(--kk-space-8);
   }
@@ -93,7 +93,7 @@
   .ok { color: var(--kk-accent); margin-left: var(--kk-space-2); }
   .icon { margin-right: var(--kk-space-2); }
   .line code {
-    background: rgba(0, 255, 159, 0.1);
+    background: color-mix(in srgb, var(--kk-accent) 10%, transparent);
     color: var(--kk-accent);
     padding: 1px 4px;
     border-radius: 2px;
