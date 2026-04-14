@@ -1,0 +1,95 @@
+---
+import LandingLayout from '../layouts/LandingLayout.astro';
+---
+
+<LandingLayout title="下载 Kaku" description="下载 Kaku 终端 · macOS DMG · Homebrew · 源码编译" lang="zh-CN">
+  <section class="dl">
+    <div class="kk-container">
+      <div class="tag">~/kaku $ download</div>
+      <h1>下载 Kaku</h1>
+      <p class="sub">选一种你喜欢的方式</p>
+
+      <div class="methods">
+        <a class="method" href="https://github.com/tw93/Kaku/releases/latest" target="_blank" rel="noopener noreferrer">
+          <div class="icon" aria-hidden="true">📦</div>
+          <strong>macOS DMG</strong>
+          <span>最新 release · 经过 Apple 公证 · 直接拖到应用程序</span>
+          <span class="btn">前往 GitHub Releases →</span>
+        </a>
+
+        <div class="method">
+          <div class="icon" aria-hidden="true">🍺</div>
+          <strong>Homebrew</strong>
+          <span>一条命令装好，支持自动更新</span>
+          <pre><code>brew install tw93/tap/kaku</code></pre>
+        </div>
+
+        <a class="method" href="https://github.com/tw93/Kaku#building-from-source" target="_blank" rel="noopener noreferrer">
+          <div class="icon" aria-hidden="true">⚙️</div>
+          <strong>从源码编译</strong>
+          <span>需要 Rust 工具链 · 适合 contributor</span>
+          <span class="btn">编译指南 →</span>
+        </a>
+      </div>
+    </div>
+  </section>
+</LandingLayout>
+
+<style>
+  .dl { padding: var(--kk-space-16) 0; }
+  .tag {
+    color: var(--kk-accent);
+    font-family: var(--kk-font-mono);
+    font-size: 13px;
+    opacity: 0.7;
+    margin-bottom: var(--kk-space-4);
+    text-align: center;
+  }
+  h1 {
+    color: var(--kk-text);
+    font-size: 40px;
+    text-align: center;
+    margin: 0 0 var(--kk-space-3);
+  }
+  .sub {
+    color: var(--kk-text-dim);
+    text-align: center;
+    margin: 0 0 var(--kk-space-12);
+  }
+  .methods {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--kk-space-4);
+    max-width: 960px;
+    margin: 0 auto;
+  }
+  .method {
+    background: var(--kk-bg-card);
+    border: 1px solid var(--kk-border);
+    border-radius: var(--kk-radius-md);
+    padding: var(--kk-space-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--kk-space-3);
+    text-decoration: none;
+    color: inherit;
+  }
+  a.method:hover { border-color: var(--kk-accent); }
+  .icon { font-size: 28px; }
+  .method strong { color: var(--kk-text); font-size: 18px; }
+  .method span { color: var(--kk-text-dim); font-size: 13px; }
+  .method pre {
+    background: #000;
+    border: 1px solid var(--kk-border);
+    border-radius: var(--kk-radius-sm);
+    padding: var(--kk-space-3);
+    font-size: 12px;
+    margin: 0;
+    color: var(--kk-accent);
+    overflow-x: auto;
+  }
+  .btn { color: var(--kk-accent) !important; font-family: var(--kk-font-mono); margin-top: auto; }
+  @media (max-width: 720px) {
+    .methods { grid-template-columns: 1fr; }
+  }
+</style>
