@@ -1,0 +1,126 @@
+---
+interface Props {
+  title: string;
+  subtitle: string;
+  downloadLabel: string;
+  brewCommand: string;
+  stars: string;
+}
+const { title, subtitle, downloadLabel, brewCommand, stars } = Astro.props;
+---
+
+<section class="hero">
+  <div class="kk-container">
+    <div class="prompt">~/kaku $ launch</div>
+    <h1>{title}</h1>
+    <p class="subtitle">{subtitle}</p>
+    <div class="ctas">
+      <a class="cta cta-primary" href="/Kaku/download">
+        <span class="arrow">↓</span> {downloadLabel}
+      </a>
+      <button class="cta cta-ghost" data-copy={brewCommand}>
+        <code>{brewCommand}</code>
+        <span class="copy-hint">复制</span>
+      </button>
+    </div>
+    <div class="stats">
+      <span class="stat"><span class="num">★ {stars}</span></span>
+      <span class="sep">·</span>
+      <span class="stat"><span class="num">40% 更小</span></span>
+      <span class="sep">·</span>
+      <span class="stat"><span class="num">macOS · Linux</span></span>
+    </div>
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll('button[data-copy]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const text = (btn as HTMLButtonElement).dataset.copy;
+      if (!text) return;
+      try {
+        await navigator.clipboard.writeText(text);
+        const hint = btn.querySelector('.copy-hint');
+        if (hint) {
+          const original = hint.textContent;
+          hint.textContent = '✓ 已复制';
+          setTimeout(() => { hint.textContent = original; }, 1500);
+        }
+      } catch {}
+    });
+  });
+</script>
+
+<style>
+  .hero {
+    padding: var(--kk-space-16) 0 var(--kk-space-12);
+    background: var(--kk-bg-elev);
+    border-bottom: 1px dashed var(--kk-border);
+    text-align: center;
+  }
+  .prompt {
+    color: var(--kk-accent);
+    font-family: var(--kk-font-mono);
+    font-size: 13px;
+    opacity: 0.7;
+    margin-bottom: var(--kk-space-4);
+  }
+  h1 {
+    color: var(--kk-text);
+    font-size: 48px;
+    line-height: 1.1;
+    letter-spacing: -1px;
+    margin: 0 0 var(--kk-space-4);
+    font-weight: 700;
+  }
+  .subtitle {
+    color: var(--kk-text-dim);
+    font-size: 16px;
+    margin: 0 0 var(--kk-space-8);
+  }
+  .ctas {
+    display: flex;
+    gap: var(--kk-space-3);
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: var(--kk-space-8);
+  }
+  .cta {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--kk-space-2);
+    padding: var(--kk-space-3) var(--kk-space-6);
+    border-radius: var(--kk-radius-sm);
+    font-family: var(--kk-font-mono);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid transparent;
+    text-decoration: none;
+  }
+  .cta-primary {
+    background: var(--kk-accent);
+    color: var(--kk-bg);
+  }
+  .cta-primary:hover { background: var(--kk-accent-dim); text-decoration: none; }
+  .cta-ghost {
+    background: transparent;
+    color: var(--kk-text);
+    border-color: var(--kk-border-strong);
+  }
+  .cta-ghost code { background: none; color: inherit; font-size: 13px; }
+  .cta-ghost .copy-hint { color: var(--kk-text-muted); font-size: 11px; }
+  .stats {
+    display: flex;
+    gap: var(--kk-space-3);
+    justify-content: center;
+    font-size: 12px;
+    color: var(--kk-text-muted);
+    font-family: var(--kk-font-mono);
+  }
+  .stats .num { color: var(--kk-accent); font-weight: 600; }
+  .sep { color: var(--kk-text-muted); }
+  @media (max-width: 720px) {
+    h1 { font-size: 32px; }
+  }
+</style>
