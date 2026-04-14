@@ -1,0 +1,106 @@
+---
+import LandingLayout from '../layouts/LandingLayout.astro';
+
+interface Release {
+  version: string;
+  date: string;
+  highlights: string[];
+  url: string;
+}
+
+// Manual sync for v1. Replace with build-time fetch in a later task.
+const releases: Release[] = [
+  {
+    version: 'v0.5.0',
+    date: '2026-04-01',
+    highlights: [
+      '新增 AI Tools 面板，支持 Claude Code / Codex / Gemini CLI 快速切换',
+      '修复全屏模式下关闭窗口导致崩溃的问题',
+      '双击标签栏即可重命名',
+    ],
+    url: 'https://github.com/tw93/Kaku/releases/tag/v0.5.0',
+  },
+];
+---
+
+<LandingLayout title="Changelog · Kaku" description="Kaku 更新日志" lang="zh-CN">
+  <section class="cl">
+    <div class="kk-container">
+      <div class="tag">~/kaku $ changelog</div>
+      <h1>Changelog</h1>
+      <p class="sub">完整的版本历史见 <a href="https://github.com/tw93/Kaku/releases" target="_blank" rel="noopener noreferrer">GitHub Releases</a></p>
+
+      {releases.map(rel => (
+        <article class="release">
+          <header>
+            <h2>{rel.version}</h2>
+            <time>{rel.date}</time>
+          </header>
+          <ul>
+            {rel.highlights.map(h => <li>{h}</li>)}
+          </ul>
+          <a class="more" href={rel.url} target="_blank" rel="noopener noreferrer">完整 release notes →</a>
+        </article>
+      ))}
+    </div>
+  </section>
+</LandingLayout>
+
+<style>
+  .cl { padding: var(--kk-space-16) 0; }
+  .tag {
+    color: var(--kk-accent);
+    font-family: var(--kk-font-mono);
+    font-size: 13px;
+    opacity: 0.7;
+    margin-bottom: var(--kk-space-4);
+    text-align: center;
+  }
+  h1 {
+    color: var(--kk-text);
+    font-size: 40px;
+    text-align: center;
+    margin: 0 0 var(--kk-space-3);
+  }
+  .sub {
+    color: var(--kk-text-dim);
+    text-align: center;
+    margin: 0 0 var(--kk-space-12);
+  }
+  .release {
+    background: var(--kk-bg-card);
+    border: 1px solid var(--kk-border);
+    border-radius: var(--kk-radius-md);
+    padding: var(--kk-space-6);
+    margin-bottom: var(--kk-space-6);
+  }
+  .release header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: var(--kk-space-4);
+  }
+  .release h2 {
+    color: var(--kk-accent);
+    font-family: var(--kk-font-mono);
+    margin: 0;
+  }
+  .release time {
+    color: var(--kk-text-muted);
+    font-family: var(--kk-font-mono);
+    font-size: 12px;
+  }
+  .release ul { margin: 0; padding-left: var(--kk-space-6); }
+  .release li {
+    color: var(--kk-text);
+    font-size: 14px;
+    margin-bottom: var(--kk-space-2);
+  }
+  .more {
+    display: inline-block;
+    margin-top: var(--kk-space-4);
+    color: var(--kk-accent);
+    font-family: var(--kk-font-mono);
+    font-size: 12px;
+  }
+</style>
