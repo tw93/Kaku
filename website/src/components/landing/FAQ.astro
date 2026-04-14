@@ -1,0 +1,92 @@
+---
+interface Item {
+  q: string;
+  a: string;
+}
+const items: Item[] = [
+  { q: 'Kaku 和 iTerm2 有什么区别？', a: 'iTerm2 是 macOS 原生、Objective-C 写的，功能最全但仅限 macOS。Kaku 基于 Rust + GPU 渲染，跨平台，默认就有 AI 助手、Lua 配置、Lazygit / Yazi 集成。' },
+  { q: 'Kaku 和 Warp 有什么区别？', a: 'Warp 闭源、需要登录、带云端功能。Kaku 开源（MIT）、零账号、数据在本地。' },
+  { q: 'Kaku 收费吗？', a: '不。Kaku 完全开源免费，MIT 协议。' },
+  { q: 'Kaku 开源吗？', a: '是。源码在 GitHub: github.com/tw93/Kaku。欢迎 PR 和 Issue。' },
+  { q: 'Kaku 支持 Windows 吗？', a: 'v1 首发 macOS，WezTerm 上游支持 Linux 和 Windows，Kaku 后续会跟进。' },
+  { q: '用 Kaku AI 功能会上传我的代码吗？', a: '只有你主动触发 AI 建议时，当次对话内容才会发给你配置的 LLM Provider。Kaku 本身不收集任何数据、不接任何 telemetry。' },
+];
+---
+
+<section class="faq-section">
+  <div class="kk-container">
+    <div class="faq-tag">[9] FAQ</div>
+    <h2>常见问题</h2>
+    <div class="list">
+      {items.map(item => (
+        <details>
+          <summary>{item.q}</summary>
+          <p>{item.a}</p>
+        </details>
+      ))}
+    </div>
+    <div class="final-cta">
+      <a class="cta" href="/Kaku/download">↓ 下载 Kaku</a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .faq-section {
+    padding: var(--kk-space-16) 0;
+  }
+  .faq-tag {
+    color: var(--kk-accent);
+    font-family: var(--kk-font-mono);
+    font-size: 11px;
+    letter-spacing: 1px;
+    opacity: 0.7;
+    margin-bottom: var(--kk-space-3);
+    text-align: center;
+  }
+  h2 {
+    color: var(--kk-text);
+    font-size: 24px;
+    text-align: center;
+    margin: 0 0 var(--kk-space-8);
+  }
+  .list { max-width: 640px; margin: 0 auto; }
+  details {
+    background: var(--kk-bg-card);
+    border: 1px solid var(--kk-border);
+    border-radius: var(--kk-radius-md);
+    padding: var(--kk-space-4);
+    margin-bottom: var(--kk-space-3);
+  }
+  details[open] { border-color: var(--kk-border-strong); }
+  summary {
+    color: var(--kk-text);
+    font-size: 14px;
+    cursor: pointer;
+    list-style: none;
+    font-weight: 500;
+  }
+  summary::before { content: '▸ '; color: var(--kk-accent); }
+  details[open] summary::before { content: '▾ '; }
+  details p {
+    color: var(--kk-text-dim);
+    font-size: 13px;
+    line-height: 1.6;
+    margin: var(--kk-space-3) 0 0;
+  }
+  .final-cta {
+    text-align: center;
+    margin-top: var(--kk-space-12);
+  }
+  .cta {
+    display: inline-block;
+    background: var(--kk-accent);
+    color: var(--kk-bg);
+    padding: var(--kk-space-3) var(--kk-space-6);
+    border-radius: var(--kk-radius-sm);
+    font-family: var(--kk-font-mono);
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .cta:hover { background: var(--kk-accent-dim); text-decoration: none; }
+</style>
