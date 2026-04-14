@@ -1,16 +1,17 @@
-/* Force Starlight into dark-only for v1. */
+/* Bridge Kaku tokens (--kk-*) onto Starlight tokens (--sl-*).
+   Force Starlight into dark-only for v1. */
 :root, :root[data-theme='dark'], :root[data-theme='light'] {
-  --sl-color-bg: #0a0a0a;
-  --sl-color-bg-nav: #050505;
-  --sl-color-bg-sidebar: #050505;
-  --sl-color-text: #e5e5e5;
-  --sl-color-text-accent: #00ff9f;
-  --sl-color-accent: #00ff9f;
-  --sl-color-accent-high: #00ff9f;
-  --sl-color-hairline: #1f1f1f;
-  --sl-color-hairline-light: #1f1f1f;
-  --sl-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --sl-font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --sl-color-bg: var(--kk-bg);
+  --sl-color-bg-nav: var(--kk-bg-elev);
+  --sl-color-bg-sidebar: var(--kk-bg-elev);
+  --sl-color-text: var(--kk-text);
+  --sl-color-text-accent: var(--kk-accent);
+  --sl-color-accent: var(--kk-accent);
+  --sl-color-accent-high: var(--kk-accent);
+  --sl-color-hairline: var(--kk-border);
+  --sl-color-hairline-light: var(--kk-border);
+  --sl-font: var(--kk-font-sans);
+  --sl-font-mono: var(--kk-font-mono);
 }
 
 /* Hide theme selector since we're dark-only in v1 */
