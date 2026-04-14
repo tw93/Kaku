@@ -92,4 +92,5 @@ journal/
 **/journal/
 .qoder/
 .gstack/
+.superpowers/
 
