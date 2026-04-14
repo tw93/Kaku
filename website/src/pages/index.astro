@@ -1,0 +1,34 @@
+---
+import LandingLayout from '../layouts/LandingLayout.astro';
+import Hero from '../components/landing/Hero.astro';
+import TerminalDemo from '../components/landing/TerminalDemo.astro';
+import FeatureGrid from '../components/landing/FeatureGrid.astro';
+import AIShowcase from '../components/landing/AIShowcase.astro';
+import MigrateTabs from '../components/landing/MigrateTabs.astro';
+import ScreenshotGallery from '../components/landing/ScreenshotGallery.astro';
+import QuickStart from '../components/landing/QuickStart.astro';
+import WhyKaku from '../components/landing/WhyKaku.astro';
+import FAQ from '../components/landing/FAQ.astro';
+---
+
+<LandingLayout
+  title="Kaku — 为 AI 编码而生的终端"
+  description="Kaku 是基于 WezTerm 深度定制的终端，内建 AI 助手、零配置开箱即用。"
+  lang="zh-CN"
+>
+  <Hero
+    title="A fast terminal for AI coding."
+    subtitle="为 AI 编码而生的终端 · WezTerm 深度定制 · 零配置开箱即用"
+    downloadLabel="下载 DMG"
+    brewCommand="brew install tw93/tap/kaku"
+    stars="2.3k"
+  />
+  <TerminalDemo />
+  <FeatureGrid />
+  <AIShowcase />
+  <MigrateTabs />
+  <ScreenshotGallery />
+  <QuickStart />
+  <WhyKaku />
+  <FAQ />
+</LandingLayout>
