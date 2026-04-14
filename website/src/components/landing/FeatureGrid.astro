@@ -22,7 +22,7 @@ const features: Feature[] = [
     <div class="grid">
       {features.map(f => (
         <a class="cell" href={f.href}>
-          <span class="icon">{f.icon}</span>
+          <span class="icon" aria-hidden="true">{f.icon}</span>
           <strong>{f.title}</strong>
           <span class="desc">{f.desc}</span>
         </a>

@@ -27,6 +27,16 @@ a:hover {
   text-decoration: underline;
 }
 
+/* Default keyboard focus indicator. Components may override. */
+a:focus-visible,
+button:focus-visible,
+[role="button"]:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--kk-accent);
+  outline-offset: 2px;
+  border-radius: var(--kk-radius-sm);
+}
+
 .kk-container {
   max-width: var(--kk-max-narrow);
   margin: 0 auto;

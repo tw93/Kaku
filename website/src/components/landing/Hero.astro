@@ -16,7 +16,7 @@ const { title, subtitle, downloadLabel, brewCommand, stars } = Astro.props;
     <p class="subtitle">{subtitle}</p>
     <div class="ctas">
       <a class="cta cta-primary" href="/Kaku/download">
-        <span class="arrow">↓</span> {downloadLabel}
+        <span class="arrow" aria-hidden="true">↓</span> {downloadLabel}
       </a>
       <button class="cta cta-ghost" data-copy={brewCommand}>
         <code>{brewCommand}</code>
