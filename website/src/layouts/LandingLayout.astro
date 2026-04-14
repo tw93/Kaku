@@ -24,6 +24,6 @@ const { title, description, lang = 'zh-CN' } = Astro.props;
   <body>
     <SiteNav lang={lang} />
     <slot />
-    <SiteFooter />
+    <SiteFooter lang={lang} />
   </body>
 </html>

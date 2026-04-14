@@ -22,7 +22,7 @@ const langSwitchHref = isEn ? '/Kaku/' : '/Kaku/en/';
 const langSwitchLabel = isEn ? '中' : 'EN';
 ---
 
-<nav class="site-nav">
+<nav class="site-nav" aria-label="Primary">
   <div class="kk-container-wide nav-inner">
     <a class="brand" href={isEn ? '/Kaku/en/' : '/Kaku/'}>
       <span class="brand-mark">▸</span>
@@ -34,7 +34,10 @@ const langSwitchLabel = isEn ? '中' : 'EN';
       ))}
     </div>
     <div class="nav-right">
-      <a class="lang-switch" href={langSwitchHref}>{langSwitchLabel}</a>
+      <a class="lang-switch"
+         href={langSwitchHref}
+         hreflang={isEn ? 'zh-CN' : 'en'}
+         aria-label={isEn ? 'Switch to Chinese' : 'Switch to English'}>{langSwitchLabel}</a>
       <a class="gh-link" href="https://github.com/tw93/Kaku" target="_blank" rel="noopener noreferrer">
         <span>GitHub</span>
         <span class="star">★</span>
@@ -51,7 +54,6 @@ const langSwitchLabel = isEn ? '中' : 'EN';
     position: sticky;
     top: 0;
     z-index: 100;
-    backdrop-filter: blur(8px);
   }
   .nav-inner {
     display: flex;

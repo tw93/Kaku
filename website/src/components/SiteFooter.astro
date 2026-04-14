@@ -1,4 +1,9 @@
 ---
+interface Props {
+  lang?: string;
+}
+const { lang = 'zh-CN' } = Astro.props;
+const isEn = lang === 'en';
 const year = new Date().getFullYear();
 
 interface LinkGroup {
@@ -6,7 +11,7 @@ interface LinkGroup {
   links: { label: string; href: string }[];
 }
 
-const groups: LinkGroup[] = [
+const groupsZh: LinkGroup[] = [
   {
     title: '产品',
     links: [
@@ -41,6 +46,44 @@ const groups: LinkGroup[] = [
     ],
   },
 ];
+
+const groupsEn: LinkGroup[] = [
+  {
+    title: 'Product',
+    links: [
+      { label: 'Download', href: '/Kaku/download' },
+      { label: 'Changelog', href: '/Kaku/changelog' },
+      { label: 'Themes', href: '/Kaku/en/docs/config/theme' },
+    ],
+  },
+  {
+    title: 'Docs',
+    links: [
+      { label: 'Get Started', href: '/Kaku/en/docs/start/install' },
+      { label: 'AI Features', href: '/Kaku/en/docs/ai/overview' },
+      { label: 'Configuration', href: '/Kaku/en/docs/config/lua' },
+      { label: 'FAQ', href: '/Kaku/en/docs/reference/faq' },
+    ],
+  },
+  {
+    title: 'Community',
+    links: [
+      { label: 'GitHub', href: 'https://github.com/tw93/Kaku' },
+      { label: 'Issues', href: 'https://github.com/tw93/Kaku/issues' },
+      { label: 'X / Twitter', href: 'https://twitter.com/HiTw93' },
+    ],
+  },
+  {
+    title: 'Project',
+    links: [
+      { label: 'Roadmap', href: '/Kaku/roadmap' },
+      { label: 'License', href: 'https://github.com/tw93/Kaku/blob/main/LICENSE.md' },
+      { label: 'Author', href: 'https://github.com/tw93' },
+    ],
+  },
+];
+
+const groups = isEn ? groupsEn : groupsZh;
 ---
 
 <footer class="site-footer">
