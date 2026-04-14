@@ -1,0 +1,97 @@
+---
+import LandingLayout from '../layouts/LandingLayout.astro';
+import { roadmap } from '../content-pages/roadmap-data';
+---
+
+<LandingLayout title="Roadmap · Kaku" description="Kaku 的路线图与开发计划" lang="zh-CN">
+  <section class="rm">
+    <div class="kk-container">
+      <div class="tag">~/kaku $ roadmap</div>
+      <h1>Roadmap</h1>
+      <p class="sub">Kaku 正在做什么、接下来做什么、未来想做什么</p>
+
+      {roadmap.map(stage => (
+        <div class="stage">
+          <h2>{stage.label}</h2>
+          <p class="stage-desc">{stage.desc}</p>
+          <ul>
+            {stage.items.map(item => (
+              <li>
+                <strong>{item.title}</strong>
+                {item.desc && <span class="desc"> — {item.desc}</span>}
+                {item.issue && <a href={item.issue} class="issue" target="_blank" rel="noopener noreferrer">#issue</a>}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+
+      <p class="note">
+        想提议新功能？欢迎在
+        <a href="https://github.com/tw93/Kaku/issues" target="_blank" rel="noopener noreferrer">GitHub Issues</a>
+        发起讨论。
+      </p>
+    </div>
+  </section>
+</LandingLayout>
+
+<style>
+  .rm { padding: var(--kk-space-16) 0; }
+  .tag {
+    color: var(--kk-accent);
+    font-family: var(--kk-font-mono);
+    font-size: 13px;
+    opacity: 0.7;
+    margin-bottom: var(--kk-space-4);
+    text-align: center;
+  }
+  h1 {
+    color: var(--kk-text);
+    font-size: 40px;
+    text-align: center;
+    margin: 0 0 var(--kk-space-3);
+  }
+  .sub {
+    color: var(--kk-text-dim);
+    text-align: center;
+    margin: 0 0 var(--kk-space-12);
+  }
+  .stage {
+    background: var(--kk-bg-card);
+    border: 1px solid var(--kk-border);
+    border-radius: var(--kk-radius-md);
+    padding: var(--kk-space-6);
+    margin-bottom: var(--kk-space-6);
+  }
+  .stage h2 {
+    color: var(--kk-accent);
+    font-family: var(--kk-font-mono);
+    font-size: 18px;
+    margin: 0 0 var(--kk-space-2);
+    letter-spacing: 1px;
+  }
+  .stage-desc {
+    color: var(--kk-text-muted);
+    font-size: 12px;
+    margin: 0 0 var(--kk-space-4);
+  }
+  .stage ul { margin: 0; padding-left: var(--kk-space-6); }
+  .stage li {
+    color: var(--kk-text);
+    font-size: 14px;
+    margin-bottom: var(--kk-space-3);
+  }
+  .stage li .desc { color: var(--kk-text-dim); font-size: 13px; }
+  .stage li .issue {
+    color: var(--kk-accent);
+    font-family: var(--kk-font-mono);
+    font-size: 11px;
+    margin-left: var(--kk-space-2);
+  }
+  .note {
+    color: var(--kk-text-dim);
+    text-align: center;
+    margin-top: var(--kk-space-12);
+    font-size: 13px;
+  }
+</style>
