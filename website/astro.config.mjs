@@ -1,3 +1,12 @@
+/**
+ * Kaku website — Astro + Starlight config.
+ *
+ * Pinned versions:
+ * - @astrojs/sitemap is pinned to 3.2.1 via pnpm.overrides in package.json.
+ *   Reason: sitemap >= 3.7 calls the `astro:routes:resolved` hook which only
+ *   exists in Astro 5.x. We are on Astro 4.x, so 3.7+ crashes at build time.
+ *   When upgrading to Astro 5, remove the override.
+ */
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 
@@ -8,7 +17,6 @@ export default defineConfig({
     starlight({
       title: 'Kaku',
       description: '为 AI 编码而生的终端',
-      logo: { src: './public/favicon.svg' },
       social: {
         github: 'https://github.com/tw93/Kaku',
       },

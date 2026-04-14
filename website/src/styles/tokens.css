@@ -1,1 +1,43 @@
-/* Design tokens — populated in Task 0.2 */
+:root {
+  /* Colors — Terminal Hacker */
+  --kk-bg: #0a0a0a;
+  --kk-bg-elev: #050505;
+  --kk-bg-card: #111111;
+  --kk-border: #1f1f1f;
+  --kk-border-strong: #2a2a2a;
+  --kk-text: #e5e5e5;
+  --kk-text-dim: #888888;
+  --kk-text-muted: #666666;
+  --kk-accent: #00ff9f;
+  --kk-accent-dim: #00b870;
+  --kk-error: #ff5c5c;
+  --kk-warn: #ffd56b;
+
+  /* Typography */
+  --kk-font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  --kk-font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  /* Spacing */
+  --kk-space-1: 4px;
+  --kk-space-2: 8px;
+  --kk-space-3: 12px;
+  --kk-space-4: 16px;
+  --kk-space-6: 24px;
+  --kk-space-8: 32px;
+  --kk-space-12: 48px;
+  --kk-space-16: 64px;
+
+  /* Radius */
+  --kk-radius-sm: 3px;
+  --kk-radius-md: 6px;
+  --kk-radius-lg: 10px;
+
+  /* Content widths */
+  --kk-max-narrow: 720px;
+  --kk-max-wide: 1024px;
+}
+
+/* Force dark-only for v1. Light mode ships in v2. */
+:root[data-theme='light'] {
+  color-scheme: dark;
+}
