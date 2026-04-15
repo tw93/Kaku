@@ -14,13 +14,39 @@ hero:
       icon: external
 ---
 
-:::caution[Translation in progress]
-The English documentation is a work in progress. For the most complete content, see the [Chinese docs](/Kaku/docs/).
-:::
-
 import { CardGrid, LinkCard } from '@astrojs/starlight/components';
 
+## Pick a path that fits your goal
+
 <CardGrid>
-  <LinkCard title="🚀 New to Kaku" description="5-minute quickstart" href="/Kaku/en/docs/start/install/" />
-  <LinkCard title="🤖 Use AI" description="Error recovery and NL-to-command" href="/Kaku/en/docs/ai/overview/" />
+  <LinkCard
+    title="🚀 I'm new here"
+    description="5-minute quickstart, from install to liftoff"
+    href="/Kaku/en/docs/start/install/"
+  />
+  <LinkCard
+    title="🔧 I want to configure"
+    description="Lua config, fully WezTerm-compatible"
+    href="/Kaku/en/docs/config/lua/"
+  />
+  <LinkCard
+    title="🤖 I want to use AI"
+    description="Error recovery, natural-language commands, provider setup"
+    href="/Kaku/en/docs/ai/overview/"
+  />
+  <LinkCard
+    title="⌨️ Keybinding reference"
+    description="Complete shortcut cheatsheet"
+    href="/Kaku/en/docs/config/keybindings/"
+  />
+  <LinkCard
+    title="🔄 Coming from iTerm2"
+    description="Keep the habits you already have"
+    href="/Kaku/en/docs/start/migrate-iterm2/"
+  />
+  <LinkCard
+    title="🔄 Coming from WezTerm"
+    description="Reuse your existing config as-is"
+    href="/Kaku/en/docs/start/migrate-wezterm/"
+  />
 </CardGrid>

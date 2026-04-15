@@ -78,8 +78,9 @@ long_text_*.txt
 
 # Changelog is managed in GitHub Releases only
 CHANGELOG.md
-# Exception: docs page about the changelog
+# Exception: docs page about the changelog (zh-CN + en)
 !website/src/content/docs/docs/reference/changelog.md
+!website/src/content/docs/en/docs/reference/changelog.md
 
 # AI/agent generated files
 .claude/
