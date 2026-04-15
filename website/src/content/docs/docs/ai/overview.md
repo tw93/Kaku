@@ -3,110 +3,110 @@ title: AI 功能总览
 description: Kaku 内建 AI 助手的完整介绍
 ---
 
-# Features
+# 功能
 
 ## Kaku Assistant
 
-Kaku Assistant has two modes: automatic error recovery and on-demand command generation from natural language.
+Kaku Assistant 提供两种模式：自动错误修复和按需的自然语言转命令。
 
-**Setup**
+**配置**
 
-Run `kaku ai` to open the AI settings panel. Enable Kaku Assistant, pick a provider, and enter your API key.
+运行 `kaku ai` 打开 AI 设置面板。启用 Kaku Assistant，选择一个 Provider，并填入 API Key。
 
-| Provider | Base URL | Models |
+| Provider | Base URL | 模型 |
 | :--- | :--- | :--- |
-| OpenAI | `https://api.openai.com/v1` | (free text) |
-| Custom | (manual) | (free text) |
+| OpenAI | `https://api.openai.com/v1` | （自由填写） |
+| Custom | （手动填写） | （自由填写） |
 
-Selecting a provider auto-fills the base URL and populates the model dropdown.
+选中预设 Provider 后会自动填好 Base URL 并刷新模型下拉列表。
 
-**Error recovery**
+**错误自动修复**
 
-When a command exits with a non-zero status, Kaku Assistant automatically sends the failed command, exit code, working directory, and git branch to the LLM and displays a suggested fix inline. Press `Cmd + Shift + E` to paste the suggestion into the terminal. Dangerous commands (e.g. `rm -rf`, `git reset --hard`) are pasted but never auto-executed.
+当命令以非零退出码结束时，Kaku Assistant 会自动把失败的命令、退出码、工作目录和 git 分支发送给 LLM，并在命令行内嵌显示建议的修复方案。按 `Cmd + Shift + E` 把建议粘贴到终端。对于危险命令（例如 `rm -rf`、`git reset --hard`），只会粘贴到命令行，绝不会自动执行。
 
-The assistant does not trigger on: `Ctrl+C` exits, help flags, bare package manager calls, git pull conflicts, or non-shell foreground processes.
+以下情况不会触发助手：`Ctrl+C` 退出、help 参数、单独运行包管理器、git pull 冲突，以及非 shell 的前台进程。
 
-**Natural language to command**
+**自然语言转命令**
 
-Type `# <description>` at the prompt and press Enter to generate a shell command from plain English. Kaku intercepts the line before the shell sees it, sends your query along with the current directory and git branch to the LLM, and injects the resulting command back into the prompt ready to review and run.
+在提示符前输入 `# <描述>` 并回车，即可从自然语言生成 shell 命令。Kaku 会在 shell 接收到这行之前拦截它，把你的查询连同当前目录和 git 分支发送给 LLM，再把返回的命令注回提示符，供你审查后执行。
 
 ```
-# list all files modified in the last 7 days
-# find and kill the process on port 3000
-# compress the src folder excluding node_modules
+# 列出最近 7 天修改过的所有文件
+# 找到并终止占用 3000 端口的进程
+# 压缩 src 目录，排除 node_modules
 ```
 
-The `#` prefix works in both zsh and fish. The original query stays visible while the request is in flight. If the model cannot produce a safe command, it injects a short explanation instead. Dangerous commands are loaded but flagged for review, never auto-executed.
+`#` 前缀在 zsh 和 fish 下都可用。请求发出期间原始查询保持可见。如果模型无法生成一个安全的命令，会改为注入一段简短的说明。危险命令也会被注入但会标注需要人工确认，绝不会自动执行。
 
-**assistant.toml fields**
+**assistant.toml 字段**
 
-The config lives at `~/.config/kaku/assistant.toml`:
+配置文件位于 `~/.config/kaku/assistant.toml`：
 
-| Field | Description |
+| 字段 | 说明 |
 | :--- | :--- |
-| `enabled` | `true` to enable, `false` to disable |
-| `api_key` | Your provider API key |
-| `model` | Model identifier, e.g. `DeepSeek-V3.2` |
-| `base_url` | OpenAI-compatible API root URL |
-| `custom_headers` | Extra HTTP headers for enterprise proxies, e.g. `["X-Customer-ID: your-id"]` |
+| `enabled` | `true` 启用，`false` 禁用 |
+| `api_key` | 你的 Provider API Key |
+| `model` | 模型标识，例如 `DeepSeek-V3.2` |
+| `base_url` | 兼容 OpenAI 协议的 API 根地址 |
+| `custom_headers` | 用于企业代理的额外 HTTP 头，例如 `["X-Customer-ID: your-id"]` |
 
 ---
 
-## Lazygit Integration
+## Lazygit 集成
 
-Press `Cmd + Shift + G` to launch lazygit in the current pane. Kaku auto-detects the lazygit binary from PATH or common Homebrew locations.
+按 `Cmd + Shift + G` 在当前 pane 中启动 lazygit。Kaku 会自动从 PATH 或常见的 Homebrew 路径中探测 lazygit。
 
-When a git repo has uncommitted changes and lazygit has not been used in that directory yet, Kaku shows a one-time hint to remind you it is available.
+如果 git 仓库中有未提交的变更，且你还没在该目录使用过 lazygit，Kaku 会一次性提示你可以使用这个功能。
 
-Install lazygit with `brew install lazygit` or via `kaku init`.
-
----
-
-## Yazi File Manager
-
-Press `Cmd + Shift + Y` to launch yazi in the current pane. The shell wrapper `y` also launches yazi and syncs the shell working directory on exit.
-
-**Theme sync**: Kaku automatically updates `~/.config/yazi/theme.toml` to match the active color scheme (Kaku Dark or Kaku Light). No manual yazi theme setup needed.
-
-Install yazi with `brew install yazi` or via `kaku init`.
+通过 `brew install lazygit` 或 `kaku init` 安装 lazygit。
 
 ---
 
-## Remote Files
+## Yazi 文件管理器
 
-Press `Cmd + Shift + R` to mount the current SSH session's remote filesystem locally via `sshfs` and open it in yazi.
+按 `Cmd + Shift + Y` 在当前 pane 中启动 yazi。shell 包装命令 `y` 同样会启动 yazi，并在退出时同步 shell 的工作目录。
 
-Kaku auto-detects the SSH target from the active pane. The mount lives at `~/Library/Caches/dev.kaku/sshfs/<host>`.
+**主题同步**：Kaku 会自动更新 `~/.config/yazi/theme.toml`，使其与当前配色方案（Kaku Dark 或 Kaku Light）保持一致，无需手动配置 yazi 主题。
 
-Requirements: `sshfs` installed (`brew install macfuse sshfs`) and passwordless SSH auth (key-based) for the remote host.
+通过 `brew install yazi` 或 `kaku init` 安装 yazi。
 
 ---
 
-## Shell Suite
+## 远程文件
 
-Kaku ships a curated set of shell plugins that load automatically inside Kaku sessions.
+按 `Cmd + Shift + R` 即可通过 `sshfs` 把当前 SSH 会话的远程文件系统挂载到本地，并用 yazi 打开。
 
-**Zsh plugins (built-in)**
+Kaku 会自动从活动 pane 中识别 SSH 目标。挂载点位于 `~/Library/Caches/dev.kaku/sshfs/<host>`。
 
-- **z**: Smarter `cd` that learns your most-used directories. Use `z <dir>`, `z -l <dir>` to list matches, `z -t` for recent directories.
-- **zsh-completions**: Extended completions for common CLI tools.
-- **zsh-syntax-highlighting**: Real-time command coloring and error highlighting.
-- **zsh-autosuggestions**: Fish-style history-based completions as you type.
+前置条件：已安装 `sshfs`（`brew install macfuse sshfs`），并已为目标主机配置免密 SSH 登录（基于密钥）。
 
-**Fish support**
+---
 
-Run `kaku init` to provision `~/.config/kaku/fish/kaku.fish` for fish users. `kaku doctor` verifies both zsh and fish integration paths.
+## Shell 套件
 
-**Optional tools (installed via `kaku init`)**
+Kaku 自带一组精选的 shell 插件，在 Kaku 会话中自动加载。
 
-- **Starship**: Fast, customizable prompt with git and environment info.
-- **Delta**: Syntax-highlighting pager for git diff and grep.
-- **Lazygit**: Terminal git UI.
-- **Yazi**: Terminal file manager.
+**zsh 内建插件**
 
-**Disabling Smart Tab**
+- **z**：更聪明的 `cd`，会学习你最常去的目录。用 `z <dir>` 跳转，`z -l <dir>` 列出候选，`z -t` 查看最近使用的目录。
+- **zsh-completions**：为常见 CLI 工具提供的扩展补全。
+- **zsh-syntax-highlighting**：实时命令着色和错误高亮。
+- **zsh-autosuggestions**：类 fish 的基于历史的即时补全。
 
-If you use your own completion workflow like `fzf-tab`, add this before sourcing the Kaku shell integration:
+**Fish 支持**
+
+运行 `kaku init` 会生成 `~/.config/kaku/fish/kaku.fish` 以供 fish 用户使用。`kaku doctor` 会同时检查 zsh 和 fish 的集成路径。
+
+**可选工具（通过 `kaku init` 安装）**
+
+- **Starship**：快速、可定制的命令行提示符，内置 git 和环境信息。
+- **Delta**：带语法高亮的 git diff / grep 分页器。
+- **Lazygit**：终端中的 git UI。
+- **Yazi**：终端文件管理器。
+
+**关闭 Smart Tab**
+
+如果你已经有自己的补全工作流（例如 `fzf-tab`），可在加载 Kaku shell 集成之前设置：
 
 ```zsh
 export KAKU_SMART_TAB_DISABLE=1
