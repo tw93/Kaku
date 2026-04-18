@@ -2109,8 +2109,16 @@ pub fn default_hyperlink_rules() -> Vec<hyperlink::Rule> {
         // File paths: support absolute paths, common relative prefixes, and
         // bare relative paths like `kaku/src/main.rs`.
         // Supports file:line and file:line:col formats.
+        //
+        // The trailing character class is intentionally restricted to ASCII
+        // word/`/`/`-` so that trailing punctuation (`.`, `,`, `;`, `:`, `!`,
+        // `?`), CJK particles (e.g. Korean `에`/`을`), or matched wrappers
+        // (backticks, quotes) attached after a path are excluded from the
+        // match via regex backtracking. The leading boundary class likewise
+        // admits backticks and straight quotes so a path wrapped in those
+        // characters is still detected.
         hyperlink::Rule::with_highlight(
-            r"(^|[\s\(\[<])((?:~|\.{1,2}|[[:alnum:]_.-]+)?/[^\s\)\]\}>]+)",
+            r#"(^|[\s\(\[<`'"])((?:~|\.{1,2}|[[:alnum:]_.-]+)?/[^\s\)\]\}>`'"]*[a-zA-Z0-9_/-])"#,
             "file://$2",
             2,
         )
@@ -2156,6 +2164,112 @@ mod tests {
                 )),
             })
         );
+    }
+
+    /// Helper: find the file:// hyperlink match in `text`, returning the
+    /// resolved URI. Asserts exactly one file match exists.
+    fn file_uri(text: &str) -> String {
+        let rules = default_hyperlink_rules();
+        let matches: Vec<_> = Rule::match_hyperlinks(text, &rules)
+            .into_iter()
+            .filter(|m| m.link.uri().starts_with("file://"))
+            .collect();
+        assert_eq!(
+            matches.len(),
+            1,
+            "expected exactly one file:// match in {text:?}, got {matches:?}",
+        );
+        matches.into_iter().next().unwrap().link.uri().to_string()
+    }
+
+    #[test]
+    fn file_hyperlink_trims_trailing_ascii_punctuation() {
+        // Sentence-final punctuation should not be swallowed into the link.
+        assert_eq!(file_uri("see docs/foo.md."), "file://docs/foo.md");
+        assert_eq!(file_uri("see docs/foo.md,"), "file://docs/foo.md");
+        assert_eq!(file_uri("see docs/foo.md;"), "file://docs/foo.md");
+        assert_eq!(file_uri("is docs/foo.md?"), "file://docs/foo.md");
+        assert_eq!(file_uri("yes docs/foo.md!"), "file://docs/foo.md");
+        assert_eq!(file_uri("path: docs/foo.md: here"), "file://docs/foo.md");
+    }
+
+    #[test]
+    fn file_hyperlink_trims_trailing_korean_particles() {
+        // A Korean particle attached to a path (no space) is a common
+        // pattern; the particle must be excluded from the match.
+        assert_eq!(
+            file_uri("docs/foo.md\u{C5D0} \u{C800}\u{C7A5}"),
+            "file://docs/foo.md"
+        );
+        assert_eq!(
+            file_uri("\u{C774} docs/foo.md\u{B97C} \u{C5F4}\u{C5B4}"),
+            "file://docs/foo.md"
+        );
+        assert_eq!(
+            file_uri("docs/foo.md\u{C740} \u{C5C5}"),
+            "file://docs/foo.md"
+        );
+    }
+
+    #[test]
+    fn file_hyperlink_handles_wrapping_delimiters() {
+        // Backtick/quote wrappers commonly appear around paths in prose or
+        // markdown rendered to the terminal; both sides must be stripped.
+        assert_eq!(file_uri("see `docs/foo.md` now"), "file://docs/foo.md");
+        assert_eq!(file_uri("see 'docs/foo.md' now"), "file://docs/foo.md");
+        assert_eq!(file_uri("see \"docs/foo.md\" now"), "file://docs/foo.md");
+        assert_eq!(file_uri("see (docs/foo.md) now"), "file://docs/foo.md");
+    }
+
+    #[test]
+    fn file_hyperlink_preserves_line_and_column() {
+        // file:line and file:line:col suffixes must still be captured so
+        // that the click handler can jump to the right position.
+        assert_eq!(
+            file_uri("see docs/foo.md:42 now"),
+            "file://docs/foo.md:42"
+        );
+        assert_eq!(
+            file_uri("see docs/foo.md:42:10 now"),
+            "file://docs/foo.md:42:10"
+        );
+        assert_eq!(
+            file_uri("see docs/foo.md:42:10."),
+            "file://docs/foo.md:42:10"
+        );
+    }
+
+    #[test]
+    fn file_hyperlink_handles_absolute_paths_with_particles() {
+        // Regression: the motivating bug — an absolute path followed by
+        // the Korean locative particle.
+        assert_eq!(
+            file_uri(
+                "\u{C800}\u{C7A5}: /Users/x/Code/proj/docs/plans/2026-04-18-v8-plan.md\u{C5D0} \u{C0DD}\u{C131}"
+            ),
+            "file:///Users/x/Code/proj/docs/plans/2026-04-18-v8-plan.md"
+        );
+    }
+
+    #[test]
+    fn file_hyperlink_is_extension_neutral() {
+        // The match logic is purely about the last character being ASCII
+        // word/`/`/`-`, so arbitrary source-file extensions are handled
+        // the same way `.md` is. This test pins that invariant so a
+        // future change cannot accidentally re-introduce an extension
+        // bias.
+        assert_eq!(file_uri("src/main.rs\u{B294}"), "file://src/main.rs");
+        assert_eq!(file_uri("open src/main.rs."), "file://src/main.rs");
+        assert_eq!(file_uri("see `src/lib.rs` ok"), "file://src/lib.rs");
+        assert_eq!(file_uri("pkg/util.py\u{C5D0}"), "file://pkg/util.py");
+        assert_eq!(file_uri("see app/index.ts."), "file://app/index.ts");
+        assert_eq!(file_uri("cmd/server.go:128:"), "file://cmd/server.go:128");
+        assert_eq!(file_uri("data/out.json,"), "file://data/out.json");
+        assert_eq!(file_uri("infra/.env.local."), "file://infra/.env.local");
+        // Extensionless files (Makefile-style) still work because the
+        // last character is an ASCII letter.
+        assert_eq!(file_uri("see ./Makefile."), "file://./Makefile");
+        assert_eq!(file_uri("see docker/Dockerfile,"), "file://docker/Dockerfile");
     }
 }
 
