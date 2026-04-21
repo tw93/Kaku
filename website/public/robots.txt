@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://tw93.github.io/Kaku/sitemap-index.xml
