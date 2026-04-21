@@ -18,7 +18,15 @@ const links: NavLink[] = isEn ? [
   { label: 'Changelog', href: '/Kaku/changelog' },
 ];
 
-const langSwitchHref = isEn ? '/Kaku/' : '/Kaku/en/';
+const trimTrailingSlash = (path: string) => path === '/' ? path : path.replace(/\/$/, '');
+const currentPath = trimTrailingSlash(Astro.url.pathname);
+const pathWithoutBase = currentPath.startsWith('/Kaku')
+  ? currentPath.slice('/Kaku'.length) || '/'
+  : currentPath;
+const zhPath = pathWithoutBase.replace(/^\/en(?=\/|$)/, '') || '/';
+const langSwitchHref = isEn
+  ? `/Kaku${zhPath}`
+  : `/Kaku/en${pathWithoutBase === '/' ? '/' : pathWithoutBase}`;
 const langSwitchLabel = isEn ? '中' : 'EN';
 ---
 

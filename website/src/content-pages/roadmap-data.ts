@@ -26,14 +26,14 @@ export const roadmap: RoadmapStage[] = [
       { title: '浅色主题网站皮肤', desc: '补齐 light mode' },
       { title: '/showcase 开放社区截图投稿' },
       { title: '更多 AI Provider 预设（Kimi / 豆包 / DeepSeek）' },
-      { title: 'Linux 包（deb / rpm）' },
+      { title: '更多 macOS 分发与更新体验优化' },
     ],
   },
   {
     label: 'Later',
     desc: '想法已在，待排期',
     items: [
-      { title: 'Windows 支持', desc: '跟进 WezTerm 上游' },
+      { title: '非 macOS 平台评估', desc: '不承诺时间表，先保证 macOS 体验' },
       { title: '会话录制与回放' },
       { title: '内建 tmux 协议支持' },
       { title: 'VSCode / JetBrains IDE 集成' },

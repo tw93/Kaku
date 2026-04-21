@@ -16,14 +16,14 @@ export const roadmapEn: RoadmapStage[] = [
       { title: 'Light theme for the website', desc: 'Round out the light mode' },
       { title: '/showcase community screenshot submissions' },
       { title: 'More built-in AI provider presets (Kimi / Doubao / DeepSeek)' },
-      { title: 'Linux packages (deb / rpm)' },
+      { title: 'More macOS distribution and update polish' },
     ],
   },
   {
     label: 'Later',
     desc: 'On the wishlist, not yet scheduled',
     items: [
-      { title: 'Windows support', desc: 'Follow WezTerm upstream' },
+      { title: 'Non-macOS platform evaluation', desc: 'No timeline; macOS quality comes first' },
       { title: 'Session recording and replay' },
       { title: 'Native tmux protocol support' },
       { title: 'VSCode / JetBrains IDE integrations' },

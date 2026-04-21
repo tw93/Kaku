@@ -30,3 +30,4 @@
 19	Global Hotkey now accepts Space as a hotkey in the config TUI
 19	Space can be bound as a global hotkey; zsh autosuggest handoff to Kiro and Amazon Q is now reliable
 20	Zsh comment color is now visible in dark themes; no longer invisible against dark backgrounds
+20	修复深色主题下 Zsh 注释颜色不可见的问题，不再与深色背景混在一起

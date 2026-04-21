@@ -9,14 +9,14 @@ const items: Item[] = isEn ? [
   { q: 'How is Kaku different from Warp?', a: 'Warp is closed-source, requires a login, and has cloud features. Kaku is open-source (MIT), zero accounts, data stays local.' },
   { q: 'Does Kaku cost money?', a: 'No. Kaku is completely free and open-source under the MIT license.' },
   { q: 'Is Kaku open-source?', a: 'Yes. Source code is on GitHub: github.com/tw93/Kaku. PRs and Issues welcome.' },
-  { q: 'Does Kaku support Windows?', a: 'v1 launches on macOS. WezTerm upstream supports Linux and Windows, and Kaku will follow suit.' },
+  { q: 'Does Kaku support Windows or Linux?', a: 'Not currently. Kaku is focused on macOS while the native experience is being polished.' },
   { q: 'Does Kaku AI upload my code?', a: 'Only when you actively trigger an AI suggestion is that conversation sent to your configured LLM provider. Kaku itself collects no data and has no telemetry.' },
 ] : [
-  { q: 'Kaku 和 iTerm2 有什么区别？', a: 'iTerm2 是 macOS 原生、Objective-C 写的，功能最全但仅限 macOS。Kaku 基于 Rust + GPU 渲染，跨平台，默认就有 AI 助手、Lua 配置、Lazygit / Yazi 集成。' },
+  { q: 'Kaku 和 iTerm2 有什么区别？', a: 'iTerm2 是 macOS 原生、Objective-C 写的，功能最全。Kaku 基于 Rust + GPU 渲染，面向 AI 编码工作流，默认就有 AI 助手、Lua 配置、Lazygit / Yazi 集成。' },
   { q: 'Kaku 和 Warp 有什么区别？', a: 'Warp 闭源、需要登录、带云端功能。Kaku 开源（MIT）、零账号、数据在本地。' },
   { q: 'Kaku 收费吗？', a: '不。Kaku 完全开源免费，MIT 协议。' },
   { q: 'Kaku 开源吗？', a: '是。源码在 GitHub: github.com/tw93/Kaku。欢迎 PR 和 Issue。' },
-  { q: 'Kaku 支持 Windows 吗？', a: 'v1 首发 macOS，WezTerm 上游支持 Linux 和 Windows，Kaku 后续会跟进。' },
+  { q: 'Kaku 支持 Windows 或 Linux 吗？', a: '暂时不支持。当前 Kaku 专注 macOS，优先把原生体验打磨稳定。' },
   { q: '用 Kaku AI 功能会上传我的代码吗？', a: '只有你主动触发 AI 建议时，当次对话内容才会发给你配置的 LLM Provider。Kaku 本身不收集任何数据、不接任何 telemetry。' },
 ];
 ---
