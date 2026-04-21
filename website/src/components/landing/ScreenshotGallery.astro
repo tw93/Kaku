@@ -1,11 +1,19 @@
 ---
 // v1 uses 6 placeholder screenshots from the existing assets/ folder.
 // Replace src paths in a later visual-polish task.
-interface Shot {
-  src: string;
-  alt: string;
-}
-const shots: Shot[] = [
+interface Props { lang?: string; }
+const { lang = 'zh-CN' } = Astro.props;
+const isEn = lang === 'en';
+
+interface Shot { src: string; alt: string; }
+const shots: Shot[] = isEn ? [
+  { src: '/Kaku/shots/dark-1.jpg', alt: 'Kaku dark theme — main view' },
+  { src: '/Kaku/shots/dark-2.jpg', alt: 'Kaku dark theme — split panes' },
+  { src: '/Kaku/shots/dark-3.jpg', alt: 'Kaku dark theme — AI panel' },
+  { src: '/Kaku/shots/light-1.jpg', alt: 'Kaku light theme — main view' },
+  { src: '/Kaku/shots/light-2.jpg', alt: 'Kaku light theme — Lazygit' },
+  { src: '/Kaku/shots/light-3.jpg', alt: 'Kaku light theme — Yazi' },
+] : [
   { src: '/Kaku/shots/dark-1.jpg', alt: 'Kaku 深色主题 - 主界面' },
   { src: '/Kaku/shots/dark-2.jpg', alt: 'Kaku 深色主题 - 分屏' },
   { src: '/Kaku/shots/dark-3.jpg', alt: 'Kaku 深色主题 - AI 面板' },
@@ -17,8 +25,8 @@ const shots: Shot[] = [
 
 <section class="sg-section">
   <div class="kk-container-wide">
-    <div class="sg-tag">[6] 主题与截图</div>
-    <h2>深浅两套主题，都很好看</h2>
+    <div class="sg-tag">{isEn ? '[6] Themes & Screenshots' : '[6] 主题与截图'}</div>
+    <h2>{isEn ? 'Two themes, both beautiful' : '深浅两套主题，都很好看'}</h2>
     <div class="gallery">
       {shots.map(shot => (
         <figure class="shot">

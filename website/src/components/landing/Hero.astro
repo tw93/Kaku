@@ -5,8 +5,10 @@ interface Props {
   downloadLabel: string;
   brewCommand: string;
   stars: string;
+  lang?: string;
 }
-const { title, subtitle, downloadLabel, brewCommand, stars } = Astro.props;
+const { title, subtitle, downloadLabel, brewCommand, stars, lang = 'zh-CN' } = Astro.props;
+const isEn = lang === 'en';
 ---
 
 <section class="hero">
@@ -15,18 +17,18 @@ const { title, subtitle, downloadLabel, brewCommand, stars } = Astro.props;
     <h1>{title}</h1>
     <p class="subtitle">{subtitle}</p>
     <div class="ctas">
-      <a class="cta cta-primary" href="/Kaku/download">
+      <a class="cta cta-primary" href={isEn ? '/Kaku/en/download' : '/Kaku/download'}>
         <span class="arrow" aria-hidden="true">↓</span> {downloadLabel}
       </a>
       <button class="cta cta-ghost" data-copy={brewCommand}>
         <code>{brewCommand}</code>
-        <span class="copy-hint">复制</span>
+        <span class="copy-hint">{isEn ? 'Copy' : '复制'}</span>
       </button>
     </div>
     <div class="stats">
       <span class="stat"><span class="num">★ {stars}</span></span>
       <span class="sep">·</span>
-      <span class="stat"><span class="num">40% 更小</span></span>
+      <span class="stat"><span class="num">{isEn ? '40% smaller' : '40% 更小'}</span></span>
       <span class="sep">·</span>
       <span class="stat"><span class="num">macOS · Linux</span></span>
     </div>
@@ -43,7 +45,7 @@ const { title, subtitle, downloadLabel, brewCommand, stars } = Astro.props;
         const hint = btn.querySelector('.copy-hint');
         if (hint) {
           const original = hint.textContent;
-          hint.textContent = '✓ 已复制';
+          hint.textContent = document.documentElement.lang === 'en' ? '✓ Copied' : '✓ 已复制';
           setTimeout(() => { hint.textContent = original; }, 1500);
         }
       } catch {}

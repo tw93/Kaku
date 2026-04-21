@@ -1,9 +1,17 @@
 ---
-interface Item {
-  q: string;
-  a: string;
-}
-const items: Item[] = [
+interface Props { lang?: string; }
+const { lang = 'zh-CN' } = Astro.props;
+const isEn = lang === 'en';
+
+interface Item { q: string; a: string; }
+const items: Item[] = isEn ? [
+  { q: 'How is Kaku different from iTerm2?', a: 'iTerm2 is native macOS, written in Objective-C, feature-rich but macOS-only. Kaku is built on Rust + GPU rendering, ships AI assistant, Lua config, and Lazygit / Yazi integration out of the box.' },
+  { q: 'How is Kaku different from Warp?', a: 'Warp is closed-source, requires a login, and has cloud features. Kaku is open-source (MIT), zero accounts, data stays local.' },
+  { q: 'Does Kaku cost money?', a: 'No. Kaku is completely free and open-source under the MIT license.' },
+  { q: 'Is Kaku open-source?', a: 'Yes. Source code is on GitHub: github.com/tw93/Kaku. PRs and Issues welcome.' },
+  { q: 'Does Kaku support Windows?', a: 'v1 launches on macOS. WezTerm upstream supports Linux and Windows, and Kaku will follow suit.' },
+  { q: 'Does Kaku AI upload my code?', a: 'Only when you actively trigger an AI suggestion is that conversation sent to your configured LLM provider. Kaku itself collects no data and has no telemetry.' },
+] : [
   { q: 'Kaku 和 iTerm2 有什么区别？', a: 'iTerm2 是 macOS 原生、Objective-C 写的，功能最全但仅限 macOS。Kaku 基于 Rust + GPU 渲染，跨平台，默认就有 AI 助手、Lua 配置、Lazygit / Yazi 集成。' },
   { q: 'Kaku 和 Warp 有什么区别？', a: 'Warp 闭源、需要登录、带云端功能。Kaku 开源（MIT）、零账号、数据在本地。' },
   { q: 'Kaku 收费吗？', a: '不。Kaku 完全开源免费，MIT 协议。' },
@@ -16,7 +24,7 @@ const items: Item[] = [
 <section class="faq-section">
   <div class="kk-container">
     <div class="faq-tag">[9] FAQ</div>
-    <h2>常见问题</h2>
+    <h2>{isEn ? 'Frequently Asked Questions' : '常见问题'}</h2>
     <div class="list">
       {items.map(item => (
         <details>
@@ -26,7 +34,7 @@ const items: Item[] = [
       ))}
     </div>
     <div class="final-cta">
-      <a class="cta" href="/Kaku/download">↓ 下载 Kaku</a>
+      <a class="cta" href={isEn ? '/Kaku/en/download' : '/Kaku/download'}>{isEn ? '↓ Download Kaku' : '↓ 下载 Kaku'}</a>
     </div>
   </div>
 </section>

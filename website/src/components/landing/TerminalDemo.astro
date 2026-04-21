@@ -1,12 +1,15 @@
 ---
 // Pure CSS animation. No JavaScript needed.
 // Respects prefers-reduced-motion via global.css.
+interface Props { lang?: string; }
+const { lang = 'zh-CN' } = Astro.props;
+const isEn = lang === 'en';
 ---
 
 <section class="td-section">
   <div class="kk-container">
-    <div class="td-tag">[2] 错误自动修复</div>
-    <div class="terminal" role="img" aria-label="终端演示：Kaku 检测到 npm run buidl 拼写错误，建议改为 npm run build 并按 ⌘⇧E 应用修复">
+    <div class="td-tag">{isEn ? '[2] Auto Error Recovery' : '[2] 错误自动修复'}</div>
+    <div class="terminal" role="img" aria-label={isEn ? 'Terminal demo: Kaku detects a typo in npm run buidl, suggests npm run build, and applies the fix with ⌘⇧E' : '终端演示：Kaku 检测到 npm run buidl 拼写错误，建议改为 npm run build 并按 ⌘⇧E 应用修复'}>
       <div class="term-bar" aria-hidden="true">
         <span class="dot red"></span>
         <span class="dot yellow"></span>
@@ -31,8 +34,11 @@
         </div>
       </div>
     </div>
-    <h2 class="td-title">一个会自己动的终端演示</h2>
-    <p class="td-desc">Kaku 检测到命令失败后自动建议修复，按 <kbd>⌘⇧E</kbd> 一键应用。这是 Kaku 最具差异化的卖点之一。</p>
+    <h2 class="td-title">{isEn ? 'A terminal that fixes itself' : '一个会自己动的终端演示'}</h2>
+    <p class="td-desc">{isEn
+      ? <>Kaku detects command failures and suggests a fix automatically. Press <kbd>⌘⇧E</kbd> to apply in one keystroke.</>
+      : <>Kaku 检测到命令失败后自动建议修复，按 <kbd>⌘⇧E</kbd> 一键应用。这是 Kaku 最具差异化的卖点之一。</>
+    }</p>
   </div>
 </section>
 

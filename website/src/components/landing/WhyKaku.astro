@@ -1,4 +1,7 @@
 ---
+interface Props { lang?: string; }
+const { lang = 'zh-CN' } = Astro.props;
+const isEn = lang === 'en';
 ---
 
 <section class="wk-section">
@@ -9,14 +12,24 @@
         <img src="https://github.com/tw93.png" alt="Tw93" />
       </div>
       <div class="body">
-        <h2>为什么我做了 Kaku</h2>
-        <p>
-          我重度依赖终端工作，此前做过
-          <a href="https://github.com/tw93/Pake" target="_blank" rel="noopener noreferrer">Pake</a> 和
-          <a href="https://github.com/tw93/mole" target="_blank" rel="noopener noreferrer">Mole</a> —— 这些工具都是为了让日常开发更顺手。
-          Kaku 是我对"AI 编码时代的终端"的答案：把 WezTerm 的渲染性能和 Lua 扩展力保留下来，
-          默认更好看，并把 AI 助手做进来。希望你也喜欢。
-        </p>
+        <h2>{isEn ? 'Why I built Kaku' : '为什么我做了 Kaku'}</h2>
+        {isEn ? (
+          <p>
+            I live in the terminal. I previously built
+            <a href="https://github.com/tw93/Pake" target="_blank" rel="noopener noreferrer">Pake</a> and
+            <a href="https://github.com/tw93/mole" target="_blank" rel="noopener noreferrer">Mole</a> — tools that make everyday development smoother.
+            Kaku is my answer to "the terminal for the AI coding era": keep WezTerm's rendering performance and Lua extensibility,
+            ship better defaults, and build the AI assistant right in. Hope you enjoy it.
+          </p>
+        ) : (
+          <p>
+            我重度依赖终端工作，此前做过
+            <a href="https://github.com/tw93/Pake" target="_blank" rel="noopener noreferrer">Pake</a> 和
+            <a href="https://github.com/tw93/mole" target="_blank" rel="noopener noreferrer">Mole</a> —— 这些工具都是为了让日常开发更顺手。
+            Kaku 是我对"AI 编码时代的终端"的答案：把 WezTerm 的渲染性能和 Lua 扩展力保留下来，
+            默认更好看，并把 AI 助手做进来。希望你也喜欢。
+          </p>
+        )}
         <p class="signoff">—— Tw93 · <a href="https://twitter.com/HiTw93" target="_blank" rel="noopener noreferrer">@HiTw93</a></p>
       </div>
     </div>

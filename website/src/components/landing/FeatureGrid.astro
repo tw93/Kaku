@@ -1,24 +1,31 @@
 ---
-interface Feature {
-  icon: string;
-  title: string;
-  desc: string;
-  href: string;
-}
+interface Props { lang?: string; }
+const { lang = 'zh-CN' } = Astro.props;
+const isEn = lang === 'en';
+const pre = isEn ? '/Kaku/en' : '/Kaku';
 
-const features: Feature[] = [
-  { icon: '▸', title: '零配置',       desc: 'JetBrains Mono 默认，开箱即用', href: '/Kaku/docs/start/first-config' },
-  { icon: '▸', title: 'AI 内建',      desc: '错误修复 / NL 转命令',          href: '/Kaku/docs/ai/overview' },
-  { icon: '▸', title: '主题感知',      desc: '跟随系统明暗自动切换',          href: '/Kaku/docs/config/theme' },
-  { icon: '▸', title: 'GPU 渲染',     desc: '继承 WezTerm 渲染栈',           href: '/Kaku/docs/config/font' },
-  { icon: '▸', title: 'Lua 兼容',     desc: 'WezTerm 配置零迁移',            href: '/Kaku/docs/config/lua' },
-  { icon: '▸', title: '集成全家桶',    desc: 'Lazygit / Yazi / Zsh',          href: '/Kaku/docs/features/integrations' },
+interface Feature { icon: string; title: string; desc: string; href: string; }
+
+const features: Feature[] = isEn ? [
+  { icon: '▸', title: 'Zero Config',       desc: 'JetBrains Mono default, ready out of the box', href: `${pre}/docs/start/first-config` },
+  { icon: '▸', title: 'AI Built In',       desc: 'Error recovery / NL to command',               href: `${pre}/docs/ai/overview` },
+  { icon: '▸', title: 'Theme Aware',       desc: 'Follows system light / dark automatically',    href: `${pre}/docs/config/theme` },
+  { icon: '▸', title: 'GPU Rendering',     desc: 'Inherits the WezTerm render stack',            href: `${pre}/docs/config/font` },
+  { icon: '▸', title: 'Lua Compatible',    desc: 'WezTerm config, zero migration',               href: `${pre}/docs/config/lua` },
+  { icon: '▸', title: 'Integrated Suite',  desc: 'Lazygit / Yazi / Zsh',                         href: `${pre}/docs/features/integrations` },
+] : [
+  { icon: '▸', title: '零配置',       desc: 'JetBrains Mono 默认，开箱即用', href: `${pre}/docs/start/first-config` },
+  { icon: '▸', title: 'AI 内建',      desc: '错误修复 / NL 转命令',          href: `${pre}/docs/ai/overview` },
+  { icon: '▸', title: '主题感知',      desc: '跟随系统明暗自动切换',          href: `${pre}/docs/config/theme` },
+  { icon: '▸', title: 'GPU 渲染',     desc: '继承 WezTerm 渲染栈',           href: `${pre}/docs/config/font` },
+  { icon: '▸', title: 'Lua 兼容',     desc: 'WezTerm 配置零迁移',            href: `${pre}/docs/config/lua` },
+  { icon: '▸', title: '集成全家桶',    desc: 'Lazygit / Yazi / Zsh',          href: `${pre}/docs/features/integrations` },
 ];
 ---
 
 <section class="fg-section">
   <div class="kk-container-wide">
-    <div class="fg-tag">[3] 6 核心特性</div>
+    <div class="fg-tag">{isEn ? '[3] 6 Core Features' : '[3] 6 核心特性'}</div>
     <div class="grid">
       {features.map(f => (
         <a class="cell" href={f.href}>

@@ -1,19 +1,22 @@
 ---
+interface Props { lang?: string; }
+const { lang = 'zh-CN' } = Astro.props;
+const isEn = lang === 'en';
 ---
 
 <section class="qs-section">
   <div class="kk-container">
-    <div class="qs-tag">[7] 快速开始</div>
-    <h2>三步开跑</h2>
+    <div class="qs-tag">{isEn ? '[7] Quick Start' : '[7] 快速开始'}</div>
+    <h2>{isEn ? 'Three steps to launch' : '三步开跑'}</h2>
     <div class="term">
-      <div class="line"><span class="c">#</span> <span class="d">一条命令装好</span></div>
+      <div class="line"><span class="c">#</span> <span class="d">{isEn ? 'Install with one command' : '一条命令装好'}</span></div>
       <div class="line cmd">brew install tw93/tap/kaku</div>
-      <div class="line"><span class="c">#</span> <span class="d">或者直接下 DMG</span></div>
-      <div class="line cmd"><a href="/Kaku/download">kaku.site/download</a></div>
-      <div class="line"><span class="c">#</span> <span class="d">打开即用</span></div>
+      <div class="line"><span class="c">#</span> <span class="d">{isEn ? 'Or grab the DMG' : '或者直接下 DMG'}</span></div>
+      <div class="line cmd"><a href={isEn ? '/Kaku/en/download' : '/Kaku/download'}>kaku.site/download</a></div>
+      <div class="line"><span class="c">#</span> <span class="d">{isEn ? 'Open and go' : '打开即用'}</span></div>
       <div class="line cmd">kaku</div>
     </div>
-    <p>装好之后 Kaku 会自动配置你的 shell 环境，无需任何额外步骤。</p>
+    <p>{isEn ? 'After install, Kaku auto-configures your shell environment — no extra steps needed.' : '装好之后 Kaku 会自动配置你的 shell 环境，无需任何额外步骤。'}</p>
   </div>
 </section>
 

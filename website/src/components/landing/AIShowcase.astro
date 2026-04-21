@@ -1,19 +1,22 @@
 ---
+interface Props { lang?: string; }
+const { lang = 'zh-CN' } = Astro.props;
+const isEn = lang === 'en';
 ---
 
 <section class="ai-section">
   <div class="kk-container">
-    <div class="ai-tag">[4] 自然语言 → 命令</div>
+    <div class="ai-tag">{isEn ? '[4] Natural Language → Command' : '[4] 自然语言 → 命令'}</div>
     <div class="ai-box">
-      <div class="row"><span class="muted"># 把今天的修改推到 feature 分支</span></div>
-      <div class="row arrow" aria-hidden="true">↓ Kaku 自动生成</div>
+      <div class="row"><span class="muted">{isEn ? "# push today's changes to the feature branch" : '# 把今天的修改推到 feature 分支'}</span></div>
+      <div class="row arrow" aria-hidden="true">{isEn ? '↓ Kaku auto-generates' : '↓ Kaku 自动生成'}</div>
       <div class="row cmd">git add . &amp;&amp; git commit -m "..." &amp;&amp; git push -u origin feature</div>
     </div>
-    <h2>自然语言 → 命令</h2>
-    <p>
-      在 shell 提示符前打 <code>#</code> 加自然语言，Kaku 调用 LLM 生成命令注入回提示符，
-      审查后按回车执行。配合 <kbd>⌘⇧A</kbd> 打开 AI 面板、<kbd>⌘⇧E</kbd> 应用修复建议。
-    </p>
+    <h2>{isEn ? 'Natural Language → Command' : '自然语言 → 命令'}</h2>
+    <p>{isEn
+      ? <>Type <code>#</code> followed by plain English at the prompt. Kaku calls the LLM, injects the generated command back, and you review before pressing Enter. Use <kbd>⌘⇧A</kbd> to open the AI panel and <kbd>⌘⇧E</kbd> to apply fix suggestions.</>
+      : <>在 shell 提示符前打 <code>#</code> 加自然语言，Kaku 调用 LLM 生成命令注入回提示符，审查后按回车执行。配合 <kbd>⌘⇧A</kbd> 打开 AI 面板、<kbd>⌘⇧E</kbd> 应用修复建议。</>
+    }</p>
   </div>
 </section>
 
