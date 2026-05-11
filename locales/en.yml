@@ -1,0 +1,51 @@
+# Kaku i18n bundle — English (source-of-truth language).
+#
+# Conventions:
+#   - Keys are dot-namespaced: <scope>.<context>.<key>
+#   - Scope corresponds roughly to a top-level module
+#     (menu, tab, ai, config_tui, doctor, init, overlay, errors, …)
+#   - Placeholders use the `%{name}` syntax from rust-i18n.
+#   - Keep English entries as the canonical source. Translations
+#     (zh-CN.yml etc) follow this file's structure 1:1.
+#   - This file is loaded both by binaries (`kaku`, `kaku-gui`, `k`).
+#   - Strings that are purely developer-facing (log lines, panic
+#     messages) MUST stay as literals next to their call site —
+#     they are not part of this bundle.
+
+ai:
+  approval:
+    title: "Kaku AI needs confirmation"
+  header:
+    user: "  You"
+    assistant: "  AI"
+  prompt:
+    respond_in_language: "Respond in English."
+
+# Reserved namespaces — entries land here as the corresponding
+# extraction tasks (#10–#15) make progress. Keeping the section
+# headers up front makes it easier to spot missing translations.
+tab:
+  # Shown in the tab title when a tab has no live pane attached.
+  empty_pane: "no pane"
+
+init:
+  k_wrapper_conflict: "k: %{path} already exists and does not appear to be a Kaku wrapper; skipping."
+
+overlay:
+  confirm_close:
+    pane: "Close this pane?\nThe running process in this pane will be terminated."
+    tab: "Close this tab?\nAll panes in this tab will be terminated."
+    window: "Close this window?\nAll tabs and panes in this window will be terminated."
+    quit: "Quit Kaku?\nAll open tabs and panes will be closed."
+  launcher:
+    pane_encoding: "Pane Encoding"
+    pane_encoding_help: "Select encoding  |  Enter = set  |  Esc = back  |  / = filter"
+
+# Reserved namespaces — entries land here as the corresponding
+# extraction tasks (#10, #13–#15) make progress.
+menu: {}
+config_tui: {}
+doctor: {}
+init: {}
+overlay: {}
+errors: {}

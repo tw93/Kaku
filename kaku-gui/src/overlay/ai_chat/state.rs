@@ -1491,7 +1491,10 @@ impl App {
                     Ok(StreamMsg::ApprovalRequired { summary, reply_tx }) => {
                         let short: String =
                             summary.chars().take(APPROVAL_NOTIFICATION_CHARS).collect();
-                        send_unfocused_notification(strings::APPROVAL_NOTIFICATION_TITLE, &short);
+                        send_unfocused_notification(
+                            &strings::approval_notification_title(),
+                            &short,
+                        );
                         self.pending_approval = Some((summary, reply_tx));
                         changed = true;
                         // Stop draining; wait for user to respond before processing more.

@@ -170,13 +170,13 @@ fn build_line_runs(
         DisplayLine::Header {
             role: Role::User, ..
         } => {
-            runs.push((pal.user_header_cell(), strings::HEADER_USER.to_string()));
+            runs.push((pal.user_header_cell(), strings::header_user()));
         }
         DisplayLine::Header {
             role: Role::Assistant,
             tools,
         } => {
-            runs.push((pal.ai_header_cell(), strings::HEADER_ASSISTANT.to_string()));
+            runs.push((pal.ai_header_cell(), strings::header_assistant()));
             if !tools.is_empty() {
                 // Render tool status in a dimmer tone so the "AI" header still pops.
                 let suffix = format_tool_suffix(tools, spinner_char_tool);

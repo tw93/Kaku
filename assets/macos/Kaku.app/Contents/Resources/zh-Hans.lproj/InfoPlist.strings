@@ -1,0 +1,21 @@
+/* InfoPlist.strings — 简体中文 (zh-Hans). */
+/* macOS picks this file when the system language is set to */
+/* Simplified Chinese (and the user has not overridden it per-app). */
+
+CFBundleName = "Kaku";
+CFBundleDisplayName = "Kaku";
+
+NSAppleEventsUsageDescription = "通过 Kaku 启动的应用希望访问 AppleScript。";
+NSCalendarsUsageDescription = "通过 Kaku 启动的应用希望访问日历数据。";
+NSCameraUsageDescription = "通过 Kaku 启动的应用希望访问摄像头。";
+NSContactsUsageDescription = "通过 Kaku 启动的应用希望访问你的通讯录。";
+NSLocationAlwaysUsageDescription = "通过 Kaku 启动的应用希望持续访问你的位置信息（包括后台运行时）。";
+NSLocationUsageDescription = "通过 Kaku 启动的应用希望访问你的位置信息。";
+NSLocationWhenInUseUsageDescription = "通过 Kaku 启动的应用希望在使用期间访问你的位置信息。";
+NSMicrophoneUsageDescription = "通过 Kaku 启动的应用希望访问麦克风。";
+NSRemindersUsageDescription = "通过 Kaku 启动的应用希望访问你的提醒事项。";
+NSDocumentsFolderUsageDescription = "通过 Kaku 启动的应用希望访问你的「文稿」文件夹。";
+NSDownloadsFolderUsageDescription = "通过 Kaku 启动的应用希望访问你的「下载」文件夹。";
+NSSystemAdministrationUsageDescription = "通过 Kaku 启动的应用需要管理员权限。";
+NSLocalNetworkUsageDescription = "通过 Kaku 启动的应用希望访问本地网络。";
+NSBluetoothAlwaysUsageDescription = "通过 Kaku 启动的应用希望使用蓝牙。";

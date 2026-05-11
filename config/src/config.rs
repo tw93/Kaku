@@ -554,6 +554,22 @@ pub struct Config {
     #[dynamic(default)]
     pub alternate_screen_wheel_scrolls_terminal: bool,
 
+    /// Locale used for Kaku's built-in UI strings (menus, TUIs, the
+    /// `Cmd+L` AI overlay) and as a default-language hint for the
+    /// Assistant's system prompt.
+    ///
+    /// Recognized values:
+    /// - `"auto"` (default): pick the locale from `$LC_ALL` / `$LC_MESSAGES`
+    ///   / `$LANG`, falling back to English.
+    /// - `"en"`: force English regardless of environment.
+    /// - `"zh-CN"`: force Simplified Chinese.
+    ///
+    /// Unsupported values fall back to English and emit a `log::warn`.
+    /// See `config/src/i18n.rs` for the resolver and the canonical list
+    /// of supported tags.
+    #[dynamic(default = "default_language")]
+    pub language: String,
+
     #[dynamic(try_from = "crate::units::PixelUnit", default = "default_half_cell")]
     pub min_scroll_bar_height: Dimension,
 
@@ -2492,6 +2508,10 @@ fn default_enq_answerback() -> String {
 
 fn default_tab_max_width() -> usize {
     16
+}
+
+fn default_language() -> String {
+    crate::i18n::LANGUAGE_AUTO.to_string()
 }
 
 fn default_update_interval() -> u64 {

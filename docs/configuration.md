@@ -35,6 +35,37 @@ return config
 
 ---
 
+## Language
+
+Kaku ships built-in English and Simplified Chinese (`zh-CN`) translations
+for its menus, command palette, AI overlay, and CLI TUIs. The selected
+language also nudges the AI Assistant to reply in the same language.
+
+```lua
+config.language = "auto"   -- default: detect from $LC_ALL / $LANG; fall back to English
+config.language = "zh-CN"  -- force Simplified Chinese
+config.language = "en"     -- force English
+```
+
+Resolution order when `"auto"` is set:
+
+1. `$LC_ALL`
+2. `$LC_MESSAGES`
+3. `$LANG`
+4. English (fallback)
+
+Unsupported values fall back to English and emit a warning in the log.
+The macOS system menu bar (File / Edit / Window) is owned by the OS;
+it follows your system language and is **not** affected by
+`config.language`. Re-launch Kaku after changing the value.
+
+> **Note:** `kaku.lua` is loaded by the desktop app and the `kaku` CLI.
+> The standalone `k` chat CLI resolves its locale from the environment
+> only (`LC_ALL` / `LC_MESSAGES` / `LANG`); set those variables in your
+> shell rc to control `k`.
+
+---
+
 ## Appearance
 
 **Theme**

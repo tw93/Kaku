@@ -70,12 +70,18 @@ use clap::{Parser, ValueHint};
 use config::keyassignment::{SpawnCommand, SpawnTabDomain};
 use config::ConfigHandle;
 use mux::activity::Activity;
+
+// Register the i18n bundle for `kaku-gui` so `t!()` calls in overlays,
+// menus and the AI panel resolve against `locales/{en,zh-CN}.yml` at the
+// workspace root.
+rust_i18n::i18n!("../locales", fallback = "en");
 use mux::domain::{Domain, LocalDomain};
 use mux::Mux;
 use mux_lua::MuxDomain;
 use portable_pty::cmdbuilder::CommandBuilder;
 use promise::spawn::block_on;
-use std::borrow::Cow;
+// `std::borrow::Cow` is brought into scope by the `rust_i18n::i18n!`
+// macro expansion above — re-importing it here would trigger E0252.
 use std::env::current_dir;
 use std::ffi::OsString;
 use std::path::PathBuf;
@@ -999,6 +1005,14 @@ fn run() -> anyhow::Result<()> {
     let config = config::configuration();
     if let Some(value) = &config.default_ssh_auth_sock {
         std::env::set_var("SSH_AUTH_SOCK", value);
+    }
+
+    // Apply the resolved locale before any user-facing text is rendered.
+    // See `config::i18n::resolve_locale` for the resolution order.
+    {
+        let locale = config::i18n::resolve_locale(&config.language);
+        rust_i18n::set_locale(&locale);
+        log::trace!("i18n: active locale = {locale}");
     }
 
     let sub = match opts.cmd.as_ref().cloned() {

@@ -3,6 +3,15 @@
 use clap::Parser;
 use kaku_gui_lib::cli_chat::{run, CliArgs};
 
+// The `k` CLI does not load the full Kaku Lua config (it would be
+// wasteful for a one-shot chat invocation). Locale is resolved from the
+// process environment only — `kaku.lua`'s `config.language` is honored
+// inside the desktop app, not here.
+fn apply_locale_from_environment() {
+    let locale = config::i18n::resolve_locale(config::i18n::LANGUAGE_AUTO);
+    rust_i18n::set_locale(&locale);
+}
+
 #[derive(Parser)]
 #[command(
     name = "k",
@@ -21,6 +30,7 @@ struct Cli {
 }
 
 fn main() {
+    apply_locale_from_environment();
     let cli = Cli::parse();
     let args = CliArgs {
         prompt: if cli.prompt.is_empty() {

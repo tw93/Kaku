@@ -19,6 +19,11 @@ use clap::{Parser, ValueEnum, ValueHint};
 use clap_complete::{generate as generate_completion, shells, Generator as CompletionGenerator};
 use config::{wezterm_version, ConfigHandle};
 use mux::Mux;
+
+// Register the i18n bundle for the `kaku` CLI. `t!()` invocations inside
+// this crate look up keys against `locales/{en,zh-CN}.yml` at the
+// workspace root.
+rust_i18n::i18n!("../locales", fallback = "en");
 use std::ffi::OsString;
 use std::io::{IsTerminal, Write};
 use std::path::PathBuf;
@@ -283,6 +288,15 @@ fn terminate_with_error(err: anyhow::Error) -> ! {
 fn main() {
     config::designate_this_as_the_main_thread();
     config::assign_error_callback(mux::connui::show_configuration_error_message);
+
+    // Stage-1 locale apply: based purely on `$LC_ALL` / `$LC_MESSAGES` /
+    // `$LANG`, no Lua config required. This makes every subcommand
+    // (including `kaku config` / `kaku ai`, which historically skipped
+    // `init_config`) render in the user's environment language. The
+    // subcommands that DO call `init_config` later will refine this
+    // based on the Lua-side `config.language` override.
+    rust_i18n::set_locale(&config::i18n::resolve_locale(config::i18n::LANGUAGE_AUTO));
+
     if let Err(e) = run() {
         terminate_with_error(e);
     }
@@ -301,7 +315,38 @@ fn init_config(opts: &Opt) -> anyhow::Result<ConfigHandle> {
     if let Some(value) = &config.default_ssh_auth_sock {
         std::env::set_var("SSH_AUTH_SOCK", value);
     }
+    apply_locale_from_config(&config);
     Ok(config)
+}
+
+/// Apply the locale resolved from `config.language` to the rust-i18n
+/// runtime so that `t!()` invocations elsewhere in the CLI render the
+/// right language. Resolution rules live in `config::i18n`.
+fn apply_locale_from_config(config: &ConfigHandle) {
+    let locale = config::i18n::resolve_locale(&config.language);
+    rust_i18n::set_locale(&locale);
+    log::trace!("i18n: active locale = {locale}");
+}
+
+/// Load just enough Kaku config to refine the rust-i18n locale.
+///
+/// CLI subcommands like `kaku config` / `kaku ai` / `kaku doctor` skip
+/// the full `init_config` path (which also tweaks ulimits and SSH
+/// environment); they still need the Lua-side `config.language` to win
+/// over the stage-1 environment-based locale picked in `main()`.
+/// Failures are intentionally swallowed — the stage-1 locale remains in
+/// effect, which is the same fallback behavior `init_config` would have
+/// chosen if Lua loading failed.
+fn refine_locale_from_lua_config(opts: &Opt) {
+    if config::common_init(
+        opts.config_file.as_ref(),
+        &opts.config_override,
+        opts.skip_config,
+    )
+    .is_ok()
+    {
+        apply_locale_from_config(&config::configuration());
+    }
 }
 
 fn run() -> anyhow::Result<()> {
@@ -358,21 +403,39 @@ fn run() -> anyhow::Result<()> {
             Ok(())
         }
         SubCommand::Update(cmd) => cmd.run(),
-        SubCommand::Config(cmd) => cmd.run(
-            opts.config_file.as_ref().map(PathBuf::from),
-            opts.config_file.clone(),
-            opts.config_override.clone(),
-            opts.skip_config,
-        ),
-        SubCommand::Init(cmd) => cmd.run(),
-        SubCommand::Doctor(cmd) => cmd.run(),
-        SubCommand::Reset(cmd) => cmd.run(),
-        SubCommand::Ai(cmd) => cmd.run(
-            opts.config_file.clone(),
-            opts.config_override.clone(),
-            opts.skip_config,
-        ),
-        SubCommand::Chat(cmd) => cmd.run(),
+        SubCommand::Config(cmd) => {
+            refine_locale_from_lua_config(&opts);
+            cmd.run(
+                opts.config_file.as_ref().map(PathBuf::from),
+                opts.config_file.clone(),
+                opts.config_override.clone(),
+                opts.skip_config,
+            )
+        }
+        SubCommand::Init(cmd) => {
+            refine_locale_from_lua_config(&opts);
+            cmd.run()
+        }
+        SubCommand::Doctor(cmd) => {
+            refine_locale_from_lua_config(&opts);
+            cmd.run()
+        }
+        SubCommand::Reset(cmd) => {
+            refine_locale_from_lua_config(&opts);
+            cmd.run()
+        }
+        SubCommand::Ai(cmd) => {
+            refine_locale_from_lua_config(&opts);
+            cmd.run(
+                opts.config_file.clone(),
+                opts.config_override.clone(),
+                opts.skip_config,
+            )
+        }
+        SubCommand::Chat(cmd) => {
+            refine_locale_from_lua_config(&opts);
+            cmd.run()
+        }
     }
 }
 

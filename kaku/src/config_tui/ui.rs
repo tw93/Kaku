@@ -6,6 +6,61 @@ use ratatui::widgets::{Block, Borders, Clear, List, ListItem, ListState, Paragra
 use super::{App, Mode};
 use crate::tui_core::theme::{accent, bg, muted, panel, primary, text_fg};
 
+/// Approximate terminal display width for a string. ASCII characters
+/// count as 1 column, anything outside the ASCII printable range counts
+/// as 2 (good enough for the CJK strings this TUI handles; emojis and
+/// half-width kana are out of scope for now). Right-pads `s` with
+/// spaces so the resulting string takes exactly `cols` terminal columns,
+/// or returns the input unchanged when it is already wider.
+fn pad_display_width(s: &str, cols: usize) -> String {
+    let used: usize = s
+        .chars()
+        .map(|c| if (c as u32) <= 0x7E { 1 } else { 2 })
+        .sum();
+    if used >= cols {
+        s.to_string()
+    } else {
+        let mut out = String::with_capacity(s.len() + cols - used);
+        out.push_str(s);
+        for _ in 0..(cols - used) {
+            out.push(' ');
+        }
+        out
+    }
+}
+
+/// Translate a footer / header label that ships in English. Looks up
+/// `config_tui.<slug>` (e.g. `"Save & Exit"` -> `config_tui.save_exit`)
+/// and falls back to the English source when the bundle does not carry
+/// a matching entry, so partial translations degrade gracefully.
+fn translate_label(en: &str) -> String {
+    let mut slug = String::with_capacity(en.len());
+    let mut last_underscore = true;
+    for ch in en.chars() {
+        let lower = ch.to_ascii_lowercase();
+        if lower.is_ascii_alphanumeric() {
+            slug.push(lower);
+            last_underscore = false;
+        } else if !last_underscore {
+            slug.push('_');
+            last_underscore = true;
+        }
+    }
+    while slug.ends_with('_') {
+        slug.pop();
+    }
+    if slug.is_empty() {
+        return en.to_string();
+    }
+    let key = format!("config_tui.{slug}");
+    let translated = rust_i18n::t!(&key);
+    if translated.as_ref() == key.as_str() {
+        en.to_string()
+    } else {
+        translated.into_owned()
+    }
+}
+
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 enum MainLayoutMode {
     HeaderOnly,
@@ -193,7 +248,7 @@ fn render_header(frame: &mut ratatui::Frame, area: Rect) {
             Style::default().fg(primary()).add_modifier(Modifier::BOLD),
         ),
         Span::styled(" · ", Style::default().fg(muted())),
-        Span::styled("Settings", Style::default().fg(text_fg())),
+        Span::styled(translate_label("Settings"), Style::default().fg(text_fg())),
     ]);
     frame.render_widget(Paragraph::new(vec![line, Line::from("")]), area);
 }
@@ -216,7 +271,7 @@ fn render_fields(frame: &mut ratatui::Frame, area: Rect, app: &App) {
             items.push(ListItem::new(Line::from(vec![
                 Span::styled("  ", Style::default()),
                 Span::styled(
-                    field.section,
+                    translate_label(field.section),
                     Style::default().fg(muted()).add_modifier(Modifier::BOLD),
                 ),
             ])));
@@ -229,7 +284,13 @@ fn render_fields(frame: &mut ratatui::Frame, area: Rect, app: &App) {
             selected_flat = Some(flat);
         }
 
-        let display_value = app.display_value(field);
+        let display_value_raw = app.display_value(field);
+        // Translate both the key label and the displayed enum value so a
+        // user-set locale flows through every cell of the table; padding
+        // is computed on display columns (CJK ~2 cols/char) so the value
+        // column stays aligned regardless of language.
+        let display_value = translate_label(display_value_raw);
+        let key_label = translate_label(field.key);
         let has_options = field.has_options();
 
         let key_style = if is_selected {
@@ -265,10 +326,7 @@ fn render_fields(frame: &mut ratatui::Frame, area: Rect, app: &App) {
                         Modifier::empty()
                     }),
             ),
-            Span::styled(
-                format!("{:<width$}", field.key, width = key_width),
-                key_style,
-            ),
+            Span::styled(pad_display_width(&key_label, key_width), key_style),
             Span::styled(format!("{}{}", display_value, suffix), value_style),
         ]);
 
@@ -308,10 +366,11 @@ fn build_footer_line(
     let separator = " | ";
 
     for (idx, action) in actions.iter().enumerate() {
-        let label = match label_style {
+        let label_raw = match label_style {
             FooterLabelStyle::Long => action.long_label,
             FooterLabelStyle::Short => action.short_label,
         };
+        let label = translate_label(label_raw);
         let segment_width = action.key.chars().count() + 1 + label.chars().count();
         let separator_width = if idx == 0 {
             0
@@ -377,13 +436,22 @@ fn render_selector(frame: &mut ratatui::Frame, area: Rect, app: &App) {
 
     let block = Block::default()
         .title(Line::from(vec![
-            Span::styled(" Select: ", Style::default().fg(primary())),
-            Span::styled(field.key, Style::default().fg(text_fg())),
+            Span::styled(
+                format!(" {}: ", translate_label("Select")),
+                Style::default().fg(primary()),
+            ),
+            Span::styled(translate_label(field.key), Style::default().fg(text_fg())),
             Span::styled("  ", Style::default()),
             Span::styled("Enter", Style::default().fg(primary())),
-            Span::styled(": Apply  ", Style::default().fg(muted())),
+            Span::styled(
+                format!(": {}  ", translate_label("Apply")),
+                Style::default().fg(muted()),
+            ),
             Span::styled("Esc", Style::default().fg(primary())),
-            Span::styled(": Save & Exit ", Style::default().fg(muted())),
+            Span::styled(
+                format!(": {} ", translate_label("Save & Exit")),
+                Style::default().fg(muted()),
+            ),
         ]))
         .borders(Borders::ALL)
         .border_style(Style::default().fg(primary()))
@@ -415,7 +483,7 @@ fn render_selector(frame: &mut ratatui::Frame, area: Rect, app: &App) {
                             Modifier::empty()
                         }),
                 ),
-                Span::styled(*opt, style),
+                Span::styled(translate_label(opt), style),
             ]))
         })
         .collect();
@@ -445,13 +513,22 @@ fn render_editor(frame: &mut ratatui::Frame, area: Rect, app: &App) {
 
     let block = Block::default()
         .title(Line::from(vec![
-            Span::styled(" Edit: ", Style::default().fg(primary())),
-            Span::styled(field.key, Style::default().fg(text_fg())),
+            Span::styled(
+                format!(" {}: ", translate_label("Edit")),
+                Style::default().fg(primary()),
+            ),
+            Span::styled(translate_label(field.key), Style::default().fg(text_fg())),
             Span::styled("  ", Style::default()),
             Span::styled("Enter", Style::default().fg(primary())),
-            Span::styled(": Save  ", Style::default().fg(muted())),
+            Span::styled(
+                format!(": {}  ", translate_label("Save")),
+                Style::default().fg(muted()),
+            ),
             Span::styled("Esc", Style::default().fg(primary())),
-            Span::styled(": Cancel ", Style::default().fg(muted())),
+            Span::styled(
+                format!(": {} ", translate_label("Cancel")),
+                Style::default().fg(muted()),
+            ),
         ]))
         .borders(Borders::ALL)
         .border_style(Style::default().fg(primary()))

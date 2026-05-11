@@ -1,0 +1,203 @@
+# Kaku i18n bundle — 简体中文 (zh-CN)
+#
+# 结构与 en.yml 保持 1:1。若条目暂无翻译，**应整条删除**而不是写英文回退 —
+# `commands.{brief,doc,menubar}.*` 的查找端会在缺失时自动用 commands.rs 中
+# 的英文原文兜底（见 `localize_command_field` 实现）。
+
+ai:
+  approval:
+    title: "Kaku AI 需要确认"
+  header:
+    user: "  你"
+    assistant: "  AI"
+  prompt:
+    respond_in_language: "请用简体中文回答。"
+
+tab:
+  empty_pane: "无终端"
+
+commands:
+  # macOS 菜单栏顶层分组。键名 = 英文原文的 slug。
+  menubar:
+    kaku: "Kaku"
+    shell: "Shell"
+    edit: "编辑"
+    view: "视图"
+    window: "窗口"
+    help: "帮助"
+
+  # Kaku 顶层菜单下硬编码的 NSMenuItem（不走 CommandDef）。
+  menu:
+    settings: "设置…"
+    check_for_updates: "检查更新…"
+    set_as_default_terminal: "设为默认终端"
+    services: "服务"
+
+  # 命令面板与菜单项的简短标签（CommandDef::brief）。
+  brief:
+    activate_copy_mode: "进入复制模式"
+    activate_pane_down: "切换到下方窗格"
+    activate_pane_left: "切换到左侧窗格"
+    activate_pane_right: "切换到右侧窗格"
+    activate_pane_up: "切换到上方窗格"
+    activate_right_most_tab: "激活最右侧标签页"
+    activate_the_tab_to_the_left_no_wrapping: "切换到左侧标签页（不循环）"
+    activate_the_tab_to_the_right_no_wrapping: "切换到右侧标签页(不循环)"
+    ai_chat: "AI 聊天"
+    ai_config: "AI 设置"
+    always_on_bottom: "始终置底"
+    always_on_top: "始终置顶"
+    apply_last_ai_fix: "应用上次 AI 建议"
+    clear_scrollback: "清空回滚缓冲区"
+    clear_the_key_table_stack: "清空按键表栈"
+    clear_the_scrollback_and_viewport: "清空回滚缓冲与视口"
+    clears_the_selection_in_the_current_pane: "清除当前窗格的选区"
+    close_pane: "关闭窗格"
+    close_tab: "关闭标签页"
+    command_palette: "命令面板"
+    copy_to_clipboard: "复制到剪贴板"
+    copy_to_clipboard_and_primary_selection: "复制到剪贴板与主选区"
+    copy_to_primary_selection: "复制到主选区"
+    create_new_workspace: "新建工作区"
+    decrease_font_size: "缩小字体"
+    detach_the_default_domain: "分离默认域"
+    detach_the_domain_of_the_active_pane: "分离活动窗格所在域"
+    discuss_on_github: "在 GitHub 讨论"
+    does_nothing: "无操作"
+    enter_emoji_character_selection_mode: "进入 Emoji / 字符选择模式"
+    enter_quickselect_mode: "进入快速选择模式"
+    fill: "充满屏幕"
+    hide_kaku: "隐藏 Kaku"
+    increase_font_size: "放大字体"
+    kaku_doctor: "Kaku 诊断"
+    last_active_tab: "上次激活的标签页"
+    launcher: "启动器"
+    lazygit: "Lazygit"
+    minimize: "最小化"
+    move_pane_to_new_tab: "把窗格移到新标签页"
+    move_pane_to_new_window: "把窗格移到新窗口"
+    move_tab_left: "标签页左移"
+    move_tab_right: "标签页右移"
+    new_tab: "新建标签页"
+    new_window: "新建窗口"
+    next_tab: "下一个标签页"
+    next_window: "下一个窗口"
+    next_window_no_wrap: "下一个窗口（不循环）"
+    normal: "普通"
+    open_link_at_mouse_cursor: "打开光标处链接"
+    paste_from_clipboard: "从剪贴板粘贴"
+    paste_primary_selection: "粘贴主选区"
+    pop_the_current_key_table: "弹出当前按键表"
+    previous_tab: "上一个标签页"
+    previous_window: "上一个窗口"
+    previous_window_no_wrap: "上一个窗口（不循环）"
+    prompt_the_user_for_a_line_of_text: "弹出文本输入框"
+    prompt_the_user_for_confirmation: "弹出确认提示"
+    prompt_the_user_to_choose_from_a_list: "弹出列表选择"
+    quickselect: "快速选择"
+    quit_kaku: "退出 Kaku"
+    reload_configuration: "重新加载配置"
+    remote_files: "远程文件"
+    reopen_last_closed_tab: "重新打开最近关闭的标签页"
+    report_issue: "反馈问题"
+    reset_font_size: "重置字体大小"
+    reset_the_terminal_emulation_state_in_the_current_pane: "重置当前窗格的终端状态"
+    reset_window_font_size: "重置窗口与字体大小"
+    resize_split_down: "向下调整分割"
+    resize_split_left: "向左调整分割"
+    resize_split_right: "向右调整分割"
+    resize_split_up: "向上调整分割"
+    restore_previous_window: "恢复上次窗口"
+    scroll_down_one_page: "向下翻页"
+    scroll_to_bottom: "滚动到底部"
+    scroll_to_top: "滚动到顶部"
+    scroll_up_one_page: "向上翻页"
+    search: "搜索"
+    search_pane_output: "搜索窗格输出"
+    select_pane: "选择窗格"
+    show_restore_window: "显示 / 恢复窗口"
+    star_on_github: "在 GitHub 上点 Star"
+    swap_a_pane_with_the_active_pane: "与活动窗格交换位置"
+    swap_a_pane_with_the_active_pane_keeping_focus: "与活动窗格交换位置（保留焦点）"
+    tab_navigator: "标签页导航"
+    toggle_all_panes_all_tabs: "切换所有标签页的所有窗格广播"
+    toggle_current_tab_panes: "切换当前标签页的窗格广播"
+    toggle_full_screen: "切换全屏"
+    toggle_split_direction: "切换分割方向"
+    yazi_file_manager: "Yazi 文件管理器"
+    zoom_pane: "缩放窗格"
+
+  # 命令详细描述（CommandDef::doc）。仅为高频/易误解的命令翻译，其余走英文兜底。
+  doc:
+    pastes_text_from_the_primary_selection: "从主选区粘贴文本"
+    copies_text_to_the_primary_selection: "将文本复制到主选区"
+    copies_text_to_the_clipboard: "将文本复制到剪贴板"
+    copies_text_to_the_clipboard_and_the_primary_selection: "将文本同时复制到剪贴板与主选区"
+    pastes_text_from_the_clipboard: "从剪贴板粘贴文本"
+    toggle_full_screen_mode: "切换全屏模式"
+    zoom_the_window_to_fill_the_active_display_appkit_zoom: "将窗口缩放到铺满当前显示器（AppKit zoom）"
+    keep_window_above_others: "让窗口保持在其它窗口之上"
+    keep_window_behind_others: "让窗口保持在其它窗口之下"
+
+config_tui:
+  settings: "设置"
+  navigate: "导航"
+  move: "上下"
+  edit: "编辑"
+  select: "选择"
+  save_exit: "保存退出"
+  save: "保存"
+  discard: "放弃"
+  open_file: "打开文件"
+  open: "打开"
+  apply: "应用"
+  cancel: "取消"
+
+  # ─ Section 标题 ─
+  appearance: "外观"
+  integrations: "集成"
+  window: "窗口"
+  behavior: "行为"
+
+  # ─ 字段名 (key) ─
+  theme: "主题"
+  font: "字体"
+  font_size: "字号"
+  line_height: "行高"
+  global_hotkey: "全局快捷键"
+  tab_bar_position: "标签栏位置"
+  short_tab_titles: "标签短标题"
+  scrollbar: "滚动条"
+  traffic_lights: "红绿灯按钮"
+  shadow: "窗口阴影"
+  background_opacity: "背景透明度"
+  background_blur: "背景模糊"
+  copy_on_select: "选中即复制"
+  confirm_tab_close: "关闭标签确认"
+  confirm_pane_close: "关闭窗格确认"
+  bell_tab_prefix: "标签响铃标记"
+  bell_dock_badge: "Dock 响铃徽标"
+  remember_last_directory: "记住上次目录"
+
+  # ─ 枚举值 (options / defaults) ─
+  on: "开"
+  off: "关"
+  auto: "自动"
+  kaku_dark: "Kaku 深色"
+  kaku_light: "Kaku 浅色"
+  bottom: "下方"
+  top: "上方"
+doctor: {}
+init:
+  k_wrapper_conflict: "k: %{path} 已存在且不像是由 Kaku 创建的包装脚本，跳过安装。"
+overlay:
+  confirm_close:
+    pane: "关闭此窗格？\n窗格中正在运行的进程将被终止。"
+    tab: "关闭此标签页？\n该标签页中的所有窗格将被终止。"
+    window: "关闭此窗口？\n该窗口中的所有标签页和窗格将被终止。"
+    quit: "退出 Kaku？\n所有打开的标签页和窗格将被关闭。"
+  launcher:
+    pane_encoding: "窗格编码"
+    pane_encoding_help: "选择编码  |  Enter 确定  |  Esc 返回  |  / 过滤"
+errors: {}
+menu: {}

@@ -52,6 +52,7 @@ mod daemon;
 mod exec_domain;
 mod font;
 mod frontend;
+pub mod i18n;
 pub mod keyassignment;
 mod keys;
 pub mod lua;

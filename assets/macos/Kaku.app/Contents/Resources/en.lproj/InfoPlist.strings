@@ -1,0 +1,21 @@
+/* InfoPlist.strings — English (CFBundleDevelopmentRegion). */
+/* These keys mirror Info.plist; macOS prefers strings file values when a */
+/* matching locale lproj is selected by the system. */
+
+CFBundleName = "Kaku";
+CFBundleDisplayName = "Kaku";
+
+NSAppleEventsUsageDescription = "An application launched via Kaku would like to access AppleScript.";
+NSCalendarsUsageDescription = "An application launched via Kaku would like to access calendar data.";
+NSCameraUsageDescription = "An application launched via Kaku would like to access the camera.";
+NSContactsUsageDescription = "An application launched via Kaku wants to access your contacts.";
+NSLocationAlwaysUsageDescription = "An application launched via Kaku would like to access your location information, even in the background.";
+NSLocationUsageDescription = "An application launched via Kaku would like to access your location information.";
+NSLocationWhenInUseUsageDescription = "An application launched via Kaku would like to access your location information while active.";
+NSMicrophoneUsageDescription = "An application launched via Kaku would like to access your microphone.";
+NSRemindersUsageDescription = "An application launched via Kaku would like to access your reminders.";
+NSDocumentsFolderUsageDescription = "An application launched via Kaku would like to access your Documents folder.";
+NSDownloadsFolderUsageDescription = "An application launched via Kaku would like to access your Downloads folder.";
+NSSystemAdministrationUsageDescription = "An application launched via Kaku requires elevated permission.";
+NSLocalNetworkUsageDescription = "An application launched via Kaku would like to access the local network.";
+NSBluetoothAlwaysUsageDescription = "An application launched via Kaku would like to use Bluetooth.";

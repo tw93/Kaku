@@ -337,7 +337,10 @@ fn compute_tab_title_from_precomputed(
                 build_default_title(tab, config, &title, true, false)
             } else {
                 TitleText {
-                    items: vec![FormatItem::Text(" no pane ".to_string())],
+                    items: vec![FormatItem::Text(format!(
+                        " {} ",
+                        rust_i18n::t!("tab.empty_pane")
+                    ))],
                 }
             }
         }
@@ -393,7 +396,7 @@ pub fn compute_tab_plain_title(tab: &TabInformation) -> String {
         return pane.title.clone();
     }
 
-    "no pane".to_string()
+    rust_i18n::t!("tab.empty_pane").into_owned()
 }
 
 fn build_default_title(

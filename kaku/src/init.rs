@@ -126,8 +126,11 @@ exit 127
             let content = fs::read_to_string(&k_path).unwrap_or_default();
             if !content.contains("Kaku") && !content.contains("kaku") {
                 eprintln!(
-                    "k: {} already exists and does not appear to be a Kaku wrapper; skipping.",
-                    k_path.display()
+                    "{}",
+                    rust_i18n::t!(
+                        "init.k_wrapper_conflict",
+                        path = k_path.display().to_string()
+                    )
                 );
                 return Ok(());
             }

@@ -178,8 +178,8 @@ impl CommandDef {
                     def.permute_keys(config)
                 };
                 Some(ExpandedCommand {
-                    brief: def.brief.into(),
-                    doc: def.doc.into(),
+                    brief: localize_command_field("brief", &def.brief),
+                    doc: localize_command_field("doc", &def.doc),
                     keys,
                     action,
                     menubar: def.menubar,
@@ -852,7 +852,14 @@ impl CommandDef {
                 let rank = command_rank_for_menu(title, &cmd.action);
                 let group = separator_group_for_menu(title, rank);
 
-                let mut submenu = main_menu.get_or_create_sub_menu(&cmd.menubar[0], |menu| {
+                // Translate the menubar segment for display, but keep the
+                // raw English string as the grouping key elsewhere in this
+                // function. Inside macOS NSMenu the title is also a lookup
+                // key — when the locale flips, stale menus from the old
+                // language are abandoned until the user relaunches Kaku
+                // (documented in `docs/configuration.md#language`).
+                let menubar_title = localize_menubar_segment(cmd.menubar[0]);
+                let mut submenu = main_menu.get_or_create_sub_menu(&menubar_title, |menu| {
                     // Do not call setWindowsMenu: / setHelpMenu: on our
                     // submenus: on macOS 26, AppKit inserts auto-managed
                     // items (Tile/Move & Resize/Bring All to Front; Help
@@ -884,8 +891,12 @@ impl CommandDef {
                             let delegate: cocoa::base::id = msg_send![app, delegate];
                             delegate
                         };
-                        let settings_item =
-                            MenuItem::new_with("Settings...", Some(show_settings_window_sel), ",");
+                        let settings_label = rust_i18n::t!("commands.menu.settings").into_owned();
+                        let settings_item = MenuItem::new_with(
+                            &settings_label,
+                            Some(show_settings_window_sel),
+                            ",",
+                        );
                         settings_item
                             .set_key_equiv_modifier_mask(NSEventModifierFlags::NSCommandKeyMask);
                         if !app_delegate.is_null() {
@@ -893,8 +904,10 @@ impl CommandDef {
                         }
                         menu.add_item(&settings_item);
 
+                        let check_update_label =
+                            rust_i18n::t!("commands.menu.check_for_updates").into_owned();
                         let check_update = MenuItem::new_with(
-                            "Check for Updates...",
+                            &check_update_label,
                             Some(kaku_perform_key_assignment_sel),
                             "",
                         );
@@ -917,8 +930,10 @@ impl CommandDef {
                             menu.add_item(&restart_item);
                         }
 
+                        let set_default_terminal_label =
+                            rust_i18n::t!("commands.menu.set_as_default_terminal").into_owned();
                         let set_default_terminal_item = MenuItem::new_with(
-                            "Set as Default Terminal",
+                            &set_default_terminal_label,
                             Some(kaku_perform_key_assignment_sel),
                             "",
                         );
@@ -934,9 +949,10 @@ impl CommandDef {
 
                         menu.add_item(&MenuItem::new_separator());
 
-                        let services_menu = Menu::new_with_title("Services");
+                        let services_label = rust_i18n::t!("commands.menu.services").into_owned();
+                        let services_menu = Menu::new_with_title(&services_label);
                         services_menu.assign_as_services_menu();
-                        let services_item = MenuItem::new_with("Services", None, "");
+                        let services_item = MenuItem::new_with(&services_label, None, "");
                         menu.add_item(&services_item);
                         services_item.set_sub_menu(&services_menu);
 
@@ -956,7 +972,8 @@ impl CommandDef {
 
                 // Fill out any submenu hierarchy
                 for sub_title in cmd.menubar.iter().skip(1) {
-                    submenu = submenu.get_or_create_sub_menu(sub_title, |_menu| {});
+                    let sub_title_localized = localize_menubar_segment(sub_title);
+                    submenu = submenu.get_or_create_sub_menu(&sub_title_localized, |_menu| {});
                 }
 
                 let mut candidate = inputmap.locate_app_wide_key_assignment(&cmd.action);
@@ -1097,6 +1114,86 @@ fn label_string(action: &KeyAssignment, candidate: String) -> String {
 /// but can also be used to describe user-provided commands
 pub(crate) fn is_internal_emit_event_name(name: &str) -> bool {
     name.starts_with("user-defined-")
+}
+
+/// Lowercase + collapse-non-alphanumeric slug used as the suffix for
+/// i18n keys (e.g. `"Toggle Full Screen"` -> `"toggle_full_screen"`).
+///
+/// The function intentionally drops anything that isn't `[a-z0-9_]` so
+/// dynamic brief strings that interpolate user content (workspace names,
+/// domain labels) don't accidentally produce different slugs each call.
+/// Such dynamic strings will simply fail the i18n lookup and fall back
+/// to the original English text — which is the right answer because the
+/// interpolated content is user-supplied.
+fn slugify_command_label(s: &str) -> String {
+    let mut out = String::with_capacity(s.len());
+    let mut last_was_underscore = true; // suppress leading underscores
+    for ch in s.chars() {
+        let lower = ch.to_ascii_lowercase();
+        let mapped = if lower.is_ascii_alphanumeric() {
+            Some(lower)
+        } else {
+            None
+        };
+        match mapped {
+            Some(c) => {
+                out.push(c);
+                last_was_underscore = false;
+            }
+            None => {
+                if !last_was_underscore {
+                    out.push('_');
+                    last_was_underscore = true;
+                }
+            }
+        }
+    }
+    // Trim a trailing separator if any.
+    while out.ends_with('_') {
+        out.pop();
+    }
+    out
+}
+
+/// Look up a localized variant of an English `CommandDef` field.
+///
+/// `field` is `"brief"` or `"doc"`. The lookup key is
+/// `commands.<field>.<slug>` (e.g. `commands.brief.toggle_full_screen`).
+/// If `rust-i18n` cannot find a translation (it returns the key back),
+/// the original English string is returned unchanged — so partial
+/// translations in `zh-CN.yml` degrade gracefully into English instead
+/// of leaking dotted keys into the UI.
+pub fn localize_command_field(field: &str, original: &str) -> Cow<'static, str> {
+    let slug = slugify_command_label(original);
+    if slug.is_empty() {
+        return Cow::Owned(original.to_string());
+    }
+    let key = format!("commands.{field}.{slug}");
+    let translated = rust_i18n::t!(&key);
+    if translated.as_ref() == key.as_str() {
+        Cow::Owned(original.to_string())
+    } else {
+        Cow::Owned(translated.into_owned())
+    }
+}
+
+/// Display-time translation for a single menubar segment such as
+/// `"Edit"` or `"Shell"`. Keys live under `commands.menubar.<slug>` and
+/// the same "no translation -> return original" contract applies. The
+/// raw English string remains the canonical key used for grouping and
+/// sorting in `commands.rs` and `palette.rs`.
+pub fn localize_menubar_segment(segment: &str) -> Cow<'static, str> {
+    let slug = slugify_command_label(segment);
+    if slug.is_empty() {
+        return Cow::Owned(segment.to_string());
+    }
+    let key = format!("commands.menubar.{slug}");
+    let translated = rust_i18n::t!(&key);
+    if translated.as_ref() == key.as_str() {
+        Cow::Owned(segment.to_string())
+    } else {
+        Cow::Owned(translated.into_owned())
+    }
 }
 
 pub fn derive_command_from_key_assignment(action: &KeyAssignment) -> Option<CommandDef> {
