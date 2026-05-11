@@ -554,6 +554,20 @@ pub struct Config {
     #[dynamic(default)]
     pub alternate_screen_wheel_scrolls_terminal: bool,
 
+    /// Controls how the mouse wheel behaves while a left-button terminal
+    /// selection drag is in progress.
+    ///
+    /// - `Extend` (default, matches macOS `NSTextView` apps like Safari /
+    ///   TextEdit / VS Code): scroll the scrollback and extend the selection
+    ///   so it follows the cursor across screens.
+    /// - `ScrollOnly`: scroll the scrollback but leave the selection range
+    ///   unchanged.
+    /// - `Ignore`: drop the wheel event entirely. Restores the legacy Kaku
+    ///   behavior from v0.10 and earlier, which kept the selection stable but
+    ///   blocked cross-screen text selection.
+    #[dynamic(default)]
+    pub selection_wheel_scroll_behavior: SelectionWheelScrollBehavior,
+
     #[dynamic(try_from = "crate::units::PixelUnit", default = "default_half_cell")]
     pub min_scroll_bar_height: Dimension,
 
@@ -2598,6 +2612,21 @@ pub enum VerticalWindowContentAlignment {
     Top,
     Center,
     Bottom,
+}
+
+/// Behavior of the mouse wheel while a left-button terminal selection drag is
+/// in progress. See `Config::selection_wheel_scroll_behavior`.
+#[derive(Debug, FromDynamic, ToDynamic, Clone, Copy, PartialEq, Eq, Default)]
+pub enum SelectionWheelScrollBehavior {
+    /// Scroll the viewport and stretch the selection so its endpoint tracks
+    /// the cursor under the new viewport. This is the macOS `NSTextView`
+    /// idiom and the new Kaku default.
+    #[default]
+    Extend,
+    /// Scroll the viewport but do not update the selection endpoint.
+    ScrollOnly,
+    /// Drop the wheel event. Equivalent to Kaku v0.10 and earlier behavior.
+    Ignore,
 }
 
 #[derive(FromDynamic, ToDynamic, Clone, Copy, Debug, PartialEq, Eq)]

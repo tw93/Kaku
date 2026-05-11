@@ -8,7 +8,7 @@ use ::window::{
     WindowState,
 };
 use config::keyassignment::{KeyAssignment, MouseEventTrigger, SpawnTabDomain};
-use config::MouseEventAltScreen;
+use config::{MouseEventAltScreen, SelectionWheelScrollBehavior};
 use mux::pane::{CachePolicy, Pane, WithPaneLines};
 use mux::tab::SplitDirection;
 use mux::Mux;
@@ -88,13 +88,47 @@ fn should_bypass_wheel_assignment_in_alt(
     is_wheel_event && alt_screen && !mouse_grabbed && !alternate_screen_wheel_scrolls_terminal
 }
 
-fn should_suppress_wheel_during_terminal_selection(
+/// Action to take when a wheel event arrives in the middle of a left-button
+/// terminal selection drag.
+///
+/// Returned by [`wheel_during_terminal_selection_action`]. `None` means
+/// "the wheel event is not happening during a terminal selection drag, let
+/// the caller route it through the normal path".
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum SelectionDragWheelAction {
+    /// Drop the wheel event (legacy behavior, configured by
+    /// `SelectionWheelScrollBehavior::Ignore`).
+    Suppress,
+    /// Scroll the viewport but do not touch the selection range.
+    ScrollOnly,
+    /// Scroll the viewport AND stretch the selection to follow the cursor.
+    ScrollAndExtend,
+}
+
+/// Detect whether the current wheel event is happening inside a left-button
+/// terminal selection drag, and if so return the action that the configured
+/// [`SelectionWheelScrollBehavior`] resolves to.
+///
+/// Returning `None` is the "not in a selection drag" signal — callers should
+/// continue through the normal wheel routing path.
+fn wheel_during_terminal_selection_action(
     capture: Option<&super::MouseCapture>,
     current_mouse_buttons: &[MousePress],
     mouse_buttons: WMB,
-) -> bool {
-    matches!(capture, Some(super::MouseCapture::TerminalPane(_)))
-        && (current_mouse_buttons.contains(&MousePress::Left) || mouse_buttons == WMB::LEFT)
+    behavior: SelectionWheelScrollBehavior,
+) -> Option<SelectionDragWheelAction> {
+    let is_terminal_selection_drag = matches!(capture, Some(super::MouseCapture::TerminalPane(_)))
+        && (current_mouse_buttons.contains(&MousePress::Left) || mouse_buttons == WMB::LEFT);
+
+    if !is_terminal_selection_drag {
+        return None;
+    }
+
+    Some(match behavior {
+        SelectionWheelScrollBehavior::Ignore => SelectionDragWheelAction::Suppress,
+        SelectionWheelScrollBehavior::ScrollOnly => SelectionDragWheelAction::ScrollOnly,
+        SelectionWheelScrollBehavior::Extend => SelectionDragWheelAction::ScrollAndExtend,
+    })
 }
 
 impl super::TermWindow {
@@ -103,6 +137,66 @@ impl super::TermWindow {
     fn finish_mouse_release(&mut self, press: MousePress) {
         self.current_mouse_capture = None;
         self.current_mouse_buttons.retain(|p| p != &press);
+    }
+
+    /// Handle a wheel event that arrived while a left-button terminal
+    /// selection drag is in progress.
+    ///
+    /// The dispatcher in `mouse_event_impl` only forwards us here for the
+    /// three behaviors that need special-casing (`Suppress`, `ScrollOnly`,
+    /// `ScrollAndExtend`). Everything else flows through the normal wheel
+    /// routing path unchanged.
+    fn handle_wheel_during_terminal_selection(
+        &mut self,
+        action: SelectionDragWheelAction,
+        _event: &MouseEvent,
+        pane: &Arc<dyn Pane>,
+        context: &dyn WindowOps,
+    ) {
+        match action {
+            SelectionDragWheelAction::Suppress => {
+                log::trace!(
+                    "selection_wheel_scroll_behavior=Ignore, \
+                     dropping wheel during selection drag"
+                );
+            }
+            SelectionDragWheelAction::ScrollOnly => {
+                if let Err(err) = self.scroll_by_current_event_wheel_delta(pane) {
+                    log::debug!(
+                        "scroll_by_current_event_wheel_delta failed during \
+                         selection drag (ScrollOnly): {err:#}"
+                    );
+                }
+                context.invalidate();
+            }
+            SelectionDragWheelAction::ScrollAndExtend => {
+                if let Err(err) = self.scroll_by_current_event_wheel_delta(pane) {
+                    log::debug!(
+                        "scroll_by_current_event_wheel_delta failed during \
+                         selection drag (ScrollAndExtend): {err:#}"
+                    );
+                }
+
+                // The viewport just moved. The same physical mouse row now
+                // points at a different StableRowIndex, so recompute it and
+                // refresh `pane_state.mouse_terminal_coords` so that the
+                // selection-extension helper picks up the post-scroll target.
+                let (_, mouse_screen_row) = self.last_mouse_coords;
+                let dims = pane.get_dimensions();
+                let new_stable_row = self.effective_viewport(pane).unwrap_or(dims.physical_top)
+                    + mouse_screen_row as StableRowIndex;
+
+                {
+                    let mut state = self.pane_state(pane.pane_id());
+                    if let Some((click_pos, _)) = state.mouse_terminal_coords.clone() {
+                        state.mouse_terminal_coords = Some((click_pos, new_stable_row));
+                    }
+                }
+
+                self.extend_selection_at_mouse_cursor(crate::selection::SelectionMode::Cell, pane);
+                context.invalidate();
+            }
+        }
     }
 
     fn start_tab_drag(&mut self, tab_idx: usize, start_event: MouseEvent) {
@@ -333,15 +427,16 @@ impl super::TermWindow {
         // tracked from keyboard shortcuts (Cmd+A/Shift+Arrow, etc).
         self.clear_line_editor_selection();
 
-        if matches!(event.kind, WMEK::VertWheel(_) | WMEK::HorzWheel(_))
-            && should_suppress_wheel_during_terminal_selection(
+        if matches!(event.kind, WMEK::VertWheel(_) | WMEK::HorzWheel(_)) {
+            if let Some(action) = wheel_during_terminal_selection_action(
                 self.current_mouse_capture.as_ref(),
                 &self.current_mouse_buttons,
                 event.mouse_buttons,
-            )
-        {
-            log::trace!("ignoring wheel event during terminal selection drag");
-            return;
+                self.config.selection_wheel_scroll_behavior,
+            ) {
+                self.handle_wheel_during_terminal_selection(action, &event, &pane, context);
+                return;
+            }
         }
 
         let border = self.get_os_border();
@@ -1748,11 +1843,13 @@ fn wmek_to_tmek_and_button(event: &MouseEvent) -> (TMEK, TMB) {
 mod tests {
     use super::{
         mouse_dispatch_target, should_bypass_wheel_assignment_in_alt,
-        should_preserve_tmux_bypass_reporting, should_suppress_wheel_during_terminal_selection,
-        should_zoom_title_area, tab_bar_item_starts_window_drag, MouseDispatchTarget,
+        should_preserve_tmux_bypass_reporting, should_zoom_title_area,
+        tab_bar_item_starts_window_drag, wheel_during_terminal_selection_action,
+        MouseDispatchTarget, SelectionDragWheelAction,
     };
     use crate::tabbar::TabBarItem;
     use crate::termwindow::MouseCapture;
+    use config::SelectionWheelScrollBehavior;
     use mux::pane::PaneId;
     use window::{IntegratedTitleButton, Modifiers, MouseButtons, MousePress, WindowDecorations};
 
@@ -1861,33 +1958,99 @@ mod tests {
         ));
     }
 
-    #[test]
-    fn suppresses_wheel_when_terminal_selection_is_active() {
-        let buttons = vec![MousePress::Left];
-        assert!(should_suppress_wheel_during_terminal_selection(
-            Some(&MouseCapture::TerminalPane(PaneId::new(1))),
-            &buttons,
-            MouseButtons::LEFT,
-        ));
+    fn terminal_selection_buttons() -> Vec<MousePress> {
+        vec![MousePress::Left]
     }
 
     #[test]
-    fn does_not_suppress_wheel_without_left_button_selection() {
+    fn default_behavior_extends_selection_during_terminal_drag() {
+        let buttons = terminal_selection_buttons();
+        assert_eq!(
+            wheel_during_terminal_selection_action(
+                Some(&MouseCapture::TerminalPane(PaneId::new(1))),
+                &buttons,
+                MouseButtons::LEFT,
+                SelectionWheelScrollBehavior::default(),
+            ),
+            Some(SelectionDragWheelAction::ScrollAndExtend)
+        );
+    }
+
+    #[test]
+    fn ignore_behavior_suppresses_wheel_during_terminal_selection() {
+        let buttons = terminal_selection_buttons();
+        assert_eq!(
+            wheel_during_terminal_selection_action(
+                Some(&MouseCapture::TerminalPane(PaneId::new(1))),
+                &buttons,
+                MouseButtons::LEFT,
+                SelectionWheelScrollBehavior::Ignore,
+            ),
+            Some(SelectionDragWheelAction::Suppress)
+        );
+    }
+
+    #[test]
+    fn scroll_only_behavior_scrolls_without_extending_selection() {
+        let buttons = terminal_selection_buttons();
+        assert_eq!(
+            wheel_during_terminal_selection_action(
+                Some(&MouseCapture::TerminalPane(PaneId::new(1))),
+                &buttons,
+                MouseButtons::LEFT,
+                SelectionWheelScrollBehavior::ScrollOnly,
+            ),
+            Some(SelectionDragWheelAction::ScrollOnly)
+        );
+    }
+
+    #[test]
+    fn right_button_drag_routes_wheel_through_normal_path() {
         let buttons = vec![MousePress::Right];
-        assert!(!should_suppress_wheel_during_terminal_selection(
-            Some(&MouseCapture::TerminalPane(PaneId::new(1))),
-            &buttons,
-            MouseButtons::RIGHT,
-        ));
+        assert_eq!(
+            wheel_during_terminal_selection_action(
+                Some(&MouseCapture::TerminalPane(PaneId::new(1))),
+                &buttons,
+                MouseButtons::RIGHT,
+                SelectionWheelScrollBehavior::Extend,
+            ),
+            None
+        );
     }
 
     #[test]
-    fn does_not_suppress_wheel_for_ui_capture() {
-        let buttons = vec![MousePress::Left];
-        assert!(!should_suppress_wheel_during_terminal_selection(
-            Some(&MouseCapture::UI),
-            &buttons,
-            MouseButtons::LEFT,
-        ));
+    fn ui_capture_routes_wheel_through_normal_path() {
+        let buttons = terminal_selection_buttons();
+        assert_eq!(
+            wheel_during_terminal_selection_action(
+                Some(&MouseCapture::UI),
+                &buttons,
+                MouseButtons::LEFT,
+                SelectionWheelScrollBehavior::Extend,
+            ),
+            None
+        );
+    }
+
+    #[test]
+    fn no_capture_routes_wheel_through_normal_path() {
+        let buttons: Vec<MousePress> = vec![];
+        assert_eq!(
+            wheel_during_terminal_selection_action(
+                None,
+                &buttons,
+                MouseButtons::NONE,
+                SelectionWheelScrollBehavior::Extend,
+            ),
+            None
+        );
+    }
+
+    #[test]
+    fn default_behavior_value_is_extend() {
+        assert_eq!(
+            SelectionWheelScrollBehavior::default(),
+            SelectionWheelScrollBehavior::Extend
+        );
     }
 }

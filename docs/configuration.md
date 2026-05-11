@@ -169,6 +169,32 @@ nano and vim, instead of peeking into Kaku's primary scrollback, enable:
 config.alternate_screen_wheel_scrolls_terminal = true
 ```
 
+**Selection drag + mouse wheel**
+
+Controls what the mouse wheel does while you are dragging out a selection
+with the left mouse button held down. Defaults to `"Extend"` (Kaku v0.11+),
+which matches macOS `NSTextView` apps such as Safari, TextEdit, VS Code,
+iTerm2 and `Terminal.app`: the wheel scrolls the scrollback and the
+selection grows to follow the cursor across screens.
+
+```lua
+-- Default (recommended): scroll AND extend the selection so you can grab
+-- text that spans more than one screen of output.
+config.selection_wheel_scroll_behavior = "Extend"
+
+-- Scroll the scrollback but leave the selection range untouched.
+config.selection_wheel_scroll_behavior = "ScrollOnly"
+
+-- Drop the wheel event entirely. This is the legacy Kaku v0.10 behavior;
+-- selecting text that does not fit on one screen requires releasing the
+-- mouse, scrolling, and re-selecting.
+config.selection_wheel_scroll_behavior = "Ignore"
+```
+
+> **Default change in v0.11**: earlier Kaku versions behaved as if
+> `"Ignore"` were set. Set `selection_wheel_scroll_behavior = "Ignore"` to
+> restore the old behavior.
+
 **macOS Option key**
 
 Left Option sends Meta (useful for Vim/Neovim word navigation). Right Option sends compose characters.
