@@ -41,6 +41,12 @@ impl crate::TermWindow {
         {
             let height = self.dimensions.pixel_height as f32;
             let width = self.dimensions.pixel_width as f32;
+            let integrated_top_inset = integrated_buttons_top_inset(
+                &self.config,
+                is_fullscreen,
+                self.show_tab_bar && !self.config.tab_bar_at_bottom,
+            )
+            .min(border_dimensions.top.get()) as f32;
 
             // In fullscreen, use palette background color for all borders.
             // In windowed mode, use configured border colors if available.
@@ -54,14 +60,34 @@ impl crate::TermWindow {
 
             let border_top = border_dimensions.top.get() as f32;
             if border_top > 0.0 {
-                let color = border_color(
-                    self.config
-                        .window_frame
-                        .border_top_color
-                        .map(|c| c.to_linear())
-                        .unwrap_or(border_dimensions.color),
-                );
-                self.filled_rectangle(layers, 1, euclid::rect(0.0, 0.0, width, border_top), color)?;
+                if integrated_top_inset > 0.0 {
+                    let background = self
+                        .get_active_pane_or_overlay()
+                        .map(|pane| pane.palette().background)
+                        .unwrap_or_else(|| self.palette().background)
+                        .to_linear()
+                        .mul_alpha(self.config.window_background_opacity);
+                    self.filled_rectangle(
+                        layers,
+                        1,
+                        euclid::rect(0.0, 0.0, width, border_top),
+                        background,
+                    )?;
+                } else {
+                    let color = border_color(
+                        self.config
+                            .window_frame
+                            .border_top_color
+                            .map(|c| c.to_linear())
+                            .unwrap_or(border_dimensions.color),
+                    );
+                    self.filled_rectangle(
+                        layers,
+                        1,
+                        euclid::rect(0.0, 0.0, width, border_top),
+                        color,
+                    )?;
+                }
             }
 
             let border_left = border_dimensions.left.get() as f32;
