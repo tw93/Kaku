@@ -14,7 +14,7 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::OnceLock;
 
 use crate::ai_auth;
-use reqwest::header::{HeaderName, HeaderValue};
+use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
 
 const DEFAULT_MODEL: &str = "gpt-5.4-mini";
 const DEFAULT_BASE_URL: &str = "https://api.openai.com/v1";
@@ -476,16 +476,17 @@ impl AiClient {
 
     fn apply_custom_headers(
         &self,
-        mut req: reqwest::blocking::RequestBuilder,
+        req: reqwest::blocking::RequestBuilder,
     ) -> Result<reqwest::blocking::RequestBuilder> {
+        let mut headers = HeaderMap::new();
         for (name, value) in &self.config.custom_headers {
             let header_name = HeaderName::from_bytes(name.as_bytes())
                 .with_context(|| format!("invalid custom header name `{name}`"))?;
             let header_value = HeaderValue::from_str(value)
                 .with_context(|| format!("invalid custom header value for `{name}`"))?;
-            req = req.header(header_name, header_value);
+            headers.insert(header_name, header_value);
         }
-        Ok(req)
+        Ok(req.headers(headers))
     }
 
     /// Single chat step with optional tool support.
@@ -539,7 +540,7 @@ impl AiClient {
                 break;
             }
             let line = line.context("read SSE line")?;
-            let Some(data) = line.strip_prefix("data: ") else {
+            let Some(data) = sse_data_payload(&line) else {
                 continue;
             };
             if data.trim() == "[DONE]" {
@@ -716,6 +717,10 @@ fn reasoning_delta_text<'a>(
         .or_else(|| choice["reasoning"].as_str())
 }
 
+fn sse_data_payload(line: &str) -> Option<&str> {
+    line.strip_prefix("data:").map(str::trim_start)
+}
+
 // ─── Inline <think> / <thinking> tag filter ─────────────────────────────────
 
 const THINK_TAG_PAIRS: &[(&str, &str)] = &[("<think>", "</think>"), ("<thinking>", "</thinking>")];
@@ -841,7 +846,8 @@ fn detect_provider_with_auth(base_url: &str, auth_type: &str) -> &'static str {
 mod tests {
     use super::{
         detect_provider_with_auth, parse_custom_headers, reasoning_delta_text,
-        should_roundtrip_reasoning_content, ApiMessage, InlineThinkFilter, ThinkSegment,
+        should_roundtrip_reasoning_content, sse_data_payload, ApiMessage, InlineThinkFilter,
+        ThinkSegment,
     };
 
     #[test]
@@ -921,6 +927,13 @@ mod tests {
 
         let choice = serde_json::json!({"delta": {"content": "visible"}});
         assert_eq!(reasoning_delta_text(&choice, &choice["delta"]), None);
+    }
+
+    #[test]
+    fn sse_data_payload_accepts_optional_space_after_colon() {
+        assert_eq!(sse_data_payload("data:{\"x\":1}"), Some("{\"x\":1}"));
+        assert_eq!(sse_data_payload("data: {\"x\":1}"), Some("{\"x\":1}"));
+        assert_eq!(sse_data_payload("event: message"), None);
     }
 
     #[test]
