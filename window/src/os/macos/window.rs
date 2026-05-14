@@ -4466,17 +4466,21 @@ impl WindowView {
         let only_left_alt = (modifiers & alt_mods) == (Modifiers::LEFT_ALT | Modifiers::ALT);
         let only_right_alt = (modifiers & alt_mods) == (Modifiers::RIGHT_ALT | Modifiers::ALT);
 
+        let has_active_ime_composition = Self::get_this(this)
+            .map(|s| !s.inner.borrow().ime_text.is_empty())
+            .unwrap_or(false);
+
         // Also respect `send_composed_key_when_(left|right)_alt_is_pressed` configs
         // when `use_ime` is true.
-        let forward_to_ime = {
-            if only_left_alt && !send_composed_key_when_left_alt_is_pressed {
-                false
-            } else if only_right_alt && !send_composed_key_when_right_alt_is_pressed {
-                false
-            } else {
-                modifiers.is_empty()
-                    || modifiers.intersects(config_handle.macos_forward_to_ime_modifier_mask)
-            }
+        let forward_to_ime = if has_active_ime_composition {
+            true
+        } else if only_left_alt && !send_composed_key_when_left_alt_is_pressed {
+            false
+        } else if only_right_alt && !send_composed_key_when_right_alt_is_pressed {
+            false
+        } else {
+            modifiers.is_empty()
+                || modifiers.intersects(config_handle.macos_forward_to_ime_modifier_mask)
         };
 
         if key_is_down && use_ime && forward_to_ime {
