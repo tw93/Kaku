@@ -744,8 +744,19 @@ impl crate::TermWindow {
 
         let dimensions = self.dimensions;
         let border = self.get_os_border();
-        // Calculate width based on message length (each char ~cell_width + padding)
-        let approx_width = (message.len() as f32 + 1.5) * metrics.cell_size.width as f32;
+        let shape_window = self.window.as_ref().unwrap().clone();
+        let shaped = font.shape(
+            &message,
+            move || shape_window.notify(TermWindowNotif::InvalidateShapeCache),
+            |_| {},
+            None,
+            wezterm_bidi::Direction::LeftToRight,
+            None,
+            None,
+        )?;
+        let text_pixel_width: f32 = shaped.iter().map(|g| g.x_advance.get() as f32).sum();
+        // 1.5 cells matches the Cells(0.75) horizontal padding; ceil + 1 px guards against rounding.
+        let approx_width = (text_pixel_width + 1.5 * metrics.cell_size.width as f32).ceil() + 1.0;
         let toast_height = metrics.cell_size.height as f32 * 1.5;
         // Use consistent margin based on cell size
         let h_margin = metrics.cell_size.width as f32 * 2.0;
