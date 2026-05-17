@@ -178,11 +178,14 @@ config_tui:
   bell_tab_prefix: "标签响铃标记"
   bell_dock_badge: "Dock 响铃徽标"
   remember_last_directory: "记住上次目录"
+  smart_tab: "Smart Tab 模式"
 
   # ─ 枚举值 (options / defaults) ─
   on: "开"
   off: "关"
   auto: "自动"
+  completion_first: "补全优先"
+  suggestion_first: "建议优先"
   kaku_dark: "Kaku 深色"
   kaku_light: "Kaku 浅色"
   bottom: "下方"

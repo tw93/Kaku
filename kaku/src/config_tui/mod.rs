@@ -453,6 +453,15 @@ impl App {
                 options: vec!["On", "Off"],
                 skip_write: false,
             },
+            ConfigField {
+                section: "Behavior",
+                key: "Smart Tab",
+                lua_key: "smart_tab_mode",
+                value: String::new(),
+                default: "Completion First".into(),
+                options: vec!["Completion First", "Suggestion First", "Off"],
+                skip_write: false,
+            },
         ];
 
         Self {
@@ -869,6 +878,15 @@ impl App {
                     Some("On".into())
                 } else {
                     None
+                }
+            }
+            "smart_tab_mode" => {
+                let value = raw.trim().trim_matches('\'').trim_matches('"');
+                match value {
+                    "completion_first" => Some("Completion First".into()),
+                    "suggestion_first" => Some("Suggestion First".into()),
+                    "off" => Some("Off".into()),
+                    _ => None,
                 }
             }
             "macos_global_hotkey" => {
@@ -1437,6 +1455,18 @@ impl App {
                     "{}".into()
                 } else {
                     "{ 'calt=0', 'clig=0', 'liga=0' }".into()
+                }
+            }
+            "smart_tab_mode" => {
+                let effective = if field.value.is_empty() {
+                    &field.default
+                } else {
+                    &field.value
+                };
+                match effective.as_str() {
+                    "Suggestion First" => "'suggestion_first'".into(),
+                    "Off" => "'off'".into(),
+                    _ => "'completion_first'".into(),
                 }
             }
             "macos_global_hotkey" => {

@@ -4020,6 +4020,16 @@ config.color_scheme = resolve_kaku_color_scheme(config.color_scheme)
 config.set_environment_variables = config.set_environment_variables or {}
 config.set_environment_variables['COLORFGBG'] = (config.color_scheme == 'Kaku Light') and '0;15' or '15;0'
 
+-- Smart Tab mode: "completion_first" (default), "suggestion_first", or "off"
+-- Bridges kaku.lua config to the shell env vars read by setup_zsh.sh.
+-- Env vars set in the user's shell rc still take precedence.
+local smart_tab = config.smart_tab_mode or 'completion_first'
+if smart_tab == 'off' then
+  config.set_environment_variables['KAKU_SMART_TAB_DISABLE'] = '1'
+elseif smart_tab == 'suggestion_first' then
+  config.set_environment_variables['KAKU_TAB_ACCEPT_SUGGEST_FIRST'] = '1'
+end
+
 -- ===== Window Frame (theme-aware) =====
 get_window_frame_colors = function(scheme)
   scheme = resolve_kaku_color_scheme(scheme)
