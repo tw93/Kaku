@@ -477,7 +477,7 @@ impl CommandPalette {
     }
 
     fn palette_bounds(term_window: &TermWindow, metrics: &RenderMetrics) -> PaletteBounds {
-        let top_bar_height = if term_window.show_tab_bar && !term_window.config.tab_bar_at_bottom {
+        let top_bar_height = if term_window.is_top_tab_bar_visible() {
             term_window.tab_bar_pixel_height().unwrap_or_else(|e| {
                 log::debug!("Failed to get tab bar height, using 0: {}", e);
                 0.0
@@ -995,14 +995,19 @@ impl Modal for CommandPalette {
     }
 
     fn mouse_event(&self, event: MouseEvent, term_window: &mut TermWindow) -> anyhow::Result<()> {
-        let top_bar_height = if term_window.show_tab_bar && !term_window.config.tab_bar_at_bottom {
+        let top_bar_height = if term_window.is_top_tab_bar_visible() {
             term_window.tab_bar_pixel_height().unwrap_or(0.0)
+        } else {
+            0.0
+        };
+        let sidebar_left_inset = if term_window.is_left_tab_bar_visible() {
+            term_window.vertical_sidebar_inset()
         } else {
             0.0
         };
         let (padding_left, padding_top) = term_window.padding_left_top();
         let border = term_window.get_os_border();
-        let content_x = padding_left + border.left.get() as f32;
+        let content_x = sidebar_left_inset + padding_left + border.left.get() as f32;
         let content_y = top_bar_height + padding_top + border.top.get() as f32;
         let cell_width = term_window.render_metrics.cell_size.width as f32;
         let cell_height = term_window.render_metrics.cell_size.height as f32;

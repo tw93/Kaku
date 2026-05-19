@@ -22,7 +22,7 @@ impl crate::TermWindow {
             .mul_alpha(self.config.window_background_opacity);
 
         let border = self.get_os_border();
-        let first_row_offset = if self.show_tab_bar && !self.config.tab_bar_at_bottom {
+        let first_row_offset = if self.is_top_tab_bar_visible() {
             self.tab_bar_pixel_height()?
         } else {
             0.

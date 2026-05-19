@@ -40,3 +40,5 @@
 20	kaku init now avoids read-only config paths and preserves existing jump providers before loading bundled zsh-z
 20	# AI 查询提交后会立即清空注释输入，避免生成的命令接在旧输入后面
 20	kaku init 现在会跳过只读配置路径，并在加载内置 zsh-z 前保留已有目录跳转工具
+21	Set tab_bar_orientation = "Left" or "Right" to render tabs as a vertical sidebar
+21	设置 tab_bar_orientation = "Left" 或 "Right" 可将标签栏渲染为左/右侧的垂直边栏

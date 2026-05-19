@@ -1179,7 +1179,7 @@ impl TermWindow {
 
     fn focus_changed(&mut self, focused: bool, window: &Window) {
         log::trace!("Setting focus to {:?}", focused);
-        if !self.config.tab_bar_at_bottom && self.layout_is_effective_fullscreen() {
+        if !self.tab_bar_orientation().is_at_bottom() && self.layout_is_effective_fullscreen() {
             self.arm_layout_sticky_fullscreen();
         }
         self.focused = if focused { Some(Instant::now()) } else { None };
@@ -1205,7 +1205,7 @@ impl TermWindow {
         // Reset the cursor blink phase
         self.prev_cursor.bump();
 
-        let immediate_relayout_needed = self.config.tab_bar_at_bottom; // Only immediate for bottom-tab
+        let immediate_relayout_needed = self.tab_bar_orientation().is_at_bottom(); // Only immediate for bottom-tab
 
         if focused && immediate_relayout_needed {
             // Some macOS Space switches do not reliably emit a visibility-change
@@ -1215,7 +1215,7 @@ impl TermWindow {
             let dimensions = self.dimensions;
             self.apply_dimensions(&dimensions, None, window, true);
             self.schedule_deferred_layout_relayout(window);
-        } else if focused && !self.config.tab_bar_at_bottom {
+        } else if focused && !self.tab_bar_orientation().is_at_bottom() {
             // Top-tab (both fullscreen and non-fullscreen): ONLY run a deferred
             // relayout. Lua config overrides (window_padding) take time to arrive
             // after we gain focus. If we `apply_dimensions` immediately, we will
@@ -1246,13 +1246,13 @@ impl TermWindow {
 
     fn visibility_changed(&mut self, visible: bool, window: &Window) {
         log::trace!("Setting visibility to {:?}", visible);
-        if !self.config.tab_bar_at_bottom && self.layout_is_effective_fullscreen() {
+        if !self.tab_bar_orientation().is_at_bottom() && self.layout_is_effective_fullscreen() {
             self.arm_layout_sticky_fullscreen();
         }
         self.quad_generation += 1;
 
         if visible {
-            let immediate_relayout_needed = self.config.tab_bar_at_bottom;
+            let immediate_relayout_needed = self.tab_bar_orientation().is_at_bottom();
 
             if immediate_relayout_needed {
                 self.load_os_parameters();
@@ -1261,7 +1261,7 @@ impl TermWindow {
                 let dimensions = self.dimensions;
                 self.apply_dimensions(&dimensions, None, window, true);
                 self.schedule_deferred_layout_relayout(window);
-            } else if !self.config.tab_bar_at_bottom {
+            } else if !self.tab_bar_orientation().is_at_bottom() {
                 // Top-tab: ONLY run deferred relayout.
                 // Prevent 1-frame flicker while waiting for Lua padding overrides
                 // just like in `focus_changed`.
@@ -1310,7 +1310,7 @@ impl TermWindow {
 
 impl TermWindow {
     fn arm_layout_sticky_fullscreen(&mut self) {
-        if self.config.tab_bar_at_bottom {
+        if self.tab_bar_orientation().is_at_bottom() {
             return;
         }
 
@@ -1319,7 +1319,7 @@ impl TermWindow {
     }
 
     fn layout_sticky_fullscreen_active(&self) -> bool {
-        !self.config.tab_bar_at_bottom
+        !self.tab_bar_orientation().is_at_bottom()
             && self
                 .layout_sticky_fullscreen_until
                 .map(|until| Instant::now() < until)
@@ -1367,12 +1367,13 @@ impl TermWindow {
         // Give top-tab fullscreen extra time to let Lua's update-right-status
         // config override settle before we recompute dimensions.  For all
         // other cases the original 16 ms frame-skip is sufficient.
-        let delay_ms: u64 =
-            if !self.config.tab_bar_at_bottom && self.layout_is_effective_fullscreen() {
-                80
-            } else {
-                16
-            };
+        let delay_ms: u64 = if !self.tab_bar_orientation().is_at_bottom()
+            && self.layout_is_effective_fullscreen()
+        {
+            80
+        } else {
+            16
+        };
         self.deferred_layout_relayout_epoch = self.deferred_layout_relayout_epoch.wrapping_add(1);
         let epoch = self.deferred_layout_relayout_epoch;
 
@@ -1450,12 +1451,13 @@ impl TermWindow {
         // Initially we have only a single tab, so take that into account
         // for the tab bar state.
         let show_tab_bar = config.enable_tab_bar && !config.hide_tab_bar_if_only_one_tab;
+        let orientation = config.effective_tab_bar_orientation();
         crate::startup_trace::mark("    tab_bar_pixel_height start");
         // Use a cheap estimate based on terminal cell metrics to avoid paying
         // the title-font resolution cost (~485ms on macOS cold start) during
         // window creation. The real height is computed by the instance method
         // tab_bar_pixel_height() on first render.
-        let tab_bar_height = if show_tab_bar {
+        let tab_bar_height = if show_tab_bar && orientation.is_horizontal() {
             Self::estimated_tab_bar_pixel_height(&config, &render_metrics) as usize
         } else {
             0
@@ -1494,22 +1496,30 @@ impl TermWindow {
         };
         let padding_left = config.window_padding.left.evaluate_as_pixels(h_context) as usize;
         let padding_right = resize::effective_right_padding(&config, h_context) as usize;
+        let tab_bar_width = resize::vertical_tab_bar_width_px(&config, h_context, show_tab_bar);
         let v_context = DimensionContext {
             dpi: dpi as f32,
             pixel_max: terminal_size.pixel_height as f32,
             pixel_cell: render_metrics.cell_size.height as f32,
         };
-        let (padding_top, padding_bottom) = resize::effective_vertical_padding(
+        let (mut padding_top, padding_bottom) = resize::effective_vertical_padding(
             &config,
             v_context,
             show_tab_bar,
-            config.tab_bar_at_bottom,
+            orientation,
             tab_bar_height,
             false,
         );
+        // Reserve macOS title-bar inset on the pane side for vertical sidebars
+        // so the initial window sizing matches the lazy render path. Keep
+        // this number in sync with TermWindow::vertical_sidebar_top_inset().
+        if orientation.is_vertical() && cfg!(target_os = "macos") {
+            padding_top = padding_top.saturating_add(60);
+        }
 
         let mut dimensions = Dimensions {
-            pixel_width: (terminal_size.pixel_width + padding_left + padding_right) as usize,
+            pixel_width: (terminal_size.pixel_width + padding_left + padding_right + tab_bar_width)
+                as usize,
             pixel_height: ((terminal_size.rows * render_metrics.cell_size.height as usize)
                 + padding_top
                 + padding_bottom) as usize
@@ -1523,7 +1533,7 @@ impl TermWindow {
         let integrated_top_inset = crate::termwindow::render::borders::integrated_buttons_top_inset(
             &config,
             false,
-            show_tab_bar && !config.tab_bar_at_bottom,
+            show_tab_bar && matches!(orientation, config::TabBarOrientation::Top),
         );
         if integrated_top_inset > 0 {
             border.top += ULength::new(integrated_top_inset);
@@ -1802,6 +1812,7 @@ impl TermWindow {
                         padding_bottom: padding_bottom,
                         border: border,
                         tab_bar_height: tab_bar_height,
+                        tab_bar_width: tab_bar_width,
                     }
                     .into(),
                 );
@@ -2794,13 +2805,17 @@ impl TermWindow {
 
 impl TermWindow {
     /// Computes effective vertical padding for the current window state.
+    /// For vertical orientations on macOS non-fullscreen, the returned top
+    /// padding includes the title-bar inset so the pane content drops below
+    /// the traffic-light buttons.
     pub fn effective_vertical_padding(&self) -> (usize, usize) {
-        let tab_bar_height = if self.show_tab_bar {
+        let orientation = self.tab_bar_orientation();
+        let tab_bar_height = if self.show_tab_bar && orientation.is_horizontal() {
             self.tab_bar_pixel_height().unwrap_or(0.) as usize
         } else {
             0
         };
-        resize::effective_vertical_padding(
+        let (top, bottom) = resize::effective_vertical_padding(
             &self.config,
             DimensionContext {
                 dpi: self.dimensions.dpi as f32,
@@ -2808,10 +2823,16 @@ impl TermWindow {
                 pixel_cell: self.render_metrics.cell_size.height as f32,
             },
             self.show_tab_bar,
-            self.config.tab_bar_at_bottom,
+            orientation,
             tab_bar_height,
             self.layout_uses_edge_to_edge_padding(),
-        )
+        );
+        let top_inset = if orientation.is_vertical() {
+            self.vertical_sidebar_top_inset() as usize
+        } else {
+            0
+        };
+        (top + top_inset, bottom)
     }
 
     /// Decide whether the tab bar should be visible based on tab count,
@@ -3090,12 +3111,13 @@ impl TermWindow {
             return None;
         }
 
-        let tab_bar_height = if self.show_tab_bar {
+        let orientation = self.tab_bar_orientation();
+        let tab_bar_height = if self.show_tab_bar && orientation.is_horizontal() {
             self.tab_bar_pixel_height().unwrap_or(0.)
         } else {
             0.
         };
-        let (top_bar_height, bottom_bar_height) = if self.config.tab_bar_at_bottom {
+        let (top_bar_height, bottom_bar_height) = if orientation.is_at_bottom() {
             (0.0, tab_bar_height)
         } else {
             (tab_bar_height, 0.0)
@@ -3340,8 +3362,9 @@ impl TermWindow {
         let active_pane = panes.iter().find(|p| p.is_active).cloned();
 
         let border = self.get_os_border();
+        let orientation = self.tab_bar_orientation();
         let tab_bar_height = self.tab_bar_pixel_height().unwrap_or(0.);
-        let tab_bar_y = if self.config.tab_bar_at_bottom {
+        let tab_bar_y = if orientation.is_at_bottom() {
             ((self.dimensions.pixel_height as f32) - (tab_bar_height + border.bottom.get() as f32))
                 .max(0.)
         } else {
@@ -3349,11 +3372,25 @@ impl TermWindow {
         };
 
         let tab_bar_height = self.tab_bar_pixel_height().unwrap_or(0.);
+        let tab_bar_width = self.tab_bar_pixel_width();
 
         let hovering_in_tab_bar = match &self.current_mouse_event {
             Some(event) => {
-                let mouse_y = event.coords.y as f32;
-                mouse_y >= tab_bar_y as f32 && mouse_y < tab_bar_y as f32 + tab_bar_height
+                if orientation.is_vertical() {
+                    let mouse_x = event.coords.x as f32;
+                    let sidebar_x = match orientation {
+                        config::TabBarOrientation::Left => border.left.get() as f32,
+                        config::TabBarOrientation::Right => {
+                            (self.dimensions.pixel_width as f32)
+                                - (tab_bar_width + border.right.get() as f32)
+                        }
+                        _ => 0.0,
+                    };
+                    mouse_x >= sidebar_x && mouse_x < sidebar_x + tab_bar_width
+                } else {
+                    let mouse_y = event.coords.y as f32;
+                    mouse_y >= tab_bar_y as f32 && mouse_y < tab_bar_y as f32 + tab_bar_height
+                }
             }
             None => false,
         };
@@ -3489,17 +3526,26 @@ impl TermWindow {
         if let Some(win) = self.window.as_ref() {
             let cursor = pos.pane.get_cursor_position();
             let top = pos.pane.get_dimensions().physical_top;
-            let tab_bar_height = if self.show_tab_bar && !self.config.tab_bar_at_bottom {
-                self.tab_bar_pixel_height().unwrap()
-            } else {
-                0.0
-            };
+            let orientation = self.tab_bar_orientation();
+            let tab_bar_height =
+                if self.show_tab_bar && matches!(orientation, config::TabBarOrientation::Top) {
+                    self.tab_bar_pixel_height().unwrap()
+                } else {
+                    0.0
+                };
+            let sidebar_left_inset =
+                if self.show_tab_bar && matches!(orientation, config::TabBarOrientation::Left) {
+                    self.vertical_sidebar_inset()
+                } else {
+                    0.0
+                };
             let (padding_left, padding_top) = self.padding_left_top();
 
             let r = Rect::new(
                 Point::new(
                     (((cursor.x + pos.left) as isize).max(0) * self.render_metrics.cell_size.width)
-                        .add(padding_left as isize),
+                        .add(padding_left as isize)
+                        .add(sidebar_left_inset as isize),
                     ((cursor.y + pos.top as isize - top).max(0)
                         * self.render_metrics.cell_size.height)
                         .add(tab_bar_height as isize)

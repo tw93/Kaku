@@ -510,8 +510,25 @@ pub struct Config {
     #[dynamic(default = "default_true")]
     pub use_fancy_tab_bar: bool,
 
+    /// Deprecated. Use `tab_bar_orientation = "Bottom"` instead. Kept so
+    /// that `kaku.lua` files from prior releases still load with only a
+    /// warning. When both fields are set, `tab_bar_orientation` wins.
     #[dynamic(default)]
     pub tab_bar_at_bottom: bool,
+
+    /// Where to place the tab bar. Top (default) and Bottom render the
+    /// classic horizontal strip; Left and Right render a vertical
+    /// sidebar that consumes pixel width from the pane area.
+    #[dynamic(default)]
+    pub tab_bar_orientation: TabBarOrientation,
+
+    /// Width of the vertical tab sidebar when `tab_bar_orientation` is
+    /// `Left` or `Right`. Ignored for horizontal orientations.
+    #[dynamic(
+        try_from = "crate::units::PixelUnit",
+        default = "default_tab_bar_width"
+    )]
+    pub tab_bar_width: Dimension,
 
     /// If true, auto-generated tab titles use only the current folder name
     /// instead of the default parent/current path pair.
@@ -1098,6 +1115,19 @@ impl Config {
         Self::load_with_overrides(&wezterm_dynamic::Value::default())
     }
 
+    /// Resolves the effective tab bar orientation, honoring the deprecated
+    /// `tab_bar_at_bottom` field when `tab_bar_orientation` is left at its
+    /// default (`Top`) and the legacy flag is set.
+    pub fn effective_tab_bar_orientation(&self) -> TabBarOrientation {
+        if self.tab_bar_orientation != TabBarOrientation::Top {
+            self.tab_bar_orientation
+        } else if self.tab_bar_at_bottom {
+            TabBarOrientation::Bottom
+        } else {
+            TabBarOrientation::Top
+        }
+    }
+
     /// It is relatively expensive to parse all the ssh config files,
     /// so we defer producing the default list until someone explicitly
     /// asks for it
@@ -1596,7 +1626,43 @@ impl Config {
     /// Check for logical conflicts in the config
     pub fn check_consistency(&self) -> anyhow::Result<()> {
         self.check_domain_consistency()?;
+        self.check_tab_bar_orientation_consistency();
         Ok(())
+    }
+
+    /// Logs warnings for combinations of tab-bar settings that the vertical
+    /// sidebar MVP does not support. The harmful combinations are surfaced
+    /// here so users see a single, descriptive message at config reload.
+    fn check_tab_bar_orientation_consistency(&self) {
+        let orientation = self.effective_tab_bar_orientation();
+        if orientation.is_vertical() {
+            if self.tab_bar_at_bottom {
+                log::warn!(
+                    "`tab_bar_at_bottom` is deprecated and is being ignored \
+                     because `tab_bar_orientation` is set to {:?}.",
+                    orientation,
+                );
+            }
+            if !self.use_fancy_tab_bar {
+                log::warn!(
+                    "Vertical tab sidebars require `use_fancy_tab_bar = true`. \
+                     The legacy tab bar renderer is unsupported with \
+                     `tab_bar_orientation = {:?}`; the sidebar may render incorrectly.",
+                    orientation,
+                );
+            }
+            if self
+                .window_decorations
+                .contains(WindowDecorations::INTEGRATED_BUTTONS)
+            {
+                log::warn!(
+                    "`window_decorations = \"INTEGRATED_BUTTONS\"` is not supported \
+                     together with `tab_bar_orientation = {:?}`. The native macOS \
+                     titlebar will be used for window controls instead.",
+                    orientation,
+                );
+            }
+        }
     }
 
     fn check_domain_consistency(&self) -> anyhow::Result<()> {
@@ -2339,6 +2405,81 @@ mod tests {
     }
 
     #[test]
+    fn tab_bar_orientation_round_trips_each_value() {
+        // Sanity check that the new `tab_bar_orientation` enum field accepts
+        // every variant from a Lua-style config table and the resolver hands
+        // the same value back out via `effective_tab_bar_orientation()`.
+        use std::collections::BTreeMap;
+        use wezterm_dynamic::{FromDynamic, FromDynamicOptions, UnknownFieldAction, Value};
+
+        for (raw, expected) in [
+            ("Top", super::TabBarOrientation::Top),
+            ("Bottom", super::TabBarOrientation::Bottom),
+            ("Left", super::TabBarOrientation::Left),
+            ("Right", super::TabBarOrientation::Right),
+        ] {
+            let mut map: BTreeMap<Value, Value> = BTreeMap::new();
+            map.insert(
+                Value::String("tab_bar_orientation".into()),
+                Value::String(raw.into()),
+            );
+            let value = Value::Object(map.into());
+
+            let config = super::Config::from_dynamic(
+                &value,
+                FromDynamicOptions {
+                    unknown_fields: UnknownFieldAction::Deny,
+                    deprecated_fields: UnknownFieldAction::Warn,
+                },
+            )
+            .unwrap_or_else(|err| panic!("tab_bar_orientation = {raw:?} must load: {err:?}"));
+
+            assert_eq!(
+                config.tab_bar_orientation, expected,
+                "round-trip mismatch for tab_bar_orientation = {raw:?}",
+            );
+            assert_eq!(
+                config.effective_tab_bar_orientation(),
+                expected,
+                "effective resolver mismatch for tab_bar_orientation = {raw:?}",
+            );
+        }
+    }
+
+    #[test]
+    fn tab_bar_at_bottom_legacy_flag_maps_to_bottom_orientation() {
+        // Users on V0.11.0 only had `tab_bar_at_bottom`. Their kaku.lua must
+        // keep working: with no `tab_bar_orientation` set, an explicit
+        // `tab_bar_at_bottom = true` should resolve to `Bottom` so the
+        // sidebar/legacy bar lands on the same edge as before the rename.
+        use std::collections::BTreeMap;
+        use wezterm_dynamic::{FromDynamic, FromDynamicOptions, UnknownFieldAction, Value};
+
+        let mut map: BTreeMap<Value, Value> = BTreeMap::new();
+        map.insert(
+            Value::String("tab_bar_at_bottom".into()),
+            Value::Bool(true),
+        );
+        let value = Value::Object(map.into());
+
+        let config = super::Config::from_dynamic(
+            &value,
+            FromDynamicOptions {
+                unknown_fields: UnknownFieldAction::Deny,
+                deprecated_fields: UnknownFieldAction::Warn,
+            },
+        )
+        .expect("legacy tab_bar_at_bottom must still load");
+
+        assert_eq!(config.tab_bar_orientation, super::TabBarOrientation::Top);
+        assert!(config.tab_bar_at_bottom);
+        assert_eq!(
+            config.effective_tab_bar_orientation(),
+            super::TabBarOrientation::Bottom,
+        );
+    }
+
+    #[test]
     fn deprecated_language_field_still_loads() {
         // V0.11.0 shipped `config.language`; the i18n revert (b4d779a) removed
         // the field. It must remain a tolerated deprecated field so a kaku.lua
@@ -2553,6 +2694,10 @@ fn default_tab_max_width() -> usize {
     16
 }
 
+const fn default_tab_bar_width() -> Dimension {
+    Dimension::Pixels(220.0)
+}
+
 fn default_update_interval() -> u64 {
     10800
 }
@@ -2649,6 +2794,32 @@ pub enum HorizontalWindowContentAlignment {
     Left,
     Center,
     Right,
+}
+
+/// Where to place the tab bar relative to the pane area.
+/// `Top`/`Bottom` keep the historical horizontal strip; `Left`/`Right`
+/// render a vertical sidebar that consumes pixel width instead of height.
+#[derive(Debug, FromDynamic, ToDynamic, Clone, Copy, PartialEq, Eq, Default)]
+pub enum TabBarOrientation {
+    #[default]
+    Top,
+    Bottom,
+    Left,
+    Right,
+}
+
+impl TabBarOrientation {
+    pub fn is_horizontal(self) -> bool {
+        matches!(self, Self::Top | Self::Bottom)
+    }
+
+    pub fn is_vertical(self) -> bool {
+        matches!(self, Self::Left | Self::Right)
+    }
+
+    pub fn is_at_bottom(self) -> bool {
+        matches!(self, Self::Bottom)
+    }
 }
 
 #[derive(Debug, FromDynamic, ToDynamic, Clone, Copy, PartialEq, Eq, Default)]

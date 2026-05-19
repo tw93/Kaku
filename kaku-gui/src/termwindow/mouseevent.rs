@@ -200,6 +200,11 @@ impl super::TermWindow {
     }
 
     fn start_tab_drag(&mut self, tab_idx: usize, start_event: MouseEvent) {
+        // Drag-to-reorder is X-axis only; vertical sidebars rearrange via
+        // double-click rename / future-PR vertical reorder.
+        if self.tab_bar_orientation().is_vertical() {
+            return;
+        }
         self.tab_drag_state = Some(super::TabDragState {
             tab_idx,
             start_event,
@@ -441,10 +446,15 @@ impl super::TermWindow {
 
         let border = self.get_os_border();
 
-        let first_line_offset = if self.show_tab_bar && !self.config.tab_bar_at_bottom {
+        let first_line_offset = if self.is_top_tab_bar_visible() {
             self.tab_bar_pixel_height().unwrap_or(0.) as isize
         } else {
             border.top.get() as isize
+        };
+        let sidebar_left_inset = if self.is_left_tab_bar_visible() {
+            self.vertical_sidebar_inset() as isize
+        } else {
+            0
         };
 
         let (padding_left, padding_top) = self.padding_left_top();
@@ -462,6 +472,7 @@ impl super::TermWindow {
             .coords
             .x
             .sub((padding_left + border.left.get() as f32) as isize)
+            .sub(sidebar_left_inset)
             .max(0) as f32)
             / self.render_metrics.cell_size.width as f32;
         let x = if !pane.is_mouse_grabbed() {
@@ -1025,9 +1036,11 @@ impl super::TermWindow {
         event: MouseEvent,
         context: &dyn WindowOps,
     ) {
+        let allow_window_drag_from_bar =
+            self.tab_bar_orientation().is_horizontal() && tab_bar_item_starts_window_drag(item);
         match event.kind {
             WMEK::Press(MousePress::Left) => {
-                if !tab_bar_item_starts_window_drag(item) {
+                if !allow_window_drag_from_bar {
                     self.is_window_dragging = false;
                     self.window_drag_position = None;
                 }

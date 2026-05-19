@@ -11,6 +11,12 @@ pub(crate) fn integrated_buttons_top_inset(
     is_fullscreen: bool,
     _top_tab_bar_visible: bool,
 ) -> usize {
+    // Vertical tab sidebars are rendered without space reserved for the
+    // macOS integrated buttons; the warning emitted by check_consistency()
+    // points users to the native titlebar instead.
+    if config.effective_tab_bar_orientation().is_vertical() {
+        return 0;
+    }
     if !is_fullscreen
         && config
             .window_decorations
@@ -44,7 +50,7 @@ impl crate::TermWindow {
             let integrated_top_inset = integrated_buttons_top_inset(
                 &self.config,
                 is_fullscreen,
-                self.show_tab_bar && !self.config.tab_bar_at_bottom,
+                self.is_top_tab_bar_visible(),
             )
             .min(border_dimensions.top.get()) as f32;
 
@@ -261,7 +267,7 @@ impl crate::TermWindow {
         let extra_top = integrated_buttons_top_inset(
             &self.config,
             is_fullscreen,
-            self.show_tab_bar && !self.config.tab_bar_at_bottom,
+            self.is_top_tab_bar_visible(),
         );
         if extra_top > 0 {
             border.top += ULength::new(extra_top);

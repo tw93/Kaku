@@ -207,6 +207,9 @@ fn render_fields(frame: &mut ratatui::Frame, area: Rect, app: &App) {
     let mut current_section: Option<&str> = None;
 
     for (idx, field) in app.fields.iter().enumerate() {
+        if !app.is_field_visible(field) {
+            continue;
+        }
         if current_section != Some(field.section) {
             if current_section.is_some() {
                 items.push(ListItem::new(Line::from("")));

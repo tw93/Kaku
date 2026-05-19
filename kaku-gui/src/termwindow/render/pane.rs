@@ -183,13 +183,14 @@ impl crate::TermWindow {
         let (_, padding_top) = self.padding_left_top();
         let content_left = self.content_left_inset();
 
-        let tab_bar_height = if self.show_tab_bar {
+        let orientation = self.tab_bar_orientation();
+        let tab_bar_height = if self.show_tab_bar && orientation.is_horizontal() {
             self.tab_bar_pixel_height()
                 .context("tab_bar_pixel_height")?
         } else {
             0.
         };
-        let top_bar_height = if self.config.tab_bar_at_bottom {
+        let top_bar_height = if orientation.is_at_bottom() {
             0.0
         } else {
             tab_bar_height
@@ -197,7 +198,7 @@ impl crate::TermWindow {
         let border = self.get_os_border();
         // When tab bar is at top, it covers the titlebar area, so don't add
         // border.top which includes the integrated buttons inset.
-        let effective_border_top = if self.show_tab_bar && !self.config.tab_bar_at_bottom {
+        let effective_border_top = if self.is_top_tab_bar_visible() {
             0.0
         } else {
             border.top.get() as f32
@@ -278,9 +279,20 @@ impl crate::TermWindow {
 
             // Calculate the width - respect right padding
             let width = if pos.left + pos.width >= self.terminal_size.cols as usize {
-                // Right-most pane: extend to split center but respect window padding
+                // Right-most pane: extend to split center but respect window padding.
+                // For Right-oriented vertical sidebars, also stop short of the
+                // sidebar so pane bg doesn't paint over it.
                 let padding_right = self.effective_right_padding(&config) as f32;
-                self.dimensions.pixel_width as f32 - x - padding_right - border.right.get() as f32
+                let sidebar_right_inset = if self.is_right_tab_bar_visible() {
+                    self.vertical_sidebar_inset()
+                } else {
+                    0.0
+                };
+                self.dimensions.pixel_width as f32
+                    - x
+                    - padding_right
+                    - border.right.get() as f32
+                    - sidebar_right_inset
             } else {
                 (pos.width as f32 * cell_width) + width_delta
             };
@@ -294,8 +306,7 @@ impl crate::TermWindow {
                 // When tab bar is at bottom, it covers the bottom border area, so
                 // don't subtract border.bottom which would create a gap.
                 let padding_bottom = effective_padding_bottom;
-                let effective_border_bottom = if self.show_tab_bar && self.config.tab_bar_at_bottom
-                {
+                let effective_border_bottom = if self.is_bottom_tab_bar_visible() {
                     0.0
                 } else {
                     border.bottom.get() as f32
@@ -765,12 +776,13 @@ impl crate::TermWindow {
         let split_row_gutter = gap.max(1) as f32;
         let (_, padding_top) = self.padding_left_top();
         let content_left = self.content_left_inset();
-        let tab_bar_height = if self.show_tab_bar {
+        let orientation = self.tab_bar_orientation();
+        let tab_bar_height = if self.show_tab_bar && orientation.is_horizontal() {
             self.tab_bar_pixel_height()?
         } else {
             0.
         };
-        let (top_bar_height, bottom_bar_height) = if self.config.tab_bar_at_bottom {
+        let (top_bar_height, bottom_bar_height) = if orientation.is_at_bottom() {
             (0.0, tab_bar_height)
         } else {
             (tab_bar_height, 0.0)
@@ -808,8 +820,18 @@ impl crate::TermWindow {
         // Calculate the width - respect right padding
         let width = if pos.left + pos.width >= self.terminal_size.cols as usize {
             // Right-most pane: extend to split center but respect window padding
+            // and the vertical sidebar when it lives on the right edge.
             let padding_right = self.effective_right_padding(&self.config) as f32;
-            self.dimensions.pixel_width as f32 - x - padding_right - border.right.get() as f32
+            let sidebar_right_inset = if self.is_right_tab_bar_visible() {
+                self.vertical_sidebar_inset()
+            } else {
+                0.0
+            };
+            self.dimensions.pixel_width as f32
+                - x
+                - padding_right
+                - border.right.get() as f32
+                - sidebar_right_inset
         } else {
             (pos.width as f32 * cell_width) + width_delta
         };

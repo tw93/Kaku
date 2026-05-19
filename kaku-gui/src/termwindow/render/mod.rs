@@ -46,6 +46,8 @@ pub mod pane;
 pub mod screen_line;
 pub mod split;
 pub mod tab_bar;
+pub mod tab_bar_common;
+pub mod vertical_tab_bar;
 pub mod window_buttons;
 
 /// The data that we associate with a line; we use this to cache it shape hash
@@ -378,17 +380,20 @@ impl crate::TermWindow {
             pixel_cell: self.render_metrics.cell_size.width as f32,
         };
 
+        let orientation = self.tab_bar_orientation();
         let padding_left = self
             .config
             .window_padding
             .left
             .evaluate_as_pixels(h_context);
         let padding_right = self.config.window_padding.right;
-        let tab_bar_height = if self.show_tab_bar {
+        let tab_bar_height = if self.show_tab_bar && orientation.is_horizontal() {
             self.tab_bar_pixel_height().unwrap_or(0.) as usize
         } else {
             0
         };
+        let tab_bar_width = self.vertical_sidebar_inset();
+        let _ = orientation; // orientation is already encoded inside vertical_sidebar_inset()
         let (padding_top, padding_bottom) = self.effective_vertical_padding();
         let padding_top = padding_top as f32;
         let padding_bottom = padding_bottom as f32;
@@ -396,6 +401,7 @@ impl crate::TermWindow {
         let horizontal_gap = self.dimensions.pixel_width as f32
             - self.terminal_size.pixel_width as f32
             - padding_left
+            - tab_bar_width
             - if self.show_scroll_bar && padding_right.is_zero() {
                 h_context.pixel_cell
             } else {
@@ -436,7 +442,12 @@ impl crate::TermWindow {
     /// Returns the pixel x-position where terminal content begins.
     pub fn content_left_inset(&self) -> f32 {
         let (padding_left, _) = self.padding_left_top();
-        padding_left + self.get_os_border().left.get() as f32
+        let sidebar_left = if self.is_left_tab_bar_visible() {
+            self.vertical_sidebar_inset()
+        } else {
+            0.0
+        };
+        padding_left + self.get_os_border().left.get() as f32 + sidebar_left
     }
 
     fn resolve_lock_glyph(

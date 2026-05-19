@@ -330,10 +330,19 @@ impl App {
             ConfigField {
                 section: "Window",
                 key: "Tab Bar Position",
-                lua_key: "tab_bar_at_bottom",
+                lua_key: "tab_bar_orientation",
                 value: String::new(),
                 default: "Bottom".into(),
-                options: vec!["Bottom", "Top"],
+                options: vec!["Top", "Bottom", "Left", "Right"],
+                skip_write: false,
+            },
+            ConfigField {
+                section: "Window",
+                key: "Sidebar Width",
+                lua_key: "tab_bar_width",
+                value: String::new(),
+                default: "220".into(),
+                options: vec![],
                 skip_write: false,
             },
             ConfigField {
@@ -507,6 +516,31 @@ impl App {
                     // Only set skip_write when a config line actually exists for this key.
                     if Self::has_config_line(&content, lua_key) {
                         self.fields[i].skip_write = true;
+                    }
+                }
+            }
+        }
+
+        // Back-compat: when the user's kaku.lua still has the deprecated
+        // `tab_bar_at_bottom` set and no `tab_bar_orientation`, derive the
+        // displayed Tab Bar Position from the legacy flag so the TUI
+        // reflects the user's real layout.
+        if let Some(orientation_idx) = self
+            .fields
+            .iter()
+            .position(|f| f.lua_key == "tab_bar_orientation")
+        {
+            if self.fields[orientation_idx].value.is_empty()
+                && !self.fields[orientation_idx].skip_write
+            {
+                if let Some(legacy) = Self::extract_lua_value(&content, "tab_bar_at_bottom") {
+                    let derived = match legacy.as_str() {
+                        "true" => Some("Bottom".to_string()),
+                        "false" => Some("Top".to_string()),
+                        _ => None,
+                    };
+                    if let Some(value) = derived {
+                        self.fields[orientation_idx].value = value;
                     }
                 }
             }
@@ -816,7 +850,8 @@ impl App {
             "font_size"
             | "line_height"
             | "window_background_opacity"
-            | "macos_window_background_blur" => {
+            | "macos_window_background_blur"
+            | "tab_bar_width" => {
                 if Self::is_number_literal(raw) {
                     Some(raw.to_string())
                 } else {
@@ -849,13 +884,12 @@ impl App {
                     None
                 }
             }
-            "tab_bar_at_bottom" => {
-                if raw == "true" {
-                    Some("Bottom".into())
-                } else if raw == "false" {
-                    Some("Top".into())
-                } else {
-                    None
+            "tab_bar_orientation" => {
+                // extract_lua_value strips the surrounding quotes, so we get
+                // raw == "Top" | "Bottom" | "Left" | "Right".
+                match raw {
+                    "Top" | "Bottom" | "Left" | "Right" => Some(raw.to_string()),
+                    _ => None,
                 }
             }
             "harfbuzz_features" => {
@@ -907,19 +941,69 @@ impl App {
     }
 
     fn move_up(&mut self) {
-        if self.selected > 0 {
-            self.selected -= 1;
+        for idx in (0..self.selected).rev() {
+            if self.is_field_visible(&self.fields[idx]) {
+                self.selected = idx;
+                return;
+            }
         }
     }
 
     fn move_down(&mut self) {
-        if self.selected + 1 < self.item_count() {
-            self.selected += 1;
+        for idx in (self.selected + 1)..self.fields.len() {
+            if self.is_field_visible(&self.fields[idx]) {
+                self.selected = idx;
+                return;
+            }
         }
     }
 
+    #[allow(dead_code)]
     fn item_count(&self) -> usize {
         self.fields.len()
+    }
+
+    /// Returns false for fields that the active config makes irrelevant
+    /// (e.g., `Sidebar Width` when the tab bar is horizontal).
+    pub(crate) fn is_field_visible(&self, field: &ConfigField) -> bool {
+        match field.lua_key {
+            "tab_bar_width" => {
+                let orientation = self
+                    .fields
+                    .iter()
+                    .find(|f| f.lua_key == "tab_bar_orientation")
+                    .map(|f| {
+                        if f.value.is_empty() {
+                            f.default.as_str()
+                        } else {
+                            f.value.as_str()
+                        }
+                    })
+                    .unwrap_or("Top");
+                matches!(orientation, "Left" | "Right")
+            }
+            _ => true,
+        }
+    }
+
+    /// Clamp `self.selected` to the nearest visible field. Called after
+    /// any edit that might have toggled a sibling field's visibility.
+    fn ensure_selected_visible(&mut self) {
+        if self.is_field_visible(&self.fields[self.selected]) {
+            return;
+        }
+        for idx in (self.selected + 1)..self.fields.len() {
+            if self.is_field_visible(&self.fields[idx]) {
+                self.selected = idx;
+                return;
+            }
+        }
+        for idx in (0..self.selected).rev() {
+            if self.is_field_visible(&self.fields[idx]) {
+                self.selected = idx;
+                return;
+            }
+        }
     }
 
     /// Save config if there are pending changes. Returns Err on save failure.
@@ -1043,6 +1127,9 @@ impl App {
         self.fields[self.selected].skip_write = false;
         self.mode = Mode::Normal;
         self.dirty = true;
+        // Picking a new tab_bar_orientation may show/hide the Sidebar Width
+        // row beneath it. Keep the cursor on a visible field afterwards.
+        self.ensure_selected_visible();
     }
 
     fn edit_backspace(&mut self) {
@@ -1397,7 +1484,8 @@ impl App {
             | "line_height"
             | "window_background_opacity"
             | "macos_window_background_blur"
-            | "split_pane_gap" => field.value.clone(),
+            | "split_pane_gap"
+            | "tab_bar_width" => field.value.clone(),
             "copy_on_select"
             | "enable_scroll_bar"
             | "tab_close_confirmation"
@@ -1420,17 +1508,13 @@ impl App {
                     "false".into()
                 }
             }
-            "tab_bar_at_bottom" => {
+            "tab_bar_orientation" => {
                 let effective = if field.value.is_empty() {
                     &field.default
                 } else {
                     &field.value
                 };
-                if effective == "Bottom" {
-                    "true".into()
-                } else {
-                    "false".into()
-                }
+                format!("'{}'", effective)
             }
             "harfbuzz_features" => {
                 if field.value == "On" {
@@ -1458,6 +1542,7 @@ impl App {
                 | "line_height"
                 | "window_background_opacity"
                 | "macos_window_background_blur"
+                | "tab_bar_width"
         )
     }
 
@@ -1517,28 +1602,132 @@ mod tests {
     }
 
     #[test]
-    fn tab_bar_at_bottom_uses_default_when_value_is_empty() {
+    fn tab_bar_orientation_uses_default_when_value_is_empty() {
         let app = test_app();
         let field = app
             .fields
             .iter()
-            .find(|f| f.lua_key == "tab_bar_at_bottom")
-            .expect("tab_bar_at_bottom field to exist");
+            .find(|f| f.lua_key == "tab_bar_orientation")
+            .expect("tab_bar_orientation field to exist");
 
-        assert_eq!(app.to_lua_value(field), "true");
+        // Default ships as "Bottom" to preserve historical TUI behavior.
+        assert_eq!(app.to_lua_value(field), "'Bottom'");
     }
 
     #[test]
-    fn tab_bar_at_bottom_respects_explicit_top_selection() {
+    fn tab_bar_orientation_serializes_each_choice_as_quoted_string() {
         let mut app = test_app();
         let idx = app
             .fields
             .iter()
-            .position(|f| f.lua_key == "tab_bar_at_bottom")
-            .expect("tab_bar_at_bottom field to exist");
-        app.fields[idx].value = "Top".to_string();
+            .position(|f| f.lua_key == "tab_bar_orientation")
+            .expect("tab_bar_orientation field to exist");
 
-        assert_eq!(app.to_lua_value(&app.fields[idx]), "false");
+        for value in ["Top", "Bottom", "Left", "Right"] {
+            app.fields[idx].value = value.to_string();
+            assert_eq!(
+                app.to_lua_value(&app.fields[idx]),
+                format!("'{}'", value),
+                "lua serialization for {value}",
+            );
+        }
+    }
+
+    #[test]
+    fn tab_bar_orientation_exposes_all_four_options() {
+        let app = test_app();
+        let field = app
+            .fields
+            .iter()
+            .find(|f| f.lua_key == "tab_bar_orientation")
+            .expect("tab_bar_orientation field to exist");
+
+        assert_eq!(field.options, vec!["Top", "Bottom", "Left", "Right"]);
+    }
+
+    #[test]
+    fn legacy_tab_bar_at_bottom_displays_as_bottom_orientation() {
+        // V0.11.0 users only had `tab_bar_at_bottom`. After the rename to
+        // `tab_bar_orientation`, opening the TUI must surface their existing
+        // layout: a kaku.lua with only `tab_bar_at_bottom = true` should make
+        // the Tab Bar Position row read "Bottom" so toggling it doesn't
+        // visually move the bar to an unexpected edge.
+        let dir = tempdir().expect("tempdir");
+        let config_path = dir.path().join("kaku.lua");
+        std::fs::write(&config_path, "config.tab_bar_at_bottom = true\n").expect("write config");
+
+        let mut app = App::new(config_path);
+        app.load_config();
+
+        let field = app
+            .fields
+            .iter()
+            .find(|f| f.lua_key == "tab_bar_orientation")
+            .expect("tab_bar_orientation field to exist");
+
+        assert_eq!(
+            field.value, "Bottom",
+            "legacy tab_bar_at_bottom = true must derive Bottom"
+        );
+        assert!(
+            !field.skip_write,
+            "back-compat derivation must leave the field writable so the user can change it",
+        );
+    }
+
+    #[test]
+    fn legacy_tab_bar_at_bottom_false_displays_as_top_orientation() {
+        // Symmetric case: an explicit `tab_bar_at_bottom = false` (rare but
+        // possible in older configs) must display as Top, not the field's
+        // shipping default of Bottom.
+        let dir = tempdir().expect("tempdir");
+        let config_path = dir.path().join("kaku.lua");
+        std::fs::write(&config_path, "config.tab_bar_at_bottom = false\n").expect("write config");
+
+        let mut app = App::new(config_path);
+        app.load_config();
+
+        let field = app
+            .fields
+            .iter()
+            .find(|f| f.lua_key == "tab_bar_orientation")
+            .expect("tab_bar_orientation field to exist");
+
+        assert_eq!(field.value, "Top");
+    }
+
+    #[test]
+    fn sidebar_width_hidden_for_horizontal_orientation() {
+        // The Sidebar Width row only applies when the bar is on the left or
+        // right edge. With orientation Top, the row should hide from the TUI
+        // so it doesn't read as a knob the user can adjust to no effect.
+        let mut app = test_app();
+        let idx = app
+            .fields
+            .iter()
+            .position(|f| f.lua_key == "tab_bar_orientation")
+            .expect("tab_bar_orientation field to exist");
+        let width_field = app
+            .fields
+            .iter()
+            .find(|f| f.lua_key == "tab_bar_width")
+            .cloned()
+            .expect("tab_bar_width field to exist");
+
+        for hidden in ["Top", "Bottom"] {
+            app.fields[idx].value = hidden.into();
+            assert!(
+                !app.is_field_visible(&width_field),
+                "Sidebar Width must be hidden when orientation = {hidden}",
+            );
+        }
+        for shown in ["Left", "Right"] {
+            app.fields[idx].value = shown.into();
+            assert!(
+                app.is_field_visible(&width_field),
+                "Sidebar Width must be visible when orientation = {shown}",
+            );
+        }
     }
 
     #[test]

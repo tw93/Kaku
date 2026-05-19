@@ -1,7 +1,7 @@
 use crate::resize_increment_calculator::ResizeIncrementCalculator;
 use crate::utilsprites::RenderMetrics;
 use ::window::{Dimensions, ResizeIncrement, Window, WindowOps, WindowState};
-use config::{Config, ConfigHandle, DimensionContext};
+use config::{Config, ConfigHandle, DimensionContext, TabBarOrientation};
 use mux::Mux;
 use std::fs;
 use std::path::PathBuf;
@@ -24,13 +24,13 @@ pub enum ScaleChange {
 }
 
 fn should_normalize_fullscreen_state_on_resize(
-    tab_bar_at_bottom: bool,
+    orientation: TabBarOrientation,
     was_fullscreen: bool,
     incoming_fullscreen: bool,
     is_focused: bool,
     dimensions_unchanged: bool,
 ) -> bool {
-    !tab_bar_at_bottom
+    !orientation.is_at_bottom()
         && was_fullscreen
         && !incoming_fullscreen
         && (!is_focused || dimensions_unchanged)
@@ -39,17 +39,20 @@ fn should_normalize_fullscreen_state_on_resize(
 fn should_rebalance_top_tab_visible_bottom_gap(
     user_has_custom_padding: bool,
     show_tab_bar: bool,
-    tab_bar_at_bottom: bool,
+    orientation: TabBarOrientation,
     is_fullscreen: bool,
 ) -> bool {
-    !user_has_custom_padding && show_tab_bar && !tab_bar_at_bottom && !is_fullscreen
+    !user_has_custom_padding
+        && show_tab_bar
+        && matches!(orientation, TabBarOrientation::Top)
+        && !is_fullscreen
 }
 
 fn should_rebalance_bottom_tab_quantization_slack(
     user_has_custom_padding: bool,
-    tab_bar_at_bottom: bool,
+    orientation: TabBarOrientation,
 ) -> bool {
-    !user_has_custom_padding && tab_bar_at_bottom
+    !user_has_custom_padding && orientation.is_at_bottom()
 }
 
 fn should_rebalance_maximized_quantization_slack(
@@ -135,7 +138,7 @@ impl super::TermWindow {
         let incoming_fullscreen = normalized_window_state.contains(WindowState::FULL_SCREEN);
         let is_focused = self.focused.is_some();
         if should_normalize_fullscreen_state_on_resize(
-            self.config.tab_bar_at_bottom,
+            self.tab_bar_orientation(),
             was_fullscreen,
             incoming_fullscreen,
             is_focused,
@@ -369,7 +372,8 @@ impl super::TermWindow {
         let uses_edge_to_edge_padding = self.layout_uses_edge_to_edge_padding();
         let user_has_custom_padding = user_has_custom_window_padding_assignment();
 
-        let tab_bar_height = if self.show_tab_bar {
+        let orientation = self.tab_bar_orientation();
+        let tab_bar_height = if self.show_tab_bar && orientation.is_horizontal() {
             // Use the real height only when title_font is already cached;
             // fall back to the estimated value (cell_height * 1.75) to avoid
             // triggering the expensive ~480ms CoreText first-load on the
@@ -383,6 +387,10 @@ impl super::TermWindow {
             0.
         };
         let tab_bar_height_px = tab_bar_height as usize;
+        // Use the full sidebar inset (sidebar width + breathing gap) when
+        // sizing the pane area so that the column count reserves room for
+        // both the painted sidebar and the visual gap that follows it.
+        let tab_bar_width_px = self.vertical_sidebar_inset() as usize;
 
         let border = self.get_os_border();
 
@@ -411,15 +419,19 @@ impl super::TermWindow {
                 pixel_cell: self.render_metrics.cell_size.height as f32,
             };
             let padding_left = config.window_padding.left.evaluate_as_pixels(h_context) as usize;
-            let (padding_top, padding_bottom) = effective_vertical_padding_with_policy(
+            let (mut padding_top, padding_bottom) = effective_vertical_padding_with_policy(
                 config,
                 v_context,
                 self.show_tab_bar,
-                self.config.tab_bar_at_bottom,
+                orientation,
                 tab_bar_height_px,
                 uses_edge_to_edge_padding,
                 user_has_custom_padding,
             );
+            if orientation.is_vertical() {
+                padding_top =
+                    padding_top.saturating_add(self.vertical_sidebar_top_inset() as usize);
+            }
             let padding_right = effective_right_padding(&config, h_context);
 
             let pixel_height = (rows * self.render_metrics.cell_size.height as usize)
@@ -429,7 +441,8 @@ impl super::TermWindow {
 
             let pixel_width = (cols * self.render_metrics.cell_size.width as usize)
                 + (padding_left + padding_right)
-                + (border.left + border.right).get() as usize;
+                + (border.left + border.right).get() as usize
+                + tab_bar_width_px;
 
             let dims = Dimensions {
                 pixel_width: pixel_width as usize,
@@ -446,6 +459,7 @@ impl super::TermWindow {
                 padding_bottom: padding_bottom,
                 border: border,
                 tab_bar_height: tab_bar_height as usize,
+                tab_bar_width: tab_bar_width_px,
             };
 
             (size, dims, ri_calc)
@@ -467,12 +481,21 @@ impl super::TermWindow {
                 config,
                 v_context,
                 self.show_tab_bar,
-                self.config.tab_bar_at_bottom,
+                orientation,
                 tab_bar_height_px,
                 uses_edge_to_edge_padding,
                 user_has_custom_padding,
             );
             let padding_right = effective_right_padding(&config, h_context);
+
+            // Vertical sidebars on macOS keep the macOS traffic-light buttons
+            // visible inside the window's content rect. Reserve the same
+            // top-pixel band on the pane side so the terminal prompt doesn't
+            // paint over the buttons.
+            if orientation.is_vertical() {
+                padding_top =
+                    padding_top.saturating_add(self.vertical_sidebar_top_inset() as usize);
+            }
 
             // When the AI chat overlay is active on the focused pane, shrink
             // the bottom padding so the chat box sits closer to the window /
@@ -483,10 +506,13 @@ impl super::TermWindow {
                 padding_bottom = padding_bottom.min(chat_bottom);
             }
 
-            let avail_width = dimensions.pixel_width.saturating_sub(
-                (padding_left + padding_right) as usize
-                    + (border.left + border.right).get() as usize,
-            );
+            let avail_width = dimensions
+                .pixel_width
+                .saturating_sub(
+                    (padding_left + padding_right) as usize
+                        + (border.left + border.right).get() as usize,
+                )
+                .saturating_sub(tab_bar_width_px);
             let avail_height = dimensions
                 .pixel_height
                 .saturating_sub(
@@ -510,7 +536,7 @@ impl super::TermWindow {
             } else if should_rebalance_top_tab_visible_bottom_gap(
                 user_has_custom_padding,
                 self.show_tab_bar,
-                self.config.tab_bar_at_bottom,
+                orientation,
                 self.layout_is_effective_fullscreen(),
             ) {
                 let (rebalanced_top, _) = rebalance_top_padding_for_bottom_gap(
@@ -522,7 +548,7 @@ impl super::TermWindow {
                 padding_top = rebalanced_top;
             } else if should_rebalance_bottom_tab_quantization_slack(
                 user_has_custom_padding,
-                self.config.tab_bar_at_bottom,
+                orientation,
             ) {
                 let (rebalanced_top, _) = rebalance_top_padding_for_bottom_gap(
                     padding_top,
@@ -554,6 +580,7 @@ impl super::TermWindow {
                 padding_bottom: padding_bottom,
                 border: border,
                 tab_bar_height: tab_bar_height as usize,
+                tab_bar_width: tab_bar_width_px,
             };
 
             (size, *dimensions, ri_calc)
@@ -795,7 +822,8 @@ impl super::TermWindow {
         };
 
         let show_tab_bar = config.enable_tab_bar && !config.hide_tab_bar_if_only_one_tab;
-        let tab_bar_height = if show_tab_bar {
+        let orientation = config.effective_tab_bar_orientation();
+        let tab_bar_height = if show_tab_bar && orientation.is_horizontal() {
             self.tab_bar_pixel_height()? as usize
         } else {
             0
@@ -811,20 +839,25 @@ impl super::TermWindow {
             pixel_max: self.dimensions.pixel_height as f32,
             pixel_cell: render_metrics.cell_size.height as f32,
         };
+        let tab_bar_width_px = vertical_tab_bar_width_px(config, h_context, show_tab_bar);
         let padding_left = config.window_padding.left.evaluate_as_pixels(h_context) as usize;
-        let (padding_top, padding_bottom) = effective_vertical_padding(
+        let (mut padding_top, padding_bottom) = effective_vertical_padding(
             config,
             v_context,
             show_tab_bar,
-            config.tab_bar_at_bottom,
+            orientation,
             tab_bar_height,
             self.layout_uses_edge_to_edge_padding(),
         );
+        if orientation.is_vertical() {
+            padding_top = padding_top.saturating_add(self.vertical_sidebar_top_inset() as usize);
+        }
 
         let dimensions = Dimensions {
             pixel_width: ((terminal_size.cols as usize * render_metrics.cell_size.width as usize)
                 + padding_left
-                + effective_right_padding(&config, h_context)),
+                + effective_right_padding(&config, h_context)
+                + tab_bar_width_px),
             pixel_height: ((terminal_size.rows as usize * render_metrics.cell_size.height as usize)
                 + padding_top
                 + padding_bottom) as usize
@@ -1040,12 +1073,14 @@ fn effective_top_padding(base_top: usize, default_top: usize) -> usize {
 /// Computes vertical padding used for layout.
 /// Bottom-tab layouts subtract the tab bar height from bottom padding so the
 /// content block remains stable. Top-tab layouts preserve the full top padding
-/// so the gap below the tab bar matches the no-tab baseline.
+/// so the gap below the tab bar matches the no-tab baseline. Vertical
+/// orientations (Left/Right) follow the same rules as the no-tab-bar case
+/// because the sidebar consumes horizontal pixels, not vertical.
 pub fn effective_vertical_padding(
     config: &Config,
     context: DimensionContext,
     show_tab_bar: bool,
-    tab_bar_at_bottom: bool,
+    orientation: TabBarOrientation,
     tab_bar_height: usize,
     is_fullscreen: bool,
 ) -> (usize, usize) {
@@ -1053,7 +1088,7 @@ pub fn effective_vertical_padding(
         config,
         context,
         show_tab_bar,
-        tab_bar_at_bottom,
+        orientation,
         tab_bar_height,
         is_fullscreen,
         user_has_custom_window_padding_assignment(),
@@ -1064,7 +1099,7 @@ fn effective_vertical_padding_with_policy(
     config: &Config,
     context: DimensionContext,
     show_tab_bar: bool,
-    tab_bar_at_bottom: bool,
+    orientation: TabBarOrientation,
     tab_bar_height: usize,
     is_edge_to_edge: bool,
     user_has_custom_padding: bool,
@@ -1074,6 +1109,12 @@ fn effective_vertical_padding_with_policy(
     let default_top = config::WindowPadding::default()
         .top
         .evaluate_as_pixels(context) as usize;
+
+    // For vertical orientations the tab bar lives on the side, so the
+    // vertical-padding heuristics behave exactly like the no-tab-bar case.
+    let horizontal_show_tab_bar = show_tab_bar && orientation.is_horizontal();
+    let is_top_tab = matches!(orientation, TabBarOrientation::Top);
+    let is_bottom_tab = matches!(orientation, TabBarOrientation::Bottom);
 
     // Respect explicit user padding and only apply Kaku's visual heuristics
     // for the managed/default padding path.
@@ -1093,7 +1134,7 @@ fn effective_vertical_padding_with_policy(
     };
 
     // Top-tab visible mode uses a slightly tighter top gap than hidden mode.
-    if !user_has_custom_padding && show_tab_bar && !tab_bar_at_bottom {
+    if !user_has_custom_padding && horizontal_show_tab_bar && is_top_tab {
         top = top.saturating_sub(TOP_TAB_VISIBLE_TOP_TIGHTENING);
     }
 
@@ -1101,12 +1142,12 @@ fn effective_vertical_padding_with_policy(
     // keep the content block stable. For top-tab layouts we intentionally keep
     // the full top padding so the tab bar gets the same breathing room as the
     // no-tab case.
-    if show_tab_bar && tab_bar_at_bottom {
+    if horizontal_show_tab_bar && is_bottom_tab {
         bottom = bottom.saturating_sub(tab_bar_height);
     }
 
-    if !is_edge_to_edge && !user_has_custom_padding && !tab_bar_at_bottom {
-        let gap = if show_tab_bar {
+    if !is_edge_to_edge && !user_has_custom_padding && !is_bottom_tab {
+        let gap = if horizontal_show_tab_bar {
             TOP_TAB_VISIBLE_BOTTOM_GAP
         } else {
             TOP_TAB_HIDDEN_BOTTOM_GAP
@@ -1116,7 +1157,7 @@ fn effective_vertical_padding_with_policy(
 
     // Keep a tiny baseline gap in bottom-tab layouts so hidden/visible tab-bar
     // transitions cannot collapse pane content onto the window bottom edge.
-    if !is_edge_to_edge && !user_has_custom_padding && tab_bar_at_bottom {
+    if !is_edge_to_edge && !user_has_custom_padding && is_bottom_tab {
         let min_gap = if show_tab_bar {
             BOTTOM_TAB_VISIBLE_MIN_GAP
         } else {
@@ -1140,6 +1181,20 @@ pub fn effective_right_padding(config: &Config, context: DimensionContext) -> us
     }
 }
 
+/// Pixel width of the vertical tab sidebar for the given orientation.
+/// Returns 0 for horizontal orientations or when the tab bar is hidden.
+pub fn vertical_tab_bar_width_px(
+    config: &Config,
+    context: DimensionContext,
+    show_tab_bar: bool,
+) -> usize {
+    let orientation = config.effective_tab_bar_orientation();
+    if !show_tab_bar || !orientation.is_vertical() {
+        return 0;
+    }
+    config.tab_bar_width.evaluate_as_pixels(context) as usize
+}
+
 #[cfg(test)]
 mod tests {
     use super::{
@@ -1149,7 +1204,7 @@ mod tests {
         should_preserve_terminal_cells_on_scale_change,
         should_rebalance_top_tab_visible_bottom_gap, user_custom_window_padding_config_path,
     };
-    use config::{Config, ConfigHandle, DimensionContext};
+    use config::{Config, ConfigHandle, DimensionContext, TabBarOrientation};
     use std::path::PathBuf;
 
     fn context() -> DimensionContext {
@@ -1167,6 +1222,14 @@ mod tests {
         )
     }
 
+    fn orientation_from_bool(tab_bar_at_bottom: bool) -> TabBarOrientation {
+        if tab_bar_at_bottom {
+            TabBarOrientation::Bottom
+        } else {
+            TabBarOrientation::Top
+        }
+    }
+
     fn effective_vertical_padding(
         config: &Config,
         context: DimensionContext,
@@ -1179,7 +1242,7 @@ mod tests {
             config,
             context,
             show_tab_bar,
-            tab_bar_at_bottom,
+            orientation_from_bool(tab_bar_at_bottom),
             tab_bar_height,
             is_fullscreen,
             false,
@@ -1198,7 +1261,7 @@ mod tests {
             config,
             context,
             show_tab_bar,
-            tab_bar_at_bottom,
+            orientation_from_bool(tab_bar_at_bottom),
             tab_bar_height,
             is_fullscreen,
             true,
@@ -1448,7 +1511,7 @@ mod tests {
     #[test]
     fn normalize_fullscreen_on_unfocused_top_tab_resize_even_with_dim_change() {
         assert!(should_normalize_fullscreen_state_on_resize(
-            false, // top-tab
+            TabBarOrientation::Top,
             true,  // was fullscreen
             false, // transient incoming non-fullscreen
             false, // unfocused
@@ -1459,17 +1522,50 @@ mod tests {
     #[test]
     fn normalize_fullscreen_on_focused_top_tab_requires_same_dimensions() {
         assert!(should_normalize_fullscreen_state_on_resize(
-            false, true, false, true, true
+            TabBarOrientation::Top,
+            true,
+            false,
+            true,
+            true,
         ));
         assert!(!should_normalize_fullscreen_state_on_resize(
-            false, true, false, true, false
+            TabBarOrientation::Top,
+            true,
+            false,
+            true,
+            false,
         ));
     }
 
     #[test]
     fn normalize_fullscreen_disabled_for_bottom_tab() {
         assert!(!should_normalize_fullscreen_state_on_resize(
-            true, true, false, false, true
+            TabBarOrientation::Bottom,
+            true,
+            false,
+            false,
+            true,
+        ));
+    }
+
+    #[test]
+    fn normalize_fullscreen_applies_for_vertical_sidebar() {
+        // Vertical sidebars consume horizontal pixels, so the bottom-tab
+        // special case shouldn't apply; the normalization should fire as
+        // it would for a top-tab layout.
+        assert!(should_normalize_fullscreen_state_on_resize(
+            TabBarOrientation::Left,
+            true,
+            false,
+            false,
+            true,
+        ));
+        assert!(should_normalize_fullscreen_state_on_resize(
+            TabBarOrientation::Right,
+            true,
+            false,
+            false,
+            true,
         ));
     }
 
@@ -1496,20 +1592,45 @@ mod tests {
         assert!(should_rebalance_top_tab_visible_bottom_gap(
             false, // managed padding
             true,  // tab bar visible
-            false, // top-tab
+            TabBarOrientation::Top,
             false, // not fullscreen
         ));
         assert!(!should_rebalance_top_tab_visible_bottom_gap(
-            true, true, false, false
+            true,
+            true,
+            TabBarOrientation::Top,
+            false,
         ));
         assert!(!should_rebalance_top_tab_visible_bottom_gap(
-            false, false, false, false
+            false,
+            false,
+            TabBarOrientation::Top,
+            false,
         ));
         assert!(!should_rebalance_top_tab_visible_bottom_gap(
-            false, true, true, false
+            false,
+            true,
+            TabBarOrientation::Bottom,
+            false,
         ));
         assert!(!should_rebalance_top_tab_visible_bottom_gap(
-            false, true, false, true
+            false,
+            true,
+            TabBarOrientation::Top,
+            true,
+        ));
+        // Vertical orientations skip the top-tab rebalancing.
+        assert!(!should_rebalance_top_tab_visible_bottom_gap(
+            false,
+            true,
+            TabBarOrientation::Left,
+            false,
+        ));
+        assert!(!should_rebalance_top_tab_visible_bottom_gap(
+            false,
+            true,
+            TabBarOrientation::Right,
+            false,
         ));
     }
 
@@ -1547,15 +1668,24 @@ mod tests {
         use super::should_rebalance_bottom_tab_quantization_slack;
         assert!(should_rebalance_bottom_tab_quantization_slack(
             false, // managed padding
-            true,  // bottom-tab
+            TabBarOrientation::Bottom,
         ));
         assert!(!should_rebalance_bottom_tab_quantization_slack(
             true, // user custom padding
-            true,
+            TabBarOrientation::Bottom,
         ));
         assert!(!should_rebalance_bottom_tab_quantization_slack(
             false, // managed padding
-            false, // top-tab - handled by top-tab rebalance
+            TabBarOrientation::Top,
+        ));
+        // Vertical orientations are not the bottom-tab case.
+        assert!(!should_rebalance_bottom_tab_quantization_slack(
+            false,
+            TabBarOrientation::Left,
+        ));
+        assert!(!should_rebalance_bottom_tab_quantization_slack(
+            false,
+            TabBarOrientation::Right,
         ));
     }
 

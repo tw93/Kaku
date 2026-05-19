@@ -164,12 +164,24 @@ config.split_pane_inherit_working_directory = true -- new splits
 
 **Tab bar**
 
-Hidden when only one tab is open. Change position or show only the current directory name:
+Hidden when only one tab is open. Pick which edge of the window the tab
+bar lives on; `Left` / `Right` render a vertical sidebar that consumes
+pixel width from the pane area instead of vertical height.
 
 ```lua
-config.tab_bar_at_bottom = false        -- move to top
+config.tab_bar_orientation = "Top"      -- "Top" | "Bottom" | "Left" | "Right"
+config.tab_bar_width = 220              -- pixels; only used for Left / Right
 config.tab_title_show_basename_only = true  -- show "dirname" instead of "parent/dirname"
 ```
+
+The older boolean `config.tab_bar_at_bottom = true` is still accepted as
+a deprecated alias for `tab_bar_orientation = "Bottom"`. When both are
+set, `tab_bar_orientation` wins and a warning is logged.
+
+> Vertical sidebars do not support the macOS integrated traffic-light
+> button mode. If `window_decorations` includes `INTEGRATED_BUTTONS`,
+> Kaku logs a warning and falls back to the native macOS titlebar for
+> the window controls.
 
 **Scrollbar**
 

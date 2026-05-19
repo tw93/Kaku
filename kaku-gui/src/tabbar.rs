@@ -821,7 +821,10 @@ impl TabBarState {
         if use_integrated_title_buttons
             && config.integrated_title_button_style == IntegratedTitleButtonStyle::MacOsNative
             && !config.use_fancy_tab_bar
-            && !config.tab_bar_at_bottom
+            && matches!(
+                config.effective_tab_bar_orientation(),
+                config::TabBarOrientation::Top
+            )
             && !is_fullscreen
         {
             for _ in 0..10_usize {

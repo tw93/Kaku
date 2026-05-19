@@ -18,11 +18,26 @@ config combinations manually:
 | Bottom | Retro | Transparent | Windowed | Bottom tab bar is visible; top titlebar area has no gap. |
 | Top | Fancy | Opaque | Fullscreen | Native titlebar does not cover the rendered tab bar. |
 | Bottom | Fancy | Opaque | Fullscreen | Bottom tab bar remains visible after entering and leaving fullscreen. |
+| Left | Fancy | Opaque | Windowed | Vertical sidebar fills the left edge; traffic-light buttons stay clickable; pane prompt starts below the title-bar inset. |
+| Left | Fancy | Transparent | Windowed | Vertical sidebar fills the left edge; background opacity preserved between sidebar and pane area. |
+| Right | Fancy | Opaque | Windowed | Sidebar mirrors the Left layout on the right edge; pane content stops short of the sidebar. |
+| Left | Fancy | Opaque | Fullscreen | Sidebar persists in fullscreen; no top-inset gap (traffic lights are hidden). |
 
 The key regression guard is `update_titlebar_background()` in
 `window/src/os/macos/window.rs`: native titlebar coloring must remain opt-in for
 opaque windows, otherwise `NSTitlebarContainerView` can cover the Metal-rendered
 top tab bar.
+
+For vertical orientations (`Left` / `Right`), also confirm:
+
+- `INTEGRATED_BUTTONS` + `Left`/`Right` emits a config warning (see
+  `Config::check_tab_bar_orientation_consistency`) and the macOS native
+  titlebar takes over the window-control buttons.
+- The legacy `tab_bar_at_bottom` flag still loads and resolves to
+  `Bottom` via `effective_tab_bar_orientation()`.
+- `make app` smoke: open Settings TUI, toggle **Tab Bar Position** to
+  `Left`; the **Sidebar Width** row should appear directly below it.
+  Toggle back to `Top`; the row must hide.
 
 ## 0.10.0 Issue Triage
 
