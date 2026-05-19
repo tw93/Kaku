@@ -1286,7 +1286,19 @@ impl WindowOps for Window {
 
     fn order_out(&self) {
         Connection::with_window_inner(self.id, |inner| {
-            inner.order_out();
+            // orderOut on a native-fullscreen window leaves the Space behind
+            // as a stranded black overlay. Exit the Space first; the hide is
+            // completed from did_exit_fullscreen once AppKit tears it down.
+            if inner.is_native_fullscreen() {
+                if let Some(window_view) =
+                    unsafe { WindowView::get_this(&**inner.view) }
+                {
+                    window_view.order_out_on_fullscreen_exit.set(true);
+                }
+                inner.exit_native_fullscreen();
+            } else {
+                inner.order_out();
+            }
             Ok(())
         });
     }
@@ -2913,6 +2925,9 @@ struct WindowView {
     /// Set when window_will_close fires; prevents fullscreen transition
     /// handlers from dispatching events to an already-destroyed window.
     is_closing: Cell<bool>,
+    /// Queued by order_out for a native-fullscreen window; consumed by
+    /// did_exit_fullscreen to finish hiding once the Space exits.
+    order_out_on_fullscreen_exit: Cell<bool>,
 }
 
 fn arm_display_change_opengl_present_defer(
@@ -4956,6 +4971,19 @@ impl WindowView {
                     events.dispatch(WindowEvent::NeedRepaint);
                 }
             }
+
+            if this.order_out_on_fullscreen_exit.replace(false) {
+                if let Ok(inner) = this.inner.try_borrow() {
+                    if let Some(window) = inner.window.as_ref() {
+                        let window = window.load();
+                        if !window.is_null() {
+                            unsafe {
+                                let () = msg_send![*window, orderOut: nil];
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -5454,6 +5482,7 @@ impl WindowView {
             native_fullscreen_transition_start: Cell::new(None),
             resize_retry_scheduled: Cell::new(false),
             is_closing: Cell::new(false),
+            order_out_on_fullscreen_exit: Cell::new(false),
         }));
 
         unsafe {
