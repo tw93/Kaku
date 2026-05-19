@@ -2376,7 +2376,20 @@ fn apply_window_appearance(window: &StrongPtr, config: &ConfigHandle) {
             Some(name) => msg_send![class!(NSAppearance), appearanceNamed: *nsstring(name)],
             None => nil,
         };
-        let _: () = msg_send![**window, setAppearance: appearance];
+        // setAppearance: with a new value fires viewDidChangeEffectiveAppearance
+        // on the content view, which re-enters the AppearanceChanged path.
+        let current: id = msg_send![**window, appearance];
+        let same = if appearance.is_null() && current.is_null() {
+            true
+        } else if appearance.is_null() || current.is_null() {
+            false
+        } else {
+            let eq: BOOL = msg_send![appearance, isEqual: current];
+            eq == YES
+        };
+        if !same {
+            let _: () = msg_send![**window, setAppearance: appearance];
+        }
     }
 }
 

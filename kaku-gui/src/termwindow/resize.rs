@@ -306,6 +306,12 @@ impl super::TermWindow {
             return;
         }
 
+        // change_scaling below clears the font/metrics caches unconditionally,
+        // forcing a ~330ms default-font reresolve on macOS.
+        if font_scale == self.fonts.get_font_scale() && dimensions.dpi == self.fonts.get_dpi() {
+            return;
+        }
+
         let (prior_font, prior_dpi) = self.fonts.change_scaling(font_scale, dimensions.dpi);
         match RenderMetrics::new(&self.fonts) {
             Ok(metrics) => {

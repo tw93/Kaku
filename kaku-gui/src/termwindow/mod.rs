@@ -1086,6 +1086,7 @@ pub struct TermWindow {
     config_subscription: Option<config::ConfigSubscription>,
     pending_config_reload_after_resize: bool,
     silent_reload_queued: bool,
+    last_handled_appearance: Option<Appearance>,
     deferred_layout_relayout_epoch: usize,
     layout_sticky_fullscreen_until: Option<Instant>,
     closed_tab_history: std::collections::VecDeque<PathBuf>,
@@ -1577,6 +1578,7 @@ impl TermWindow {
             config_subscription: None,
             pending_config_reload_after_resize: false,
             silent_reload_queued: false,
+            last_handled_appearance: None,
             deferred_layout_relayout_epoch: 0,
             layout_sticky_fullscreen_until: None,
             closed_tab_history: std::collections::VecDeque::new(),
@@ -1867,21 +1869,11 @@ impl TermWindow {
                 Ok(true)
             }
             WindowEvent::AppearanceChanged(appearance) => {
-                log::debug!("Appearance is now {:?}", appearance);
-                // This is a bit fugly; we get per-window notifications
-                // for appearance changes which successfully updates the
-                // per-window config, but we need to explicitly tell the
-                // global config to reload, otherwise things that acces
-                // the config via config::configuration() will see the
-                // prior version of the config.
-                // What's fugly about this is that we'll reload the
-                // global config here once per window, which could
-                // be nasty for folks with a lot of windows.
-                // <https://github.com/wezterm/wezterm/issues/2295>
+                if self.last_handled_appearance == Some(appearance) {
+                    return Ok(true);
+                }
+                self.last_handled_appearance = Some(appearance);
                 config::reload();
-                // Defer per-window reload to avoid re-entrant RefCell borrow
-                // while dispatching the current window event.
-                self.schedule_silent_config_reload(window);
                 Ok(true)
             }
             WindowEvent::PerformKeyAssignment(action) => {
