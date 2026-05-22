@@ -105,8 +105,7 @@ pub(super) fn format_tool_suffix(tools: &[ToolRef], spinner_char: &str) -> Strin
 /// Build the attribute cell for an inline span within an AI text line,
 /// honoring the enclosing block style.
 fn inline_cell(style: InlineStyle, block: BlockStyle, pal: &ChatPalette) -> CellAttributes {
-    // Heading lines use the accent (AI header) color as their base, regardless
-    // of inline style: inline emphasis inside a heading still reads naturally.
+    // Heading markers and body text use contrast-aware palette helpers.
     // Diff lines use semantic colors independent of the palette.
     if let BlockStyle::DiffAdd | BlockStyle::DiffRemove | BlockStyle::DiffHunk = block {
         let fg = match block {
@@ -121,13 +120,14 @@ fn inline_cell(style: InlineStyle, block: BlockStyle, pal: &ChatPalette) -> Cell
         return pal.make_attrs(fg, pal.bg_attr());
     }
     let base = match block {
-        BlockStyle::Heading(_) => pal.ai_header_cell(),
+        BlockStyle::Heading(_) => pal.heading_text_cell(),
         BlockStyle::Quote => pal.input_cell(), // dim fg for block-quoted text
         BlockStyle::Hr => pal.border_dim_cell(),
         BlockStyle::Code => pal.input_cell(),
         _ => pal.ai_text_cell(),
     };
     match style {
+        InlineStyle::HeadingMarker => pal.heading_marker_cell(),
         InlineStyle::Plain => base,
         InlineStyle::Bold => {
             let mut a = base;

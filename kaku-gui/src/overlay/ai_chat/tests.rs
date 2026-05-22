@@ -156,6 +156,41 @@ mod markdown_tests {
     }
 
     #[test]
+    fn heading_marker_prefixes_body_text() {
+        let mut segs = vec![InlineSpan {
+            text: "## ".to_string(),
+            style: InlineStyle::HeadingMarker,
+        }];
+        segs.extend(tokenize_inline("Section"));
+        assert_eq!(segs[0].style, InlineStyle::HeadingMarker);
+        assert_eq!(segs[0].text, "## ");
+        assert_eq!(segs[1].text, "Section");
+    }
+
+    #[test]
+    fn light_theme_heading_text_falls_back_to_foreground() {
+        let pal = ChatPalette {
+            bg: SrgbaTuple(1.0, 0.99, 0.94, 1.0),
+            fg: SrgbaTuple(0.25, 0.24, 0.23, 1.0),
+            accent: SrgbaTuple(0.0, 1.0, 1.0, 1.0),
+            border: SrgbaTuple(0.45, 0.43, 0.40, 1.0),
+            user_header: SrgbaTuple(0.8, 0.6, 0.0, 1.0),
+            user_text: SrgbaTuple(0.25, 0.24, 0.23, 1.0),
+            ai_text: SrgbaTuple(0.25, 0.24, 0.23, 1.0),
+            selection_fg: SrgbaTuple(1.0, 1.0, 1.0, 1.0),
+            selection_bg: SrgbaTuple(0.2, 0.4, 0.8, 1.0),
+        };
+        assert!(pal.is_light());
+        let marker = pal.heading_marker_cell();
+        let text = pal.heading_text_cell();
+        assert_ne!(
+            format!("{:?}", marker.foreground()),
+            format!("{:?}", text.foreground()),
+            "marker and body should use distinct colors"
+        );
+    }
+
+    #[test]
     fn block_fenced_code_captures_inner() {
         let blocks = parse_markdown_blocks("```rust\nfn main() {}\n```");
         let code_lines: Vec<&str> = blocks

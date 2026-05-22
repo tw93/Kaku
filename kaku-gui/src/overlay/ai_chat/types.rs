@@ -17,15 +17,62 @@ pub struct ChatPalette {
     pub selection_bg: SrgbaTuple,
 }
 
+fn palette_luminance(color: SrgbaTuple) -> f32 {
+    0.2126 * color.0 + 0.7152 * color.1 + 0.0722 * color.2
+}
+
+fn palette_has_separation(bg: SrgbaTuple, fg: SrgbaTuple) -> bool {
+    (palette_luminance(bg) - palette_luminance(fg)).abs() >= 0.15
+}
+
+fn palette_blend(a: SrgbaTuple, b: SrgbaTuple, amount: f32) -> SrgbaTuple {
+    let amount = amount.clamp(0.0, 1.0);
+    SrgbaTuple(
+        a.0 + (b.0 - a.0) * amount,
+        a.1 + (b.1 - a.1) * amount,
+        a.2 + (b.2 - a.2) * amount,
+        1.0,
+    )
+}
+
 impl ChatPalette {
     /// True when the chat background reads as a light color, using ITU-R BT.709
     /// relative luminance. Used to pick light-mode-appropriate accents (e.g.
     /// the syntect theme for fenced code blocks).
     pub(crate) fn is_light(&self) -> bool {
-        let r = self.bg.0;
-        let g = self.bg.1;
-        let b = self.bg.2;
-        0.2126 * r + 0.7152 * g + 0.0722 * b > 0.5
+        palette_luminance(self.bg) > 0.5
+    }
+
+    /// ATX heading `#` markers: muted against the chat background but still
+    /// readable on both light and dark themes.
+    fn heading_marker_attr(&self) -> ColorAttribute {
+        let anchor = if self.is_light() {
+            palette_blend(self.bg, self.fg, 0.42)
+        } else {
+            palette_blend(self.bg, self.fg, 0.5)
+        };
+        let candidate = if palette_has_separation(self.bg, self.border) {
+            self.border
+        } else {
+            anchor
+        };
+        let fg = if palette_has_separation(self.bg, candidate) {
+            candidate
+        } else {
+            anchor
+        };
+        ColorAttribute::TrueColorWithDefaultFallback(fg)
+    }
+
+    /// Heading body text: prefer the accent when it separates from the
+    /// background, otherwise fall back to bold foreground.
+    fn heading_text_attr(&self) -> ColorAttribute {
+        let fg = if palette_has_separation(self.bg, self.accent) {
+            self.accent
+        } else {
+            self.fg
+        };
+        ColorAttribute::TrueColorWithDefaultFallback(fg)
     }
 
     pub(super) fn bg_attr(&self) -> ColorAttribute {
@@ -76,6 +123,12 @@ impl ChatPalette {
     }
     pub fn ai_header_cell(&self) -> CellAttributes {
         self.make_attrs_bold(self.accent_attr(), self.bg_attr())
+    }
+    pub(crate) fn heading_marker_cell(&self) -> CellAttributes {
+        self.make_attrs(self.heading_marker_attr(), self.bg_attr())
+    }
+    pub(crate) fn heading_text_cell(&self) -> CellAttributes {
+        self.make_attrs_bold(self.heading_text_attr(), self.bg_attr())
     }
     pub fn ai_text_cell(&self) -> CellAttributes {
         self.make_attrs(self.ai_text_attr(), self.bg_attr())
@@ -310,6 +363,8 @@ pub(crate) enum InlineStyle {
     Bold,
     Italic,
     Code,
+    /// ATX heading `#` prefix rendered before the heading body text.
+    HeadingMarker,
     Highlighted(u8, u8, u8),
 }
 

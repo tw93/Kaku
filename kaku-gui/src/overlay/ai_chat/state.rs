@@ -440,7 +440,11 @@ fn emit_assistant_markdown(
                 i += 1;
             }
             MdBlock::Heading { level, text } => {
-                let segs = tokenize_inline(text);
+                let mut segs = vec![InlineSpan {
+                    text: format!("{} ", "#".repeat(*level as usize)),
+                    style: InlineStyle::HeadingMarker,
+                }];
+                segs.extend(tokenize_inline(text));
                 let lv = *level;
                 for wrapped in wrap_segments(&segs, width) {
                     out.push(DisplayLine::Text {
