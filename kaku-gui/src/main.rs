@@ -103,6 +103,8 @@ mod download;
 mod frontend;
 mod glyphcache;
 mod inputmap;
+#[cfg(target_os = "macos")]
+mod macos;
 mod overlay;
 mod quad;
 mod renderstate;

@@ -158,17 +158,6 @@ const VSCODE_OPEN_CANDIDATES: &[&str] = &[
     "/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code",
 ];
 
-/// Document and media file extensions that should open with the macOS
-/// default app instead of being forced into VS Code. Text and source files
-/// are intentionally excluded so they still open in the editor.
-#[cfg(target_os = "macos")]
-const NON_TEXT_FILE_EXTENSIONS: &[&str] = &[
-    "xls", "xlsx", "doc", "docx", "ppt", "pptx", "pages", "numbers", "key", "odt", "ods", "odp",
-    "pdf", "png", "jpg", "jpeg", "gif", "bmp", "tiff", "tif", "heic", "heif", "webp", "icns",
-    "psd", "mp3", "m4a", "wav", "aac", "flac", "mp4", "mov", "avi", "mkv", "m4v", "webm", "zip",
-    "dmg", "pkg", "rar", "7z", "gz", "tar", "bz2", "xz", "iso",
-];
-
 const TOP_TAB_LAYOUT_FULLSCREEN_STICKY_MS: u64 = 160;
 
 #[derive(Clone, Debug)]
@@ -5015,7 +5004,7 @@ impl TermWindow {
         // than being forced into VS Code, which would otherwise grab them.
         #[cfg(target_os = "macos")]
         if target.path.is_file()
-            && Self::is_non_text_file(&target.path)
+            && crate::macos::file_link::should_open_with_default_app(&target.path)
             && Self::try_open_path_with_default_app(&target.path)?
         {
             return Ok(());
@@ -5127,14 +5116,6 @@ impl TermWindow {
     }
 
     #[cfg(target_os = "macos")]
-    fn is_non_text_file(path: &Path) -> bool {
-        path.extension()
-            .and_then(|ext| ext.to_str())
-            .map(|ext| NON_TEXT_FILE_EXTENSIONS.contains(&ext.to_ascii_lowercase().as_str()))
-            .unwrap_or(false)
-    }
-
-    #[cfg(target_os = "macos")]
     fn try_open_text(path: &Path) -> anyhow::Result<bool> {
         match Self::run_path_command("/usr/bin/open", &["-t".to_string()], path) {
             Ok(()) => Ok(true),
@@ -5145,11 +5126,7 @@ impl TermWindow {
 
     #[cfg(target_os = "macos")]
     fn try_open_path_with_default_app(path: &Path) -> anyhow::Result<bool> {
-        match Self::run_path_command("/usr/bin/open", &[], path) {
-            Ok(()) => Ok(true),
-            Err(err) if err.kind() == std::io::ErrorKind::NotFound => Ok(false),
-            Err(err) => Err(err).context("launch default app"),
-        }
+        crate::macos::file_link::open_with_default_app(path).context("launch default app")
     }
 
     #[cfg(target_os = "macos")]

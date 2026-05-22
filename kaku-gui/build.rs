@@ -153,6 +153,7 @@ END
 
     #[cfg(target_os = "macos")]
     {
+        println!("cargo:rustc-link-lib=framework=UniformTypeIdentifiers");
         use anyhow::Context as _;
         let repo_dir = std::env::current_dir()
             .ok()
