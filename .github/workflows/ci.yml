@@ -110,6 +110,7 @@ jobs:
             assets/shell-integration/tests/z_jump_provider_smoke.sh
             assets/shell-integration/tests/yazi_theme_smoke.sh
             assets/shell-integration/tests/starship_rprompt_smoke.sh
+            assets/shell-integration/tests/setup_zsh_update_only_smoke.sh
             assets/shell-integration/tests/kiro_autosuggest_compat_smoke.sh
             assets/shell-integration/tests/cmd_backspace_binding_smoke.sh
             assets/shell-integration/tests/fish_ai_query_clear_smoke.sh
