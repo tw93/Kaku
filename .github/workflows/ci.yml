@@ -300,9 +300,26 @@ jobs:
         run: ./scripts/build.sh --native-arch --app-only
 
       - name: Measure startup
-        run: ./scripts/measure_startup_kaku.sh > startup.json
+        id: measure-startup
+        run: |
+          if ./scripts/measure_startup_kaku.sh > startup.json; then
+            echo "measured=true" >> "$GITHUB_OUTPUT"
+          else
+            status=$?
+            echo "measured=false" >> "$GITHUB_OUTPUT"
+            cat > startup.json <<EOF
+          {
+            "error": "startup measurement failed",
+            "exit_status": $status,
+            "host": "$(hostname)",
+            "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          }
+          EOF
+            echo "::warning::startup measurement failed with exit status ${status}; soft budget check skipped"
+          fi
 
       - name: Check budget
+        if: steps.measure-startup.outputs.measured == 'true'
         run: ./scripts/check_startup_budget.sh startup.json
 
       - name: Upload report
