@@ -263,6 +263,12 @@ pub struct Config {
     #[dynamic(default)]
     pub set_environment_variables: HashMap<String, String>,
 
+    /// Controls how the Tab key behaves in zsh inside Kaku sessions.
+    /// The environment variables `KAKU_SMART_TAB_DISABLE` and
+    /// `KAKU_TAB_ACCEPT_SUGGEST_FIRST` are set automatically based on this.
+    #[dynamic(default)]
+    pub smart_tab_mode: SmartTabMode,
+
     /// Specifies the height of a new window, expressed in character cells.
     #[dynamic(default = "default_initial_rows", validate = "validate_row_or_col")]
     pub initial_rows: u16,
@@ -2008,6 +2014,14 @@ impl Config {
             }
         }
 
+        if !smart_tab_env_is_explicit(cmd) {
+            match self.smart_tab_mode {
+                SmartTabMode::Off => cmd.env(KAKU_SMART_TAB_DISABLE, "1"),
+                SmartTabMode::SuggestionFirst => cmd.env(KAKU_TAB_ACCEPT_SUGGEST_FIRST, "1"),
+                SmartTabMode::CompletionFirst => {}
+            }
+        }
+
         if wsl_env.is_some() || cfg!(windows) || crate::version::running_under_wsl() {
             let mut wsl_env = wsl_env.unwrap_or_default();
             if !wsl_env.is_empty() {
@@ -2365,6 +2379,176 @@ mod tests {
             result.is_ok(),
             "config carrying a deprecated `language` must still load: {:?}",
             result
+        );
+    }
+
+    #[test]
+    fn smart_tab_mode_parses_snake_case_strings() {
+        use wezterm_dynamic::{FromDynamic, FromDynamicOptions, Value};
+
+        let options = FromDynamicOptions::default();
+
+        // snake_case variants (written by kaku config TUI)
+        let val = Value::String("completion_first".into());
+        assert_eq!(
+            super::SmartTabMode::from_dynamic(&val, options).unwrap(),
+            super::SmartTabMode::CompletionFirst
+        );
+
+        let val = Value::String("suggestion_first".into());
+        assert_eq!(
+            super::SmartTabMode::from_dynamic(&val, options).unwrap(),
+            super::SmartTabMode::SuggestionFirst
+        );
+
+        let val = Value::String("off".into());
+        assert_eq!(
+            super::SmartTabMode::from_dynamic(&val, options).unwrap(),
+            super::SmartTabMode::Off
+        );
+
+        // PascalCase variants (alternative accepted form)
+        let val = Value::String("CompletionFirst".into());
+        assert_eq!(
+            super::SmartTabMode::from_dynamic(&val, options).unwrap(),
+            super::SmartTabMode::CompletionFirst
+        );
+
+        let val = Value::String("Off".into());
+        assert_eq!(
+            super::SmartTabMode::from_dynamic(&val, options).unwrap(),
+            super::SmartTabMode::Off
+        );
+
+        // Invalid value should error
+        let val = Value::String("invalid_mode".into());
+        assert!(super::SmartTabMode::from_dynamic(&val, options).is_err());
+    }
+
+    #[test]
+    fn smart_tab_mode_field_loads_without_unknown_field_error() {
+        use std::collections::BTreeMap;
+        use wezterm_dynamic::{FromDynamic, FromDynamicOptions, UnknownFieldAction, Value};
+
+        let mut map: BTreeMap<Value, Value> = BTreeMap::new();
+        map.insert(
+            Value::String("smart_tab_mode".to_string()),
+            Value::String("off".to_string()),
+        );
+        let value = Value::Object(map.into());
+
+        let result = super::Config::from_dynamic(
+            &value,
+            FromDynamicOptions {
+                unknown_fields: UnknownFieldAction::Deny,
+                deprecated_fields: UnknownFieldAction::Warn,
+            },
+        );
+        assert!(
+            result.is_ok(),
+            "config with smart_tab_mode must load without error: {:?}",
+            result
+        );
+        let config = result.unwrap();
+        assert_eq!(config.smart_tab_mode, super::SmartTabMode::Off);
+    }
+
+    fn smart_tab_test_command() -> portable_pty::CommandBuilder {
+        let mut cmd = portable_pty::CommandBuilder::new_default_prog();
+        cmd.env_remove(super::KAKU_SMART_TAB_DISABLE);
+        cmd.env_remove(super::KAKU_TAB_ACCEPT_SUGGEST_FIRST);
+        cmd
+    }
+
+    #[test]
+    fn smart_tab_off_sets_disable_env_var() {
+        let mut config = super::Config::default();
+        config.smart_tab_mode = super::SmartTabMode::Off;
+
+        let mut cmd = smart_tab_test_command();
+        config.apply_cmd_defaults(&mut cmd, None, None);
+
+        assert_eq!(
+            cmd.get_env("KAKU_SMART_TAB_DISABLE"),
+            Some(std::ffi::OsStr::new("1")),
+            "SmartTabMode::Off must set KAKU_SMART_TAB_DISABLE=1"
+        );
+        assert_eq!(
+            cmd.get_env("KAKU_TAB_ACCEPT_SUGGEST_FIRST"),
+            None,
+            "SmartTabMode::Off must not set KAKU_TAB_ACCEPT_SUGGEST_FIRST"
+        );
+    }
+
+    #[test]
+    fn smart_tab_suggestion_first_sets_accept_env_var() {
+        let mut config = super::Config::default();
+        config.smart_tab_mode = super::SmartTabMode::SuggestionFirst;
+
+        let mut cmd = smart_tab_test_command();
+        config.apply_cmd_defaults(&mut cmd, None, None);
+
+        assert_eq!(
+            cmd.get_env("KAKU_TAB_ACCEPT_SUGGEST_FIRST"),
+            Some(std::ffi::OsStr::new("1")),
+            "SmartTabMode::SuggestionFirst must set KAKU_TAB_ACCEPT_SUGGEST_FIRST=1"
+        );
+        assert_eq!(
+            cmd.get_env("KAKU_SMART_TAB_DISABLE"),
+            None,
+            "SmartTabMode::SuggestionFirst must not set KAKU_SMART_TAB_DISABLE"
+        );
+    }
+
+    #[test]
+    fn smart_tab_completion_first_sets_no_env_var() {
+        let mut config = super::Config::default();
+        config.smart_tab_mode = super::SmartTabMode::CompletionFirst;
+
+        let mut cmd = smart_tab_test_command();
+        config.apply_cmd_defaults(&mut cmd, None, None);
+
+        assert_eq!(
+            cmd.get_env("KAKU_SMART_TAB_DISABLE"),
+            None,
+            "SmartTabMode::CompletionFirst must not set KAKU_SMART_TAB_DISABLE"
+        );
+        assert_eq!(
+            cmd.get_env("KAKU_TAB_ACCEPT_SUGGEST_FIRST"),
+            None,
+            "SmartTabMode::CompletionFirst must not set KAKU_TAB_ACCEPT_SUGGEST_FIRST"
+        );
+    }
+
+    #[test]
+    fn smart_tab_respects_existing_disable_env_var() {
+        let mut config = super::Config::default();
+        config.smart_tab_mode = super::SmartTabMode::SuggestionFirst;
+
+        let mut cmd = smart_tab_test_command();
+        cmd.env(super::KAKU_SMART_TAB_DISABLE, "1");
+        config.apply_cmd_defaults(&mut cmd, None, None);
+
+        assert_eq!(
+            cmd.get_env(super::KAKU_SMART_TAB_DISABLE),
+            Some(std::ffi::OsStr::new("1"))
+        );
+        assert_eq!(cmd.get_env(super::KAKU_TAB_ACCEPT_SUGGEST_FIRST), None);
+    }
+
+    #[test]
+    fn smart_tab_respects_existing_suggestion_first_env_var() {
+        let mut config = super::Config::default();
+        config.smart_tab_mode = super::SmartTabMode::Off;
+
+        let mut cmd = smart_tab_test_command();
+        cmd.env(super::KAKU_TAB_ACCEPT_SUGGEST_FIRST, "1");
+        config.apply_cmd_defaults(&mut cmd, None, None);
+
+        assert_eq!(cmd.get_env(super::KAKU_SMART_TAB_DISABLE), None);
+        assert_eq!(
+            cmd.get_env(super::KAKU_TAB_ACCEPT_SUGGEST_FIRST),
+            Some(std::ffi::OsStr::new("1"))
         );
     }
 }
@@ -2831,6 +3015,44 @@ impl FromDynamic for BoldBrightening {
                 Ok(false) => Ok(Self::No),
                 Err(_) => Err(err),
             },
+        }
+    }
+}
+
+const KAKU_SMART_TAB_DISABLE: &str = "KAKU_SMART_TAB_DISABLE";
+const KAKU_TAB_ACCEPT_SUGGEST_FIRST: &str = "KAKU_TAB_ACCEPT_SUGGEST_FIRST";
+
+fn smart_tab_env_is_explicit(cmd: &CommandBuilder) -> bool {
+    cmd.get_env(KAKU_SMART_TAB_DISABLE).is_some()
+        || cmd.get_env(KAKU_TAB_ACCEPT_SUGGEST_FIRST).is_some()
+}
+
+/// Controls how the Tab key behaves in zsh inside Kaku sessions.
+#[derive(Debug, ToDynamic, Clone, Copy, PartialEq, Eq, Default)]
+pub enum SmartTabMode {
+    /// Tab shows the completion list; use arrow keys to accept autosuggestions.
+    #[default]
+    CompletionFirst,
+    /// Tab accepts autosuggestions when available, falls back to completion.
+    SuggestionFirst,
+    /// Disables Smart Tab entirely, restoring native zsh Tab behavior.
+    Off,
+}
+
+impl FromDynamic for SmartTabMode {
+    fn from_dynamic(
+        value: &wezterm_dynamic::Value,
+        options: wezterm_dynamic::FromDynamicOptions,
+    ) -> Result<Self, wezterm_dynamic::Error> {
+        let s = String::from_dynamic(value, options)?;
+        match s.as_str() {
+            "completion_first" | "CompletionFirst" => Ok(Self::CompletionFirst),
+            "suggestion_first" | "SuggestionFirst" => Ok(Self::SuggestionFirst),
+            "off" | "Off" => Ok(Self::Off),
+            other => Err(wezterm_dynamic::Error::Message(format!(
+                "`{other}` is not a valid SmartTabMode, use one of \
+                 `completion_first`, `suggestion_first`, or `off`"
+            ))),
         }
     }
 }

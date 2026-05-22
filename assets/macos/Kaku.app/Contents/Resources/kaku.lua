@@ -3824,6 +3824,9 @@ config.window_close_confirmation = 'SmartPrompt'
 config.tab_close_confirmation = false
 config.pane_close_confirmation = false
 
+-- Smart Tab modes: 'completion_first' (default), 'suggestion_first', or 'off'.
+config.smart_tab_mode = 'completion_first'
+
 -- ===== Tab Bar =====
 config.enable_tab_bar = true
 config.tab_bar_at_bottom = true
