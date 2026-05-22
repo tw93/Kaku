@@ -682,6 +682,58 @@ fn window_fills_visible_frame(window: id) -> bool {
     }
 }
 
+fn fit_frame_to_visible_frame(frame: NSRect, visible_frame: NSRect) -> Option<NSRect> {
+    if visible_frame.size.width <= 0.0 || visible_frame.size.height <= 0.0 {
+        return None;
+    }
+
+    let mut adjusted = frame;
+    adjusted.size.width = adjusted.size.width.min(visible_frame.size.width);
+    adjusted.size.height = adjusted.size.height.min(visible_frame.size.height);
+
+    let visible_max_x = visible_frame.origin.x + visible_frame.size.width;
+    let visible_max_y = visible_frame.origin.y + visible_frame.size.height;
+
+    if adjusted.origin.x < visible_frame.origin.x {
+        adjusted.origin.x = visible_frame.origin.x;
+    }
+    if adjusted.origin.y < visible_frame.origin.y {
+        adjusted.origin.y = visible_frame.origin.y;
+    }
+    if adjusted.origin.x + adjusted.size.width > visible_max_x {
+        adjusted.origin.x = visible_max_x - adjusted.size.width;
+    }
+    if adjusted.origin.y + adjusted.size.height > visible_max_y {
+        adjusted.origin.y = visible_max_y - adjusted.size.height;
+    }
+
+    if nsrect_approx_eq(frame, adjusted, 0.5) {
+        None
+    } else {
+        Some(adjusted)
+    }
+}
+
+fn visible_frame_for_window(window: id) -> Option<NSRect> {
+    if window.is_null() {
+        return None;
+    }
+
+    unsafe {
+        let screen: id = msg_send![window, screen];
+        let screen = if screen.is_null() {
+            NSScreen::mainScreen(nil)
+        } else {
+            screen
+        };
+        if screen.is_null() {
+            None
+        } else {
+            Some(msg_send![screen, visibleFrame])
+        }
+    }
+}
+
 fn window_size(window: *mut Object) -> PersistedWindowSize {
     unsafe {
         let frame = NSWindow::frame(window);
@@ -2053,31 +2105,18 @@ impl WindowInner {
                         // restored after a monitor disconnection.
                         inner.apply_decorations();
 
-                        // If the window's top edge landed outside every
-                        // visible screen (e.g. the monitor it was on got
-                        // unplugged), move it to the center of the main
-                        // screen so the title bar stays reachable.
+                        // Display topology changes can leave a window with a
+                        // frame from the old screen. Clamp both origin and size
+                        // to the new visible frame so the title bar and content
+                        // stay reachable.
                         unsafe {
                             let frame = NSWindow::frame(*inner.window);
-                            let top_left_x = frame.origin.x;
-                            let top_left_y = frame.origin.y + frame.size.height;
-                            let screens = NSScreen::screens(nil);
-                            let count = screens.count();
-                            let mut on_screen = false;
-                            for idx in 0..count {
-                                let screen = screens.objectAtIndex(idx);
-                                let sf: NSRect = msg_send![screen, visibleFrame];
-                                if top_left_x >= sf.origin.x
-                                    && top_left_x <= sf.origin.x + sf.size.width
-                                    && top_left_y >= sf.origin.y
-                                    && top_left_y <= sf.origin.y + sf.size.height
+                            if let Some(visible_frame) = visible_frame_for_window(*inner.window) {
+                                if let Some(adjusted) =
+                                    fit_frame_to_visible_frame(frame, visible_frame)
                                 {
-                                    on_screen = true;
-                                    break;
+                                    inner.window.setFrame_display_(adjusted, YES);
                                 }
-                            }
-                            if !on_screen {
-                                let _: () = msg_send![*inner.window, center];
                             }
                         }
                     }
@@ -2118,8 +2157,9 @@ impl WindowInner {
             self.update_titlebar_background();
             apply_window_appearance(&self.window, &self.config);
 
-            self.window.makeKeyAndOrderFront_(nil)
+            self.window.makeKeyAndOrderFront_(nil);
         }
+        self.dispatch_resize_event();
     }
 
     fn close(&mut self) {
@@ -2229,6 +2269,13 @@ impl WindowInner {
             }
         }
     }
+
+    fn dispatch_resize_event(&mut self) {
+        unsafe {
+            WindowView::did_resize(&mut **self.view, sel!(windowDidResize:), nil);
+        }
+    }
+
     fn set_title(&mut self, title: &str) {
         let title = nsstring(title);
         unsafe {
@@ -2239,9 +2286,9 @@ impl WindowInner {
     fn set_window_level(&mut self, level: WindowLevel) {
         unsafe {
             NSWindow::setLevel_(*self.window, window_level_to_nswindow_level(level));
-            // Dispatch a resize event with the updated window state
-            WindowView::did_resize(&mut **self.view, sel!(windowDidResize:), nil);
         }
+        // Dispatch a resize event with the updated window state
+        self.dispatch_resize_event();
     }
 
     fn set_inner_size(&mut self, width: usize, height: usize) {
@@ -3467,6 +3514,32 @@ mod tests {
     }
 
     #[test]
+    fn oversized_window_frame_is_fit_to_visible_frame() {
+        let frame = NSRect::new(NSPoint::new(100.0, 100.0), NSSize::new(1920.0, 1080.0));
+        let visible = NSRect::new(NSPoint::new(0.0, 0.0), NSSize::new(1440.0, 900.0));
+
+        let adjusted = fit_frame_to_visible_frame(frame, visible).unwrap();
+
+        assert_eq!(adjusted.origin.x, 0.0);
+        assert_eq!(adjusted.origin.y, 0.0);
+        assert_eq!(adjusted.size.width, 1440.0);
+        assert_eq!(adjusted.size.height, 900.0);
+    }
+
+    #[test]
+    fn offscreen_window_frame_is_moved_into_visible_frame() {
+        let frame = NSRect::new(NSPoint::new(1800.0, 900.0), NSSize::new(800.0, 600.0));
+        let visible = NSRect::new(NSPoint::new(0.0, 0.0), NSSize::new(1440.0, 900.0));
+
+        let adjusted = fit_frame_to_visible_frame(frame, visible).unwrap();
+
+        assert_eq!(adjusted.origin.x, 640.0);
+        assert_eq!(adjusted.origin.y, 300.0);
+        assert_eq!(adjusted.size.width, 800.0);
+        assert_eq!(adjusted.size.height, 600.0);
+    }
+
+    #[test]
     fn none_decorations_use_a_borderless_window() {
         let mask = decoration_to_mask(
             WindowDecorations::NONE,
@@ -4203,7 +4276,14 @@ impl WindowView {
     extern "C" fn mouse_down(this: &mut Object, _sel: Sel, nsevent: id) {
         // Check if we're in fullscreen mode - if so, disable dragging
         let in_fullscreen = if let Some(view) = Self::get_this(this) {
-            view.inner.borrow().fullscreen.is_some()
+            let simple_fullscreen = view.inner.borrow().fullscreen.is_some();
+            let native_fullscreen = unsafe {
+                let window: id = msg_send![this as id, window];
+                window != nil
+                    && NSWindow::styleMask(window)
+                        .contains(NSWindowStyleMask::NSFullScreenWindowMask)
+            };
+            simple_fullscreen || native_fullscreen
         } else {
             false
         };

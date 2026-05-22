@@ -83,6 +83,10 @@ fn tab_bar_item_starts_window_drag(item: TabBarItem) -> bool {
     )
 }
 
+fn should_use_manual_window_drag(window_state: WindowState) -> bool {
+    cfg!(target_os = "macos") && !window_state.contains(WindowState::FULL_SCREEN)
+}
+
 fn should_preserve_tmux_bypass_reporting(
     is_wheel_event: bool,
     modifiers: window::Modifiers,
@@ -756,13 +760,12 @@ impl super::TermWindow {
                 // Event landed in title/padding area above terminal content but missed all UI items.
                 match event.kind {
                     WMEK::Press(MousePress::Left) => {
-                        let maximized = self
-                            .window_state
-                            .intersects(WindowState::MAXIMIZED | WindowState::FULL_SCREEN);
+                        let fullscreen = self.window_state.contains(WindowState::FULL_SCREEN);
+                        let maximized = self.window_state.contains(WindowState::MAXIMIZED);
                         // Double-click title area to zoom window
                         if self.last_mouse_click.as_ref().map(|c| c.streak) == Some(2) {
                             if let Some(ref window) = self.window {
-                                if maximized {
+                                if maximized || fullscreen {
                                     window.restore();
                                 } else {
                                     window.maximize();
@@ -772,10 +775,14 @@ impl super::TermWindow {
                         }
                         self.current_mouse_capture = Some(MouseCapture::UI);
                         self.window_drag.is_window_dragging = true;
-                        if !maximized && !cfg!(target_os = "macos") {
+                        if should_use_manual_window_drag(self.window_state)
+                            || (!maximized && !fullscreen && !cfg!(target_os = "macos"))
+                        {
                             self.window_drag.position.replace(event.clone());
                         }
-                        context.request_drag_move();
+                        if !should_use_manual_window_drag(self.window_state) {
+                            context.request_drag_move();
+                        }
                         return;
                     }
                     WMEK::Move if self.current_mouse_capture.is_none() => {
@@ -1074,15 +1081,14 @@ impl super::TermWindow {
                     }
                     TabBarItem::None | TabBarItem::LeftStatus | TabBarItem::RightStatus => {
                         self.tab_drag_state = None;
-                        let maximized = self
-                            .window_state
-                            .intersects(WindowState::MAXIMIZED | WindowState::FULL_SCREEN);
+                        let fullscreen = self.window_state.contains(WindowState::FULL_SCREEN);
+                        let maximized = self.window_state.contains(WindowState::MAXIMIZED);
                         if let Some(ref window) = self.window {
                             if should_zoom_title_area(
                                 self.config.window_decorations,
                                 self.last_mouse_click.as_ref().map(|c| c.streak),
                             ) {
-                                if maximized {
+                                if maximized || fullscreen {
                                     window.restore();
                                 } else {
                                     window.maximize();
@@ -1091,10 +1097,14 @@ impl super::TermWindow {
                             }
                         }
                         self.window_drag.is_window_dragging = true;
-                        if !maximized && !cfg!(target_os = "macos") {
+                        if should_use_manual_window_drag(self.window_state)
+                            || (!maximized && !fullscreen && !cfg!(target_os = "macos"))
+                        {
                             self.window_drag.position.replace(event.clone());
                         }
-                        context.request_drag_move();
+                        if !should_use_manual_window_drag(self.window_state) {
+                            context.request_drag_move();
+                        }
                     }
                     TabBarItem::WindowButton(button) => {
                         self.tab_drag_state = None;
@@ -1869,15 +1879,17 @@ fn wmek_to_tmek_and_button(event: &MouseEvent) -> (TMEK, TMB) {
 mod tests {
     use super::{
         mouse_dispatch_target, should_bypass_wheel_assignment_in_alt,
-        should_preserve_tmux_bypass_reporting, should_zoom_title_area,
-        tab_bar_item_starts_window_drag, wheel_during_terminal_selection_action,
-        MouseDispatchTarget, SelectionDragWheelAction,
+        should_preserve_tmux_bypass_reporting, should_use_manual_window_drag,
+        should_zoom_title_area, tab_bar_item_starts_window_drag,
+        wheel_during_terminal_selection_action, MouseDispatchTarget, SelectionDragWheelAction,
     };
     use crate::tabbar::TabBarItem;
     use crate::termwindow::MouseCapture;
     use config::SelectionWheelScrollBehavior;
     use mux::pane::PaneId;
-    use window::{IntegratedTitleButton, Modifiers, MouseButtons, MousePress, WindowDecorations};
+    use window::{
+        IntegratedTitleButton, Modifiers, MouseButtons, MousePress, WindowDecorations, WindowState,
+    };
 
     #[test]
     fn terminal_capture_keeps_release_routed_to_terminal() {
@@ -1937,6 +1949,19 @@ mod tests {
         assert!(tab_bar_item_starts_window_drag(TabBarItem::None));
         assert!(tab_bar_item_starts_window_drag(TabBarItem::LeftStatus));
         assert!(tab_bar_item_starts_window_drag(TabBarItem::RightStatus));
+    }
+
+    #[test]
+    fn macos_title_window_drag_uses_manual_path_except_fullscreen() {
+        if cfg!(target_os = "macos") {
+            assert!(should_use_manual_window_drag(WindowState::empty()));
+            assert!(should_use_manual_window_drag(WindowState::MAXIMIZED));
+            assert!(!should_use_manual_window_drag(
+                WindowState::MAXIMIZED | WindowState::FULL_SCREEN
+            ));
+        } else {
+            assert!(!should_use_manual_window_drag(WindowState::MAXIMIZED));
+        }
     }
 
     #[test]
