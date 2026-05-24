@@ -59,6 +59,7 @@ pub(super) fn slash_command_options_for_token(token: &str) -> Vec<(&'static str,
         ("/export", "Copy conversation to clipboard"),
         ("/memory", "Show memory file paths"),
         ("/status", "Show current session state"),
+        ("/suggest", "Predict the next message you might type"),
         ("/btw", "Ask a side question (not saved to history)"),
         ("/model", "Show or switch model"),
         ("/config", "Show current AI config"),
@@ -78,7 +79,7 @@ pub(super) fn slash_command_options_for_token(token: &str) -> Vec<(&'static str,
 pub(super) fn slash_command_submits_immediately(command: &str) -> bool {
     matches!(
         command,
-        "/new" | "/resume" | "/clear" | "/export" | "/memory" | "/status" | "/model" | "/config"
+        "/new" | "/resume" | "/clear" | "/export" | "/memory" | "/status" | "/suggest" | "/model" | "/config"
     )
 }
 
@@ -1269,6 +1270,12 @@ impl App {
             self.cmd_status();
             return;
         }
+        if raw_input == "/suggest" {
+            self.input.clear();
+            self.input_cursor = 0;
+            self.cmd_suggest();
+            return;
+        }
         if raw_input == "/config" {
             self.input.clear();
             self.input_cursor = 0;
@@ -1824,6 +1831,29 @@ impl App {
             cwd = cwd,
         );
         self.push_info(&text);
+    }
+
+    /// Predict the next message the user might type, based on the recent
+    /// transcript. Synchronous: blocks the input thread for a short LLM
+    /// round-trip. Cheap because it runs against `fast_model`.
+    pub(crate) fn cmd_suggest(&mut self) {
+        let msgs = self.collect_persisted_messages();
+        if msgs.len() < 2 {
+            self.push_info("Not enough conversation yet to suggest a follow-up.");
+            return;
+        }
+        match crate::ai_chat_engine::suggestion::generate_suggestion(&self.client, &msgs) {
+            Ok(s) if !s.trim().is_empty() => {
+                self.push_info(&format!("Suggested next message: {}", s));
+            }
+            Ok(_) => {
+                self.push_info("No clear next step to suggest.");
+            }
+            Err(e) => {
+                log::warn!("cmd_suggest: {e}");
+                self.push_info("Could not generate a suggestion right now.");
+            }
+        }
     }
 
     pub(crate) fn cmd_config(&mut self) {

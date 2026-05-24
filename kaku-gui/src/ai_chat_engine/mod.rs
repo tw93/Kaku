@@ -5,6 +5,11 @@
 
 pub(crate) mod approval;
 pub(crate) mod compact;
+// `suggestion` is only reached via the chat overlay (mod tree under main.rs),
+// not from any item in the lib target. The lib's dead-code lint would
+// otherwise flag the whole module as unused.
+#[allow(dead_code)]
+pub(crate) mod suggestion;
 pub(crate) mod summarize;
 pub(crate) mod title;
 
