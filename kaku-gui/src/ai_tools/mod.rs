@@ -78,7 +78,7 @@ pub fn execute(
             if !url.starts_with("http://") && !url.starts_with("https://") {
                 anyhow::bail!("url must start with http:// or https://");
             }
-            if let Some(script) = &config.web_fetch_script {
+            let raw = if let Some(script) = &config.web_fetch_script {
                 let output = std::process::Command::new("bash")
                     .arg(script)
                     .arg("--")
@@ -94,7 +94,8 @@ pub fn execute(
                 String::from_utf8_lossy(&output.stdout).into_owned()
             } else {
                 web::fetch_markdown_default(url)?
-            }
+            };
+            web::maybe_summarize_fetched(url, raw, config)
         }
         "web_search" => search::exec_web_search(args, config)?,
         "read_url" => {
@@ -104,7 +105,8 @@ pub fn execute(
             }
             let provider = config.web_search_provider.as_deref().unwrap_or("");
             let api_key = config.web_search_api_key.as_deref().unwrap_or("");
-            web::exec_read_url(url, provider, api_key)?
+            let raw = web::exec_read_url(url, provider, api_key)?;
+            web::maybe_summarize_fetched(url, raw, config)
         }
         "project_summary" => {
             let raw_path = args["path"].as_str();

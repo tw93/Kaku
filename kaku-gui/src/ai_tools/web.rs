@@ -222,3 +222,56 @@ pub(super) fn exec_read_url(url: &str, provider: &str, api_key: &str) -> Result<
         _ => fetch_markdown_default(url),
     }
 }
+
+/// Content above this raw-bytes threshold is passed through a cheap
+/// summarizer before being returned to the main agent. Picked so a typical
+/// docs page (under 4 KB clean markdown) skips the second LLM hop, while
+/// long blog posts and reference pages get compressed.
+const SUMMARIZE_FETCH_THRESHOLD: usize = 4_000;
+
+const WEBFETCH_SUMMARIZE_PROMPT: &str =
+    include_str!("../../../assets/prompts/webfetch_summarize.txt");
+
+/// Compress a verbose web_fetch result so the main agent context stays cheap.
+///
+/// - Below `SUMMARIZE_FETCH_THRESHOLD` bytes: passthrough.
+/// - Otherwise: build a small `AiClient` from the active config, call
+///   `complete_once` with the webfetch-summarizer prompt, return the
+///   summary. On any error, fall back to the raw content so the agent loop
+///   never breaks just because the summarizer was misconfigured.
+///
+/// Uses `fast_model` when present (this is a low-stakes compression step
+/// and should not bill against the deep model).
+pub(super) fn maybe_summarize_fetched(
+    url: &str,
+    content: String,
+    config: &crate::ai_client::AssistantConfig,
+) -> String {
+    if content.len() < SUMMARIZE_FETCH_THRESHOLD {
+        return content;
+    }
+    let model = config
+        .fast_model
+        .as_deref()
+        .filter(|s| !s.is_empty())
+        .unwrap_or(&config.chat_model)
+        .to_string();
+    if model.is_empty() {
+        return content;
+    }
+    let prompt = crate::ai_chat_engine::strip_prompt_metadata(WEBFETCH_SUMMARIZE_PROMPT)
+        .replace("${URL}", url)
+        .replace("${WEB_CONTENT}", &content);
+    let client = crate::ai_client::AiClient::new(config.clone());
+    match client.complete_once(&model, &[crate::ai_client::ApiMessage::system(prompt)]) {
+        Ok(s) if !s.trim().is_empty() => s,
+        Ok(_) => {
+            log::warn!("maybe_summarize_fetched: empty summary, returning raw");
+            content
+        }
+        Err(e) => {
+            log::warn!("maybe_summarize_fetched: model call failed: {e}; returning raw");
+            content
+        }
+    }
+}
