@@ -43,25 +43,60 @@ pub enum StreamMsg {
 
 // ── System prompt ─────────────────────────────────────────────────────────────
 
-/// Returns the static system prompt (prompt.txt verbatim), optionally suffixed
-/// with the user's Soul identity.
+/// Returns the static system prompt, optionally suffixed with the user's
+/// Soul identity.
 ///
 /// This is the single source of truth for both the Cmd+L overlay and the `k`
-/// CLI. Dynamic fields (date, cwd, locale) are intentionally excluded so the
-/// prompt bytes remain stable across requests and qualify for Anthropic's
-/// prompt-cache discount. Dynamic context is injected as a separate user
-/// message via the caller's environment-message builder.
+/// CLI. The prompt is composed from six topical fragments under
+/// `assets/prompts/chat/` so each section can be reviewed in isolation. The
+/// stable bytes still qualify for Anthropic's prompt-cache discount because
+/// the fragments are concatenated in a fixed order and the Soul/Memory
+/// content is appended at the end (cache-unfriendly per-user content goes
+/// last).
+///
+/// Dynamic fields (date, cwd, locale) are intentionally excluded; they are
+/// injected as a separate user message via `build_environment_message`.
 pub(crate) fn build_system_prompt() -> String {
-    let base = include_str!("../overlay/ai_chat/prompt.txt");
+    let fragments = [
+        strip_prompt_metadata(include_str!("../../../assets/prompts/chat/voice.txt")),
+        strip_prompt_metadata(include_str!("../../../assets/prompts/chat/safety.txt")),
+        strip_prompt_metadata(include_str!(
+            "../../../assets/prompts/chat/output_format.txt"
+        )),
+        strip_prompt_metadata(include_str!(
+            "../../../assets/prompts/chat/tool_discipline.txt"
+        )),
+        strip_prompt_metadata(include_str!("../../../assets/prompts/chat/root_cause.txt")),
+        strip_prompt_metadata(include_str!(
+            "../../../assets/prompts/chat/external_helpers.txt"
+        )),
+    ];
+    let base = fragments.join("\n\n");
     let identity = crate::soul::load_for_prompt();
     if identity.is_empty() {
-        base.to_string()
+        base
     } else {
         format!(
             "{}\n\n---\n\nUSER IDENTITY (read-only, user-authored):\n{}",
             base, identity
         )
     }
+}
+
+/// Strip a leading `<!-- ... -->` HTML-style metadata block from a prompt
+/// fragment. Returns the trimmed body. Keeps the metadata format identical
+/// to Piebald's `claude-code-system-prompts` so each fragment can be
+/// individually diffed and version-tracked.
+///
+/// Shared by every `include_str!`-loaded prompt across `ai_chat_engine` and
+/// `ai_tools` so the rule (one fixed metadata format) lives in one place.
+pub(crate) fn strip_prompt_metadata(s: &str) -> &str {
+    if let Some(rest) = s.strip_prefix("<!--") {
+        if let Some(end) = rest.find("-->") {
+            return rest[end + 3..].trim_start_matches(['\n', '\r']);
+        }
+    }
+    s
 }
 
 /// Inputs for the unified environment-message assembler.
@@ -968,5 +1003,55 @@ mod tests {
         let joined = lines.join("\n");
         let out = limit_memory_entries(&joined, 30);
         assert_eq!(out.lines().count(), 30);
+    }
+
+    #[test]
+    fn strip_prompt_metadata_removes_comment_block() {
+        let input = "<!--\nname: 'test'\nkakuVersion: 0.5.0\n-->\nbody text";
+        assert_eq!(strip_prompt_metadata(input), "body text");
+    }
+
+    #[test]
+    fn strip_prompt_metadata_passthrough_when_no_block() {
+        assert_eq!(strip_prompt_metadata("plain body"), "plain body");
+    }
+
+    #[test]
+    fn strip_prompt_metadata_passthrough_on_malformed_block() {
+        // No closing --> -- leave untouched rather than swallow the whole file.
+        let input = "<!--\nname: bad\nbody never closes";
+        assert_eq!(strip_prompt_metadata(input), input);
+    }
+
+    #[test]
+    fn build_system_prompt_concatenates_all_fragments() {
+        // Smoke test: every fragment is loaded and ends up in the final
+        // prompt. Catches a missing include_str! path or an over-eager
+        // metadata stripper.
+        let prompt = build_system_prompt();
+        assert!(prompt.contains("Kaku AI"), "missing voice fragment");
+        assert!(
+            prompt.contains("SHELL SAFETY") || prompt.contains("SAFETY"),
+            "missing safety fragment"
+        );
+        assert!(
+            prompt.contains("OUTPUT FORMAT"),
+            "missing output_format fragment"
+        );
+        assert!(
+            prompt.contains("TOOL DISCIPLINE"),
+            "missing tool_discipline fragment"
+        );
+        assert!(prompt.contains("ROOT CAUSE"), "missing root_cause fragment");
+        assert!(
+            prompt.contains("EXTERNAL HELPERS"),
+            "missing external_helpers fragment"
+        );
+        // Metadata <!-- ... --> must never reach the model.
+        assert!(
+            !prompt.contains("kakuVersion:"),
+            "metadata leaked into final prompt: {}",
+            prompt.chars().take(200).collect::<String>()
+        );
     }
 }
