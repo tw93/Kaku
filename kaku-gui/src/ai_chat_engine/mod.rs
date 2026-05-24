@@ -6,6 +6,10 @@
 pub(crate) mod approval;
 pub(crate) mod compact;
 pub(crate) mod summarize;
+pub(crate) mod title;
+
+/// Hard cap on conversation titles stored in the index and shown in `/resume`.
+pub(crate) const TITLE_MAX_CHARS: usize = 40;
 
 use crate::ai_client::{should_roundtrip_reasoning_content, AiClient, ApiMessage};
 use crate::ai_conversations::{self, PersistedMessage};
@@ -522,32 +526,14 @@ pub(crate) fn run_agent(
 
 // ── Summary generation ────────────────────────────────────────────────────────
 
-/// Generate a short title for a conversation (≤ 40 chars). Runs on a background thread.
+/// Generate a short title for a conversation (≤ `TITLE_MAX_CHARS` chars).
+/// Runs on a background thread. Delegates to `title::generate_title`, which
+/// uses the Piebald-style JSON prompt and prefers `fast_model` for cost.
 pub(crate) fn generate_summary(
     client: &AiClient,
     messages: &[PersistedMessage],
 ) -> anyhow::Result<String> {
-    let model = client.config().chat_model.clone();
-    let window = if messages.len() > 20 {
-        &messages[messages.len() - 20..]
-    } else {
-        messages
-    };
-    let mut api_msgs = vec![ApiMessage::system(
-        "You are a titler. Summarize the following conversation in a short phrase \
-         (max 40 characters). Use the same language as the conversation. \
-         Return only the phrase, no quotes.",
-    )];
-    for m in window {
-        if m.role == "user" {
-            api_msgs.push(ApiMessage::user(&m.content));
-        } else {
-            api_msgs.push(ApiMessage::assistant(&m.content));
-        }
-    }
-    let summary = client.complete_once(&model, &api_msgs)?;
-    let truncated: String = summary.chars().take(40).collect();
-    Ok(truncated)
+    title::generate_title(client, messages)
 }
 
 // ── Memory extraction ─────────────────────────────────────────────────────────
