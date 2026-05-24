@@ -33,9 +33,18 @@ pub fn run(args: CliArgs) -> anyhow::Result<()> {
     // same experience as pressing Cmd+L from the keyboard.
     let inside_kaku = std::env::var_os("KAKU_UNIX_SOCKET").is_some();
     if inside_kaku && args.prompt.is_none() && !args.new && args.resume.is_none() {
+        use base64::engine::general_purpose::STANDARD;
+        use base64::Engine as _;
         use std::io::Write;
-        // base64("1") = "MQ=="
-        print!("\x1b]1337;SetUserVar=kaku_open_ai_chat=MQ==\x07");
+        // The receiving terminal suppresses SetUserVar alerts when the decoded
+        // value matches the previous one, so each invocation needs a unique
+        // payload to re-trigger the overlay after the user closed it.
+        let nonce = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .map(|d| d.as_nanos())
+            .unwrap_or(0);
+        let encoded = STANDARD.encode(nonce.to_string());
+        print!("\x1b]1337;SetUserVar=kaku_open_ai_chat={}\x07", encoded);
         let _ = std::io::stdout().flush();
         return Ok(());
     }
