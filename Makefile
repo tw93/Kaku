@@ -14,6 +14,7 @@ check:
 	cargo check --locked -p wezterm-cell
 	cargo check --locked -p wezterm-surface
 	cargo check --locked -p wezterm-ssh
+	./scripts/check_prompts.sh
 
 app:
 	PROFILE=debug ./scripts/build.sh --app-only 2>&1 | grep -v "ranlib: warning:.*has no symbols"; exit $${PIPESTATUS[0]}
