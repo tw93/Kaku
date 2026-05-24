@@ -3,18 +3,106 @@ use crate::utilsprites::RenderMetrics;
 use ::window::{Dimensions, ResizeIncrement, Window, WindowOps, WindowState};
 use config::{Config, ConfigHandle, DimensionContext};
 use mux::Mux;
+use std::collections::HashMap;
 use std::fs;
 use std::path::PathBuf;
 use std::rc::Rc;
 use std::sync::{Mutex, OnceLock};
-use std::time::SystemTime;
+use std::time::{Duration, SystemTime};
 use wezterm_font::FontConfiguration;
 use wezterm_term::TerminalSize;
 
-#[derive(Debug, Clone, Copy)]
+const FONT_SCALE_PTY_RESIZE_DEBOUNCE: Duration = Duration::from_millis(750);
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct RowsAndCols {
     pub rows: usize,
     pub cols: usize,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct DeferredFontScalePtyResize {
+    epoch: u64,
+    last_cells: RowsAndCols,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum DeferredFontScalePtyResizeAction {
+    Stale,
+    Remove,
+    Keep(DeferredFontScalePtyResize),
+}
+
+static DEFERRED_FONT_SCALE_PTY_RESIZES: OnceLock<
+    Mutex<HashMap<usize, DeferredFontScalePtyResize>>,
+> = OnceLock::new();
+
+fn deferred_font_scale_pty_resizes() -> &'static Mutex<HashMap<usize, DeferredFontScalePtyResize>> {
+    DEFERRED_FONT_SCALE_PTY_RESIZES.get_or_init(|| Mutex::new(HashMap::new()))
+}
+
+fn mark_deferred_font_scale_pty_resize(
+    window_id: usize,
+    current_cells: RowsAndCols,
+) -> DeferredFontScalePtyResize {
+    let mut deferred = deferred_font_scale_pty_resizes().lock().unwrap();
+    let prior = deferred.get(&window_id).copied();
+    let state = DeferredFontScalePtyResize {
+        epoch: prior.map(|state| state.epoch.wrapping_add(1)).unwrap_or(1),
+        last_cells: current_cells,
+    };
+    deferred.insert(window_id, state);
+    state
+}
+
+fn has_deferred_font_scale_pty_resize(window_id: usize) -> bool {
+    deferred_font_scale_pty_resizes()
+        .lock()
+        .unwrap()
+        .contains_key(&window_id)
+}
+
+fn finish_deferred_font_scale_pty_resize(
+    window_id: usize,
+    epoch: u64,
+    current_cells: RowsAndCols,
+) -> DeferredFontScalePtyResizeAction {
+    let mut deferred = deferred_font_scale_pty_resizes().lock().unwrap();
+    match deferred.get(&window_id).copied() {
+        Some(state) if state.epoch == epoch => {
+            if state.last_cells != current_cells {
+                let next = DeferredFontScalePtyResize {
+                    epoch: state.epoch.wrapping_add(1),
+                    last_cells: current_cells,
+                };
+                deferred.insert(window_id, next);
+                DeferredFontScalePtyResizeAction::Keep(next)
+            } else {
+                deferred.remove(&window_id);
+                DeferredFontScalePtyResizeAction::Remove
+            }
+        }
+        _ => DeferredFontScalePtyResizeAction::Stale,
+    }
+}
+
+#[cfg(test)]
+fn clear_deferred_font_scale_pty_resize_for_test(window_id: usize) {
+    deferred_font_scale_pty_resizes()
+        .lock()
+        .unwrap()
+        .remove(&window_id);
+}
+
+fn schedule_deferred_font_scale_pty_resize_epoch(window: &Window, epoch: u64) {
+    let window = window.clone();
+    promise::spawn::spawn_into_main_thread(async move {
+        smol::Timer::after(FONT_SCALE_PTY_RESIZE_DEBOUNCE).await;
+        window.notify(super::TermWindowNotif::Apply(Box::new(move |tw| {
+            tw.flush_deferred_font_scale_pty_resize(epoch);
+        })));
+    })
+    .detach();
 }
 
 #[derive(Debug)]
@@ -259,17 +347,42 @@ impl super::TermWindow {
         }
     }
 
-    fn flush_pending_pty_resize(&mut self) {
-        if !self.pending_pty_flush_after_resize {
-            return;
-        }
-        self.pending_pty_flush_after_resize = false;
+    fn flush_all_pane_pty_sizes(&mut self) {
         let mux = Mux::get();
         if let Some(window) = mux.get_window(self.mux_window_id) {
             for tab in window.iter() {
                 tab.flush_pane_pty_sizes();
             }
         };
+    }
+
+    fn flush_pending_pty_resize(&mut self) {
+        if !self.pending_pty_flush_after_resize {
+            return;
+        }
+        self.pending_pty_flush_after_resize = false;
+        self.flush_all_pane_pty_sizes();
+    }
+
+    fn schedule_deferred_font_scale_pty_resize(&mut self, window: &Window) {
+        let state =
+            mark_deferred_font_scale_pty_resize(self.mux_window_id, self.current_cell_dimensions());
+        schedule_deferred_font_scale_pty_resize_epoch(window, state.epoch);
+    }
+
+    fn flush_deferred_font_scale_pty_resize(&mut self, epoch: u64) {
+        match finish_deferred_font_scale_pty_resize(
+            self.mux_window_id,
+            epoch,
+            self.current_cell_dimensions(),
+        ) {
+            DeferredFontScalePtyResizeAction::Keep(next) => {
+                if let Some(window) = self.window.as_ref() {
+                    schedule_deferred_font_scale_pty_resize_epoch(window, next.epoch);
+                }
+            }
+            DeferredFontScalePtyResizeAction::Remove | DeferredFontScalePtyResizeAction::Stale => {}
+        }
     }
 
     pub fn apply_pending_scale_changes(&mut self) {
@@ -570,10 +683,12 @@ impl super::TermWindow {
         self.terminal_size = size;
 
         let live = self.live_resizing;
+        let defer_font_scale_pty_resize =
+            !live && has_deferred_font_scale_pty_resize(self.mux_window_id);
         let mux = Mux::get();
         if let Some(window) = mux.get_window(self.mux_window_id) {
             for tab in window.iter() {
-                if live {
+                if live || defer_font_scale_pty_resize {
                     tab.resize_visual(size);
                 } else {
                     tab.resize(size);
@@ -589,6 +704,9 @@ impl super::TermWindow {
         };
         if live {
             self.pending_pty_flush_after_resize = true;
+        }
+        if defer_font_scale_pty_resize {
+            self.schedule_deferred_font_scale_pty_resize(window);
         }
         self.resize_overlays();
         self.invalidate_fancy_tab_bar();
@@ -740,6 +858,8 @@ impl super::TermWindow {
     /// the `adjust_window_size_when_changing_font_size` configuration and
     /// revises the scaling/resize change accordingly
     pub fn adjust_font_scale(&mut self, font_scale: f64, window: &Window) {
+        mark_deferred_font_scale_pty_resize(self.mux_window_id, self.current_cell_dimensions());
+
         let adjust_window_size_when_changing_font_size =
             match self.config.adjust_window_size_when_changing_font_size {
                 Some(value) => value,
@@ -1149,11 +1269,14 @@ pub fn effective_right_padding(config: &Config, context: DimensionContext) -> us
 #[cfg(test)]
 mod tests {
     use super::{
-        effective_top_padding, effective_vertical_padding_with_policy,
+        clear_deferred_font_scale_pty_resize_for_test, effective_top_padding,
+        effective_vertical_padding_with_policy, finish_deferred_font_scale_pty_resize,
+        has_deferred_font_scale_pty_resize, mark_deferred_font_scale_pty_resize,
         rebalance_top_padding_for_bottom_gap, should_defer_screen_change_scale_update,
         should_normalize_fullscreen_state_on_resize,
         should_preserve_terminal_cells_on_scale_change,
         should_rebalance_top_tab_visible_bottom_gap, user_custom_window_padding_config_path,
+        DeferredFontScalePtyResizeAction, RowsAndCols,
     };
     use config::{Config, ConfigHandle, DimensionContext};
     use std::path::PathBuf;
@@ -1171,6 +1294,80 @@ mod tests {
             config.window_padding.top.evaluate_as_pixels(context()) as usize,
             config.window_padding.bottom.evaluate_as_pixels(context()) as usize,
         )
+    }
+
+    #[test]
+    fn deferred_font_scale_resize_keeps_visual_only_until_cells_stabilize() {
+        let window_id = usize::MAX - 407;
+        clear_deferred_font_scale_pty_resize_for_test(window_id);
+
+        let first = mark_deferred_font_scale_pty_resize(
+            window_id,
+            RowsAndCols {
+                rows: 39,
+                cols: 177,
+            },
+        );
+        let second = mark_deferred_font_scale_pty_resize(
+            window_id,
+            RowsAndCols {
+                rows: 35,
+                cols: 168,
+            },
+        );
+
+        assert!(has_deferred_font_scale_pty_resize(window_id));
+        assert_eq!(second.epoch, first.epoch + 1);
+        assert_eq!(
+            second.last_cells,
+            RowsAndCols {
+                rows: 35,
+                cols: 168
+            }
+        );
+
+        assert_eq!(
+            finish_deferred_font_scale_pty_resize(
+                window_id,
+                first.epoch,
+                RowsAndCols {
+                    rows: 35,
+                    cols: 168,
+                },
+            ),
+            DeferredFontScalePtyResizeAction::Stale
+        );
+        assert_eq!(
+            finish_deferred_font_scale_pty_resize(
+                window_id,
+                second.epoch,
+                RowsAndCols {
+                    rows: 30,
+                    cols: 135,
+                },
+            ),
+            DeferredFontScalePtyResizeAction::Keep(super::DeferredFontScalePtyResize {
+                epoch: second.epoch + 1,
+                last_cells: RowsAndCols {
+                    rows: 30,
+                    cols: 135
+                }
+            })
+        );
+        assert!(has_deferred_font_scale_pty_resize(window_id));
+
+        assert_eq!(
+            finish_deferred_font_scale_pty_resize(
+                window_id,
+                second.epoch + 1,
+                RowsAndCols {
+                    rows: 30,
+                    cols: 135,
+                },
+            ),
+            DeferredFontScalePtyResizeAction::Remove
+        );
+        assert!(!has_deferred_font_scale_pty_resize(window_id));
     }
 
     fn effective_vertical_padding(
