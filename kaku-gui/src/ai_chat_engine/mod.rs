@@ -5,6 +5,7 @@
 
 pub(crate) mod approval;
 pub(crate) mod compact;
+pub(crate) mod summarize;
 
 use crate::ai_client::{should_roundtrip_reasoning_content, AiClient, ApiMessage};
 use crate::ai_conversations::{self, PersistedMessage};
@@ -338,6 +339,20 @@ pub(crate) fn run_agent(
             compact::micro_compact(&mut messages, round - 1, outputs_dir.as_deref());
         }
 
+        let history_bytes: usize = messages.iter().map(|m| m.byte_len()).sum();
+        // Try summarization first: cheaper context fold than the hard wrap-up
+        // nag. Uses fast_model when available so cost stays low.
+        if history_bytes >= summarize::SUMMARIZE_THRESHOLD_BYTES
+            && history_bytes < MAX_HISTORY_BYTES
+        {
+            let summ_model = client
+                .config()
+                .fast_model
+                .as_deref()
+                .filter(|s| !s.is_empty())
+                .unwrap_or(&model);
+            summarize::summarize_in_place(&client, summ_model, &mut messages);
+        }
         let history_bytes: usize = messages.iter().map(|m| m.byte_len()).sum();
         if history_bytes >= MAX_HISTORY_BYTES {
             compact::micro_compact(&mut messages, round, outputs_dir.as_deref());
