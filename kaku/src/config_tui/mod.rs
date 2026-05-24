@@ -453,6 +453,15 @@ impl App {
                 options: vec!["On", "Off"],
                 skip_write: false,
             },
+            ConfigField {
+                section: "Behavior",
+                key: "Smart Tab",
+                lua_key: "smart_tab_mode",
+                value: String::new(),
+                default: "Completion First".into(),
+                options: vec!["Completion First", "Suggestion First", "Off"],
+                skip_write: false,
+            },
         ];
 
         Self {
@@ -869,6 +878,15 @@ impl App {
                     Some("On".into())
                 } else {
                     None
+                }
+            }
+            "smart_tab_mode" => {
+                let value = raw.trim().trim_matches('\'').trim_matches('"');
+                match value {
+                    "completion_first" => Some("Completion First".into()),
+                    "suggestion_first" => Some("Suggestion First".into()),
+                    "off" => Some("Off".into()),
+                    _ => None,
                 }
             }
             "macos_global_hotkey" => {
@@ -1439,6 +1457,18 @@ impl App {
                     "{ 'calt=0', 'clig=0', 'liga=0' }".into()
                 }
             }
+            "smart_tab_mode" => {
+                let effective = if field.value.is_empty() {
+                    &field.default
+                } else {
+                    &field.value
+                };
+                match effective.as_str() {
+                    "Suggestion First" => "'suggestion_first'".into(),
+                    "Off" => "'off'".into(),
+                    _ => "'completion_first'".into(),
+                }
+            }
             "macos_global_hotkey" => {
                 if field.value.is_empty() {
                     "nil".into()
@@ -1539,6 +1569,41 @@ mod tests {
         app.fields[idx].value = "Top".to_string();
 
         assert_eq!(app.to_lua_value(&app.fields[idx]), "false");
+    }
+
+    #[test]
+    fn smart_tab_mode_round_trips_display_and_lua_values() {
+        assert_eq!(
+            App::normalize_value("smart_tab_mode", "'completion_first'"),
+            Some("Completion First".into())
+        );
+        assert_eq!(
+            App::normalize_value("smart_tab_mode", "\"suggestion_first\""),
+            Some("Suggestion First".into())
+        );
+        assert_eq!(
+            App::normalize_value("smart_tab_mode", "'off'"),
+            Some("Off".into())
+        );
+        assert_eq!(App::normalize_value("smart_tab_mode", "'unknown'"), None);
+    }
+
+    #[test]
+    fn smart_tab_mode_serializes_selected_option() {
+        let mut app = test_app();
+        let idx = app
+            .fields
+            .iter()
+            .position(|f| f.lua_key == "smart_tab_mode")
+            .expect("smart_tab_mode field to exist");
+
+        assert_eq!(app.to_lua_value(&app.fields[idx]), "'completion_first'");
+
+        app.fields[idx].value = "Suggestion First".to_string();
+        assert_eq!(app.to_lua_value(&app.fields[idx]), "'suggestion_first'");
+
+        app.fields[idx].value = "Off".to_string();
+        assert_eq!(app.to_lua_value(&app.fields[idx]), "'off'");
     }
 
     #[test]
