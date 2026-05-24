@@ -803,12 +803,27 @@ function __kaku_ai_query_execute
                     return
                 end
             end
-            set -l query (string replace -r '^#\s*' '' -- $cmd)
+            # Prefix variants:
+            #   '#? ...'  -> force explain (skip command synthesis)
+            #   '## ...'  -> request multiple command candidates as a list
+            #   '# ...'   -> default (model classifies the intent)
+            # NB: fish's `string match` defaults to glob; '?' is a single-char
+            # wildcard there, so we use -r (regex) for the first-char checks.
+            set -l mode auto
+            set -l body (string sub -s 2 -- $cmd)
+            if string match -qr '^\?' -- $body
+                set mode explain
+                set body (string sub -s 2 -- $body)
+            else if string match -qr '^#' -- $body
+                set mode candidates
+                set body (string sub -s 2 -- $body)
+            end
+            set -l query (string trim -- $body)
             if test -n "$query"
                 builtin history append -- $cmd
                 set -g __kaku_ai_waiting 1
                 set -g __kaku_ai_waiting_ts (date +%s)
-                __kaku_set_user_var kaku_ai_query $query
+                __kaku_set_user_var kaku_ai_query "[mode:$mode] $query"
                 # Clear the submitted comment immediately so generated commands
                 # cannot append after the stale "# query" buffer.
                 commandline -r ""

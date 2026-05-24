@@ -1392,11 +1392,23 @@ _kaku_ai_query_accept_line() {
     fi
     # Only intercept a single-line comment (no newlines in buffer)
     if [[ -z "\${KAKU_AUTO_DISABLE:-}" && -n "\$BUFFER" && "\${BUFFER[1]}" == '#' && "\$BUFFER" != *\$'\\n'* ]]; then
-        local query="\${BUFFER:1}"
-        query="\${query# }"
-        if [[ -n "\$query" ]]; then
+        # Prefix variants:
+        #   '#? ...'  -> force explain (skip command synthesis)
+        #   '## ...'  -> request multiple command candidates as a list
+        #   '# ...'   -> default (model classifies the intent)
+        local mode="auto"
+        local body="\${BUFFER:1}"
+        if [[ "\${body[1]}" == '?' ]]; then
+            mode="explain"
+            body="\${body:1}"
+        elif [[ "\${body[1]}" == '#' ]]; then
+            mode="candidates"
+            body="\${body:1}"
+        fi
+        body="\${body# }"
+        if [[ -n "\$body" ]]; then
             print -s -- "\${BUFFER}"
-            _kaku_set_user_var "kaku_ai_query" "\$query"
+            _kaku_set_user_var "kaku_ai_query" "[mode:\${mode}] \${body}"
             _kaku_ai_waiting=1
             _kaku_ai_waiting_ts=\$EPOCHSECONDS
             # Keep # query visible; Lua sends \x15 to clear it when result arrives.

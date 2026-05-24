@@ -259,6 +259,7 @@ echo "[4/7] Copying resources and binaries..."
 cp -R assets/shell-integration/* "$APP_BUNDLE_OUT/Contents/Resources/"
 cp -R assets/shell-completion "$APP_BUNDLE_OUT/Contents/Resources/"
 cp -R assets/fonts "$APP_BUNDLE_OUT/Contents/Resources/"
+cp -R assets/prompts "$APP_BUNDLE_OUT/Contents/Resources/"
 mkdir -p "$APP_BUNDLE_OUT/Contents/Resources/vendor"
 for vendor_item in starship.toml fast-syntax-highlighting zsh-autosuggestions zsh-completions zsh-z; do
 	src_path="assets/vendor/$vendor_item"
