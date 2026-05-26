@@ -1,15 +1,19 @@
-# Kaku startup time budget (P95, milliseconds). Exceeding these in CI causes
-# the startup-bench job to fail (currently soft-gated via continue-on-error).
+# Kaku startup time budget (milliseconds). Local-only tool. Not wired into CI
+# in V0.12.0 because no real baseline has been captured yet, and `0` placeholder
+# values would make the gate vacuous. To enable a real budget:
 #
-# Both values are placeholders until a real baseline is captured. To populate:
-#   1. Run `./scripts/measure_startup_kaku.sh` locally ~10 times.
-#   2. Take the P95 of cold_start_ms and warm_start_ms across runs.
-#   3. Multiply each by 1.2 (20% headroom for natural variance).
+#   1. Run `./scripts/measure_startup_kaku.sh` locally ~10 times on the
+#      target machine (typically an M-series Mac you actually use).
+#   2. Take the mean of cold_start_ms and warm_start_ms across runs (the
+#      script reports hyperfine `mean`, not P95 - revisit if you need P95).
+#   3. Multiply each by 1.5 to leave headroom for noise.
 #   4. Replace the zeros below.
-#   5. Flip the CI job from `continue-on-error: true` to a hard gate.
+#   5. Re-add a `startup-bench` job to `.github/workflows/ci.yml`, point it
+#      at `./scripts/check_startup_budget.sh`, and decide whether to start
+#      it as a soft gate (continue-on-error) or hard gate.
 #
-# Zero means "no enforcement yet" (check_startup_budget.sh prints a warning
-# and exits 0 in that case).
+# Zero means "no enforcement" (check_startup_budget.sh prints a warning and
+# exits 0 in that case), so the script is safe to run ad hoc.
 
 cold_start_p95_ms = 0
 warm_start_p95_ms = 0

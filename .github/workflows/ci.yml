@@ -270,65 +270,6 @@ jobs:
           lipo -info target/universal/release/kaku
           lipo -info target/universal/release/kaku-gui
 
-  startup-bench:
-    # Soft gate: cold-start regression watcher. Currently `continue-on-error`
-    # because (a) GitHub-hosted macOS runners have noisy shared vCPU timings,
-    # and (b) hyperfine + osascript window detection has not been validated on
-    # actions/runner-images yet. Once `scripts/startup_budget.toml` is populated
-    # from a real baseline, flip continue-on-error
-    # off to make this a hard gate.
-    name: Startup Budget (soft)
-    runs-on: macos-latest
-    needs: [app-bundle]
-    continue-on-error: true
-    steps:
-      - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-
-      - name: Install hyperfine + jq
-        run: brew install hyperfine jq
-
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@631a55b12751854ce901bb631d5902ceb48146f7 # stable
-        with:
-          toolchain: 1.93.0
-
-      - name: Cache Cargo
-        uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2
-
-      - name: Build app bundle
-        run: ./scripts/build.sh --native-arch --app-only
-
-      - name: Measure startup
-        id: measure-startup
-        run: |
-          if ./scripts/measure_startup_kaku.sh > startup.json; then
-            echo "measured=true" >> "$GITHUB_OUTPUT"
-          else
-            status=$?
-            echo "measured=false" >> "$GITHUB_OUTPUT"
-            cat > startup.json <<EOF
-          {
-            "error": "startup measurement failed",
-            "exit_status": $status,
-            "host": "$(hostname)",
-            "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          }
-          EOF
-            echo "::warning::startup measurement failed with exit status ${status}; soft budget check skipped"
-          fi
-
-      - name: Check budget
-        if: steps.measure-startup.outputs.measured == 'true'
-        run: ./scripts/check_startup_budget.sh startup.json
-
-      - name: Upload report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: startup-report
-          path: startup.json
-
   app-bundle:
     name: App Bundle Validation
     runs-on: macos-latest
