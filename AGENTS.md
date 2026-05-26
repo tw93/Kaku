@@ -101,7 +101,7 @@ For GUI or rendering issues, read `kaku-gui/AGENTS.md` first and verify with `ma
 ## Current Risk Areas
 
 - AI chat and shell flows are active product surfaces. Preserve `fast_model`, proxy config, inline `#` query status, syntax highlighting, approval flow, and conversation state behavior.
-- Config release work currently centers on `config_version` 20. Config schema changes must update bundled defaults, docs, release checks, and migration behavior together.
+- Config release work currently centers on `config_version` 21. Config schema changes must update bundled defaults, docs, release checks, and migration behavior together. v21 adds `smart_tab_mode`, introduces the optional `SmartPrompt` value for `window_close_confirmation` (default stays `NeverPrompt`), and accepts the removed `language` option as a deprecated field for backward compat.
 - GUI regressions can come from overlay resize, pane split/removal, macOS worker thread lifetime, WebGPU surface reconfigure, tab bar spacing, and alternate-screen wheel scroll behavior.
 - Startup performance depends on caching shell user vars, Lua bytecode, early appearance queries, GLSL version, and built-in fonts. Do not invalidate those caches without measurement.
 - Notification actions that call back into Kaku should resolve bundled executables relative to the running app, not an assumed system path.

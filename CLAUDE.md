@@ -27,7 +27,7 @@ make app
 ## Project-Specific Rules
 
 - AI chat and shell flows are core product surfaces. Before changing `kaku-gui/src/ai_*`, `ai_chat_engine/`, `cli_chat/`, or `overlay/ai_chat/`, read `kaku-gui/AGENTS.md`.
-- Config release work currently uses `config_version: 20`. Schema changes must update bundled defaults, docs, release checks, and migration behavior together.
+- Config release work currently uses `config_version: 21`. Schema changes must update bundled defaults, docs, release checks, and migration behavior together. v21 adds `smart_tab_mode`, introduces the optional `SmartPrompt` value for `window_close_confirmation` (default stays `NeverPrompt`), and accepts the removed `language` option as a deprecated field for backward compat.
 - Startup performance depends on shell user-var caching, Lua bytecode, early appearance queries, GLSL version detection, and bundled font caching. Measure before invalidating those paths.
 - Notification actions that call back into Kaku must resolve bundled executables relative to the running app.
 - macOS menu and window changes need runtime validation in the app bundle, not only a successful compile.
