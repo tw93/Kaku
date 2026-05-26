@@ -985,7 +985,7 @@ impl super::TermWindow {
         match event.kind {
             WMEK::Press(MousePress::Left) => {
                 log::debug!("Should close tab {}", idx);
-                self.close_specific_tab(idx, false);
+                self.close_specific_tab(idx, true);
             }
             _ => {}
         }
@@ -1131,7 +1131,7 @@ impl super::TermWindow {
             WMEK::Press(MousePress::Middle) => match item {
                 TabBarItem::Tab { tab_idx, .. } => {
                     self.tab_drag_state = None;
-                    self.close_specific_tab(tab_idx, false);
+                    self.close_specific_tab(tab_idx, true);
                 }
                 TabBarItem::NewTabButton { .. } => {
                     self.tab_drag_state = None;

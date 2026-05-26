@@ -987,6 +987,21 @@ mod tests {
     }
 
     #[test]
+    fn bundled_kaku_lua_sets_colorfgbg_from_user_theme_scan() {
+        let bundled = Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../assets/macos/Kaku.app/Contents/Resources/kaku.lua");
+        let content = std::fs::read_to_string(&bundled).expect("read bundled kaku.lua");
+
+        assert!(
+            content.contains("local initial_is_light_theme = is_user_light_theme()")
+                && content.contains(
+                    "config.set_environment_variables['COLORFGBG'] = initial_is_light_theme and '0;15' or '15;0'"
+                ),
+            "COLORFGBG must follow the user's intended theme, not the bundled pre-override color_scheme"
+        );
+    }
+
+    #[test]
     fn bundled_kaku_lua_closes_fullscreen_last_window_on_cmd_w() {
         let bundled = Path::new(env!("CARGO_MANIFEST_DIR"))
             .join("../assets/macos/Kaku.app/Contents/Resources/kaku.lua");
@@ -996,6 +1011,47 @@ mod tests {
             content.contains("local is_full_screen = dims and dims.is_full_screen")
                 && content.contains("if should_close_tab or is_full_screen then"),
             "Cmd+W should close the last fullscreen tab instead of hiding the app"
+        );
+    }
+
+    #[test]
+    fn bundled_kaku_lua_defaults_close_confirmation_to_smart_prompt() {
+        let bundled = Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../assets/macos/Kaku.app/Contents/Resources/kaku.lua");
+        let content = std::fs::read_to_string(&bundled).expect("read bundled kaku.lua");
+
+        assert!(
+            content.contains("config.tab_close_confirmation = 'SmartPrompt'")
+                && content.contains("config.pane_close_confirmation = 'SmartPrompt'"),
+            "bundled kaku.lua should default tab and pane close confirmation to SmartPrompt"
+        );
+    }
+
+    #[test]
+    fn bundled_kaku_lua_enables_minimum_text_contrast() {
+        let bundled = Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../assets/macos/Kaku.app/Contents/Resources/kaku.lua");
+        let content = std::fs::read_to_string(&bundled).expect("read bundled kaku.lua");
+
+        assert!(
+            content.contains("config.text_min_contrast_ratio = 3.0"),
+            "bundled kaku.lua should guard against low-contrast terminal text"
+        );
+    }
+
+    #[test]
+    fn bundled_kaku_dark_maps_black_foregrounds_to_readable_text() {
+        let bundled = Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../assets/macos/Kaku.app/Contents/Resources/kaku.lua");
+        let content = std::fs::read_to_string(&bundled).expect("read bundled kaku.lua");
+
+        assert!(
+            content.contains("ANSI_BLACK = '#c8c6cc'")
+                && content.contains("[KAKU.ANSI_BLACK] = KAKU.BLACK")
+                && content.contains("['#000000'] = KAKU.WHITE")
+                && content.contains("['#15141b'] = KAKU.WHITE")
+                && content.contains("['#1c1c1c'] = KAKU.WHITE"),
+            "Kaku Dark should render Hermes black foregrounds as readable light text"
         );
     }
 }

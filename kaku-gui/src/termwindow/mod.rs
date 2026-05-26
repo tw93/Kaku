@@ -5207,8 +5207,12 @@ impl TermWindow {
         };
 
         let pane_id = pane.pane_id();
-        let should_confirm = self.config.pane_close_confirmation
-            || (confirm && !pane.can_close_without_prompting(CloseReason::Pane));
+        let should_confirm = self
+            .config
+            .pane_close_confirmation
+            .should_prompt(confirm, || {
+                pane.can_close_without_prompting(CloseReason::Pane)
+            });
         if should_confirm {
             if let Some(window) = self.window.clone() {
                 let (overlay, future) = start_overlay_pane(self, &pane, move |pane_id, term| {
@@ -5237,8 +5241,12 @@ impl TermWindow {
         drop(mux_window);
 
         let tab_id = tab.tab_id();
-        let should_confirm = self.config.tab_close_confirmation
-            || (confirm && !tab.can_close_without_prompting(CloseReason::Tab));
+        let should_confirm = self
+            .config
+            .tab_close_confirmation
+            .should_prompt(confirm, || {
+                tab.can_close_without_prompting(CloseReason::Tab)
+            });
         if should_confirm {
             if self.activate_tab(tab_idx as isize).is_err() {
                 return;
@@ -5265,8 +5273,12 @@ impl TermWindow {
         let tab_id = tab.tab_id();
         let mux_window_id = self.mux_window_id;
 
-        let should_confirm = self.config.tab_close_confirmation
-            || (confirm && !tab.can_close_without_prompting(CloseReason::Tab));
+        let should_confirm = self
+            .config
+            .tab_close_confirmation
+            .should_prompt(confirm, || {
+                tab.can_close_without_prompting(CloseReason::Tab)
+            });
         if should_confirm {
             // Tab has running processes; ask the user first.
             // We do not record the cwd here: the user may cancel, and we cannot

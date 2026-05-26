@@ -20,11 +20,45 @@ read_bundled_config_version() {
 	return 1
 }
 
+config_update_highlight_language() {
+	local explicit="${KAKU_CONFIG_UPDATE_LANGUAGE:-${KAKU_UPDATE_LANGUAGE:-}}"
+	case "$explicit" in
+		zh* | ZH* | cn | CN | 中文)
+			printf 'zh\n'
+			return
+			;;
+		en* | EN*)
+			printf 'en\n'
+			return
+			;;
+	esac
+
+	local locale="${LC_ALL:-} ${LC_MESSAGES:-} ${LANG:-}"
+	case "$locale" in
+		*zh* | *ZH*)
+			printf 'zh\n'
+			;;
+		*)
+			printf 'en\n'
+			;;
+	esac
+}
+
+detect_config_highlight_language() {
+	local highlight="$1"
+	if [[ "$highlight" == *[一-龥]* ]]; then
+		printf 'zh\n'
+	else
+		printf 'en\n'
+	fi
+}
+
 print_config_update_highlights() {
 	local script_dir="$1"
 	local from_version="$2"
 	local target_version="$3"
 	local highlights_file="$script_dir/config_update_highlights.tsv"
+	local target_language="${4:-$(config_update_highlight_language)}"
 	local found=1
 	local seen=$'\n'
 	local wrap_width=72
@@ -44,6 +78,9 @@ print_config_update_highlights() {
 		if [[ -z "${version:-}" || "$version" == \#* || -z "${highlight:-}" ]]; then
 			continue
 		fi
+		if [[ "$(detect_config_highlight_language "$highlight")" != "$target_language" ]]; then
+			continue
+		fi
 		if [[ "$version" =~ ^[0-9]+$ ]] && (( version > from_version && version <= target_version )); then
 			if [[ "$version" != "$prev_v" ]]; then
 				(( group_count++ ))
@@ -54,6 +91,9 @@ print_config_update_highlights() {
 
 	while IFS=$'\t' read -r version highlight; do
 		if [[ -z "${version:-}" || "$version" == \#* || -z "${highlight:-}" ]]; then
+			continue
+		fi
+		if [[ "$(detect_config_highlight_language "$highlight")" != "$target_language" ]]; then
 			continue
 		fi
 

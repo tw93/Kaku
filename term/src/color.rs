@@ -60,7 +60,7 @@ pub struct ColorPalette {
     /// Map rendered background colors to replacement colors.
     #[cfg_attr(feature = "use_serde", serde(default))]
     pub color_overrides: HashMap<SrgbaTuple, SrgbaTuple>,
-    /// Map true color foregrounds to replacement colors.
+    /// Map default and true color foregrounds to replacement colors.
     #[cfg_attr(feature = "use_serde", serde(default))]
     pub foreground_color_overrides: HashMap<SrgbaTuple, SrgbaTuple>,
 }
@@ -100,7 +100,9 @@ impl ColorPalette {
 
     pub fn resolve_fg(&self, color: ColorAttribute) -> SrgbaTuple {
         match color {
-            ColorAttribute::Default => self.foreground,
+            ColorAttribute::Default => {
+                Self::apply_override(&self.foreground_color_overrides, self.foreground)
+            }
             ColorAttribute::PaletteIndex(idx) => self.colors.0[idx as usize],
             ColorAttribute::TrueColorWithPaletteFallback(color, _)
             | ColorAttribute::TrueColorWithDefaultFallback(color) => {
@@ -258,17 +260,25 @@ mod tests {
     }
 
     #[test]
-    fn foreground_override_does_not_change_default_or_ansi_foreground() {
+    fn foreground_override_applies_to_default_foreground() {
+        let mut palette = ColorPalette::default();
+        let foreground = palette.foreground;
+        let readable = rgb(0xc8, 0xc6, 0xcc);
+        palette
+            .foreground_color_overrides
+            .insert(foreground, readable);
+
+        assert_eq!(palette.resolve_fg(ColorAttribute::Default), readable);
+    }
+
+    #[test]
+    fn foreground_override_does_not_change_ansi_foreground() {
         let mut palette = ColorPalette::default();
         let ansi_yellow = palette.colors.0[AnsiColor::Yellow as usize];
         palette
             .foreground_color_overrides
             .insert(ansi_yellow, rgb(0x57, 0x56, 0x53));
 
-        assert_eq!(
-            palette.resolve_fg(ColorAttribute::Default),
-            palette.foreground
-        );
         assert_eq!(
             palette.resolve_fg(ColorAttribute::PaletteIndex(AnsiColor::Yellow as u8)),
             ansi_yellow

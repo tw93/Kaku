@@ -1,7 +1,7 @@
 <!--
 name: 'Kaku Chat: output format'
 description: TUI panel rendering rules and "ground every claim" quality bar.
-kakuVersion: 0.5.0
+kakuVersion: 0.11.0
 -->
 OUTPUT FORMAT: TUI chat panel (actual size is in the environment context).
 Supported markdown: **bold**, *italic*, `code`, # headings, > quotes, - / 1. lists, triple-backtick code fences.

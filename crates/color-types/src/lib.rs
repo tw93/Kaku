@@ -1095,7 +1095,7 @@ impl LinearRgba {
 
         let increased_lum = ((bg_lum + 0.05) * min_ratio - 0.05).clamp(0.05, 1.0);
         let increased_col = Self::from_oklaba(increased_lum, fg_a, fg_b, fg_alpha);
-        let increased_ratio = reduced_col.contrast_ratio(other);
+        let increased_ratio = increased_col.contrast_ratio(other);
 
         // Prefer the reduced luminance version if the fg is dimmer than bg
         if fg_lum < bg_lum {
@@ -1109,6 +1109,19 @@ impl LinearRgba {
         }
         if reduced_ratio >= min_ratio {
             return Some(reduced_col);
+        }
+
+        let black = Self::with_components(0.0, 0.0, 0.0, fg_alpha);
+        let white = Self::with_components(1.0, 1.0, 1.0, fg_alpha);
+        let black_ratio = black.contrast_ratio(other);
+        let white_ratio = white.contrast_ratio(other);
+        let (fallback_col, fallback_ratio) = if black_ratio >= white_ratio {
+            (black, black_ratio)
+        } else {
+            (white, white_ratio)
+        };
+        if fallback_ratio >= min_ratio {
+            return Some(fallback_col);
         }
 
         // Didn't find one that satifies the min_ratio, but did we find
@@ -1203,6 +1216,19 @@ mod tests {
             "contrast({}) == 2.91",
             contrast_ratio
         );
+    }
+
+    #[cfg(feature = "std")]
+    #[test]
+    fn ensure_contrast_ratio_brightens_dark_text_on_dark_background() {
+        let fg = LinearRgba::with_srgba(0x10, 0x0f, 0x0f, 0xff);
+        let bg = LinearRgba::with_srgba(0x15, 0x14, 0x1b, 0xff);
+        let adjusted = fg
+            .ensure_contrast_ratio(&bg, 3.0)
+            .expect("dark foreground should be adjusted on a dark background");
+
+        assert!(adjusted.contrast_ratio(&bg) >= 3.0);
+        assert!(adjusted.relative_luminance() > fg.relative_luminance());
     }
 
     #[test]

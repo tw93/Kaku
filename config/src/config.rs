@@ -729,7 +729,7 @@ pub struct Config {
     #[dynamic(default = "default_anim_fps")]
     pub animation_fps: u8,
 
-    #[dynamic(default)]
+    #[dynamic(default = "default_text_min_contrast_ratio")]
     pub text_min_contrast_ratio: Option<f32>,
 
     #[dynamic(default)]
@@ -837,13 +837,13 @@ pub struct Config {
     #[dynamic(default)]
     pub window_close_confirmation: WindowCloseConfirmation,
 
-    /// When true, always ask for confirmation before closing a tab.
+    /// Controls confirmation before closing a tab.
     #[dynamic(default)]
-    pub tab_close_confirmation: bool,
+    pub tab_close_confirmation: CloseConfirmation,
 
-    /// When true, always ask for confirmation before closing a pane.
+    /// Controls confirmation before closing a pane.
     #[dynamic(default)]
-    pub pane_close_confirmation: bool,
+    pub pane_close_confirmation: CloseConfirmation,
 
     #[dynamic(default)]
     pub native_macos_fullscreen_mode: bool,
@@ -2453,6 +2453,73 @@ mod tests {
         assert_eq!(config.smart_tab_mode, super::SmartTabMode::Off);
     }
 
+    #[test]
+    fn close_confirmation_parses_bool_and_string_values() {
+        use wezterm_dynamic::{FromDynamic, FromDynamicOptions, Value};
+
+        let options = FromDynamicOptions::default();
+
+        assert_eq!(
+            super::CloseConfirmation::from_dynamic(&Value::Bool(false), options).unwrap(),
+            super::CloseConfirmation::NeverPrompt
+        );
+        assert_eq!(
+            super::CloseConfirmation::from_dynamic(&Value::Bool(true), options).unwrap(),
+            super::CloseConfirmation::AlwaysPrompt
+        );
+        assert_eq!(
+            super::CloseConfirmation::from_dynamic(&Value::String("NeverPrompt".into()), options)
+                .unwrap(),
+            super::CloseConfirmation::NeverPrompt
+        );
+        assert_eq!(
+            super::CloseConfirmation::from_dynamic(&Value::String("SmartPrompt".into()), options)
+                .unwrap(),
+            super::CloseConfirmation::SmartPrompt
+        );
+        assert_eq!(
+            super::CloseConfirmation::from_dynamic(&Value::String("AlwaysPrompt".into()), options)
+                .unwrap(),
+            super::CloseConfirmation::AlwaysPrompt
+        );
+        assert!(
+            super::CloseConfirmation::from_dynamic(&Value::String("invalid".into()), options)
+                .is_err()
+        );
+    }
+
+    #[test]
+    fn close_confirmation_defaults_to_smart_prompt() {
+        let config = super::Config::default();
+
+        assert_eq!(
+            config.tab_close_confirmation,
+            super::CloseConfirmation::SmartPrompt
+        );
+        assert_eq!(
+            config.pane_close_confirmation,
+            super::CloseConfirmation::SmartPrompt
+        );
+    }
+
+    #[test]
+    fn text_min_contrast_ratio_defaults_to_readable_text() {
+        let config = super::Config::default();
+
+        assert_eq!(config.text_min_contrast_ratio, Some(3.0));
+    }
+
+    #[test]
+    fn close_confirmation_policy_matches_prompt_modes() {
+        use super::CloseConfirmation::{AlwaysPrompt, NeverPrompt, SmartPrompt};
+
+        assert!(!NeverPrompt.should_prompt(true, || false));
+        assert!(SmartPrompt.should_prompt(true, || false));
+        assert!(!SmartPrompt.should_prompt(true, || true));
+        assert!(!SmartPrompt.should_prompt(false, || false));
+        assert!(AlwaysPrompt.should_prompt(false, || true));
+    }
+
     fn smart_tab_test_command() -> portable_pty::CommandBuilder {
         let mut cmd = portable_pty::CommandBuilder::new_default_prog();
         cmd.env_remove(super::KAKU_SMART_TAB_DISABLE);
@@ -2659,6 +2726,10 @@ fn default_mux_env_remove() -> Vec<String> {
 
 fn default_anim_fps() -> u8 {
     10
+}
+
+const fn default_text_min_contrast_ratio() -> Option<f32> {
+    Some(3.0)
 }
 
 fn default_max_fps() -> u64 {
@@ -2877,6 +2948,52 @@ pub enum WindowCloseConfirmation {
     /// (anything outside `skip_close_confirmation_for_processes_named`).
     /// Quits silently when every pane is at a bare shell prompt.
     SmartPrompt,
+}
+
+#[derive(Debug, ToDynamic, Clone, Copy, PartialEq, Eq, Default)]
+pub enum CloseConfirmation {
+    NeverPrompt,
+    #[default]
+    SmartPrompt,
+    AlwaysPrompt,
+}
+
+impl CloseConfirmation {
+    pub fn should_prompt(
+        self,
+        action_confirm: bool,
+        can_close_without_prompting: impl FnOnce() -> bool,
+    ) -> bool {
+        match self {
+            Self::NeverPrompt => false,
+            Self::SmartPrompt => action_confirm && !can_close_without_prompting(),
+            Self::AlwaysPrompt => true,
+        }
+    }
+}
+
+impl FromDynamic for CloseConfirmation {
+    fn from_dynamic(
+        value: &wezterm_dynamic::Value,
+        options: wezterm_dynamic::FromDynamicOptions,
+    ) -> Result<Self, wezterm_dynamic::Error> {
+        match String::from_dynamic(value, options) {
+            Ok(s) => match s.as_str() {
+                "NeverPrompt" | "never_prompt" => Ok(Self::NeverPrompt),
+                "SmartPrompt" | "smart_prompt" => Ok(Self::SmartPrompt),
+                "AlwaysPrompt" | "always_prompt" => Ok(Self::AlwaysPrompt),
+                other => Err(wezterm_dynamic::Error::Message(format!(
+                    "`{other}` is not a valid CloseConfirmation, use one of \
+                     `NeverPrompt`, `SmartPrompt`, or `AlwaysPrompt`"
+                ))),
+            },
+            Err(err) => match bool::from_dynamic(value, options) {
+                Ok(false) => Ok(Self::NeverPrompt),
+                Ok(true) => Ok(Self::AlwaysPrompt),
+                Err(_) => Err(err),
+            },
+        }
+    }
 }
 
 struct PathPossibility {

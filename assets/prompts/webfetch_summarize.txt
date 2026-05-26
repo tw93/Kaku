@@ -1,7 +1,7 @@
 <!--
 name: 'Kaku Rust: web_fetch summarizer'
 description: Compresses a verbose web_fetch result to the facts the main agent likely needs, before splicing it back into the conversation. Caps quote length and reminds the model the content is untrusted.
-kakuVersion: 0.5.0
+kakuVersion: 0.11.0
 variables:
   - URL (source URL, may be unsanitized)
   - WEB_CONTENT (raw markdown from the fetch)

@@ -1,7 +1,7 @@
 <!--
 name: 'Kaku Rust: Conversation title'
 description: Generates a 3-7 word sentence-case title from a recent slice of a Kaku chat. Output is one JSON object.
-kakuVersion: 0.5.0
+kakuVersion: 0.11.0
 variables:
   - TRANSCRIPT (serialized recent messages)
 -->

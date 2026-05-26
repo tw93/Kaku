@@ -404,8 +404,8 @@ impl App {
                 key: "Confirm Tab Close",
                 lua_key: "tab_close_confirmation",
                 value: String::new(),
-                default: "Off".into(),
-                options: vec!["On", "Off"],
+                default: "Smart".into(),
+                options: vec!["Never", "Smart", "Always"],
                 skip_write: false,
             },
             ConfigField {
@@ -413,8 +413,8 @@ impl App {
                 key: "Confirm Pane Close",
                 lua_key: "pane_close_confirmation",
                 value: String::new(),
-                default: "Off".into(),
-                options: vec!["On", "Off"],
+                default: "Smart".into(),
+                options: vec!["Never", "Smart", "Always"],
                 skip_write: false,
             },
             ConfigField {
@@ -834,8 +834,6 @@ impl App {
             }
             "copy_on_select"
             | "enable_scroll_bar"
-            | "tab_close_confirmation"
-            | "pane_close_confirmation"
             | "bell_tab_indicator"
             | "bell_dock_badge"
             | "remember_last_cwd"
@@ -847,6 +845,15 @@ impl App {
                     Some("Off".into())
                 } else {
                     None
+                }
+            }
+            "tab_close_confirmation" | "pane_close_confirmation" => {
+                let value = raw.trim().trim_matches('\'').trim_matches('"');
+                match value {
+                    "false" | "NeverPrompt" | "never_prompt" => Some("Never".into()),
+                    "SmartPrompt" | "smart_prompt" => Some("Smart".into()),
+                    "true" | "AlwaysPrompt" | "always_prompt" => Some("Always".into()),
+                    _ => None,
                 }
             }
             "hide_tab_bar_if_only_one_tab" => {
@@ -1418,8 +1425,6 @@ impl App {
             | "split_pane_gap" => field.value.clone(),
             "copy_on_select"
             | "enable_scroll_bar"
-            | "tab_close_confirmation"
-            | "pane_close_confirmation"
             | "bell_tab_indicator"
             | "bell_dock_badge"
             | "remember_last_cwd"
@@ -1429,6 +1434,18 @@ impl App {
                     "true".into()
                 } else {
                     "false".into()
+                }
+            }
+            "tab_close_confirmation" | "pane_close_confirmation" => {
+                let effective = if field.value.is_empty() {
+                    &field.default
+                } else {
+                    &field.value
+                };
+                match effective.as_str() {
+                    "Never" => "false".into(),
+                    "Always" => "true".into(),
+                    _ => "'SmartPrompt'".into(),
                 }
             }
             "hide_tab_bar_if_only_one_tab" => {
@@ -1769,7 +1786,7 @@ return config
     }
 
     #[test]
-    fn close_confirmation_fields_default_to_off() {
+    fn close_confirmation_fields_default_to_smart() {
         let app = test_app();
         let tab_field = app
             .fields
@@ -1782,30 +1799,58 @@ return config
             .find(|f| f.lua_key == "pane_close_confirmation")
             .expect("pane_close_confirmation field to exist");
 
-        assert_eq!(tab_field.default, "Off");
-        assert_eq!(pane_field.default, "Off");
-        assert_eq!(app.to_lua_value(tab_field), "false");
-        assert_eq!(app.to_lua_value(pane_field), "false");
+        assert_eq!(tab_field.default, "Smart");
+        assert_eq!(pane_field.default, "Smart");
+        assert_eq!(tab_field.options, vec!["Never", "Smart", "Always"]);
+        assert_eq!(pane_field.options, vec!["Never", "Smart", "Always"]);
+        assert_eq!(app.to_lua_value(tab_field), "'SmartPrompt'");
+        assert_eq!(app.to_lua_value(pane_field), "'SmartPrompt'");
     }
 
     #[test]
-    fn normalize_close_confirmation_bool_values() {
+    fn close_confirmation_round_trips_bool_and_string_values() {
         assert_eq!(
             App::normalize_value("tab_close_confirmation", "true"),
-            Some("On".into())
+            Some("Always".into())
         );
         assert_eq!(
             App::normalize_value("tab_close_confirmation", "false"),
-            Some("Off".into())
+            Some("Never".into())
         );
         assert_eq!(
-            App::normalize_value("pane_close_confirmation", "true"),
-            Some("On".into())
+            App::normalize_value("tab_close_confirmation", "'SmartPrompt'"),
+            Some("Smart".into())
         );
         assert_eq!(
-            App::normalize_value("pane_close_confirmation", "false"),
-            Some("Off".into())
+            App::normalize_value("pane_close_confirmation", "\"NeverPrompt\""),
+            Some("Never".into())
         );
+        assert_eq!(
+            App::normalize_value("pane_close_confirmation", "'AlwaysPrompt'"),
+            Some("Always".into())
+        );
+        assert_eq!(
+            App::normalize_value("pane_close_confirmation", "'invalid'"),
+            None
+        );
+    }
+
+    #[test]
+    fn close_confirmation_serializes_selected_modes() {
+        let mut app = test_app();
+        let idx = app
+            .fields
+            .iter()
+            .position(|f| f.lua_key == "tab_close_confirmation")
+            .expect("tab_close_confirmation field to exist");
+
+        assert_eq!(app.to_lua_value(&app.fields[idx]), "'SmartPrompt'");
+
+        app.fields[idx].value = "Never".to_string();
+        assert_eq!(app.to_lua_value(&app.fields[idx]), "false");
+
+        app.fields[idx].value = "Always".to_string();
+        assert_eq!(app.to_lua_value(&app.fields[idx]), "true");
     }
 
     #[test]

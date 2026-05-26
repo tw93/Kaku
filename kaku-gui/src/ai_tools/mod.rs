@@ -95,7 +95,9 @@ pub fn execute(
             } else {
                 web::fetch_markdown_default(url)?
             };
-            web::maybe_summarize_fetched(url, raw, config)
+            let raw_passthrough =
+                web::should_return_raw_fetch(detail, args["raw"].as_bool().unwrap_or(false));
+            web::maybe_summarize_fetched(url, raw, config, raw_passthrough)
         }
         "web_search" => search::exec_web_search(args, config)?,
         "read_url" => {
@@ -106,7 +108,9 @@ pub fn execute(
             let provider = config.web_search_provider.as_deref().unwrap_or("");
             let api_key = config.web_search_api_key.as_deref().unwrap_or("");
             let raw = web::exec_read_url(url, provider, api_key)?;
-            web::maybe_summarize_fetched(url, raw, config)
+            let raw_passthrough =
+                web::should_return_raw_fetch(detail, args["raw"].as_bool().unwrap_or(false));
+            web::maybe_summarize_fetched(url, raw, config, raw_passthrough)
         }
         "project_summary" => {
             let raw_path = args["path"].as_str();

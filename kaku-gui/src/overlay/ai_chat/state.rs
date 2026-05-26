@@ -79,7 +79,15 @@ pub(super) fn slash_command_options_for_token(token: &str) -> Vec<(&'static str,
 pub(super) fn slash_command_submits_immediately(command: &str) -> bool {
     matches!(
         command,
-        "/new" | "/resume" | "/clear" | "/export" | "/memory" | "/status" | "/suggest" | "/model" | "/config"
+        "/new"
+            | "/resume"
+            | "/clear"
+            | "/export"
+            | "/memory"
+            | "/status"
+            | "/suggest"
+            | "/model"
+            | "/config"
     )
 }
 

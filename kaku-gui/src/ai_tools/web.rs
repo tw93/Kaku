@@ -232,8 +232,14 @@ const SUMMARIZE_FETCH_THRESHOLD: usize = 4_000;
 const WEBFETCH_SUMMARIZE_PROMPT: &str =
     include_str!("../../../assets/prompts/webfetch_summarize.txt");
 
+pub(super) fn should_return_raw_fetch(detail: &str, raw_requested: bool) -> bool {
+    raw_requested || detail == "full"
+}
+
 /// Compress a verbose web_fetch result so the main agent context stays cheap.
 ///
+/// - `raw_passthrough`: return fetched content verbatim. Used when the caller
+///   needs exact source text for quoting, debugging, or a full-detail read.
 /// - Below `SUMMARIZE_FETCH_THRESHOLD` bytes: passthrough.
 /// - Otherwise: build a small `AiClient` from the active config, call
 ///   `complete_once` with the webfetch-summarizer prompt, return the
@@ -246,7 +252,11 @@ pub(super) fn maybe_summarize_fetched(
     url: &str,
     content: String,
     config: &crate::ai_client::AssistantConfig,
+    raw_passthrough: bool,
 ) -> String {
+    if raw_passthrough {
+        return content;
+    }
     if content.len() < SUMMARIZE_FETCH_THRESHOLD {
         return content;
     }
@@ -273,5 +283,18 @@ pub(super) fn maybe_summarize_fetched(
             log::warn!("maybe_summarize_fetched: model call failed: {e}; returning raw");
             content
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn raw_fetch_policy_respects_full_detail_and_explicit_raw() {
+        assert!(should_return_raw_fetch("full", false));
+        assert!(should_return_raw_fetch("default", true));
+        assert!(!should_return_raw_fetch("default", false));
+        assert!(!should_return_raw_fetch("brief", false));
     }
 }

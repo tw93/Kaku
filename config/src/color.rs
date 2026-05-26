@@ -188,9 +188,8 @@ pub struct Palette {
     /// via palette indexes or 24-bit true color escape sequences.
     #[dynamic(default)]
     pub color_overrides: HashMap<RgbaColor, RgbaColor>,
-    /// Map true color foregrounds to replacement colors.
-    /// This is useful for overriding text colors that applications output via
-    /// 24-bit true color escape sequences.
+    /// Map default and 24-bit true color foregrounds to replacement colors.
+    /// ANSI palette foregrounds should be adjusted via `ansi` and `brights`.
     #[dynamic(default)]
     pub foreground_color_overrides: HashMap<RgbaColor, RgbaColor>,
 }

@@ -1,7 +1,7 @@
 <!--
 name: 'Kaku Rust: Conversation summarization'
 description: Folds older agent-loop turns into a single summary block when the chat history exceeds the byte threshold.
-kakuVersion: 0.5.0
+kakuVersion: 0.11.0
 variables:
   - TRANSCRIPT (serialized older messages, role-prefixed)
 -->

@@ -1,7 +1,7 @@
 <!--
 name: 'Kaku Chat: external helpers (opencli)'
 description: When and how to probe the optional opencli bridge for authenticated web content. Three-state behavior.
-kakuVersion: 0.5.0
+kakuVersion: 0.11.0
 -->
 EXTERNAL HELPERS (optional, probe once per session)
 - Skip entirely for ordinary tasks (code, file ops, local shell, public-web research). Only relevant when authenticated browser content is the real blocker: the user's own X / Twitter timeline, a SaaS console, content behind a login wall.

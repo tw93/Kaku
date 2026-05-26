@@ -195,7 +195,11 @@ pub fn all_tools(config: &AssistantConfig) -> Vec<ToolDef> {
                 "detail": {
                     "type": "string",
                     "enum": ["brief", "default", "full"],
-                    "description": "Output size. Default: 'default'."
+                    "description": "Output size. Default: 'default'. Use 'full' when exact source text is needed; it disables automatic summarization."
+                },
+                "raw": {
+                    "type": "boolean",
+                    "description": "Return fetched content verbatim and skip automatic summarization. Use for exact quotes, debugging, or source inspection."
                 }
             },
             "required": ["url"]
@@ -250,6 +254,15 @@ pub fn all_tools(config: &AssistantConfig) -> Vec<ToolDef> {
                     "url": {
                         "type": "string",
                         "description": "Full URL to read (must start with http:// or https://)"
+                    },
+                    "detail": {
+                        "type": "string",
+                        "enum": ["brief", "default", "full"],
+                        "description": "Output size. Default: 'default'. Use 'full' when exact source text is needed; it disables automatic summarization."
+                    },
+                    "raw": {
+                        "type": "boolean",
+                        "description": "Return fetched content verbatim and skip automatic summarization. Use for exact quotes, debugging, or source inspection."
                     }
                 },
                 "required": ["url"]

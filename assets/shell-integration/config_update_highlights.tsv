@@ -40,3 +40,7 @@
 20	kaku init now avoids read-only config paths and preserves existing jump providers before loading bundled zsh-z
 20	# AI 查询提交后会立即清空注释输入，避免生成的命令接在旧输入后面
 20	kaku init 现在会跳过只读配置路径，并在加载内置 zsh-z 前保留已有目录跳转工具
+21	Tab and pane close confirmation now support Never, Smart, and Always modes; explicit false closes immediately
+21	标签页和面板关闭确认现在支持 Never、Smart、Always 三种模式，显式 false 会立即关闭
+21	Kaku Dark now reports a dark terminal background to Hermes so response text stays readable
+21	Kaku Dark 现在会向 Hermes 正确报告深色终端背景，回复正文不再变成黑字

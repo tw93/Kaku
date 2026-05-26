@@ -3044,7 +3044,9 @@ end
 -- ~10% from Aura's #edecee for lower glare without losing legibility.
 local KAKU = {
   BLACK = '#15141b',
-  ANSI_BLACK = '#110f18',
+  -- Render ANSI black foregrounds as light text in Kaku Dark. ANSI black
+  -- backgrounds are mapped back to BLACK in color_overrides below.
+  ANSI_BLACK = '#c8c6cc',
   WHITE = '#d5d4d6',
   GRAY = '#6d6d6d',
   PURPLE = '#8e6ad9',
@@ -3821,11 +3823,13 @@ local function is_user_light_theme()
   return resolve_appearance_color_scheme() == 'Kaku Light'
 end
 
+local initial_is_light_theme = is_user_light_theme()
+
 -- Only seed the managed default font stack when the user hasn't overridden it.
 -- The bundled font_rules are tightly coupled to the bundled JetBrains Mono stack,
 -- so they must not remain active when the user selects a custom primary font.
 do
-  local font, font_rules = build_font_config(is_user_light_theme())
+  local font, font_rules = build_font_config(initial_is_light_theme)
   if not user_has_custom_font then
     config.font = font
   end
@@ -4017,6 +4021,9 @@ config.window_decorations = "INTEGRATED_BUTTONS|RESIZE"
 
 config.window_background_opacity = 1.0
 config.text_background_opacity = 1.0
+-- Keep low-contrast text from third-party TUIs readable without rewriting
+-- their chosen palette colors.
+config.text_min_contrast_ratio = 3.0
 
 -- ===== Close Protection =====
 -- 'SmartPrompt': Cmd+Q (and the Quit Kaku menu) quit silently when every
@@ -4025,16 +4032,12 @@ config.text_background_opacity = 1.0
 -- Same smart-skip logic as Cmd+W. Use 'NeverPrompt' to always quit
 -- instantly, or 'AlwaysPrompt' to always ask.
 config.window_close_confirmation = 'SmartPrompt'
--- These two booleans are the strict "always ask, even bare zsh" mode.
--- They stay off by default because Kaku's Cmd+W / Cmd+Shift+W keybinds
--- already invoke the *smart-skip* path (`confirm = true` is hard-coded
--- there): a pane closes silently when its process tree is just shells
--- (bash/zsh/fish/tmux/...), and pops a confirm overlay when anything
--- stateful is loaded (claude / codex / cursor-agent / vim / cargo / ...).
--- Set either of these to `true` in your kaku.lua to upgrade to the
--- always-ask mode.
-config.tab_close_confirmation = false
-config.pane_close_confirmation = false
+-- Tab/pane close confirmation modes:
+--   false or 'NeverPrompt': close immediately, even with stateful processes.
+--   'SmartPrompt': close idle shells silently, confirm stateful processes.
+--   true or 'AlwaysPrompt': always ask, even for a bare shell.
+config.tab_close_confirmation = 'SmartPrompt'
+config.pane_close_confirmation = 'SmartPrompt'
 
 -- Smart Tab modes: 'completion_first' (default), 'suggestion_first', or 'off'.
 config.smart_tab_mode = 'completion_first'
@@ -4053,7 +4056,8 @@ config.show_new_tab_button_in_tab_bar = false
 config.window_padding = get_default_padding()
 
 -- ===== Color Scheme =====
-local kaku_theme = {
+config.color_schemes = config.color_schemes or {}
+config.color_schemes['Kaku Dark'] = {
   -- Background
   foreground = KAKU.WHITE,
   background = KAKU.BLACK,
@@ -4132,14 +4136,25 @@ local kaku_theme = {
 
   -- Override Claude Code quote background for better contrast
   color_overrides = {
+    [KAKU.ANSI_BLACK] = KAKU.BLACK,  -- ANSI black background
     ['#6d6d6d'] = '#3A3942',  -- ANSI 8 (bright black)
     ['#6E6E6E'] = '#3A3942',  -- Claude Code true color
     ['#8EC3FF'] = '#3A3942',  -- Claude Code blue header background
   },
+
+  -- Hermes and some Rich/prompt_toolkit surfaces emit black truecolor text
+  -- on dark terminals. Keep those foregrounds readable in Kaku Dark.
+  foreground_color_overrides = {
+    ['#000000'] = KAKU.WHITE,
+    ['#110f18'] = KAKU.WHITE,
+    ['#15141b'] = KAKU.WHITE,
+    ['#1a1a1a'] = KAKU.WHITE,
+    ['#1c1c1c'] = KAKU.WHITE,
+  },
 }
 
 -- ===== Kaku Light Theme =====
-local kaku_light = {
+config.color_schemes['Kaku Light'] = {
   foreground = '#100F0F',
   background = '#FFFCF0',
 
@@ -4230,15 +4245,14 @@ local kaku_light = {
   },
 }
 
-config.color_schemes = config.color_schemes or {}
-config.color_schemes['Kaku Dark'] = kaku_theme
-config.color_schemes['Kaku Light'] = kaku_light
 -- Legacy alias for compatibility
-config.color_schemes['Kaku Theme'] = kaku_theme
+config.color_schemes['Kaku Theme'] = config.color_schemes['Kaku Dark']
 config.color_scheme = resolve_kaku_color_scheme(config.color_scheme)
 
 config.set_environment_variables = config.set_environment_variables or {}
-config.set_environment_variables['COLORFGBG'] = (config.color_scheme == 'Kaku Light') and '0;15' or '15;0'
+-- Match child-process theme hints to the user's intended theme, even when the
+-- user config overrides `config.color_scheme` after loading these defaults.
+config.set_environment_variables['COLORFGBG'] = initial_is_light_theme and '0;15' or '15;0'
 
 -- ===== Window Frame (theme-aware) =====
 get_window_frame_colors = function(scheme)
@@ -4280,42 +4294,48 @@ get_window_frame_colors = function(scheme)
   end
 end
 
-if not user_has_custom_window_frame then
-  -- Use the user's intended scheme (scanned from their kaku.lua) rather than
-  -- config.color_scheme, which has already been resolved against the system
-  -- appearance and may not reflect a later override. Without this, on cold
-  -- start a Dark-theme user on a Light system gets `#FFFCF0` titlebar/border
-  -- colors painted on the first frame, producing a visible light strip at the
-  -- top until window-config-reloaded re-runs build_managed_window_frame.
-  local initial_scheme = is_user_light_theme() and 'Kaku Light' or 'Kaku Dark'
-  local window_frame_colors = get_window_frame_colors(initial_scheme)
-  config.window_frame = {
-    font = wezterm.font({ family = 'JetBrains Mono', weight = 'Regular' }),
-    font_size = 14.0,
-    active_titlebar_bg = window_frame_colors.active_titlebar_bg,
-    inactive_titlebar_bg = window_frame_colors.inactive_titlebar_bg,
-    active_titlebar_fg = window_frame_colors.active_titlebar_fg,
-    inactive_titlebar_fg = window_frame_colors.inactive_titlebar_fg,
-    active_titlebar_border_bottom = window_frame_colors.active_titlebar_border_bottom,
-    inactive_titlebar_border_bottom = window_frame_colors.inactive_titlebar_border_bottom,
-    border_left_width = window_frame_colors.border_left_width,
-    border_right_width = window_frame_colors.border_right_width,
-    border_top_height = window_frame_colors.border_top_height,
-    border_bottom_height = window_frame_colors.border_bottom_height,
-    border_left_color = window_frame_colors.border_left_color,
-    border_right_color = window_frame_colors.border_right_color,
-    border_top_color = window_frame_colors.border_top_color,
-    border_bottom_color = window_frame_colors.border_bottom_color,
-  }
+do
+  if not user_has_custom_window_frame then
+    -- Use the user's intended scheme (scanned from their kaku.lua) rather than
+    -- config.color_scheme, which has already been resolved against the system
+    -- appearance and may not reflect a later override. Without this, on cold
+    -- start a Dark-theme user on a Light system gets `#FFFCF0` titlebar/border
+    -- colors painted on the first frame, producing a visible light strip at the
+    -- top until window-config-reloaded re-runs build_managed_window_frame.
+    config.window_frame = (function()
+      local initial_scheme = initial_is_light_theme and 'Kaku Light' or 'Kaku Dark'
+      local window_frame_colors = get_window_frame_colors(initial_scheme)
+      return {
+        font = wezterm.font({ family = 'JetBrains Mono', weight = 'Regular' }),
+        font_size = 14.0,
+        active_titlebar_bg = window_frame_colors.active_titlebar_bg,
+        inactive_titlebar_bg = window_frame_colors.inactive_titlebar_bg,
+        active_titlebar_fg = window_frame_colors.active_titlebar_fg,
+        inactive_titlebar_fg = window_frame_colors.inactive_titlebar_fg,
+        active_titlebar_border_bottom = window_frame_colors.active_titlebar_border_bottom,
+        inactive_titlebar_border_bottom = window_frame_colors.inactive_titlebar_border_bottom,
+        border_left_width = window_frame_colors.border_left_width,
+        border_right_width = window_frame_colors.border_right_width,
+        border_top_height = window_frame_colors.border_top_height,
+        border_bottom_height = window_frame_colors.border_bottom_height,
+        border_left_color = window_frame_colors.border_left_color,
+        border_right_color = window_frame_colors.border_right_color,
+        border_top_color = window_frame_colors.border_top_color,
+        border_bottom_color = window_frame_colors.border_bottom_color,
+      }
+    end)()
+  end
 end
 
 -- ===== Shell =====
-local user_shell = os.getenv('SHELL')
-if user_shell and #user_shell > 0 then
-  config.default_prog = { user_shell, '-l' }
-else
-  config.default_prog = { '/bin/zsh', '-l' }
-end
+(function()
+  local user_shell = os.getenv('SHELL')
+  if user_shell and #user_shell > 0 then
+    config.default_prog = { user_shell, '-l' }
+  else
+    config.default_prog = { '/bin/zsh', '-l' }
+  end
+end)()
 
 -- ===== macOS Specific =====
 -- Keep Left Option as Meta so Alt-based Vim/Neovim keybindings work reliably.
@@ -4374,8 +4394,9 @@ config.keys = (function() return {
   -- AI agents (claude/codex/cursor-agent/gemini), editors (vim/nano),
   -- builds (cargo/make/npm), long-running scripts — pops a confirm.
   --
-  -- Setting `pane_close_confirmation = true` / `tab_close_confirmation = true`
-  -- in user config still upgrades to "always ask, even bare zsh".
+  -- Set `pane_close_confirmation` / `tab_close_confirmation` to false for
+  -- immediate close, 'SmartPrompt' for stateful-process protection, or true
+  -- for "always ask, even bare zsh".
   {
     key = 'w',
     mods = 'CMD',

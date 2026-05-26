@@ -20,6 +20,12 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 PROMPTS_DIR="$REPO_ROOT/assets/prompts"
+EXPECTED_VERSION="$(sed -nE 's/^version = "([^"]+)".*/\1/p' "$REPO_ROOT/kaku-gui/Cargo.toml" | head -n 1)"
+
+if [[ -z "$EXPECTED_VERSION" ]]; then
+  echo "[check_prompts] Could not read kaku-gui/Cargo.toml version." >&2
+  exit 1
+fi
 
 if [[ ! -d "$PROMPTS_DIR" ]]; then
   echo "[check_prompts] No assets/prompts directory; nothing to check." >&2
@@ -37,7 +43,7 @@ while IFS= read -r -d '' f; do
   echo "$head_block" | head -n1 | grep -q '^<!--' || ok=0
   echo "$head_block" | grep -qE '^name:[[:space:]]+'           || ok=0
   echo "$head_block" | grep -qE '^description:[[:space:]]+'    || ok=0
-  echo "$head_block" | grep -qE '^kakuVersion:[[:space:]]+'    || ok=0
+  echo "$head_block" | grep -qE "^kakuVersion:[[:space:]]+$EXPECTED_VERSION$" || ok=0
   echo "$head_block" | grep -q '^-->$'                         || ok=0
 
   if [[ $ok -ne 1 ]]; then
@@ -56,7 +62,7 @@ if [[ $failed -ne 0 ]]; then
   echo "   <!--" >&2
   echo "   name: '...'" >&2
   echo "   description: ..." >&2
-  echo "   kakuVersion: <version>" >&2
+  echo "   kakuVersion: $EXPECTED_VERSION" >&2
   echo "   -->" >&2
   exit 1
 fi
