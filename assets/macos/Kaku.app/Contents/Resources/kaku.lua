@@ -4026,12 +4026,11 @@ config.text_background_opacity = 1.0
 config.text_min_contrast_ratio = 3.0
 
 -- ===== Close Protection =====
--- 'SmartPrompt': Cmd+Q (and the Quit Kaku menu) quit silently when every
--- pane is at a bare shell prompt, and pop a confirm overlay when anything
--- stateful is running (claude / codex / cursor-agent / vim / cargo / ...).
--- Same smart-skip logic as Cmd+W. Use 'NeverPrompt' to always quit
--- instantly, or 'AlwaysPrompt' to always ask.
-config.window_close_confirmation = 'SmartPrompt'
+-- Default is 'NeverPrompt' so Cmd+Q and the Quit Kaku menu quit instantly
+-- without an extra overlay. Opt in to 'SmartPrompt' to silence the prompt
+-- only when every pane is at a bare shell prompt (same smart-skip logic as
+-- Cmd+W), or 'AlwaysPrompt' to always ask.
+config.window_close_confirmation = 'NeverPrompt'
 -- Tab/pane close confirmation modes:
 --   false or 'NeverPrompt': close immediately, even with stateful processes.
 --   'SmartPrompt': close idle shells silently, confirm stateful processes.
