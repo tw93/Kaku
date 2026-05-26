@@ -1,6 +1,7 @@
 use bitflags::bitflags;
 
 bitflags! {
+    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
     struct FileTypeFlags: u32 {
         const DIR = 0o040000;
         const FILE = 0o100000;
@@ -9,6 +10,7 @@ bitflags! {
 }
 
 bitflags! {
+    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
     struct FilePermissionFlags: u32 {
         const OWNER_READ = 0o400;
         const OWNER_WRITE = 0o200;
@@ -70,7 +72,7 @@ impl FileType {
             FileType::Other => FileTypeFlags::empty(),
         };
 
-        flags.bits
+        flags.bits()
     }
 }
 
@@ -146,7 +148,7 @@ impl FilePermissions {
             flags.insert(FilePermissionFlags::OTHER_EXEC);
         }
 
-        flags.bits
+        flags.bits()
     }
 }
 

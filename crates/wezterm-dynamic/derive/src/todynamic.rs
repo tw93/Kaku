@@ -11,16 +11,41 @@ pub fn derive(input: DeriveInput) -> Result<TokenStream> {
             fields: Fields::Named(fields),
             ..
         }) => derive_struct(&input, fields),
-        Data::Struct(_) => Err(Error::new(
-            Span::call_site(),
-            "currently only structs with named fields are supported",
-        )),
+        Data::Struct(_) => {
+            // Support newtype/tuple structs that have #[dynamic(into="...")] attribute,
+            // which delegates serialization via Into conversion.
+            let info = attr::container_info(&input.attrs)?;
+            if info.into.is_some() {
+                derive_newtype_with_into(&input, &info)
+            } else {
+                Err(Error::new(
+                    Span::call_site(),
+                    "currently only structs with named fields are supported",
+                ))
+            }
+        }
         Data::Enum(enumeration) => derive_enum(&input, enumeration),
         Data::Union(_) => Err(Error::new(
             Span::call_site(),
             "currently only structs and enums are supported by this derive",
         )),
     }
+}
+
+fn derive_newtype_with_into(input: &DeriveInput, info: &attr::ContainerInfo) -> Result<TokenStream> {
+    let ident = &input.ident;
+    let (impl_generics, ty_generics, _where_clause) = input.generics.split_for_impl();
+
+    let into = info.into.as_ref().unwrap();
+    let tokens = quote! {
+        impl #impl_generics wezterm_dynamic::ToDynamic for #ident #ty_generics {
+            fn to_dynamic(&self) -> wezterm_dynamic::Value {
+                let target: #into = self.into();
+                target.to_dynamic()
+            }
+        }
+    };
+    Ok(tokens)
 }
 
 fn derive_struct(input: &DeriveInput, fields: &FieldsNamed) -> Result<TokenStream> {

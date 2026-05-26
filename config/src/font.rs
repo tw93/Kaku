@@ -256,7 +256,7 @@ bitflags! {
     // Note that these are strongly coupled with deps/freetype/src/lib.rs,
     // but we can't directly reference that from here without making config
     // depend on freetype.
-    #[derive(FromDynamic, ToDynamic)]
+    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, FromDynamic, ToDynamic)]
     #[dynamic(try_from="String", into="String")]
     pub struct FreeTypeLoadFlags: u32 {
         /// FT_LOAD_DEFAULT

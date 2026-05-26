@@ -139,7 +139,7 @@ impl std::string::ToString for Appearance {
 }
 
 bitflags! {
-    #[derive(Default)]
+    #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash)]
     pub struct WindowState: u8 {
         /// Occupies the whole screen; cannot be resized while in this state.
         const FULL_SCREEN = 1<<1;
