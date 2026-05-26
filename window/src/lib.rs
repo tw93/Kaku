@@ -375,6 +375,12 @@ pub trait WindowOps {
     /// window movement on the server side (Wayland).
     fn request_drag_move(&self) {}
 
+    /// Requests a native drag for a maximized/zoomed window when the platform
+    /// can safely hand that gesture to the window manager.
+    fn request_drag_move_from_maximized(&self) {
+        self.request_drag_move();
+    }
+
     /// Signal to the windowing system that the mouse is over
     /// a window dragging area.
     ///

@@ -566,6 +566,7 @@ thread_local! {
     static LAST_CLOSED_WINDOW_POSITION: RefCell<Option<ScreenPoint>> = RefCell::new(None);
     // Sync drag flag: set by request_drag_move(), checked by mouse_down to execute performWindowDragWithEvent:
     static PENDING_DRAG_MOVE: Cell<bool> = Cell::new(false);
+    static PENDING_DRAG_MOVE_FROM_MAXIMIZED: Cell<bool> = Cell::new(false);
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
@@ -657,6 +658,16 @@ fn should_perform_native_window_drag(
     fills_visible_frame: bool,
 ) -> bool {
     !in_fullscreen && !is_zoomed && !fills_visible_frame
+}
+
+fn should_perform_requested_window_drag(
+    in_fullscreen: bool,
+    is_zoomed: bool,
+    fills_visible_frame: bool,
+    from_maximized: bool,
+) -> bool {
+    should_perform_native_window_drag(in_fullscreen, is_zoomed, fills_visible_frame)
+        || (!in_fullscreen && from_maximized && is_zoomed)
 }
 
 fn nsrect_approx_eq(a: NSRect, b: NSRect, tolerance: f64) -> bool {
@@ -1441,6 +1452,12 @@ impl WindowOps for Window {
         // Set flag to be checked by mouse_down and execute performWindowDragWithEvent: synchronously.
         // Avoids async dispatch to prevent modal drag loop from swallowing subsequent events.
         PENDING_DRAG_MOVE.with(|flag| flag.set(true));
+        PENDING_DRAG_MOVE_FROM_MAXIMIZED.with(|flag| flag.set(false));
+    }
+
+    fn request_drag_move_from_maximized(&self) {
+        PENDING_DRAG_MOVE.with(|flag| flag.set(true));
+        PENDING_DRAG_MOVE_FROM_MAXIMIZED.with(|flag| flag.set(true));
     }
 
     fn set_window_position(&self, coords: ScreenPoint) {
@@ -3514,6 +3531,19 @@ mod tests {
     }
 
     #[test]
+    fn requested_maximized_drag_allows_zoomed_native_drag() {
+        assert!(should_perform_requested_window_drag(
+            false, true, true, true
+        ));
+        assert!(!should_perform_requested_window_drag(
+            true, true, true, true
+        ));
+        assert!(!should_perform_requested_window_drag(
+            false, false, true, true
+        ));
+    }
+
+    #[test]
     fn oversized_window_frame_is_fit_to_visible_frame() {
         let frame = NSRect::new(NSPoint::new(100.0, 100.0), NSSize::new(1920.0, 1080.0));
         let visible = NSRect::new(NSPoint::new(0.0, 0.0), NSSize::new(1440.0, 900.0));
@@ -4290,6 +4320,7 @@ impl WindowView {
 
         // Clear stale flag to prevent false drag triggers from last abnormal exit
         PENDING_DRAG_MOVE.with(|flag| flag.set(false));
+        PENDING_DRAG_MOVE_FROM_MAXIMIZED.with(|flag| flag.set(false));
         Self::mouse_common(this, nsevent, MouseEventKind::Press(MousePress::Left));
 
         // Execute drag synchronously: app layer may call request_drag_move() in mouse_common to set flag
@@ -4298,16 +4329,19 @@ impl WindowView {
         // frame already fills the visible screen even if isZoomed is stale. Use double-click
         // to un-zoom instead of letting a single title-area click expand the window.
         let pending_drag = PENDING_DRAG_MOVE.with(|flag| flag.replace(false));
+        let pending_drag_from_maximized =
+            PENDING_DRAG_MOVE_FROM_MAXIMIZED.with(|flag| flag.replace(false));
         if pending_drag && !in_fullscreen {
             unsafe {
                 let window: id = msg_send![this as id, window];
                 if window != nil {
                     let is_zoomed: bool = msg_send![window, isZoomed];
                     let fills_visible_frame = window_fills_visible_frame(window);
-                    if should_perform_native_window_drag(
+                    if should_perform_requested_window_drag(
                         in_fullscreen,
                         is_zoomed,
                         fills_visible_frame,
+                        pending_drag_from_maximized,
                     ) {
                         let () = msg_send![window, performWindowDragWithEvent: nsevent];
                     }

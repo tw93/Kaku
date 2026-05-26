@@ -84,7 +84,38 @@ fn tab_bar_item_starts_window_drag(item: TabBarItem) -> bool {
 }
 
 fn should_use_manual_window_drag(window_state: WindowState) -> bool {
-    cfg!(target_os = "macos") && !window_state.contains(WindowState::FULL_SCREEN)
+    cfg!(target_os = "macos")
+        && !window_state.intersects(WindowState::FULL_SCREEN | WindowState::MAXIMIZED)
+}
+
+fn should_use_native_maximized_window_drag(window_state: WindowState) -> bool {
+    cfg!(target_os = "macos")
+        && window_state.contains(WindowState::MAXIMIZED)
+        && !window_state.contains(WindowState::FULL_SCREEN)
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum TitleAreaZoomAction {
+    Maximize,
+    Restore,
+}
+
+fn title_area_double_click_zoom_action(window_state: WindowState) -> TitleAreaZoomAction {
+    if window_state.contains(WindowState::FULL_SCREEN) {
+        return TitleAreaZoomAction::Restore;
+    }
+
+    if cfg!(target_os = "macos") {
+        // NSWindow::zoom: toggles using AppKit's actual zoom state. That is more
+        // reliable than Kaku's cached WindowState after cross-screen/multi-window moves.
+        return TitleAreaZoomAction::Maximize;
+    }
+
+    if window_state.contains(WindowState::MAXIMIZED) {
+        TitleAreaZoomAction::Restore
+    } else {
+        TitleAreaZoomAction::Maximize
+    }
 }
 
 fn should_preserve_tmux_bypass_reporting(
@@ -765,10 +796,9 @@ impl super::TermWindow {
                         // Double-click title area to zoom window
                         if self.last_mouse_click.as_ref().map(|c| c.streak) == Some(2) {
                             if let Some(ref window) = self.window {
-                                if maximized || fullscreen {
-                                    window.restore();
-                                } else {
-                                    window.maximize();
+                                match title_area_double_click_zoom_action(self.window_state) {
+                                    TitleAreaZoomAction::Maximize => window.maximize(),
+                                    TitleAreaZoomAction::Restore => window.restore(),
                                 }
                             }
                             return;
@@ -781,7 +811,11 @@ impl super::TermWindow {
                             self.window_drag.position.replace(event.clone());
                         }
                         if !should_use_manual_window_drag(self.window_state) {
-                            context.request_drag_move();
+                            if should_use_native_maximized_window_drag(self.window_state) {
+                                context.request_drag_move_from_maximized();
+                            } else {
+                                context.request_drag_move();
+                            }
                         }
                         return;
                     }
@@ -1088,10 +1122,9 @@ impl super::TermWindow {
                                 self.config.window_decorations,
                                 self.last_mouse_click.as_ref().map(|c| c.streak),
                             ) {
-                                if maximized || fullscreen {
-                                    window.restore();
-                                } else {
-                                    window.maximize();
+                                match title_area_double_click_zoom_action(self.window_state) {
+                                    TitleAreaZoomAction::Maximize => window.maximize(),
+                                    TitleAreaZoomAction::Restore => window.restore(),
                                 }
                                 return;
                             }
@@ -1103,7 +1136,11 @@ impl super::TermWindow {
                             self.window_drag.position.replace(event.clone());
                         }
                         if !should_use_manual_window_drag(self.window_state) {
-                            context.request_drag_move();
+                            if should_use_native_maximized_window_drag(self.window_state) {
+                                context.request_drag_move_from_maximized();
+                            } else {
+                                context.request_drag_move();
+                            }
                         }
                     }
                     TabBarItem::WindowButton(button) => {
@@ -1880,8 +1917,10 @@ mod tests {
     use super::{
         mouse_dispatch_target, should_bypass_wheel_assignment_in_alt,
         should_preserve_tmux_bypass_reporting, should_use_manual_window_drag,
-        should_zoom_title_area, tab_bar_item_starts_window_drag,
+        should_use_native_maximized_window_drag, should_zoom_title_area,
+        tab_bar_item_starts_window_drag, title_area_double_click_zoom_action,
         wheel_during_terminal_selection_action, MouseDispatchTarget, SelectionDragWheelAction,
+        TitleAreaZoomAction,
     };
     use crate::tabbar::TabBarItem;
     use crate::termwindow::MouseCapture;
@@ -1933,6 +1972,29 @@ mod tests {
     }
 
     #[test]
+    fn macos_title_area_double_click_uses_appkit_zoom_toggle() {
+        if cfg!(target_os = "macos") {
+            assert_eq!(
+                title_area_double_click_zoom_action(WindowState::empty()),
+                TitleAreaZoomAction::Maximize
+            );
+            assert_eq!(
+                title_area_double_click_zoom_action(WindowState::MAXIMIZED),
+                TitleAreaZoomAction::Maximize
+            );
+            assert_eq!(
+                title_area_double_click_zoom_action(WindowState::FULL_SCREEN),
+                TitleAreaZoomAction::Restore
+            );
+        } else {
+            assert_eq!(
+                title_area_double_click_zoom_action(WindowState::MAXIMIZED),
+                TitleAreaZoomAction::Restore
+            );
+        }
+    }
+
+    #[test]
     fn tab_bar_tabs_and_controls_do_not_start_window_drags() {
         assert!(!tab_bar_item_starts_window_drag(TabBarItem::Tab {
             tab_idx: 1,
@@ -1955,12 +2017,31 @@ mod tests {
     fn macos_title_window_drag_uses_manual_path_except_fullscreen() {
         if cfg!(target_os = "macos") {
             assert!(should_use_manual_window_drag(WindowState::empty()));
-            assert!(should_use_manual_window_drag(WindowState::MAXIMIZED));
+            assert!(!should_use_manual_window_drag(WindowState::MAXIMIZED));
             assert!(!should_use_manual_window_drag(
                 WindowState::MAXIMIZED | WindowState::FULL_SCREEN
             ));
         } else {
             assert!(!should_use_manual_window_drag(WindowState::MAXIMIZED));
+        }
+    }
+
+    #[test]
+    fn macos_maximized_drag_uses_native_window_drag() {
+        if cfg!(target_os = "macos") {
+            assert!(should_use_native_maximized_window_drag(
+                WindowState::MAXIMIZED
+            ));
+            assert!(!should_use_native_maximized_window_drag(
+                WindowState::empty()
+            ));
+            assert!(!should_use_native_maximized_window_drag(
+                WindowState::MAXIMIZED | WindowState::FULL_SCREEN
+            ));
+        } else {
+            assert!(!should_use_native_maximized_window_drag(
+                WindowState::MAXIMIZED
+            ));
         }
     }
 
