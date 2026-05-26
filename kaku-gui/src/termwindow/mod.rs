@@ -6083,6 +6083,7 @@ impl TermWindow {
 impl Drop for TermWindow {
     fn drop(&mut self) {
         self.clear_all_overlays();
+        resize::clear_deferred_font_scale_pty_resize(self.mux_window_id);
         if let Some(window) = self.window.take() {
             if let Some(fe) = try_front_end() {
                 fe.forget_known_window(&window);

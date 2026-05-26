@@ -86,8 +86,7 @@ fn finish_deferred_font_scale_pty_resize(
     }
 }
 
-#[cfg(test)]
-fn clear_deferred_font_scale_pty_resize_for_test(window_id: usize) {
+pub(super) fn clear_deferred_font_scale_pty_resize(window_id: usize) {
     deferred_font_scale_pty_resizes()
         .lock()
         .unwrap()
@@ -1269,7 +1268,7 @@ pub fn effective_right_padding(config: &Config, context: DimensionContext) -> us
 #[cfg(test)]
 mod tests {
     use super::{
-        clear_deferred_font_scale_pty_resize_for_test, effective_top_padding,
+        clear_deferred_font_scale_pty_resize, effective_top_padding,
         effective_vertical_padding_with_policy, finish_deferred_font_scale_pty_resize,
         has_deferred_font_scale_pty_resize, mark_deferred_font_scale_pty_resize,
         rebalance_top_padding_for_bottom_gap, should_defer_screen_change_scale_update,
@@ -1299,7 +1298,7 @@ mod tests {
     #[test]
     fn deferred_font_scale_resize_keeps_visual_only_until_cells_stabilize() {
         let window_id = usize::MAX - 407;
-        clear_deferred_font_scale_pty_resize_for_test(window_id);
+        clear_deferred_font_scale_pty_resize(window_id);
 
         let first = mark_deferred_font_scale_pty_resize(
             window_id,
