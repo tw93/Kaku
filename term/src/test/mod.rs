@@ -264,6 +264,7 @@ fn assert_lines_equal(
 }
 
 bitflags! {
+    #[derive(Clone, Copy, Debug, PartialEq, Eq)]
     struct Compare : u8{
         const TEXT = 1;
         const ATTRS = 2;

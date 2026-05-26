@@ -10,7 +10,7 @@ documentation = "https://docs.rs/wezterm-surface"
 keywords = ["terminal", "surface", "line"]
 
 [dependencies]
-bitflags = "2.0"
+bitflags.workspace = true
 fancy-regex.workspace = true
 finl_unicode.workspace = true
 fixedbitset.workspace = true

@@ -474,7 +474,7 @@ impl ToString for KeyCode {
 }
 
 bitflags! {
-    #[derive(Default, FromDynamic, ToDynamic)]
+    #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash)]
     pub struct KeyboardLedStatus: u8 {
         const CAPS_LOCK = 1<<1;
         const NUM_LOCK = 1<<2;
@@ -498,8 +498,8 @@ impl ToString for KeyboardLedStatus {
 }
 
 bitflags! {
-    #[cfg_attr(feature="serde", derive(Serialize, Deserialize))]
-    #[derive(Default, FromDynamic, ToDynamic)]
+    #[cfg_attr(feature="serde", derive(Serialize, Deserialize), serde(into="String", try_from="String"))]
+    #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash, FromDynamic, ToDynamic)]
     #[dynamic(into="String", try_from="String")]
     pub struct Modifiers: u16 {
         const NONE = 0;
@@ -551,6 +551,12 @@ impl TryFrom<String> for Modifiers {
 
 impl From<&Modifiers> for String {
     fn from(val: &Modifiers) -> Self {
+        val.to_string()
+    }
+}
+
+impl From<Modifiers> for String {
+    fn from(val: Modifiers) -> Self {
         val.to_string()
     }
 }
@@ -1250,7 +1256,7 @@ impl ToString for PhysKeyCode {
 }
 
 bitflags! {
-    #[derive(Default)]
+    #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash)]
     pub struct MouseButtons: u8 {
         const NONE = 0;
         #[allow(clippy::identity_op)]
@@ -2035,6 +2041,7 @@ fn csi_u_encode(buf: &mut String, c: char, mods: Modifiers) {
 }
 
 bitflags::bitflags! {
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash)]
 pub struct KittyKeyboardFlags: u16 {
     const NONE = 0;
     const DISAMBIGUATE_ESCAPE_CODES = 1;
@@ -2046,8 +2053,8 @@ pub struct KittyKeyboardFlags: u16 {
 }
 
 bitflags! {
-    #[derive(FromDynamic, ToDynamic)]
-    #[cfg_attr(feature="serde", derive(Serialize, Deserialize), serde(try_from = "String"))]
+    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, FromDynamic, ToDynamic)]
+    #[cfg_attr(feature="serde", derive(Serialize, Deserialize), serde(into = "String", try_from = "String"))]
     #[dynamic(try_from = "String", into = "String")]
     pub struct WindowDecorations: u8 {
         const TITLE = 1;
@@ -2090,6 +2097,12 @@ impl Into<String> for &WindowDecorations {
         } else {
             s.join("|")
         }
+    }
+}
+
+impl From<WindowDecorations> for String {
+    fn from(val: WindowDecorations) -> Self {
+        (&val).into()
     }
 }
 

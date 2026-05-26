@@ -12,7 +12,7 @@ readme = "README.md"
 
 [dependencies]
 anyhow.workspace = true
-bitflags = "2.0"
+bitflags.workspace = true
 cassowary = {workspace=true, optional=true}
 fancy-regex.workspace = true
 filedescriptor.workspace = true

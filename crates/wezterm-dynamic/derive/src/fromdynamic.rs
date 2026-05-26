@@ -12,15 +12,43 @@ pub fn derive(input: DeriveInput) -> Result<TokenStream> {
             ..
         }) => derive_struct(&input, fields),
         Data::Enum(enumeration) => derive_enum(&input, enumeration),
-        Data::Struct(_) => Err(Error::new(
-            Span::call_site(),
-            "currently only structs with named fields are supported",
-        )),
+        Data::Struct(_) => {
+            // Support newtype/tuple structs that have #[dynamic(try_from="...")] attribute,
+            // which delegates deserialization via TryFrom conversion.
+            let info = attr::container_info(&input.attrs)?;
+            if info.try_from.is_some() {
+                derive_newtype_with_try_from(&input, &info)
+            } else {
+                Err(Error::new(
+                    Span::call_site(),
+                    "currently only structs with named fields are supported",
+                ))
+            }
+        }
         Data::Union(_) => Err(Error::new(
             Span::call_site(),
             "currently only structs and enums are supported by this derive",
         )),
     }
+}
+
+fn derive_newtype_with_try_from(input: &DeriveInput, info: &attr::ContainerInfo) -> Result<TokenStream> {
+    let ident = &input.ident;
+    let (impl_generics, ty_generics, _where_clause) = input.generics.split_for_impl();
+    let bound = parse_quote!(wezterm_dynamic::FromDynamic);
+    let bounded_where_clause = bound::where_clause_with_bound(&input.generics, bound);
+
+    let try_from = info.try_from.as_ref().unwrap();
+    let tokens = quote! {
+        impl #impl_generics wezterm_dynamic::FromDynamic for #ident #ty_generics #bounded_where_clause {
+            fn from_dynamic(value: &wezterm_dynamic::Value, options: wezterm_dynamic::FromDynamicOptions) -> core::result::Result<Self, wezterm_dynamic::Error> {
+                use core::convert::TryFrom;
+                let target = <#try_from>::from_dynamic(value, options)?;
+                <#ident>::try_from(target).map_err(|e| wezterm_dynamic::Error::Message(format!("{:#}", e)))
+            }
+        }
+    };
+    Ok(tokens)
 }
 
 fn derive_struct(input: &DeriveInput, fields: &FieldsNamed) -> Result<TokenStream> {

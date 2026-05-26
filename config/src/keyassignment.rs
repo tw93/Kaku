@@ -27,7 +27,7 @@ pub struct LauncherActionArgs {
 }
 
 bitflags::bitflags! {
-    #[derive(Default,  FromDynamic, ToDynamic)]
+    #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash, FromDynamic, ToDynamic)]
     #[dynamic(try_from="String", into="String")]
     pub struct LauncherFlags :u32 {
         const ZERO = 0;
