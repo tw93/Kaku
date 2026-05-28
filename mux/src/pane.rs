@@ -343,6 +343,9 @@ pub trait Pane: Downcast + Send + Sync {
     /// Called to advise on whether this tab has focus
     fn focus_changed(&self, _focused: bool) {}
 
+    /// Prompt focus-aware TUIs to refresh terminal-scoped state.
+    fn refresh_focus(&self, _focused: bool) {}
+
     /// Called to advise remote mux that this is the active tab
     /// for the current identity
     fn advise_focus(&self) {}

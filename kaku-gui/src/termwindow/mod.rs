@@ -2999,6 +2999,9 @@ impl TermWindow {
                     overlay.pane.set_config(Arc::clone(&term_config));
                 }
             }
+            if let Some(active_pane) = self.get_active_pane_or_overlay() {
+                active_pane.refresh_focus(self.focused.is_some());
+            }
         }
 
         if let Some(window) = self.window.as_ref().map(|w| w.clone()) {

@@ -10,7 +10,9 @@ mod csi;
 // mod selection; FIXME: port to render layer
 use crate::color::ColorPalette;
 use k9::assert_equal as assert_eq;
+use std::io::Write;
 use std::sync::{Arc, Mutex};
+use std::time::{Duration, Instant};
 use wezterm_escape_parser::csi::{Edit, EraseInDisplay, EraseInLine};
 use wezterm_escape_parser::{OneBased, OperatingSystemCommand, CSI};
 use wezterm_surface::{CursorShape, CursorVisibility, SequenceNo, SEQ_ZERO};
@@ -59,6 +61,15 @@ impl TerminalConfiguration for TestTermConfig {
 
 impl TestTerm {
     fn new(height: usize, width: usize, scrollback: usize) -> Self {
+        Self::new_with_writer(height, width, scrollback, Box::new(Vec::new()))
+    }
+
+    fn new_with_writer(
+        height: usize,
+        width: usize,
+        scrollback: usize,
+        writer: Box<dyn Write + Send>,
+    ) -> Self {
         let _ = env_logger::Builder::new()
             .is_test(true)
             .filter_level(log::LevelFilter::Trace)
@@ -75,7 +86,7 @@ impl TestTerm {
             Arc::new(TestTermConfig { scrollback }),
             "WezTerm",
             "O_o",
-            Box::new(Vec::new()),
+            writer,
         );
         let clip: Arc<dyn Clipboard> = Arc::new(LocalClip::new());
         term.set_clipboard(&clip);
@@ -182,6 +193,46 @@ impl TestTerm {
              lines (right) reason={:?}. threshold seq: {} seqs: {:?}",
             reason, seqno, seqs
         );
+    }
+}
+
+#[derive(Clone, Debug, Default)]
+struct SharedWriter {
+    output: Arc<Mutex<Vec<u8>>>,
+}
+
+impl SharedWriter {
+    fn snapshot(&self) -> Vec<u8> {
+        self.output.lock().unwrap().clone()
+    }
+
+    fn clear(&self) {
+        self.output.lock().unwrap().clear();
+    }
+}
+
+impl Write for SharedWriter {
+    fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
+        self.output.lock().unwrap().extend_from_slice(buf);
+        Ok(buf.len())
+    }
+
+    fn flush(&mut self) -> std::io::Result<()> {
+        Ok(())
+    }
+}
+
+fn wait_for_writer_output(writer: &SharedWriter, expected: &[u8]) {
+    let deadline = Instant::now() + Duration::from_secs(1);
+    loop {
+        let actual = writer.snapshot();
+        if actual == expected {
+            return;
+        }
+        if Instant::now() >= deadline {
+            assert_eq!(actual.as_slice(), expected);
+        }
+        std::thread::sleep(Duration::from_millis(5));
     }
 }
 
@@ -1618,4 +1669,30 @@ fn test_alternate_scroll_mode_cleared_on_soft_reset() {
 
     term.soft_reset();
     assert!(!term.is_mouse_grabbed());
+}
+
+#[test]
+fn refresh_focus_pulses_focus_in_and_restores_unfocused_state() {
+    let writer = SharedWriter::default();
+    let mut term = TestTerm::new_with_writer(5, 10, 100, Box::new(writer.clone()));
+
+    term.set_mode("?1004", true);
+    term.focus_changed(false);
+    wait_for_writer_output(&writer, b"\x1b[O");
+
+    writer.clear();
+    term.refresh_focus(false);
+
+    wait_for_writer_output(&writer, b"\x1b[I\x1b[O");
+}
+
+#[test]
+fn refresh_focus_sends_only_focus_in_when_already_focused() {
+    let writer = SharedWriter::default();
+    let mut term = TestTerm::new_with_writer(5, 10, 100, Box::new(writer.clone()));
+
+    term.set_mode("?1004", true);
+    term.refresh_focus(true);
+
+    wait_for_writer_output(&writer, b"\x1b[I");
 }

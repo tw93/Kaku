@@ -918,15 +918,36 @@ impl TerminalState {
             }
         }
         if self.focus_tracking {
-            self.write_fmt_to_pty(
-                "focus_changed: focus-tracking response",
-                format_args!("{}{}", CSI, if focused { "I" } else { "O" }),
-            );
-            self.flush_pty("focus_changed: focus-tracking response");
+            self.write_focus_tracking_response(focused, "focus_changed: focus-tracking response");
         }
         self.focused = focused;
         if !focused {
             self.lost_focus_seqno = self.seqno;
+        }
+    }
+
+    fn write_focus_tracking_response(&mut self, focused: bool, context: &str) {
+        self.write_fmt_to_pty(
+            context,
+            format_args!("{}{}", CSI, if focused { "I" } else { "O" }),
+        );
+        self.flush_pty(context);
+    }
+
+    /// Prompt focus-aware TUIs to refresh terminal-scoped state.
+    ///
+    /// Some TUIs use focus-in as their signal to re-query OSC 10/11 default
+    /// colors. A host-side theme reload changes those values without
+    /// necessarily changing window focus, so emit a focus-in probe and, if the
+    /// pane is not actually focused, immediately restore the focus-out state.
+    pub fn refresh_focus(&mut self, focused: bool) {
+        if !self.focus_tracking {
+            return;
+        }
+
+        self.write_focus_tracking_response(true, "refresh_focus: focus-in response");
+        if !focused {
+            self.write_focus_tracking_response(false, "refresh_focus: focus-out response");
         }
     }
 
