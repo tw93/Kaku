@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kaku Theme Setup Prototype</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div id="app"></div>
+    <script>
+      window.addEventListener("error", (event) => {
+        document.getElementById("app").innerHTML =
+          '<pre style="color:#D85D5D;padding:24px;white-space:pre-wrap">Prototype error: ' +
+          String(event.message) + "\n" + String(event.filename) + ":" + String(event.lineno) +
+          "</pre>";
+      });
+    </script>
+    <script src="app.js"></script>
+  </body>
+</html>

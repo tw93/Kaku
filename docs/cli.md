@@ -10,6 +10,78 @@ Open the AI settings panel inside Kaku. Configure external coding tools (Claude 
 kaku ai
 ```
 
+## kaku theme
+
+Inspect Kaku's current theme state and the terminal-tool coordination boundary.
+Inspecting is read-only; writes require an explicit tool list:
+
+```bash
+kaku theme current
+kaku theme palette --format json
+kaku theme status
+```
+
+`status` distinguishes write-capable adapters, Kaku's built-in Yazi
+coordination, Codex ANSI inheritance, and Atuin's informational-only status.
+Atuin is informational-only in this release and inherits the terminal palette;
+Kaku does not write Atuin configuration.
+OpenCode uses its documented TUI config (`OPENCODE_TUI_CONFIG` when set, or
+`$XDG_CONFIG_HOME/opencode/tui.json`) and a paired light/dark custom theme.
+Existing OpenCode selections or theme files require `--take-over opencode`.
+Fish uses a native dual-variant `Kaku.theme` plus a small interactive startup
+snippet; existing Fish theme assets require `--take-over fish`.
+fzf receives managed light/dark option files for new invocations, Starship
+receives Kaku palette tables in its active TOML, and btop receives a managed
+`Kaku.theme` plus `color_theme = "Kaku"`.
+
+```bash
+kaku theme preview --tools atuin --format json
+kaku theme apply --tools opencode --take-over opencode
+kaku theme apply --tools fish --take-over fish
+kaku theme apply --tools fzf --take-over fzf
+kaku theme apply --tools starship --take-over starship
+kaku theme apply --tools btop --take-over btop
+kaku theme remove --tools atuin --format json
+```
+
+### Visual smoke test
+
+To inspect the result in a real Kaku window, apply into a temporary XDG
+directory, then start a fresh shell with that directory exported:
+
+```bash
+tmpdir=$(mktemp -d)
+export XDG_CONFIG_HOME="$tmpdir/config"
+export XDG_STATE_HOME="$tmpdir/state"
+export CLAUDE_CONFIG_DIR="$tmpdir/claude"
+export OPENCODE_TUI_CONFIG="$tmpdir/config/opencode/tui.json"
+export STARSHIP_CONFIG="$tmpdir/config/starship.toml"
+
+kaku theme apply --tools fish,fzf,starship,btop,claude,opencode --format json
+```
+
+Open a new Kaku tab in that same shell and run:
+
+```bash
+fish -l                         # prompt and autosuggestions
+printf '\033[31mred\033[32m green\033[34m blue\033[0m\n'
+printf 'one\ntwo\nthree\n' | FZF_DEFAULT_OPTS_FILE="$XDG_CONFIG_HOME/fzf/kaku-dark.opts" fzf
+starship prompt                 # Starship prompt colors
+btop --config "$XDG_CONFIG_HOME/btop/btop.conf"
+claude                          # Claude Code native theme
+opencode                        # OpenCode TUI theme
+```
+
+For light-mode verification, switch macOS/Kaku to the light appearance, open
+another tab, and repeat the commands. `fzf` and Fish choose their light/dark
+files at shell startup; Claude and OpenCode choose the corresponding native
+theme files on their next launch. Codex and Atuin are intentionally read-only:
+their colors should follow Kaku's ANSI palette without a config write.
+
+Adapters that only inherit the terminal palette (such as Codex) and built-in
+integrations (such as Yazi) return informational results and never rewrite
+third-party files.
+
 ## kaku chat
 
 Start Kaku's standalone AI chat from any shell. This is a discoverable alias for

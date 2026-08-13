@@ -36,6 +36,8 @@ mod init;
 mod kaku_theme;
 mod reset;
 mod shell;
+mod theme;
+mod theme_adapters;
 mod tui_core;
 mod tui_splash;
 mod update;
@@ -154,6 +156,9 @@ enum SubCommand {
         about = "Reset Kaku shell integration and managed defaults"
     )]
     Reset(reset::ResetCommand),
+
+    #[command(name = "theme", about = "Inspect and coordinate terminal tool themes")]
+    Theme(theme::ThemeCommand),
 
     #[command(
         name = "cli",
@@ -277,6 +282,10 @@ fn terminate_with_error_message(err: &str) -> ! {
 }
 
 fn terminate_with_error(err: anyhow::Error) -> ! {
+    if let Some(code) = theme::exit_code(&err) {
+        log::error!("{}; terminating", err);
+        std::process::exit(code);
+    }
     terminate_with_error_message(&format!("{:#}", err));
 }
 
@@ -367,6 +376,11 @@ fn run() -> anyhow::Result<()> {
         SubCommand::Init(cmd) => cmd.run(),
         SubCommand::Doctor(cmd) => cmd.run(),
         SubCommand::Reset(cmd) => cmd.run(),
+        SubCommand::Theme(cmd) => {
+            env_bootstrap::bootstrap();
+            let _config = init_config(&opts)?;
+            theme::run(&cmd)
+        }
         SubCommand::Ai(cmd) => cmd.run(
             opts.config_file.clone(),
             opts.config_override.clone(),

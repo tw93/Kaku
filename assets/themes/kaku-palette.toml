@@ -1,0 +1,56 @@
+schema_version = 1
+palette_revision = 1
+
+[themes.kaku_dark]
+mode = "dark"
+
+[themes.kaku_dark.semantic]
+background = "#15141B"
+surface = "#201E29"
+surface_active = "#2A2735"
+border = "#45414F"
+foreground = "#D5D4D6"
+foreground_soft = "#B5B2BA"
+muted = "#6D6D6D"
+syntax_muted = "#A9A6B0"
+primary = "#8E6AD9"
+red = "#D85D5D"
+green = "#58D8AD"
+yellow = "#DAAE76"
+blue = "#7EA6F8"
+bright_blue = "#9DBBFF"
+magenta = "#C792EA"
+cyan = "#65D1E5"
+
+[themes.kaku_dark.terminal]
+foreground = "#D5D4D6"
+background = "#15141B"
+cursor = "#8E6AD9"
+selection = "#8E6AD9"
+
+[themes.kaku_light]
+mode = "light"
+
+[themes.kaku_light.semantic]
+background = "#FFFCF0"
+surface = "#F5F1E6"
+surface_active = "#E9E3D5"
+border = "#C9C1B3"
+foreground = "#403E3C"
+foreground_soft = "#5D5954"
+muted = "#7A7872"
+syntax_muted = "#68645E"
+primary = "#5E3DB3"
+red = "#AF3029"
+green = "#24837B"
+yellow = "#9A7400"
+blue = "#275FE4"
+bright_blue = "#305FCE"
+magenta = "#7A3E9D"
+cyan = "#0E6A83"
+
+[themes.kaku_light.terminal]
+foreground = "#403E3C"
+background = "#FFFCF0"
+cursor = "#343331"
+selection = "#5E3DB3"

@@ -1,4 +1,5 @@
 use config::{configuration, ConfigHandle};
+use serde::Deserialize;
 use std::sync::Mutex;
 use std::time::{Duration, Instant};
 use wezterm_term::color::{ColorPalette, SrgbaTuple};
@@ -38,6 +39,50 @@ fn rgb(hex: &str) -> SrgbaTuple {
     };
 
     SrgbaTuple(parse(0..2), parse(2..4), parse(4..6), 1.0)
+}
+
+#[derive(Debug, Deserialize)]
+struct CanonicalFile {
+    themes: CanonicalThemes,
+}
+
+#[derive(Debug, Deserialize)]
+struct CanonicalThemes {
+    kaku_dark: CanonicalTheme,
+    kaku_light: CanonicalTheme,
+}
+
+#[allow(dead_code)]
+#[derive(Debug, Deserialize)]
+struct CanonicalTheme {
+    semantic: CanonicalSemantic,
+    terminal: CanonicalTerminal,
+}
+
+#[allow(dead_code)]
+#[derive(Debug, Deserialize)]
+struct CanonicalSemantic {
+    background: String,
+    foreground: String,
+    foreground_soft: String,
+    muted: String,
+    primary: String,
+    red: String,
+    green: String,
+    yellow: String,
+}
+
+#[allow(dead_code)]
+#[derive(Debug, Deserialize)]
+struct CanonicalTerminal {
+    foreground: String,
+    background: String,
+    cursor: String,
+}
+
+fn canonical_file() -> CanonicalFile {
+    toml::from_str(include_str!("../../assets/themes/kaku-palette.toml"))
+        .expect("canonical Kaku palette must be valid TOML")
 }
 
 fn opaque(color: SrgbaTuple) -> SrgbaTuple {
@@ -143,27 +188,29 @@ fn palette_matches_builtin(
 }
 
 fn dark_palette() -> ThemePalette {
+    let theme = canonical_file().themes.kaku_dark;
     ThemePalette {
-        primary: rgb("#8E6AD9"),
-        secondary: rgb("#58D8AD"),
-        accent: rgb("#DAAE76"),
-        error: rgb("#D85D5D"),
-        text: rgb("#D5D4D6"),
-        muted: rgb("#6D6D6D"),
-        bg: rgb("#15141B"),
+        primary: rgb(&theme.semantic.primary),
+        secondary: rgb(&theme.semantic.green),
+        accent: rgb(&theme.semantic.yellow),
+        error: rgb(&theme.semantic.red),
+        text: rgb(&theme.semantic.foreground),
+        muted: rgb(&theme.semantic.muted),
+        bg: rgb(&theme.semantic.background),
         is_light: false,
     }
 }
 
 fn light_palette() -> ThemePalette {
+    let theme = canonical_file().themes.kaku_light;
     ThemePalette {
-        primary: rgb("#5E3DB3"),
-        secondary: rgb("#24837B"),
-        accent: rgb("#9A7400"),
-        error: rgb("#AF3029"),
-        text: rgb("#403E3C"),
-        muted: rgb("#7A7872"),
-        bg: rgb("#FFFCF0"),
+        primary: rgb(&theme.semantic.primary),
+        secondary: rgb(&theme.semantic.green),
+        accent: rgb(&theme.semantic.yellow),
+        error: rgb(&theme.semantic.red),
+        text: rgb(&theme.semantic.foreground),
+        muted: rgb(&theme.semantic.muted),
+        bg: rgb(&theme.semantic.background),
         is_light: true,
     }
 }
@@ -422,6 +469,10 @@ fn current_theme() -> CachedTheme {
 
 pub fn current_theme_palette() -> ThemePalette {
     current_theme().palette
+}
+
+pub(crate) fn config_for_theme_commands() -> ConfigHandle {
+    configuration()
 }
 
 #[cfg(test)]
