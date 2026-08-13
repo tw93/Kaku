@@ -21,6 +21,56 @@ kaku theme palette --format json
 kaku theme status
 ```
 
+### Quick start
+
+To apply the Kaku palette to all supported write-capable tools in one command:
+
+```bash
+kaku theme apply --tools claude,opencode,fish,fzf,starship,btop --format json
+```
+
+Open a new shell or relaunch the affected tool after applying. Use `status` to
+see which adapters are installed and when each one becomes active:
+
+```bash
+kaku theme status --format json
+```
+
+`preview` never writes files. It lists the exact adapters and target paths that
+an apply would touch:
+
+```bash
+kaku theme preview --tools claude,opencode,fish,fzf,starship,btop
+```
+
+If an adapter reports `consent_required`, inspect the preview and explicitly
+authorize takeover for that adapter:
+
+```bash
+kaku theme apply --tools claude --take-over claude
+```
+
+Only the named adapter is taken over. Other tools and unrelated user settings
+remain untouched. To remove Kaku-managed files or selectors later:
+
+```bash
+kaku theme remove --tools claude,opencode,fish,fzf,starship,btop
+```
+
+Removal stops with a `drift` result if a managed file was edited after apply;
+this protects user changes from being deleted.
+
+For Fish, use the native Fish syntax when setting an isolated test directory:
+
+```fish
+set -l tmpdir (mktemp -d)
+set -gx XDG_CONFIG_HOME "$tmpdir/config"
+set -gx XDG_STATE_HOME "$tmpdir/state"
+set -gx CLAUDE_CONFIG_DIR "$tmpdir/claude"
+set -gx OPENCODE_TUI_CONFIG "$tmpdir/config/opencode/tui.json"
+set -gx STARSHIP_CONFIG "$tmpdir/config/starship.toml"
+```
+
 `status` distinguishes write-capable adapters, Kaku's built-in Yazi
 coordination, Codex ANSI inheritance, and Atuin's informational-only status.
 Atuin is informational-only in this release and inherits the terminal palette;
