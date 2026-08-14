@@ -33,7 +33,8 @@ use ::window::*;
 use anyhow::{anyhow, ensure, Context};
 use config::keyassignment::{
     Confirmation, KeyAssignment, LauncherActionArgs, PaneDirection, PaneEncoding, Pattern,
-    PromptInputLine, QuickSelectArguments, RotationDirection, SpawnCommand, SplitSize,
+    PromptInputLine, QuickSelectArguments, RotationDirection, ScrollbackEraseMode, SpawnCommand,
+    SplitSize,
 };
 use config::window::WindowLevel;
 use config::{
@@ -97,6 +98,17 @@ enum InputBroadcastMode {
     Off,
     CurrentTab,
     AllTabs,
+}
+
+fn scrollback_erase_mode_for_pane(
+    requested: ScrollbackEraseMode,
+    alternate_screen_active: bool,
+) -> ScrollbackEraseMode {
+    if requested == ScrollbackEraseMode::ScrollbackAndViewport && alternate_screen_active {
+        ScrollbackEraseMode::ScrollbackOnly
+    } else {
+        requested
+    }
 }
 
 impl InputBroadcastMode {
@@ -4871,7 +4883,10 @@ impl TermWindow {
                 }
             }
             ClearScrollback(erase_mode) => {
-                pane.erase_scrollback(*erase_mode);
+                pane.erase_scrollback(scrollback_erase_mode_for_pane(
+                    *erase_mode,
+                    pane.is_alt_screen_active(),
+                ));
                 let window = self.window.as_ref().unwrap();
                 window.invalidate();
             }
@@ -6675,9 +6690,10 @@ impl Drop for TermWindow {
 #[cfg(test)]
 mod tests {
     use super::{
-        bell_notification_message, FileLinkTarget, InputBroadcastMode, MouseCapture,
-        RenderableDimensions, TermWindow,
+        bell_notification_message, scrollback_erase_mode_for_pane, FileLinkTarget,
+        InputBroadcastMode, MouseCapture, RenderableDimensions, TermWindow,
     };
+    use config::keyassignment::ScrollbackEraseMode;
     use mux::pane::PaneId;
     use mux::tab::TabId;
     use std::path::PathBuf;
@@ -6689,6 +6705,22 @@ mod tests {
             "SOME_OTHER_USER_VAR",
             true
         ));
+    }
+
+    #[test]
+    fn clear_scrollback_keeps_alternate_screen_viewport_intact() {
+        assert_eq!(
+            scrollback_erase_mode_for_pane(ScrollbackEraseMode::ScrollbackAndViewport, true),
+            ScrollbackEraseMode::ScrollbackOnly,
+        );
+    }
+
+    #[test]
+    fn clear_scrollback_still_clears_normal_screen_viewport() {
+        assert_eq!(
+            scrollback_erase_mode_for_pane(ScrollbackEraseMode::ScrollbackAndViewport, false),
+            ScrollbackEraseMode::ScrollbackAndViewport,
+        );
     }
 
     #[test]
