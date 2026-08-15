@@ -2587,6 +2587,7 @@ fn detect_provider_with_auth(base_url: &str, auth_type: &str) -> &'static str {
     match (normalized.as_str(), auth_type) {
         ("https://api.githubcopilot.com", _) => "Copilot",
         ("https://api.openai.com/v1", "codex") => "Codex",
+        ("https://api.orcarouter.ai/v1", _) => "OrcaRouter",
         _ => "Custom",
     }
 }
@@ -2687,6 +2688,12 @@ mod tests {
             detect_provider_with_auth("https://api.openai.com/v1", "api_key"),
             "Custom"
         );
+        // The OrcaRouter gateway is a named OpenAI-compatible endpoint, so it is
+        // surfaced as its own provider regardless of auth type.
+        assert_eq!(
+            detect_provider_with_auth("https://api.orcarouter.ai/v1", "api_key"),
+            "OrcaRouter"
+        );
         // Unknown / removed providers (Gemini was dropped in V0.10.0) fall
         // through to Custom rather than crashing detection.
         assert_eq!(
@@ -2721,6 +2728,10 @@ mod tests {
         assert_eq!(
             detect_provider_with_auth("https://api.openai.com/v1/", "codex"),
             "Codex"
+        );
+        assert_eq!(
+            detect_provider_with_auth("https://api.orcarouter.ai/v1/", "api_key"),
+            "OrcaRouter"
         );
     }
 
