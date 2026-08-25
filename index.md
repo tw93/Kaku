@@ -6,6 +6,7 @@ This is the markdown twin of <https://kaku.fun>. Every page on this site has one
 
 - **Product:** Kaku, a macOS terminal emulator derived from WezTerm
 - **Homepage:** <https://kaku.fun>
+- **Product facts:** <https://yobi.tw93.fun/projects/kaku>
 - **Source:** <https://github.com/tw93/Kaku> (MIT)
 - **Platform:** macOS only. Windows and Linux are not supported.
 - **Price:** free, no account, no paid tier, no usage limits

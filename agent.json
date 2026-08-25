@@ -11,11 +11,13 @@
     "license": "MIT",
     "licenseUrl": "https://opensource.org/licenses/MIT",
     "homepage": "https://kaku.fun",
+    "productFacts": "https://yobi.tw93.fun/projects/kaku",
     "repository": "https://github.com/tw93/Kaku",
     "platforms": ["macos"],
     "unsupportedPlatforms": ["windows", "linux"],
     "price": {"amount": "0", "currency": "USD", "model": "free", "paidTier": false},
     "author": {
+      "id": "https://tw93.fun/#person",
       "name": "Tw93",
       "url": "https://tw93.fun",
       "sameAs": ["https://github.com/tw93", "https://x.com/HiTw93"]

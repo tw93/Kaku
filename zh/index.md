@@ -6,6 +6,7 @@ Kaku 是一个开箱即用的快速 macOS 终端，为 AI 编码而生。MIT 开
 
 - **产品：**Kaku，基于 WezTerm 深度定制的 macOS 终端
 - **主页：**<https://kaku.fun/zh/>
+- **产品事实页：**<https://yobi.tw93.fun/projects/kaku>
 - **源码：**<https://github.com/tw93/Kaku>（MIT）
 - **平台：**仅 macOS，不支持 Windows 和 Linux
 - **价格：**免费，无账号，无付费档位，无用量限制
