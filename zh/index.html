@@ -36,7 +36,7 @@
         "applicationCategory": "DeveloperApplication",
         "applicationSubCategory": "Terminal Emulator",
         "operatingSystem": "macOS",
-        "softwareVersion": "0.16.0",
+        "softwareVersion": "0.19.0",
         "url": "https://kaku.fun/zh/",
         "downloadUrl": "https://github.com/tw93/Kaku/releases/latest",
         "installUrl": "https://github.com/tw93/Kaku/releases/latest",
@@ -45,7 +45,7 @@
         "license": "https://opensource.org/licenses/MIT",
         "isBasedOn": "https://wezterm.org",
         "featureList": [
-          "标签页与分屏走原生 macOS 快捷键，支持多屏广播输入和 Tab Navigator",
+          "标签页与分屏走原生 macOS 快捷键，支持 Tab Navigator 和会话恢复",
           "开箱即用的默认值：JetBrains Mono、macOS 级字体渲染、跟随系统的深浅色主题",
           "内置 AI 助手：命令失败时草拟修复，把自然语言转成命令",
           "预置 shell 套件：Lazygit、Yazi、远程文件、z、补全、语法高亮",
@@ -56,7 +56,6 @@
           "https://github.com/tw93/Kaku",
           "https://github.com/tw93",
           "https://x.com/HiTw93",
-          "https://yobi.tw93.fun/projects/kaku",
           "https://kaku.fun"
         ],
         "author": {
@@ -234,7 +233,7 @@
   <a class="skip-link" href="#main-content">跳到正文</a>
   <nav class="site-nav" aria-label="主导航">
     <div class="wide nav-inner">
-      <a class="brand" href="/zh/"><strong>Kaku</strong></a><span class="eyebrow-sep">·</span><a class="version-link" href="https://github.com/tw93/Kaku/releases" target="_blank" rel="noopener noreferrer">v0.16.0</a>
+      <a class="brand" href="/zh/"><strong>Kaku</strong></a><span class="eyebrow-sep">·</span><a class="version-link" href="https://github.com/tw93/Kaku/releases" target="_blank" rel="noopener noreferrer">v0.19.0</a>
       <div class="nav-links"><a href="/zh/docs/">文档</a></div>
       <div class="nav-actions">
         <a class="nav-pill" aria-current="page" href="/zh/" hreflang="zh-CN">中</a>
@@ -274,13 +273,13 @@
           <div class="terminal-body">
             <div class="command-row"><span class="command-label">标签</span>新建 ⌘T · 关闭 ⌘W · 切换 ⌘1–9</div>
             <div class="command-row"><span class="command-label">分屏</span>⌘D 和 ⌘⇧D 拆分 · ⌘⌥ + 方向键 切换</div>
-            <div class="command-row"><span class="command-label">窗口</span>设置 ⌘, · 清屏 ⌘K · 广播输入到所有分屏</div>
+            <div class="command-row"><span class="command-label">窗口</span>设置 ⌘, · 清屏 ⌘K · 恢复会话</div>
           </div>
         </div>
         <div class="prose">
           <span class="section-num">01 · 标签与分屏</span>
           <h2>标签和分屏，手感和 macOS 其它地方一致。</h2>
-          <p>新建标签、拆分窗格、在分屏间切换，都用你熟悉的快捷键，需要时把输入广播到所有分屏。</p>
+          <p>新建标签、拆分窗格、在分屏间切换，都用你熟悉的快捷键。重新打开 Kaku，窗口、分屏和各自目录会一起恢复。</p>
           <p><a href="/zh/docs/keybindings">查看全部快捷键</a></p>
         </div>
       </div>
@@ -311,7 +310,7 @@
           <p>标签、字体、主题、Shell 工具、性能和 AI，开箱就已经安排好。</p>
         </div>
         <div class="feature-grid">
-          <a class="feature" href="/zh/docs/keybindings"><span class="mark">01</span><strong>标签与分屏</strong><span>新建、拆分、切换都用原生快捷键，还能广播输入到所有分屏。</span></a>
+          <a class="feature" href="/zh/docs/keybindings"><span class="mark">01</span><strong>标签与分屏</strong><span>用原生快捷键新建、拆分和切换，并可靠恢复窗口、分屏与目录。</span></a>
           <a class="feature" href="/zh/docs/configuration"><span class="mark">02</span><strong>字体与主题</strong><span>JetBrains Mono、macOS 字体渲染，深浅色自动切换。</span></a>
           <a class="feature" href="/zh/docs/features"><span class="mark">03</span><strong>快而轻量</strong><span>体积小 40%、启动快、精简的 GPU 内核。</span></a>
           <a class="feature" href="/zh/docs/features"><span class="mark">04</span><strong>小细节</strong><span>选中即复制、可点击文件路径、历史窥视、视觉提示音。</span></a>

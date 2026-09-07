@@ -43,8 +43,6 @@
 | 放大 / 还原分屏 | `Cmd + Shift + Enter` |
 | 在分屏间切换 | `Cmd + Opt + Arrows` |
 | 调整分屏大小 | `Cmd + Ctrl + Arrows` |
-| 广播输入到当前标签 | `Cmd + Opt + I` |
-| 广播输入到所有标签 | `Cmd + Shift + I` |
 
 ## Shell 编辑
 

@@ -1,0 +1,27 @@
+name: Public facts
+
+on:
+  push:
+    branches: [vercel]
+  pull_request:
+    branches: [vercel]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install Pygments
+      - run: python3 scripts/build_markdown.py --check
+      - run: python3 scripts/build_feed.py --check
+      - run: python3 scripts/highlight.py --check
+      - run: python3 scripts/check_public_facts.py
+        env:
+          GITHUB_TOKEN: ${{ github.token }}

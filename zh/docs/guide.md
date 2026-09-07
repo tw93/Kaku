@@ -35,7 +35,7 @@
 
 ssh 到别的机器后，那个标签会显示主机名而不是本地路径，远程标签很容易认出来。远程主机上还有哪些行为不同，见[远程会话](https://kaku.fun/zh/docs/features#features-remote-sessions)。
 
-想把同一段内容同时敲进多个面板？按 `Cmd + Opt + I` 把按键广播到当前标签的每个面板。完整列表见[快捷键](https://kaku.fun/zh/docs/keybindings)。
+重新打开 Kaku 时，窗口、分屏和各自的工作目录都会恢复。即使一个分屏没能保存，其余会话也会正常回来。
 
 ## 开箱即用的 Shell
 

@@ -87,7 +87,7 @@ Kaku ships a minimal AppleScript dictionary so it shows up in Script Editor and 
 ```applescript
 tell application "Kaku"
   get name        -- "Kaku"
-  get version     -- e.g. "0.16.0"
+  get version     -- e.g. "0.19.0"
   get frontmost   -- true / false
   quit            -- optional `saving ask|yes|no`
 end tell

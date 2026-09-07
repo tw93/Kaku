@@ -43,8 +43,6 @@ All keybindings use macOS-native modifier keys. `Opt` = Option/Alt, `Ctrl` = Con
 | Zoom / unzoom pane | `Cmd + Shift + Enter` |
 | Navigate panes | `Cmd + Opt + Arrows` |
 | Resize pane | `Cmd + Ctrl + Arrows` |
-| Broadcast input to current tab | `Cmd + Opt + I` |
-| Broadcast input to all tabs | `Cmd + Shift + I` |
 
 ## Shell Editing
 

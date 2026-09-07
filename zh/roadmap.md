@@ -1,12 +1,12 @@
 # 路线图
 
-Kaku 当前处在 0.16.x 版本线。重点是让上手路径更清楚、AI 工作流更可靠，并继续打磨日常终端体验。
+Kaku 当前处在 0.19.x 版本线。重点是让会话恢复更可靠、分屏操作更安全，并继续打磨 AI 工作流和日常终端体验。
 
 ## Now
 
 1. 保持首次上手说明准确：安装方式、`kaku doctor`、shell 集成和可选工具准备。
 2. 让 AI 设置更清楚：Auth Type、Base URL、Simple Model、Deep Model、API key、代理行为和自定义端点排查。
-3. 打磨标签、分屏、选择和 Command Palette 导航，同时保持熟悉的快捷键不变。
+3. 保持窗口、分屏、工作目录和部分保存失败场景下的会话恢复可靠。
 
 ---
 
@@ -21,7 +21,7 @@ Kaku 当前处在 0.16.x 版本线。重点是让上手路径更清楚、AI 工�
 ## Later
 
 1. 评估非 macOS 平台，不承诺时间表。
-2. 更完整的会话恢复、录制和回放能力。
+2. 在保持本地和易理解的前提下，评估会话录制与回放。
 3. 围绕 IDE、tmux 和远程开发做更深集成。
 
 发布说明见 [GitHub Releases](https://github.com/tw93/Kaku/releases)。具体问题和实现讨论仍然以 [GitHub Issues](https://github.com/tw93/Kaku/issues) 为准。

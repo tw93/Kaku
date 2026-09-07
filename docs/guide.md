@@ -35,7 +35,7 @@ Inside the Tab Navigator, `Backspace` on the highlighted tab closes it, with the
 
 When you ssh somewhere, that tab shows the host name instead of a local path, so a remote tab is easy to spot. See [Remote Sessions](https://kaku.fun/docs/features#features-remote-sessions) for what else changes on a remote host.
 
-Need to type the same thing into several panes at once? Press `Cmd + Opt + I` to broadcast your keystrokes to every pane in the current tab. The full list lives in [Keybindings](https://kaku.fun/docs/keybindings).
+When you reopen Kaku, it restores your windows, their panes, and each pane's working directory. If one pane cannot be saved, the rest of the session still returns.
 
 ## The shell, ready to go
 

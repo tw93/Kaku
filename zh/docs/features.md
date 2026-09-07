@@ -87,7 +87,7 @@ Kaku 内置一份极简的 AppleScript 字典，因此它会出现在 Script Edi
 ```applescript
 tell application "Kaku"
   get name        -- "Kaku"
-  get version     -- e.g. "0.16.0"
+  get version     -- e.g. "0.19.0"
   get frontmost   -- true / false
   quit            -- optional `saving ask|yes|no`
 end tell
