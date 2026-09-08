@@ -4,7 +4,7 @@ Kaku Assistant, AI Chat, error recovery, natural-language commands, and built-in
 
 ## Kaku Assistant
 
-Kaku Assistant has two modes: automatic error recovery and on-demand command generation from natural language.
+Kaku Assistant suggests fixes for failed commands, generates commands from descriptions, and provides chat about terminal output and project files.
 
 **Setup**
 
@@ -19,6 +19,10 @@ Run `kaku ai` to open the AI settings panel. Enable Kaku Assistant and edit the 
 | API Key | API key from the selected AI service when Auth Type is API key |
 
 For custom OpenAI-compatible services, keep Auth Type set to API key, enter the service's Base URL, and set the model names manually.
+
+For API-key connections, enter the API root (for example `https://api.openai.com/v1`) and choose **API Mode**: `chat_completions` or `responses`. Responses mode also offers **Native Web Search** when supported by the provider.
+
+With Codex authentication, Kaku reads your Codex connection settings. **Follow Codex** uses that connection's model; you can also set Simple Model and Deep Model separately in Kaku.
 
 ## AI Chat Panel
 

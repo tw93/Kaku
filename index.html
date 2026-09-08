@@ -4,9 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <title>Kaku · A fast terminal for AI coding</title>
-  <meta name="description" content="Kaku is a fast, out-of-the-box macOS terminal built for AI coding: quick tabs and panes, preset defaults, a curated shell suite, and an AI assistant built in.">
-  <meta property="og:title" content="Kaku · A fast terminal for AI coding">
+  <title>Kaku · An AI-friendly Mac terminal</title>
+  <meta name="description" content="Kaku is an AI-friendly Mac terminal with sensible defaults, ready out of the box: quick tabs and panes, preset defaults, a curated shell suite, and an AI assistant built in.">
+  <meta property="og:title" content="Kaku · An AI-friendly Mac terminal">
   <meta property="og:description" content="A fast, out-of-the-box macOS terminal: tabs, panes, preset defaults, and an AI assistant when you want it.">
   <meta property="og:type" content="website">
   <meta property="og:image" content="https://kaku.fun/shots/kaku-og.webp">
@@ -32,7 +32,7 @@
         "@id": "https://kaku.fun/#software",
         "name": "Kaku",
         "alternateName": "Kaku Terminal",
-        "description": "Kaku is a fast, out-of-the-box macOS terminal built for AI coding. Derived from WezTerm, it ships JetBrains Mono, macOS-quality font rendering, automatic dark and light themes, fast tabs and split panes on native macOS shortcuts, a curated shell suite, and an optional AI assistant that drafts a fix when a command fails. MIT licensed, no account, no telemetry.",
+        "description": "Kaku is an AI-friendly Mac terminal with sensible defaults, ready out of the box. Derived from WezTerm, it ships JetBrains Mono, macOS-quality font rendering, automatic dark and light themes, fast tabs and split panes on native macOS shortcuts, a curated shell suite, and an optional AI assistant that drafts a fix when a command fails. MIT licensed, no account, no telemetry.",
         "applicationCategory": "DeveloperApplication",
         "applicationSubCategory": "Terminal Emulator",
         "operatingSystem": "macOS",
@@ -49,8 +49,8 @@
           "Out-of-the-box defaults: JetBrains Mono, macOS font rendering, automatic dark and light themes",
           "Built-in AI assistant that drafts a fix for failed commands and turns plain language into commands",
           "Curated shell suite: Lazygit, Yazi, remote files, z, completion, syntax highlighting",
-          "Full WezTerm Lua API compatibility, so existing configs work with no migration",
-          "Roughly 40% smaller binary than upstream, with fast startup"
+          "WezTerm's Lua configuration system for terminal customization",
+          "GPU-accelerated terminal rendering"
         ],
         "sameAs": [
           "https://github.com/tw93/Kaku",
@@ -82,7 +82,7 @@
         "@id": "https://kaku.fun/#organization",
         "name": "Kaku",
         "alternateName": "The Kaku project",
-        "description": "Kaku is an independent, MIT-licensed open source project by Tw93, developed in public on GitHub. There is no company behind it, no sales team, and no paid tier.",
+        "description": "Kaku is an independent, MIT-licensed open source project by Tw93, developed in public on GitHub. Its source, issues, and releases are available on GitHub.",
         "url": "https://kaku.fun",
         "logo": {
           "@type": "ImageObject",
@@ -129,7 +129,7 @@
         "@id": "https://kaku.fun/#website",
         "name": "Kaku",
         "url": "https://kaku.fun",
-        "description": "Documentation and download site for Kaku, a fast, out-of-the-box macOS terminal built for AI coding.",
+        "description": "Documentation and download site for Kaku, an AI-friendly Mac terminal with sensible defaults, ready out of the box.",
         "inLanguage": ["en", "zh-CN"],
         "publisher": { "@id": "https://kaku.fun/#organization" },
         "about": { "@id": "https://kaku.fun/#software" }
@@ -138,7 +138,7 @@
         "@type": "WebPage",
         "@id": "https://kaku.fun/#webpage",
         "url": "https://kaku.fun/",
-        "name": "Kaku · A fast terminal for AI coding",
+        "name": "Kaku · An AI-friendly Mac terminal",
         "isPartOf": { "@id": "https://kaku.fun/#website" },
         "about": { "@id": "https://kaku.fun/#software" },
         "inLanguage": "en",
@@ -173,7 +173,7 @@
         "name": "How is Kaku different from iTerm2?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "iTerm2 is a mature macOS terminal. Kaku is a lighter, faster alternative with practical defaults, fast tabs and panes, a curated shell suite, and an AI assistant, ready out of the box."
+          "text": "Kaku comes with fonts, themes, shell integration, and Mac shortcuts configured. It also includes an optional assistant that connects to your own AI service."
         }
       },
       {
@@ -181,7 +181,7 @@
         "name": "How is Kaku different from Warp?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Warp is closed source and built around a cloud account. Kaku is MIT open source, requires no account, and AI requests only go to the AI service you configure."
+          "text": "Kaku is MIT licensed and requires no Kaku account. You configure your own AI service, and can customize the terminal with Lua."
         }
       },
       {
@@ -211,7 +211,7 @@
     <section class="hero">
       <div class="hero-wrap hero-centered">
         <h1>Kaku<span class="cn-orbit"><span class="cn">書</span></span></h1>
-        <p class="hero-sub">A fast, out-of-the-box macOS terminal built for AI coding, open source and no account.</p>
+        <p class="hero-sub">An AI-friendly Mac terminal with sensible defaults, ready out of the box. Open source, no account required.</p>
         <div class="hero-trust"><span>Zero config</span><span>Lightweight</span><span>AI-friendly</span></div>
         <div class="hero-actions">
           <a class="btn btn-primary" href="https://github.com/tw93/Kaku/releases/latest" target="_blank" rel="noopener noreferrer">Download Kaku</a>
@@ -221,9 +221,9 @@
     </section>
     <section class="section"><div class="wide"><div class="section-head"><span class="section-num">00 · See it</span><h2>What it actually looks like</h2><p>Dark and light modes, tuned fonts, and a native macOS feel, the same on both.</p></div><div class="gallery"><figure class="shot"><img src="/shots/kaku-dark.webp" width="1920" height="1192" loading="lazy" alt="Kaku dark mode screenshot"><figcaption>Dark mode: tabs, panes, and tools in one fast workspace.</figcaption></figure><figure class="shot"><img src="/shots/kaku-light.webp" width="1920" height="1192" loading="lazy" alt="Kaku light mode screenshot"><figcaption>Light mode: native macOS feel with crisp, readable type.</figcaption></figure></div></div></section>
     <section class="section"><div class="wide split"><div class="terminal-window command-card"><div class="terminal-body"><div class="command-row"><span class="command-label">Tabs</span>New ⌘T · Close ⌘W · Switch ⌘1–9</div><div class="command-row"><span class="command-label">Panes</span>Split ⌘D and ⌘⇧D · Navigate ⌘⌥ + arrows</div><div class="command-row"><span class="command-label">Window</span>Settings ⌘, · Clear ⌘K · Restore sessions</div></div></div><div class="prose"><span class="section-num">01 · Tabs &amp; panes</span><h2>Tabs and splits that feel like the rest of macOS.</h2><p>New tabs, split panes, and navigation use the shortcuts you already expect. Reopen Kaku and your windows, panes, and working directories return.</p><p><a href="/docs/keybindings">See all shortcuts</a></p></div></div></section>
-    <section class="section"><div class="wide terminal-demo"><div class="prose"><span class="section-num">02 · Assistant</span><h2>A failed command should be more than red text.</h2><p>When a command fails, Kaku drafts a fix for review. Press <span class="sk">Cmd + Shift + E</span> to paste it back, and nothing dangerous runs on its own. Type <code>#</code> plus a sentence to turn plain language into a command.</p><p><a href="/docs/features">Explore the assistant</a></p></div><div class="terminal-window"><div class="terminal-body"><p class="term-line"><span class="prompt">~/proj $</span> npm run buidl</p><p class="term-line error">npm ERR! Missing script: "buidl"</p><div class="term-callout">Kaku Assistant · suggested fix<br><code>npm run build</code><br><span class="muted">Press <kbd>⌘⇧E</kbd> to paste it at the prompt. Nothing runs on its own.</span></div><p class="term-line"><span class="prompt">~/proj $</span> npm run build</p></div></div></div></section>
-    <section class="section"><div class="wide"><div class="section-head"><span class="section-num">03 · Defaults</span><h2>Defaults that already made a few choices.</h2><p>Tabs, fonts, themes, shell tools, performance, and AI, all arranged on day one.</p></div><div class="feature-grid"><a class="feature" href="/docs/keybindings"><span class="mark">01</span><strong>Tabs &amp; panes</strong><span>New tab, split, navigate, and restore sessions with dependable native behavior.</span></a><a class="feature" href="/docs/configuration"><span class="mark">02</span><strong>Fonts &amp; themes</strong><span>JetBrains Mono, macOS font rendering, and auto dark and light themes.</span></a><a class="feature" href="/docs/features"><span class="mark">03</span><strong>Fast &amp; lightweight</strong><span>40% smaller binary, fast startup, and a stripped-down GPU core.</span></a><a class="feature" href="/docs/features"><span class="mark">04</span><strong>Small touches</strong><span>Copy on select, clickable file paths, history peek, and visual bell.</span></a><a class="feature" href="/docs/features"><span class="mark">05</span><strong>Shell suite</strong><span>Lazygit, Yazi, remote files, z, completion, and highlighting.</span></a><a class="feature" href="/docs/features"><span class="mark">06</span><strong>AI assistant</strong><span>Fix failed commands and turn a sentence into a command, when you want it.</span></a><a class="feature" href="/docs/configuration"><span class="mark">07</span><strong>Lua config</strong><span>Full Lua API compatibility. Bring your existing config with no migration.</span></a></div></div></section>
-    <section class="section"><div class="wide"><div class="section-head"><span class="section-num">04 · Daily use</span><h2>Start with the paths that matter.</h2><p>Install, configure AI, then tune the terminal without reading everything first.</p></div><div class="workflow-list"><article class="workflow-item"><span class="mark">01</span><h3>Install</h3><p>Use the DMG or <code>brew install tw93/tap/kakuku</code>, then run <code>kaku doctor</code> to verify the app, PATH, and shell integration.</p></article><article class="workflow-item"><span class="mark">02</span><h3>AI setup</h3><p>Run <code>kaku ai</code>, enable Kaku Assistant, choose Auth Type, then set Simple Model and Deep Model. <span class="sk">Cmd + L</span> opens chat once it is configured.</p></article><article class="workflow-item"><span class="mark">03</span><h3>Tools</h3><p><span class="sk">Cmd + Shift + G</span> for Lazygit, <span class="sk">Cmd + Shift + Y</span> for Yazi, <span class="sk">Cmd + Shift + R</span> for remote files.</p></article><article class="workflow-item"><span class="mark">04</span><h3>Config</h3><p>Open the <code>kaku config</code> TUI for font size, opacity, Smart Tab, close confirmation, shortcuts, and Lua overrides.</p></article></div></div></section>
+    <section class="section"><div class="wide terminal-demo"><div class="prose"><span class="section-num">02 · Assistant</span><h2>A failed command should be more than red text.</h2><p>Once the assistant is configured, it can suggest a fix when a command fails. Press <span class="sk">Cmd + Shift + E</span> to paste it back, and nothing dangerous runs on its own. Type <code>#</code> plus a sentence to turn plain language into a command.</p><p><a href="/docs/features">Explore the assistant</a></p></div><div class="terminal-window"><div class="terminal-body"><p class="term-line"><span class="prompt">~/proj $</span> npm run buidl</p><p class="term-line error">npm ERR! Missing script: "buidl"</p><div class="term-callout">Kaku Assistant · suggested fix<br><code>npm run build</code><br><span class="muted">Press <kbd>⌘⇧E</kbd> to paste it at the prompt. Nothing runs on its own.</span></div><p class="term-line"><span class="prompt">~/proj $</span> npm run build</p></div></div></div></section>
+    <section class="section"><div class="wide"><div class="section-head"><span class="section-num">03 · Defaults</span><h2>Useful defaults, already set.</h2><p>Fonts, themes, shortcuts, and shell integration are already configured.</p></div><div class="feature-grid"><a class="feature" href="/docs/keybindings"><span class="mark">01</span><strong>Tabs &amp; panes</strong><span>New tab, split, navigate, and restore sessions with dependable native behavior.</span></a><a class="feature" href="/docs/configuration"><span class="mark">02</span><strong>Fonts &amp; themes</strong><span>JetBrains Mono, macOS font rendering, and auto dark and light themes.</span></a><a class="feature" href="/docs/features"><span class="mark">03</span><strong>Fast &amp; lightweight</strong><span>GPU-accelerated rendering for terminal text and graphics.</span></a><a class="feature" href="/docs/features"><span class="mark">04</span><strong>Small touches</strong><span>Copy on select, clickable file paths, history peek, and visual bell.</span></a><a class="feature" href="/docs/features"><span class="mark">05</span><strong>Shell suite</strong><span>Lazygit, Yazi, remote files, z, completion, and highlighting.</span></a><a class="feature" href="/docs/features"><span class="mark">06</span><strong>AI assistant</strong><span>Fix failed commands and turn a sentence into a command, when you want it.</span></a><a class="feature" href="/docs/configuration"><span class="mark">07</span><strong>Lua config</strong><span>Customize the terminal with WezTerm's Lua configuration system.</span></a></div></div></section>
+    <section class="section"><div class="wide"><div class="section-head"><span class="section-num">04 · Daily use</span><h2>Getting started</h2><p>Install Kaku and start using it. Configure your own AI service or adjust terminal settings when you need them.</p></div><div class="workflow-list"><article class="workflow-item"><span class="mark">01</span><h3>Install</h3><p>Use the DMG or <code>brew install tw93/tap/kakuku</code>, then run <code>kaku doctor</code> to verify the app, PATH, and shell integration.</p></article><article class="workflow-item"><span class="mark">02</span><h3>AI setup</h3><p>Run <code>kaku ai</code> to configure your own AI service and models. <span class="sk">Cmd + L</span> opens chat once it is configured.</p></article><article class="workflow-item"><span class="mark">03</span><h3>Tools</h3><p><span class="sk">Cmd + Shift + G</span> for Lazygit, <span class="sk">Cmd + Shift + Y</span> for Yazi, <span class="sk">Cmd + Shift + R</span> for remote files.</p></article><article class="workflow-item"><span class="mark">04</span><h3>Config</h3><p>Open the <code>kaku config</code> TUI for font size, opacity, Smart Tab, close confirmation, shortcuts, and Lua overrides.</p></article></div></div></section>
     <section class="section-tight">
       <div class="wide">
         <div class="section-head">
@@ -231,7 +231,7 @@
           <h2>It started as my own daily driver</h2>
         </div>
         <div class="section-body prose">
-          <p>I live in the terminal. I used Alacritty for years for its speed, then wanted stronger tabs and panes as my work shifted toward AI coding. Kaku builds on a fast, proven engine, adds practical defaults and shell tools, and puts an assistant within reach, all in one fast, quiet macOS app.</p>
+          <p>I live in the terminal. I used Alacritty for years for its speed, then wanted stronger tabs and panes as my work shifted toward AI coding. Kaku builds on a fast, proven engine, adds practical defaults and shell tools, and lets me connect my own AI service when I need an assistant.</p>
           <p>Tw93 · <a href="https://twitter.com/HiTw93" target="_blank" rel="noopener noreferrer">@HiTw93</a></p>
         </div>
       </div>
@@ -246,9 +246,9 @@
           <dt>How do I install Kaku?</dt>
           <dd>Download the DMG from <a href="https://github.com/tw93/Kaku/releases/latest" target="_blank" rel="noopener noreferrer">GitHub Releases</a>, or use the Homebrew tap: <code>brew install tw93/tap/kakuku</code>. An unrelated <code>kaku</code> package exists, so the tap avoids the wrong one.</dd>
           <dt>How is Kaku different from iTerm2?</dt>
-          <dd>iTerm2 is a mature macOS terminal. Kaku is a lighter, faster alternative with practical defaults, fast tabs and panes, a curated shell suite, and an AI assistant, ready out of the box.</dd>
+          <dd>Kaku comes with fonts, themes, shell integration, and Mac shortcuts configured. It also includes an optional assistant that connects to your own AI service.</dd>
           <dt>How is Kaku different from Warp?</dt>
-          <dd>Warp is closed source and built around a cloud account. Kaku is MIT open source, requires no account, and AI requests only go to the AI service you configure.</dd>
+          <dd>Kaku is MIT licensed and requires no Kaku account. You configure your own AI service, and can customize the terminal with Lua.</dd>
           <dt>Is Kaku paid?</dt>
           <dd>No, Kaku is an MIT-licensed open source project.</dd>
           <dt>Does Kaku run on Windows or Linux?</dt>
@@ -257,6 +257,6 @@
       </div>
     </section>
   </main>
-  <footer class="site-footer"><div class="wide footer-inner"><div class="footer-mark"><img src="/img/kaku-mark.png" width="64" height="64" alt="Kaku" loading="lazy"><div><p class="wm-name">Kaku · 書</p><p class="wm-sub">A macOS terminal for AI coding.</p></div></div><div class="footer-colophon"><p class="footer-links"><a href="/about">About</a> · <a href="/contact">Contact</a> · <a href="/privacy">Privacy</a> · <a href="/roadmap">Roadmap</a> · <a href="https://github.com/tw93/Kaku/releases" target="_blank" rel="noopener noreferrer">Changelog</a> · <a href="/docs/">Docs</a> · <a href="https://github.com/tw93/Kaku">GitHub</a> · <a href="https://github.com/tw93/Kaku/issues">Issues</a> · <a href="https://twitter.com/HiTw93">X</a></p><p class="footer-ethos">Less time fighting the terminal · Built on WezTerm · MIT · © 2026</p></div></div></footer>
+  <footer class="site-footer"><div class="wide footer-inner"><div class="footer-mark"><img src="/img/kaku-mark.png" width="64" height="64" alt="Kaku" loading="lazy"><div><p class="wm-name">Kaku · 書</p><p class="wm-sub">An AI-friendly Mac terminal, ready out of the box.</p></div></div><div class="footer-colophon"><p class="footer-links"><a href="/about">About</a> · <a href="/contact">Contact</a> · <a href="/privacy">Privacy</a> · <a href="/roadmap">Roadmap</a> · <a href="https://github.com/tw93/Kaku/releases" target="_blank" rel="noopener noreferrer">Changelog</a> · <a href="/docs/">Docs</a> · <a href="https://github.com/tw93/Kaku">GitHub</a> · <a href="https://github.com/tw93/Kaku/issues">Issues</a> · <a href="https://twitter.com/HiTw93">X</a></p><p class="footer-ethos">Less time fighting the terminal · Built on WezTerm · MIT · © 2026</p></div></div></footer>
 </body>
 </html>

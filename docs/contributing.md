@@ -14,7 +14,7 @@ cd Kaku
 brew install rustup
 echo "export PATH=\"$(brew --prefix rustup)/bin:\$HOME/.cargo/bin:\$PATH\"" >> ~/.zprofile
 exec zsh -l
-rustup toolchain install 1.93.0
+rustup toolchain install 1.95.0
 
 # Install required tools (cargo-nextest, cargo-watch, nightly rustfmt)
 make install-tools
@@ -81,7 +81,7 @@ Reproduce release artifacts locally. Official releases run through `scripts/rele
 4. Commit and push.
 5. Open a PR targeting `main`.
 
-CI runs in order: format check, unit tests, cargo check, universal build validation. Any red step needs to be fixed first.
+CI checks formatting, compilation, and tests for code changes. Universal builds run separately for build-pipeline changes, on a schedule, or on manual dispatch. Markdown-only changes do not trigger these checks.
 
 [Browse open Pull Requests](https://github.com/tw93/Kaku/pulls)
 

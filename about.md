@@ -1,24 +1,24 @@
 # About Kaku
 
-A fast, out-of-the-box macOS terminal for AI coding, built in the open by one person.
+An AI-friendly Mac terminal with sensible defaults, developed and maintained by Tw93.
 
 ## What Kaku is
 
-Kaku is a macOS-native terminal emulator derived from [WezTerm](https://wezterm.org) and tuned for AI-assisted terminal work. It keeps the speed and the full Lua configuration surface of the upstream project, trims the binary by roughly 40%, and ships opinionated defaults so the app is useful the moment it is installed: JetBrains Mono, macOS-quality font rendering, automatic dark and light themes, fast tabs and split panes on native macOS shortcuts, and a curated shell suite with Lazygit, Yazi, remote files, z, completion, and syntax highlighting already wired up.
+Kaku is a Mac terminal based on [WezTerm](https://wezterm.org), with JetBrains Mono, automatic dark and light themes, and familiar shortcuts for tabs and split panes. Shell completion, syntax highlighting, and directory jumping are configured for you. Lazygit and Yazi are available through optional installation, and Lua settings let you customize the terminal.
 
 The name comes from 書く (*kaku*), the Japanese verb for writing: putting thought into form. Kaku is part of a small family of tools by the same author. Kaku writes code, [Waza](https://github.com/tw93/Waza) (技) drills habits, and [Kami](https://github.com/tw93/Kami) (紙) ships documents.
 
 ## Who builds it
 
-Kaku is built by Tw93, an independent developer who also created [Pake](https://github.com/tw93/Pake) and [Mole](https://github.com/tw93/Mole). Development happens entirely in public on GitHub: issues, pull requests, releases, and the roadmap are all visible, and the full source is MIT licensed. There is no company behind Kaku, no sales team, and no enterprise tier. Support runs through [GitHub Issues](https://github.com/tw93/Kaku/issues), and the project is funded by optional [GitHub Sponsors](https://github.com/sponsors/tw93) rather than by the product itself.
+Kaku is built by Tw93, an independent developer who also created [Pake](https://github.com/tw93/Pake) and [Mole](https://github.com/tw93/Mole). Development happens entirely in public on GitHub: issues, pull requests, releases, and the roadmap are all visible, and the full source is MIT licensed. Support runs through [GitHub Issues](https://github.com/tw93/Kaku/issues), and you can support development through optional [GitHub Sponsors](https://github.com/sponsors/tw93).
 
-## What Kaku deliberately is not
+## Using Kaku
 
-- **Not an account product.** There is no sign-up, no login, and no cloud relay. Install the app and it works.
-- **Not a telemetry product.** Kaku does not collect usage analytics. See [Privacy](https://kaku.fun/privacy) for the exact network calls the app makes.
-- **Not an AI service.** The built-in assistant talks only to the OpenAI-compatible endpoint you configure with `kaku ai`. Kaku never proxies your prompts through a server it controls.
-- **Not cross-platform yet.** macOS only. Windows and Linux are not supported and no date is promised.
-- **Not paid.** Kaku is free and MIT licensed, with no paid tier and no usage limits.
+- **No Kaku account.** There is no sign-up, no login, and no cloud relay. Install the app and it works.
+- **No usage analytics.** Kaku does not collect usage analytics. See [Privacy](https://kaku.fun/privacy) for the exact network calls the app makes.
+- **Your own AI service.** Configure your own AI service with `kaku ai`. Kaku does not provide or relay it; network details are listed in [Privacy](https://kaku.fun/privacy).
+- **macOS only.** macOS only. Windows and Linux are not supported and no date is promised.
+- **Free and open source.** Kaku is free and MIT licensed, with no paid tier.
 
 ## Using this site
 

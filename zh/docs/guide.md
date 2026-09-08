@@ -1,6 +1,6 @@
 # 上手指南
 
-用大白话走一遍 Kaku：你看到什么、点哪里、每个快捷键做什么。
+从第一次打开到日常使用，了解标签页、分屏、Shell 和 AI 助手。
 
 > 第一次用 Kaku？这一页按平时上手的顺序过一遍，从第一个窗口讲到 AI 助手。要查具体细节，看[功能与 AI](https://kaku.fun/zh/docs/features)、[快捷键](https://kaku.fun/zh/docs/keybindings)和[配置](https://kaku.fun/zh/docs/configuration)。
 
@@ -56,7 +56,7 @@ Kaku 首次启动就配好了一套 zsh（也支持 fish），不用你动配置
 2. **一句话变命令。**输入 `#` 加一句话，比如 `# 找到并杀掉占用 3000 端口的进程`，回车。Kaku 把它变成真正的命令放到提示符上，等你确认再运行。
 3. **打开聊天面板。**按 `Cmd + L` 打开聊天，回答会流式输出、代码高亮，还能读取当前终端上下文。在任意 shell 里 `k "..."` 或 `kaku chat` 打开的是同一段对话。
 
-请求只会发给你配置的 AI 服务。完整设置细节见[功能与 AI](https://kaku.fun/zh/docs/features)。
+AI 服务由用户自行配置，Kaku 不提供或中转 AI 服务，完整设置细节见[功能与 AI](https://kaku.fun/zh/docs/features)。
 
 ## 内置工具
 

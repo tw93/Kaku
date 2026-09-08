@@ -84,7 +84,7 @@ config.harfbuzz_features = {}
 
 **字号**
 
-Kaku 会根据你的显示器自动选 15px（低分辨率）或 17px（高分辨率）。手动覆盖：
+Kaku 会根据你的显示器自动选 15pt（低分辨率）或 17pt（高分辨率）。手动覆盖：
 
 ```lua
 config.font_size = 16
@@ -330,9 +330,9 @@ wezterm.on('augment-command-palette', function(window, pane)
 end)
 ```
 
-**完整 WezTerm Lua API**
+**WezTerm Lua 配置**
 
-Kaku 沿用 WezTerm 的配置系统。任何 WezTerm 配置项都能在 `kaku.lua` 里用。完整参考见：
+Kaku 沿用 WezTerm 的配置系统。部分上游配置项在 Kaku 中行为不同，或已不再生效。完整参考见：
 
 - [WezTerm 配置项](https://wezfurlong.org/wezterm/config/)
 - [WezTerm Lua API](https://wezfurlong.org/wezterm/config/lua/)

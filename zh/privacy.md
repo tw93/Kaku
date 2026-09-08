@@ -8,7 +8,7 @@ Kaku 是一个本地 macOS 应用，不需要 Kaku 账号或注册，没有使�
 
 ## App 会发起的网络请求
 
-- **更新检查。**Kaku 会定期向 `api.github.com/repos/tw93/Kaku/releases/latest` 询问是否有新版本，你同意更新时再从 GitHub 下载发布包。对 GitHub 来说这就是一次来自你 IP 的普通 HTTPS 请求。在 `~/.config/kaku/kaku.lua` 里设 `config.check_for_updates = false` 可以关掉，用 `config.check_for_updates_interval_seconds` 可以改频率。
+- **更新检查。**Kaku 会定期向 `api.github.com/repos/tw93/Kaku/releases/latest` 询问是否有新版本，发现新版本后可在后台从 GitHub 下载发布包，安装前会请你确认。对 GitHub 来说这就是一次来自你 IP 的普通 HTTPS 请求。在 `~/.config/kaku/kaku.lua` 里设 `config.check_for_updates = false` 可以关掉，用 `config.check_for_updates_interval_seconds` 可以改频率。
 - **AI 助手。**用 `kaku ai` 开启 Kaku Assistant 后，prompt 和对话上下文会发给你配置的 AI 服务商，使用你的 API key 或 CLI 登录。上下文可能包含命令输出和助手工具读取的文件内容，项目方不通过自己的服务器中转，数据处理适用服务商的隐私政策。助手需要配置后才能使用，`#` 生成和自动修复命令等 shell 请求带有本地 capability 校验，仅打印在分屏里的文本无法触发这些请求。
 - **AI 网页工具。**助手搜索或读取网页时，查询词和网址可能发送给你配置的 Brave、Tavily 或 Pipellm 服务（`api.search.brave.com`、`api.tavily.com`、`api.pipellm.ai` 或 `api.pipellm.com`）。默认网页读取器会把目标网址发送给 `defuddle.md`，失败时改用 `r.jina.ai`；自定义读取脚本使用哪些服务，由脚本决定。HTTP 请求工具直接访问目标网址，并发送指定的请求头和请求体，这些服务会收到请求，适用各自的隐私政策。
 - **可选工具安装。**`kaku init` 在安装 Starship、Delta、Lazygit、Yazi 这类缺失的可选工具前会先询问。你同意后由 Homebrew 完成下载，Kaku 本身不下载任何东西。

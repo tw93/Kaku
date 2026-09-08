@@ -67,7 +67,7 @@ enabled = false
 
 ## 怎么用自定义的 LLM 服务？
 
-运行 `kaku ai`，Auth Type 保持 API key，手动填写 OpenAI 兼容 Base URL、API key、Simple Model 和 Deep Model。URL 需要 OpenAI 兼容格式（`/v1/chat/completions`）。
+运行 `kaku ai`，Auth Type 保持 API key，手动填写 OpenAI 兼容 Base URL、API key、Simple Model 和 Deep Model。Base URL 填 API 根地址，例如 `https://api.openai.com/v1`，API Mode 按服务选择 `chat_completions` 或 `responses`。
 
 ## 怎么恢复默认配置？
 

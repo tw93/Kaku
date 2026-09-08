@@ -14,7 +14,7 @@ cd Kaku
 brew install rustup
 echo "export PATH=\"$(brew --prefix rustup)/bin:\$HOME/.cargo/bin:\$PATH\"" >> ~/.zprofile
 exec zsh -l
-rustup toolchain install 1.93.0
+rustup toolchain install 1.95.0
 
 # 装 cargo-nextest、cargo-watch、nightly rustfmt
 make install-tools
@@ -81,7 +81,7 @@ RUST_LOG=debug make dev
 4. 提交并推送。
 5. 开 PR，目标分支选 `main`。
 
-CI 顺序：format check，单元测试，cargo check，universal 二进制构建验证。任意一步红就需要先修复。
+代码改动会触发格式、编译和测试检查。Universal 构建单独运行，由构建流程变更、定时任务或手动触发；仅修改 Markdown 不会触发这些检查。
 
 [查看现有 Pull Requests](https://github.com/tw93/Kaku/pulls)
 

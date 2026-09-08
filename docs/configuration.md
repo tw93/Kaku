@@ -84,7 +84,7 @@ config.harfbuzz_features = {}
 
 **Font size**
 
-Kaku auto-selects 15px (low-res) or 17px (high-res) based on your display. Override:
+Kaku auto-selects 15pt (low-res) or 17pt (high-res) based on your display. Override:
 
 ```lua
 config.font_size = 16
@@ -330,9 +330,9 @@ wezterm.on('augment-command-palette', function(window, pane)
 end)
 ```
 
-**Full WezTerm Lua API**
+**WezTerm Lua configuration**
 
-Kaku uses WezTerm's configuration system. Any WezTerm config option works in `kaku.lua`. For the complete reference, see:
+Kaku uses WezTerm's configuration system. Some upstream options behave differently or are no longer active in Kaku. For the complete reference, see:
 
 - [WezTerm config options](https://wezfurlong.org/wezterm/config/)
 - [WezTerm Lua API](https://wezfurlong.org/wezterm/config/lua/)

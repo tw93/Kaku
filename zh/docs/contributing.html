@@ -94,7 +94,7 @@
 </span>brew install rustup
 <span class="tok-b">echo</span> <span class="tok-s">"export PATH=\"</span><span class="tok-k">$(</span>brew --prefix rustup<span class="tok-k">)</span><span class="tok-s">/bin:\$HOME/.cargo/bin:\$PATH\""</span> &gt;&gt; ~/.zprofile
 <span class="tok-b">exec</span> zsh -l
-rustup toolchain install <span class="tok-n">1</span>.93.0
+rustup toolchain install <span class="tok-n">1</span>.95.0
 
 <span class="tok-c"># 装 cargo-nextest、cargo-watch、nightly rustfmt
 </span>make install-tools
@@ -146,13 +146,13 @@ rustup toolchain install <span class="tok-n">1</span>.93.0
                       <li>提交并推送。</li>
                       <li>开 PR，目标分支选 <code>main</code>。</li>
                     </ol>
-                    <p>CI 顺序：format check，单元测试，cargo check，universal 二进制构建验证。任意一步红就需要先修复。</p>
+                    <p>代码改动会触发格式、编译和测试检查。Universal 构建单独运行，由构建流程变更、定时任务或手动触发；仅修改 Markdown 不会触发这些检查。</p>
                     <p><a href="https://github.com/tw93/Kaku/pulls" target="_blank" rel="noopener noreferrer">查看现有 Pull Requests</a></p>
           <nav class="doc-pager" aria-label="Pagination"><a href="/zh/docs/faq"><span>上一页</span><strong>FAQ</strong></a><span></span></nav>
         </article>
       </div>
     </section>
   </main>
-  <footer class="site-footer"><div class="wide footer-inner"><div class="footer-mark"><img src="/img/kaku-mark.png" width="64" height="64" alt="Kaku" loading="lazy"><div><p class="wm-name">Kaku · 書</p><p class="wm-sub">AI 编码时代的 macOS 终端。</p></div></div><div class="footer-colophon"><p class="footer-links"><a href="/zh/about">关于</a> · <a href="/zh/contact">联系</a> · <a href="/zh/privacy">隐私</a> · <a href="/zh/roadmap">Roadmap</a> · <a href="https://github.com/tw93/Kaku/releases" target="_blank" rel="noopener noreferrer">Changelog</a> · <a href="/zh/docs/">文档</a> · <a href="https://github.com/tw93/Kaku">GitHub</a> · <a href="https://github.com/tw93/Kaku/issues">Issues</a> · <a href="https://twitter.com/HiTw93">X</a></p><p class="footer-ethos">少和终端较劲 · Built on WezTerm · MIT · © 2026</p></div></div></footer>
+  <footer class="site-footer"><div class="wide footer-inner"><div class="footer-mark"><img src="/img/kaku-mark.png" width="64" height="64" alt="Kaku" loading="lazy"><div><p class="wm-name">Kaku · 書</p><p class="wm-sub">开箱即用、默认好用、AI 友好的 Mac 终端。</p></div></div><div class="footer-colophon"><p class="footer-links"><a href="/zh/about">关于</a> · <a href="/zh/contact">联系</a> · <a href="/zh/privacy">隐私</a> · <a href="/zh/roadmap">Roadmap</a> · <a href="https://github.com/tw93/Kaku/releases" target="_blank" rel="noopener noreferrer">Changelog</a> · <a href="/zh/docs/">文档</a> · <a href="https://github.com/tw93/Kaku">GitHub</a> · <a href="https://github.com/tw93/Kaku/issues">Issues</a> · <a href="https://twitter.com/HiTw93">X</a></p><p class="footer-ethos">少和终端较劲 · Built on WezTerm · MIT · © 2026</p></div></div></footer>
 </body>
 </html>

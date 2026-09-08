@@ -3,7 +3,7 @@
   "version": "1.0",
   "name": "kaku",
   "title": "Kaku",
-  "description": "Capability index for Kaku, a fast, out-of-the-box macOS terminal built for AI coding. Kaku is a local desktop application with no network API: every capability below is exercised through the local `kaku` command or the app itself, and each links to the markdown documentation that backs it.",
+  "description": "Capability index for Kaku, an AI-friendly Mac terminal with sensible defaults, ready out of the box. Kaku is a local desktop application with no network API: every capability below is exercised through the local `kaku` command or the app itself, and each links to the markdown documentation that backs it.",
   "homepage": "https://kaku.fun",
   "documentation": "https://kaku.fun/llms.txt",
   "repository": "https://github.com/tw93/Kaku",
@@ -26,13 +26,13 @@
     },
     {
       "name": "configure-ai-assistant",
-      "description": "Configure Kaku Assistant to draft fixes for failed commands and turn plain language into commands. `kaku ai` opens the settings panel for Auth Type (API key or Codex CLI login), Base URL, Simple Model, Deep Model, and API key. Requests go only to the configured OpenAI-compatible endpoint; there is no Kaku account, relay, or default provider.",
+      "description": "Configure Kaku Assistant to draft fixes for failed commands and turn plain language into commands. `kaku ai` opens the settings panel for Auth Type (API key or Codex CLI login), Base URL, Simple Model, Deep Model, and API key. Configure your own AI service. Kaku does not provide or relay it; see the privacy page for network details.",
       "command": "kaku ai",
       "documentation": "https://kaku.fun/docs/features.md"
     },
     {
       "name": "configure-terminal",
-      "description": "Change Kaku settings: font, opacity, Smart Tab, close confirmation, shortcuts, and theme. `kaku config` opens the TUI; deeper changes go in `~/.config/kaku/kaku.lua`, which uses the WezTerm-compatible Lua API, so an existing WezTerm config works unchanged.",
+      "description": "Change Kaku settings: font, opacity, Smart Tab, close confirmation, shortcuts, and theme. `kaku config` opens the TUI; deeper changes go in `~/.config/kaku/kaku.lua`, which uses WezTerm's Lua configuration system.",
       "command": "kaku config",
       "documentation": "https://kaku.fun/docs/configuration.md"
     },

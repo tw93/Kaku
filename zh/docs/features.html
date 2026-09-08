@@ -85,7 +85,7 @@
           <div class="section-toc"><p>本页目录</p><a class="depth-2" href="#features-kaku-assistant">Kaku Assistant</a><a class="depth-2" href="#features-ai-chat-panel">AI Chat 面板</a><a class="depth-2" href="#features-window-snapshots">窗口快照</a><a class="depth-2" href="#features-applescript">AppleScript</a><a class="depth-2" href="#features-lazygit-integration">Lazygit 集成</a><a class="depth-2" href="#features-yazi-file-manager">Yazi 文件管理器</a><a class="depth-2" href="#features-remote-sessions">远程会话</a><a class="depth-2" href="#features-remote-files">远端文件</a><a class="depth-2" href="#features-shell-suite">Shell 套件</a></div>
         </aside>
         <article class="doc-content">
-          <h2 id="features-kaku-assistant"><a class="anchor" href="#features-kaku-assistant" aria-label="链接到「Kaku Assistant」">#</a>Kaku Assistant</h2><p>Kaku Assistant 有两个模式：命令失败时自动修复，以及按需把一句人话生成命令。</p>
+          <h2 id="features-kaku-assistant"><a class="anchor" href="#features-kaku-assistant" aria-label="链接到「Kaku Assistant」">#</a>Kaku Assistant</h2><p>Kaku Assistant 可以为失败的命令提供建议、根据描述生成命令，也可以围绕终端输出和项目文件聊天。</p>
           <p><strong>配置</strong></p>
           <p>运行 <code>kaku ai</code> 打开 AI 设置面板。开启 Kaku Assistant，然后直接编辑模型、鉴权、Base URL 和 API key 字段。</p>
           <table>
@@ -117,6 +117,8 @@
           </tr>
           </tbody></table>
           <p>使用自定义 OpenAI 兼容服务时，Auth Type 保持 API key，填写服务方的 Base URL，再手动设置模型名。</p>
+          <p>使用 API key 时，Base URL 填 API 根地址，例如 <code>https://api.openai.com/v1</code>，再按服务选择 <strong>API Mode</strong>：<code>chat_completions</code> 或 <code>responses</code>。Responses 模式下，服务商支持时还可以开启 <strong>Native Web Search</strong>。</p>
+          <p>使用 Codex 鉴权时，Kaku 读取已有的 Codex 连接设置，<strong>Follow Codex</strong> 跟随该连接的模型，也可以在 Kaku 中分别指定 Simple Model 和 Deep Model。</p>
           <h2 id="features-ai-chat-panel"><a class="anchor" href="#features-ai-chat-panel" aria-label="链接到「AI Chat 面板」">#</a>AI Chat 面板</h2><p>按 <code>Cmd + L</code> 打开内置的 AI Chat 面板。它会流式输出 Markdown 答案，
           高亮代码块，可以带上终端上下文，也可以在你授权后调用工具，
           访问项目文件、shell 命令、网页搜索和记忆。当 Simple Model 和 Deep Model
@@ -136,7 +138,7 @@ kaku chat</code></pre>
 # find and kill the process on port 3000
 # compress the src folder excluding node_modules
 </code></pre>
-          <p><code>#</code> 生成和自动修复命令与 <code>Cmd + L</code> 走同一个模型和同一份凭据，所以 Codex 或 Copilot 登录同样能用在这里，不是只有 API key 才行。</p>
+          <p><code>#</code> 生成和自动修复命令与 <code>Cmd + L</code> 使用同一服务商和同一份凭据，所以 Codex 或 Copilot 登录同样能用在这里，不是只有 API key 才行。</p>
           <p><code>#</code> 前缀在 zsh 和 fish 里都能用。请求进行中你的原始描述一直可见。如果模型给不出安全的命令，它会改成注入一段简短解释。危险命令会被载入但标记为需审查，永不自动执行。</p>
           <p><strong>assistant.toml 字段</strong></p>
           <p>配置文件在 <code>~/.config/kaku/assistant.toml</code>：</p>
@@ -289,6 +291,6 @@ config.smart_tab_mode = <span class="tok-s">"off"</span>                <span cl
       </div>
     </section>
   </main>
-  <footer class="site-footer"><div class="wide footer-inner"><div class="footer-mark"><img src="/img/kaku-mark.png" width="64" height="64" alt="Kaku" loading="lazy"><div><p class="wm-name">Kaku · 書</p><p class="wm-sub">AI 编码时代的 macOS 终端。</p></div></div><div class="footer-colophon"><p class="footer-links"><a href="/zh/about">关于</a> · <a href="/zh/contact">联系</a> · <a href="/zh/privacy">隐私</a> · <a href="/zh/roadmap">Roadmap</a> · <a href="https://github.com/tw93/Kaku/releases" target="_blank" rel="noopener noreferrer">Changelog</a> · <a href="/zh/docs/">文档</a> · <a href="https://github.com/tw93/Kaku">GitHub</a> · <a href="https://github.com/tw93/Kaku/issues">Issues</a> · <a href="https://twitter.com/HiTw93">X</a></p><p class="footer-ethos">少和终端较劲 · Built on WezTerm · MIT · © 2026</p></div></div></footer>
+  <footer class="site-footer"><div class="wide footer-inner"><div class="footer-mark"><img src="/img/kaku-mark.png" width="64" height="64" alt="Kaku" loading="lazy"><div><p class="wm-name">Kaku · 書</p><p class="wm-sub">开箱即用、默认好用、AI 友好的 Mac 终端。</p></div></div><div class="footer-colophon"><p class="footer-links"><a href="/zh/about">关于</a> · <a href="/zh/contact">联系</a> · <a href="/zh/privacy">隐私</a> · <a href="/zh/roadmap">Roadmap</a> · <a href="https://github.com/tw93/Kaku/releases" target="_blank" rel="noopener noreferrer">Changelog</a> · <a href="/zh/docs/">文档</a> · <a href="https://github.com/tw93/Kaku">GitHub</a> · <a href="https://github.com/tw93/Kaku/issues">Issues</a> · <a href="https://twitter.com/HiTw93">X</a></p><p class="footer-ethos">少和终端较劲 · Built on WezTerm · MIT · © 2026</p></div></div></footer>
 </body>
 </html>

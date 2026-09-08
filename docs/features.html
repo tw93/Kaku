@@ -85,7 +85,7 @@
           <div class="section-toc"><p>On this page</p><a class="depth-2" href="#features-kaku-assistant">Kaku Assistant</a><a class="depth-2" href="#features-ai-chat-panel">AI Chat Panel</a><a class="depth-2" href="#features-window-snapshots">Window Snapshots</a><a class="depth-2" href="#features-applescript">AppleScript</a><a class="depth-2" href="#features-lazygit-integration">Lazygit Integration</a><a class="depth-2" href="#features-yazi-file-manager">Yazi File Manager</a><a class="depth-2" href="#features-remote-sessions">Remote Sessions</a><a class="depth-2" href="#features-remote-files">Remote Files</a><a class="depth-2" href="#features-shell-suite">Shell Suite</a></div>
         </aside>
         <article class="doc-content">
-          <h2 id="features-kaku-assistant"><a class="anchor" href="#features-kaku-assistant" aria-label="Link to Kaku Assistant">#</a>Kaku Assistant</h2><p>Kaku Assistant has two modes: automatic error recovery and on-demand command generation from natural language.</p>
+          <h2 id="features-kaku-assistant"><a class="anchor" href="#features-kaku-assistant" aria-label="Link to Kaku Assistant">#</a>Kaku Assistant</h2><p>Kaku Assistant suggests fixes for failed commands, generates commands from descriptions, and provides chat about terminal output and project files.</p>
           <p><strong>Setup</strong></p>
           <p>Run <code>kaku ai</code> to open the AI settings panel. Enable Kaku Assistant and edit the model, auth, base URL, and API key fields directly.</p>
           <table>
@@ -117,6 +117,8 @@
           </tr>
           </tbody></table>
           <p>For custom OpenAI-compatible services, keep Auth Type set to API key, enter the service's Base URL, and set the model names manually.</p>
+          <p>For API-key connections, enter the API root (for example <code>https://api.openai.com/v1</code>) and choose <strong>API Mode</strong>: <code>chat_completions</code> or <code>responses</code>. Responses mode also offers <strong>Native Web Search</strong> when supported by the provider.</p>
+          <p>With Codex authentication, Kaku reads your Codex connection settings. <strong>Follow Codex</strong> uses that connection's model; you can also set Simple Model and Deep Model separately in Kaku.</p>
           <h2 id="features-ai-chat-panel"><a class="anchor" href="#features-ai-chat-panel" aria-label="Link to AI Chat Panel">#</a>AI Chat Panel</h2><p>Press <code>Cmd + L</code> to open the built-in AI chat panel. It streams Markdown answers,
           highlights code blocks, can include terminal context, and can use approved tools
           for project files, shell commands, web search, and memory. Press <code>Shift + Tab</code>
@@ -292,6 +294,6 @@ config.smart_tab_mode = <span class="tok-s">"off"</span>                <span cl
       </div>
     </section>
   </main>
-  <footer class="site-footer"><div class="wide footer-inner"><div class="footer-mark"><img src="/img/kaku-mark.png" width="64" height="64" alt="Kaku" loading="lazy"><div><p class="wm-name">Kaku · 書</p><p class="wm-sub">A macOS terminal for AI coding.</p></div></div><div class="footer-colophon"><p class="footer-links"><a href="/about">About</a> · <a href="/contact">Contact</a> · <a href="/privacy">Privacy</a> · <a href="/roadmap">Roadmap</a> · <a href="https://github.com/tw93/Kaku/releases" target="_blank" rel="noopener noreferrer">Changelog</a> · <a href="/docs/">Docs</a> · <a href="https://github.com/tw93/Kaku">GitHub</a> · <a href="https://github.com/tw93/Kaku/issues">Issues</a> · <a href="https://twitter.com/HiTw93">X</a></p><p class="footer-ethos">Less time fighting the terminal · Built on WezTerm · MIT · © 2026</p></div></div></footer>
+  <footer class="site-footer"><div class="wide footer-inner"><div class="footer-mark"><img src="/img/kaku-mark.png" width="64" height="64" alt="Kaku" loading="lazy"><div><p class="wm-name">Kaku · 書</p><p class="wm-sub">An AI-friendly Mac terminal, ready out of the box.</p></div></div><div class="footer-colophon"><p class="footer-links"><a href="/about">About</a> · <a href="/contact">Contact</a> · <a href="/privacy">Privacy</a> · <a href="/roadmap">Roadmap</a> · <a href="https://github.com/tw93/Kaku/releases" target="_blank" rel="noopener noreferrer">Changelog</a> · <a href="/docs/">Docs</a> · <a href="https://github.com/tw93/Kaku">GitHub</a> · <a href="https://github.com/tw93/Kaku/issues">Issues</a> · <a href="https://twitter.com/HiTw93">X</a></p><p class="footer-ethos">Less time fighting the terminal · Built on WezTerm · MIT · © 2026</p></div></div></footer>
 </body>
 </html>

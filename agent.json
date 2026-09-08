@@ -3,8 +3,8 @@
   "generatedFor": "https://kaku.fun/?mode=agent",
   "product": {
     "name": "Kaku",
-    "tagline": "A fast, out-of-the-box macOS terminal built for AI coding.",
-    "description": "Kaku is a macOS-native terminal emulator derived from WezTerm and tuned for AI-assisted terminal work. It ships practical defaults on day one (JetBrains Mono, macOS font rendering, automatic dark and light themes), fast tabs and split panes on native macOS shortcuts, a curated shell suite (Lazygit, Yazi, remote files, z, completion, syntax highlighting), and a built-in assistant that drafts a fix when a command fails and turns plain language into commands. It keeps full Lua API compatibility with WezTerm, so existing configs work with no migration.",
+    "tagline": "An AI-friendly Mac terminal with sensible defaults, ready out of the box.",
+    "description": "Kaku is a macOS-native terminal emulator derived from WezTerm and tuned for AI-assisted terminal work. It ships practical defaults on day one (JetBrains Mono, macOS font rendering, automatic dark and light themes), fast tabs and split panes on native macOS shortcuts, a curated shell suite (Lazygit, Yazi, remote files, z, completion, syntax highlighting), and a built-in assistant that drafts a fix when a command fails and turns plain language into commands. It uses WezTerm's Lua configuration system for terminal customization.",
     "category": "DeveloperApplication",
     "type": "desktop-application",
     "version": "0.19.0",
@@ -37,13 +37,13 @@
   "authentication": {
     "required": false,
     "accounts": false,
-    "note": "Kaku has no account system and no credentials to obtain. The optional AI assistant uses an API key that the user supplies for their own OpenAI-compatible provider; that key stays in ~/.config/kaku/assistant.toml on the user's machine."
+    "note": "Kaku requires no Kaku account. Configure your own AI service using an API key or an existing Codex connection through kaku ai."
   },
   "whenToUse": [
     "Set up a macOS terminal that works immediately, without an afternoon of configuration.",
-    "Terminal work alongside AI coding, where the AI stays optional and talks only to a user-configured provider.",
-    "Replace iTerm2 with something lighter, or replace Warp without a cloud account.",
-    "Reuse an existing WezTerm Lua config with better defaults and no migration.",
+    "Terminal work alongside AI coding, where the AI is optional and uses a service configured by the user.",
+    "Use a Mac terminal with preset fonts, themes, shell integration, and optional AI tools.",
+    "Customize terminal behavior with WezTerm's Lua configuration system.",
     "Privacy-sensitive setups: no telemetry, no account, and every network call documented at https://kaku.fun/privacy."
   ],
   "whenNotToUse": [

@@ -4,9 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <title>Kaku · 为 AI 编码而生的终端</title>
+  <title>Kaku · 开箱即用、AI 友好的 Mac 终端</title>
   <meta name="description" content="Kaku 是一个快速、开箱即用的 macOS 终端：顺手的标签和分屏、调好的默认值、一套精选 Shell 工具，并内建 AI 助手。">
-  <meta property="og:title" content="Kaku · 为 AI 编码而生的终端">
+  <meta property="og:title" content="Kaku · 开箱即用、AI 友好的 Mac 终端">
   <meta property="og:description" content="一个快速、开箱即用的 macOS 终端：标签、分屏、调好的默认值，AI 助手随时待命。">
   <meta property="og:type" content="website">
   <meta property="og:image" content="https://kaku.fun/shots/kaku-og.webp">
@@ -32,7 +32,7 @@
         "@id": "https://kaku.fun/#software",
         "name": "Kaku",
         "alternateName": "Kaku Terminal",
-        "description": "Kaku 是一个开箱即用的快速 macOS 终端，为 AI 编码而生。基于 WezTerm 深度定制，预置 JetBrains Mono、macOS 级字体渲染、跟随系统的深浅色主题、走原生 macOS 快捷键的标签页与分屏、一套配好的 shell 工具，以及一个在命令失败时草拟修复的可选 AI 助手。MIT 开源，无账号，无埋点。",
+        "description": "Kaku 是一个开箱即用、默认好用、AI 友好的 Mac 终端。基于 WezTerm 深度定制，预置 JetBrains Mono、macOS 级字体渲染、跟随系统的深浅色主题、走原生 macOS 快捷键的标签页与分屏、一套配好的 shell 工具，以及一个在命令失败时草拟修复的可选 AI 助手。MIT 开源，无账号，无埋点。",
         "applicationCategory": "DeveloperApplication",
         "applicationSubCategory": "Terminal Emulator",
         "operatingSystem": "macOS",
@@ -49,8 +49,8 @@
           "开箱即用的默认值：JetBrains Mono、macOS 级字体渲染、跟随系统的深浅色主题",
           "内置 AI 助手：命令失败时草拟修复，把自然语言转成命令",
           "预置 shell 套件：Lazygit、Yazi、远程文件、z、补全、语法高亮",
-          "完整兼容 WezTerm Lua API，已有配置无需迁移",
-          "二进制体积比上游小约 40%，启动快"
+          "沿用 WezTerm 的 Lua 配置方式，自定义外观和行为",
+          "GPU 加速终端渲染"
         ],
         "sameAs": [
           "https://github.com/tw93/Kaku",
@@ -84,7 +84,7 @@
         "@id": "https://kaku.fun/#organization",
         "name": "Kaku",
         "alternateName": "The Kaku project",
-        "description": "Kaku 是 Tw93 的独立 MIT 开源项目，全程公开在 GitHub 上开发。背后没有公司、没有销售、没有付费档位。",
+        "description": "Kaku 是 Tw93 的独立 MIT 开源项目，全程公开在 GitHub 上开发。源码、问题讨论和版本发布都在 GitHub 上。",
         "url": "https://kaku.fun",
         "logo": {
           "@type": "ImageObject",
@@ -139,7 +139,7 @@
         "@id": "https://kaku.fun/#website",
         "name": "Kaku",
         "url": "https://kaku.fun",
-        "description": "Kaku 的中文文档与下载站点。Kaku 是一个开箱即用的快速 macOS 终端，为 AI 编码而生。",
+        "description": "Kaku 的中文文档与下载站点。Kaku 是一个开箱即用、默认好用、AI 友好的 Mac 终端。",
         "inLanguage": [
           "en",
           "zh-CN"
@@ -155,7 +155,7 @@
         "@type": "WebPage",
         "@id": "https://kaku.fun/zh/#webpage",
         "url": "https://kaku.fun/zh/",
-        "name": "Kaku · 为 AI 编码而生的终端",
+        "name": "Kaku · 开箱即用、AI 友好的 Mac 终端",
         "isPartOf": {
           "@id": "https://kaku.fun/#website"
         },
@@ -198,7 +198,7 @@
         "name": "Kaku 和 iTerm2 有什么区别？",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "iTerm2 是成熟的 macOS 终端。Kaku 更轻更快，带实用默认值、顺手的标签和分屏、一套精选 Shell 工具，并内建 AI 助手，开箱即用。"
+          "text": "Kaku 预设了字体、主题、Shell 集成和 Mac 快捷键，也有可选的内置助手，连接用户自己配置的 AI 服务。"
         }
       },
       {
@@ -206,7 +206,7 @@
         "name": "Kaku 和 Warp 有什么区别？",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Warp 是闭源并偏云端账号体系。Kaku 是 MIT 开源，不需要账号，AI 请求只发往你配置的 AI 服务。"
+          "text": "Kaku 使用 MIT 协议，无需 Kaku 账号，AI 服务由用户自行配置，也可以用 Lua 自定义终端。"
         }
       },
       {
@@ -246,7 +246,7 @@
     <section class="hero">
       <div class="hero-wrap hero-centered">
         <h1>Kaku<span class="cn-orbit"><span class="cn">書</span></span></h1>
-        <p class="hero-sub">一个快速、开箱即用、为 AI 编码而生的 macOS 终端，开源、无需账号。</p>
+        <p class="hero-sub">一个开箱即用、默认好用、AI 友好的 Mac 终端，开源，无需账号。</p>
         <div class="hero-trust"><span>零配置</span><span>轻快</span><span>AI 友好</span></div>
         <div class="hero-actions">
           <a class="btn btn-primary" href="https://github.com/tw93/Kaku/releases/latest" target="_blank" rel="noopener noreferrer">下载 Kaku</a>
@@ -289,7 +289,7 @@
         <div class="prose">
           <span class="section-num">02 · 助手</span>
           <h2>失败的命令，不该只是一行红字。</h2>
-          <p>命令失败时，Kaku 给出可审查的修复建议，按 <span class="sk">Cmd + Shift + E</span> 放回命令行，危险命令绝不自动执行。输入 <code>#</code> 加一句话，还能把自然语言变成命令。</p>
+          <p>配置助手后，命令失败时可以获取修复建议，按 <span class="sk">Cmd + Shift + E</span> 放回命令行，危险命令绝不自动执行。输入 <code>#</code> 加一句话，还能把自然语言变成命令。</p>
           <p><a href="/zh/docs/features">了解助手</a></p>
         </div>
         <div class="terminal-window">
@@ -306,17 +306,17 @@
       <div class="wide">
         <div class="section-head">
           <span class="section-num">03 · 默认值</span>
-          <h2>默认值已经替你做过选择。</h2>
-          <p>标签、字体、主题、Shell 工具、性能和 AI，开箱就已经安排好。</p>
+          <h2>常用设置已经配好</h2>
+          <p>字体、主题、快捷键和 Shell 集成已经配好，打开就能开始用。</p>
         </div>
         <div class="feature-grid">
-          <a class="feature" href="/zh/docs/keybindings"><span class="mark">01</span><strong>标签与分屏</strong><span>用原生快捷键新建、拆分和切换，并可靠恢复窗口、分屏与目录。</span></a>
+          <a class="feature" href="/zh/docs/keybindings"><span class="mark">01</span><strong>标签与分屏</strong><span>用原生快捷键新建、拆分和切换，并恢复窗口、分屏与目录。</span></a>
           <a class="feature" href="/zh/docs/configuration"><span class="mark">02</span><strong>字体与主题</strong><span>JetBrains Mono、macOS 字体渲染，深浅色自动切换。</span></a>
-          <a class="feature" href="/zh/docs/features"><span class="mark">03</span><strong>快而轻量</strong><span>体积小 40%、启动快、精简的 GPU 内核。</span></a>
-          <a class="feature" href="/zh/docs/features"><span class="mark">04</span><strong>小细节</strong><span>选中即复制、可点击文件路径、历史窥视、视觉提示音。</span></a>
+          <a class="feature" href="/zh/docs/features"><span class="mark">03</span><strong>快而轻量</strong><span>用 GPU 渲染终端文字和图形。</span></a>
+          <a class="feature" href="/zh/docs/features"><span class="mark">04</span><strong>小细节</strong><span>选中即复制、可点击文件路径、查看历史输出、视觉提醒。</span></a>
           <a class="feature" href="/zh/docs/features"><span class="mark">05</span><strong>Shell 套件</strong><span>Lazygit、Yazi、远端文件、z、补全和高亮。</span></a>
           <a class="feature" href="/zh/docs/features"><span class="mark">06</span><strong>AI 助手</strong><span>修复失败命令、把一句话变成命令，需要时才出现。</span></a>
-          <a class="feature" href="/zh/docs/configuration"><span class="mark">07</span><strong>Lua 配置</strong><span>完整 Lua API 兼容，已有配置直接搬过来，无需迁移。</span></a>
+          <a class="feature" href="/zh/docs/configuration"><span class="mark">07</span><strong>Lua 配置</strong><span>沿用 WezTerm 的 Lua 配置方式，自定义终端外观和行为。</span></a>
         </div>
       </div>
     </section>
@@ -324,12 +324,12 @@
       <div class="wide">
         <div class="section-head">
           <span class="section-num">04 · 日常入口</span>
-          <h2>先从真正有用的路径开始。</h2>
-          <p>安装、配置 AI，再按自己的习惯微调终端，不需要先读完整文档。</p>
+          <h2>从这里开始</h2>
+          <p>安装后就能开始用，需要时再配置自己的 AI 服务，或调整终端设置。</p>
         </div>
         <div class="workflow-list">
           <article class="workflow-item"><span class="mark">01</span><h3>安装</h3><p>用 DMG，或运行 <code>brew install tw93/tap/kakuku</code>，再用 <code>kaku doctor</code> 检查 app、PATH 和 shell 集成。</p></article>
-          <article class="workflow-item"><span class="mark">02</span><h3>AI 设置</h3><p>运行 <code>kaku ai</code>，开启 Kaku Assistant，选择 Auth Type，再设置 Simple Model 和 Deep Model。配置好后，<span class="sk">Cmd + L</span> 打开 AI Chat。</p></article>
+          <article class="workflow-item"><span class="mark">02</span><h3>AI 设置</h3><p>运行 <code>kaku ai</code>，配置自己的 AI 服务和模型。配置好后，<span class="sk">Cmd + L</span> 打开 AI Chat。</p></article>
           <article class="workflow-item"><span class="mark">03</span><h3>工具</h3><p><span class="sk">Cmd + Shift + G</span> 打开 Lazygit，<span class="sk">Cmd + Shift + Y</span> 打开 Yazi，SSH 会话里用 <span class="sk">Cmd + Shift + R</span> 挂载远端文件。</p></article>
           <article class="workflow-item"><span class="mark">04</span><h3>配置</h3><p>打开 <code>kaku config</code> TUI 调整字号、透明度、Smart Tab、关闭确认、快捷键和 Lua 覆盖。</p></article>
         </div>
@@ -342,7 +342,7 @@
           <h2>先是我自己天天在用</h2>
         </div>
         <div class="section-body prose">
-          <p>我重度依赖终端。用了多年 Alacritty 图它快，后来转向 AI 编码，想要更顺手的标签和分屏。Kaku 基于一套快速可靠的引擎，加上实用默认值和 Shell 工具，让助手触手可及，全都装进一个快速安静的 macOS 应用。</p>
+          <p>我重度依赖终端。用了多年 Alacritty 图它快，后来转向 AI 编码，想要更顺手的标签和分屏。Kaku 基于一套快速可靠的引擎，加上实用默认值和 Shell 工具，也可以接入自己配置的 AI 服务。</p>
           <p>Tw93 · <a href="https://twitter.com/HiTw93" target="_blank" rel="noopener noreferrer">@HiTw93</a></p>
         </div>
       </div>
@@ -357,9 +357,9 @@
           <dt>怎么安装？</dt>
           <dd>从 <a href="https://github.com/tw93/Kaku/releases/latest" target="_blank" rel="noopener noreferrer">GitHub Releases</a> 下载 DMG，或用 Homebrew tap：<code>brew install tw93/tap/kakuku</code>，Homebrew 上曾有无关的 <code>kaku</code> 包，使用 tap 可以避免装错。</dd>
           <dt>Kaku 和 iTerm2 有什么区别？</dt>
-          <dd>iTerm2 是成熟的 macOS 终端。Kaku 更轻更快，带实用默认值、顺手的标签和分屏、一套精选 Shell 工具，并内建 AI 助手，开箱即用。</dd>
+          <dd>Kaku 预设了字体、主题、Shell 集成和 Mac 快捷键，也有可选的内置助手，连接用户自己配置的 AI 服务。</dd>
           <dt>Kaku 和 Warp 有什么区别？</dt>
-          <dd>Warp 是闭源并偏云端账号体系。Kaku 是 MIT 开源，不需要账号，AI 请求只发往你配置的 AI 服务。</dd>
+          <dd>Kaku 使用 MIT 协议，无需 Kaku 账号，AI 服务由用户自行配置，也可以用 Lua 自定义终端。</dd>
           <dt>Kaku 收费吗？</dt>
           <dd>不收费，Kaku 是 MIT 协议的开源项目。</dd>
           <dt>支持 Windows 或 Linux 吗？</dt>
@@ -368,6 +368,6 @@
       </div>
     </section>
   </main>
-  <footer class="site-footer"><div class="wide footer-inner"><div class="footer-mark"><img src="/img/kaku-mark.png" width="64" height="64" alt="Kaku" loading="lazy"><div><p class="wm-name">Kaku · 書</p><p class="wm-sub">AI 编码时代的 macOS 终端。</p></div></div><div class="footer-colophon"><p class="footer-links"><a href="/zh/about">关于</a> · <a href="/zh/contact">联系</a> · <a href="/zh/privacy">隐私</a> · <a href="/zh/roadmap">Roadmap</a> · <a href="https://github.com/tw93/Kaku/releases" target="_blank" rel="noopener noreferrer">Changelog</a> · <a href="/zh/docs/">文档</a> · <a href="https://github.com/tw93/Kaku">GitHub</a> · <a href="https://github.com/tw93/Kaku/issues">Issues</a> · <a href="https://twitter.com/HiTw93">X</a></p><p class="footer-ethos">少和终端较劲 · Built on WezTerm · MIT · © 2026</p></div></div></footer>
+  <footer class="site-footer"><div class="wide footer-inner"><div class="footer-mark"><img src="/img/kaku-mark.png" width="64" height="64" alt="Kaku" loading="lazy"><div><p class="wm-name">Kaku · 書</p><p class="wm-sub">开箱即用、默认好用、AI 友好的 Mac 终端。</p></div></div><div class="footer-colophon"><p class="footer-links"><a href="/zh/about">关于</a> · <a href="/zh/contact">联系</a> · <a href="/zh/privacy">隐私</a> · <a href="/zh/roadmap">Roadmap</a> · <a href="https://github.com/tw93/Kaku/releases" target="_blank" rel="noopener noreferrer">Changelog</a> · <a href="/zh/docs/">文档</a> · <a href="https://github.com/tw93/Kaku">GitHub</a> · <a href="https://github.com/tw93/Kaku/issues">Issues</a> · <a href="https://twitter.com/HiTw93">X</a></p><p class="footer-ethos">少和终端较劲 · Built on WezTerm · MIT · © 2026</p></div></div></footer>
 </body>
 </html>

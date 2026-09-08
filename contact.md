@@ -6,11 +6,11 @@ Kaku is a public open source project. Every support channel is public except sec
 
 Open an issue at [github.com/tw93/Kaku/issues](https://github.com/tw93/Kaku/issues). This is the primary and fastest channel; it is read by the maintainer directly. Search existing issues first, since install and AI setup questions are often already answered.
 
-Include the following, or the report usually needs a round trip before it can be acted on:
+Include these details to help reproduce the problem:
 
 - Install method: DMG or `brew install tw93/tap/kakuku`.
 - macOS version and chip (Apple Silicon or Intel).
-- Kaku version, shown by `kaku --version` or in the version link at the top of this site.
+- Kaku version, shown by `kaku --version` in your installed app.
 - Output of `kaku doctor`, which reports the app bundle, config directory, PATH, shell integration, and optional tools.
 - Exact steps to reproduce, and what you expected instead.
 
@@ -28,8 +28,6 @@ Report vulnerabilities privately through [GitHub Security Advisories](https://gi
 - **Author:** [tw93.fun](https://tw93.fun).
 - **Sponsorship:** [GitHub Sponsors](https://github.com/sponsors/tw93). Kaku is free and MIT licensed; sponsorship is optional and buys no priority support.
 - **Contributing:** see [Contributing](https://kaku.fun/docs/contributing) for the build and pull request workflow.
-
-There is no sales contact and no support form, because there is nothing to sell. Kaku has no company, no account system, and no paid tier.
 
 ---
 

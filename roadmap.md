@@ -4,15 +4,15 @@ Kaku is in the 0.19.x line. Current work focuses on dependable session restore, 
 
 ## Now
 
-1. Keep first-run guidance accurate: install path, `kaku doctor`, shell integration, and optional tool setup.
-2. Keep AI setup clear: Auth Type, Base URL, Simple Model, Deep Model, API key, proxy behavior, and custom endpoint troubleshooting.
-3. Keep session restore reliable across windows, panes, working directories, and partial save failures.
+1. Make installation and shell setup easier to follow.
+2. Make it easier to connect an AI service and diagnose connection problems.
+3. Restore windows, panes, and working directories more reliably.
 
 ---
 
 ## Next
 
-1. Make configuration easier to understand without turning defaults into a setup checklist.
+1. Make terminal settings easier to find and understand.
 2. Continue hardening the AI tool sandbox and file-access policy.
 3. Improve macOS distribution, update, and first-launch experience.
 

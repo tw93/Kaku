@@ -6,11 +6,11 @@ Kaku 是完全公开的开源项目，除了安全报告，所有支持渠道都
 
 去 [github.com/tw93/Kaku/issues](https://github.com/tw93/Kaku/issues) 提 issue。这是主要也是最快的渠道，维护者会直接看。提之前先搜一下已有 issue，安装和 AI 配置类问题往往已经有答案。
 
-请附上下面这些，否则通常要多来回一轮才能定位：
+附上这些信息，方便定位问题：
 
 - 安装方式：DMG 还是 `brew install tw93/tap/kakuku`。
 - macOS 版本和芯片（Apple Silicon 还是 Intel）。
-- Kaku 版本，用 `kaku --version` 查看，或看本站顶部的版本号。
+- Kaku 版本，在本机运行 `kaku --version` 查看。
 - `kaku doctor` 的输出，它会报告 App 包、配置目录、PATH、shell 集成和可选工具的状态。
 - 准确的复现步骤，以及你期望的结果。
 
@@ -28,8 +28,6 @@ Kaku 是完全公开的开源项目，除了安全报告，所有支持渠道都
 - **作者：**[tw93.fun](https://tw93.fun)。
 - **赞助：**[GitHub Sponsors](https://github.com/sponsors/tw93)。Kaku 免费且 MIT 开源，赞助完全自愿，也不会换来优先支持。
 - **参与开发：**构建和 PR 流程见[贡献指南](https://kaku.fun/zh/docs/contributing)。
-
-这里没有销售联系方式，也没有工单表单，因为没有东西要卖。Kaku 没有公司、没有账号体系、没有付费档位。
 
 ---
 

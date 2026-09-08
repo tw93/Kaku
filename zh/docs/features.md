@@ -4,7 +4,7 @@ Kaku Assistant、AI Chat、错误恢复、自然语言命令和内置 Shell 工�
 
 ## Kaku Assistant
 
-Kaku Assistant 有两个模式：命令失败时自动修复，以及按需把一句人话生成命令。
+Kaku Assistant 可以为失败的命令提供建议、根据描述生成命令，也可以围绕终端输出和项目文件聊天。
 
 **配置**
 
@@ -19,6 +19,10 @@ Kaku Assistant 有两个模式：命令失败时自动修复，以及按需把�
 | API Key | Auth Type 为 API key 时填写服务方 API key |
 
 使用自定义 OpenAI 兼容服务时，Auth Type 保持 API key，填写服务方的 Base URL，再手动设置模型名。
+
+使用 API key 时，Base URL 填 API 根地址，例如 `https://api.openai.com/v1`，再按服务选择 **API Mode**：`chat_completions` 或 `responses`。Responses 模式下，服务商支持时还可以开启 **Native Web Search**。
+
+使用 Codex 鉴权时，Kaku 读取已有的 Codex 连接设置，**Follow Codex** 跟随该连接的模型，也可以在 Kaku 中分别指定 Simple Model 和 Deep Model。
 
 ## AI Chat 面板
 
@@ -49,7 +53,7 @@ kaku chat
 # compress the src folder excluding node_modules
 ```
 
-`#` 生成和自动修复命令与 `Cmd + L` 走同一个模型和同一份凭据，所以 Codex 或 Copilot 登录同样能用在这里，不是只有 API key 才行。
+`#` 生成和自动修复命令与 `Cmd + L` 使用同一服务商和同一份凭据，所以 Codex 或 Copilot 登录同样能用在这里，不是只有 API key 才行。
 
 `#` 前缀在 zsh 和 fish 里都能用。请求进行中你的原始描述一直可见。如果模型给不出安全的命令，它会改成注入一段简短解释。危险命令会被载入但标记为需审查，永不自动执行。
 

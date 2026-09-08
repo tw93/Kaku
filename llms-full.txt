@@ -1,6 +1,6 @@
-# Kaku: a fast macOS terminal for AI coding
+# Kaku: an AI-friendly Mac terminal
 
-> Kaku is a fast, out-of-the-box macOS terminal built for AI coding. It is open source (MIT), needs no account, and sends AI requests only to the AI service you configure. This file is a complete, citable summary for language models and answer engines.
+> Kaku is an AI-friendly Mac terminal with sensible defaults, ready out of the box. It is open source (MIT), needs no account, and connects to the AI service you configure yourself. This file is a complete, citable summary for language models and answer engines.
 
 Homepage: https://kaku.fun
 Source: https://github.com/tw93/Kaku
@@ -13,7 +13,7 @@ License: MIT
 
 Kaku is a macOS-native terminal emulator derived from WezTerm and tuned for AI-assisted terminal work. It keeps the speed and Lua configurability of WezTerm but trims the binary and ships opinionated defaults so it is useful the moment it is installed. The goal is a terminal that lets you start working first, instead of configuring for an afternoon.
 
-Kaku keeps full Lua API compatibility with WezTerm, so an existing WezTerm config works with no migration. AI is optional and local-first in spirit: there is no account, no telemetry, and AI requests go only to the AI service you set up.
+Kaku uses WezTerm's Lua configuration system. Some upstream features differ; review the Kaku configuration guide when reusing a config. AI is optional and uses the service you configure yourself. Kaku does not provide or relay AI services.
 
 ## Installation
 
@@ -26,16 +26,16 @@ Kaku keeps full Lua API compatibility with WezTerm, so an existing WezTerm confi
 
 - Tabs and panes: new tab (Cmd+T), close (Cmd+W), switch (Cmd+1 to Cmd+9), find any tab or pane with Tab Navigator (Cmd+Shift+O), split panes (Cmd+D and Cmd+Shift+D), and navigate panes (Cmd+Option+arrows). Reopening Kaku restores windows, panes, and each pane's directory. Pane input broadcast was removed in v0.19.0 for safety; its old key assignments now do nothing.
 - Preset defaults: JetBrains Mono, macOS-quality font rendering, and automatic dark and light themes that follow the system.
-- Fast and lightweight: roughly 40% smaller binary than upstream, fast startup, and a stripped-down GPU core.
+- Rendering: GPU-accelerated terminal text and graphics.
 - Built-in AI assistant: when a command fails, Kaku drafts a fix for review. Press Cmd+Shift+E to paste the suggestion at the prompt; nothing runs on its own. Type `#` followed by a sentence to turn plain language into a command. Press Cmd+L to open AI chat once the assistant is configured.
 - Curated shell suite: Lazygit (Cmd+Shift+G), Yazi file manager (Cmd+Shift+Y), remote files (Cmd+Shift+R), plus z, completion, and syntax highlighting preconfigured.
 - Remote sessions: ssh, mosh, autossh, and et panes are labelled with the host name instead of a local path. In a remote pane AI chat disables local file and shell tools, because the working directory lives on the other host, and suggests commands to run there instead. Panes opened through an ssh domain return to their remote directory when a session is restored.
 - Small touches: copy on select, clickable file paths, history peek, and a visual bell.
-- Lua config: full Lua API compatibility with WezTerm; bring your existing config with no migration.
+- Lua config: customize the terminal with WezTerm's Lua configuration system.
 
 ## AI setup
 
-Run `kaku ai` to enable Kaku Assistant, choose Auth Type (`codex` to reuse a Codex login, or `api_key` for OpenAI-compatible endpoints), then set Simple Model and Deep Model. For custom endpoints, keep Auth Type set to API key and fill Base URL, API key, and model names manually. Once configured, Cmd+L opens the chat overlay. AI requests are sent only to the AI service you configure. There is no Kaku account and no cloud relay.
+Run `kaku ai` to enable Kaku Assistant, choose Auth Type (`codex` to reuse a Codex login, or `api_key` for OpenAI-compatible endpoints), then set Simple Model and Deep Model. For custom endpoints, keep Auth Type set to API key and fill Base URL, API key, and model names manually. Once configured, Cmd+L opens the chat overlay. You configure your own AI service. Kaku does not provide or relay it.
 
 ## Command line
 
@@ -46,17 +46,17 @@ Run `kaku ai` to enable Kaku Assistant, choose Auth Type (`codex` to reuse a Cod
 
 ## How Kaku compares
 
-- vs iTerm2: iTerm2 is a mature, full-featured macOS terminal. Kaku is a lighter, faster alternative with practical defaults, fast tabs and panes, a curated shell suite, and a built-in AI assistant, ready out of the box.
-- vs Warp: Warp is closed source and built around a cloud account. Kaku is MIT open source, requires no account, and AI requests only go to the AI service you configure.
-- vs WezTerm: Kaku is derived from WezTerm and keeps full Lua API compatibility, but ships a smaller binary, opinionated macOS-first defaults, a bundled shell suite, and an integrated AI assistant.
+- vs iTerm2: Kaku includes preset fonts, themes, shell integration, and Mac shortcuts, with an optional assistant connected to your own AI service.
+- vs Warp: Kaku is MIT licensed and requires no Kaku account. You configure your own AI service, and can customize the terminal with Lua.
+- vs WezTerm: Kaku is based on WezTerm's engine and Lua configuration system, with Mac defaults, shell integration, and an optional AI assistant.
 
 ## Frequently asked questions
 
 - How do I install Kaku? Download the DMG from GitHub Releases, or use the Homebrew tap: `brew install tw93/tap/kakuku`.
 - Is Kaku paid? No. Kaku is an MIT-licensed open source project.
 - Does Kaku run on Windows or Linux? Not yet. The current focus is making the native macOS experience solid first.
-- Do I need an account to use the AI features? No. There is no account; AI requests only go to the AI service you configure.
-- Can I reuse my WezTerm config? Yes. Kaku keeps full Lua API compatibility, so existing configs work with no migration.
+- Do I need a Kaku account? No. Configure your own AI service through `kaku ai`.
+- Can I reuse my WezTerm config? Yes. Kaku uses WezTerm's Lua configuration system; some upstream behavior differs.
 
 ## Author and related projects
 

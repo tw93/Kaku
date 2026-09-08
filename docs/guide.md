@@ -56,7 +56,7 @@ The assistant is optional. Until you enable it, Kaku sends no AI requests. Once 
 2. **Plain language to a command.** Type `#` and a sentence, such as `# find and kill the process on port 3000`, then press Enter. Kaku turns it into a real command and drops it at the prompt, ready for you to check and run.
 3. **Open the chat panel.** Press `Cmd + L` for a chat that streams formatted answers, highlights code, and can read the current terminal context. From any shell, `k "..."` or `kaku chat` opens the same conversation.
 
-Requests only go to the AI service you configured, and full setup details are in [Features](https://kaku.fun/docs/features).
+You configure your own AI service. Setup details are in [Features](https://kaku.fun/docs/features).
 
 ## Built-in tools
 

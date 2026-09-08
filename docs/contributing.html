@@ -94,7 +94,7 @@
 </span>brew install rustup
 <span class="tok-b">echo</span> <span class="tok-s">"export PATH=\"</span><span class="tok-k">$(</span>brew --prefix rustup<span class="tok-k">)</span><span class="tok-s">/bin:\$HOME/.cargo/bin:\$PATH\""</span> &gt;&gt; ~/.zprofile
 <span class="tok-b">exec</span> zsh -l
-rustup toolchain install <span class="tok-n">1</span>.93.0
+rustup toolchain install <span class="tok-n">1</span>.95.0
 
 <span class="tok-c"># Install required tools (cargo-nextest, cargo-watch, nightly rustfmt)
 </span>make install-tools
@@ -146,13 +146,13 @@ rustup toolchain install <span class="tok-n">1</span>.93.0
                       <li>Commit and push.</li>
                       <li>Open a PR targeting <code>main</code>.</li>
                     </ol>
-                    <p>CI runs in order: format check, unit tests, cargo check, universal build validation. Any red step needs to be fixed first.</p>
+                    <p>CI checks formatting, compilation, and tests for code changes. Universal builds run separately for build-pipeline changes, on a schedule, or on manual dispatch. Markdown-only changes do not trigger these checks.</p>
                     <p><a href="https://github.com/tw93/Kaku/pulls" target="_blank" rel="noopener noreferrer">Browse open Pull Requests</a></p>
           <nav class="doc-pager" aria-label="Pagination"><a href="/docs/faq"><span>Previous</span><strong>FAQ</strong></a><span></span></nav>
         </article>
       </div>
     </section>
   </main>
-  <footer class="site-footer"><div class="wide footer-inner"><div class="footer-mark"><img src="/img/kaku-mark.png" width="64" height="64" alt="Kaku" loading="lazy"><div><p class="wm-name">Kaku · 書</p><p class="wm-sub">A macOS terminal for AI coding.</p></div></div><div class="footer-colophon"><p class="footer-links"><a href="/about">About</a> · <a href="/contact">Contact</a> · <a href="/privacy">Privacy</a> · <a href="/roadmap">Roadmap</a> · <a href="https://github.com/tw93/Kaku/releases" target="_blank" rel="noopener noreferrer">Changelog</a> · <a href="/docs/">Docs</a> · <a href="https://github.com/tw93/Kaku">GitHub</a> · <a href="https://github.com/tw93/Kaku/issues">Issues</a> · <a href="https://twitter.com/HiTw93">X</a></p><p class="footer-ethos">Less time fighting the terminal · Built on WezTerm · MIT · © 2026</p></div></div></footer>
+  <footer class="site-footer"><div class="wide footer-inner"><div class="footer-mark"><img src="/img/kaku-mark.png" width="64" height="64" alt="Kaku" loading="lazy"><div><p class="wm-name">Kaku · 書</p><p class="wm-sub">An AI-friendly Mac terminal, ready out of the box.</p></div></div><div class="footer-colophon"><p class="footer-links"><a href="/about">About</a> · <a href="/contact">Contact</a> · <a href="/privacy">Privacy</a> · <a href="/roadmap">Roadmap</a> · <a href="https://github.com/tw93/Kaku/releases" target="_blank" rel="noopener noreferrer">Changelog</a> · <a href="/docs/">Docs</a> · <a href="https://github.com/tw93/Kaku">GitHub</a> · <a href="https://github.com/tw93/Kaku/issues">Issues</a> · <a href="https://twitter.com/HiTw93">X</a></p><p class="footer-ethos">Less time fighting the terminal · Built on WezTerm · MIT · © 2026</p></div></div></footer>
 </body>
 </html>
