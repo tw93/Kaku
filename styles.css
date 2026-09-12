@@ -791,6 +791,11 @@ button, input { font: inherit; }
   width: 1%;
   white-space: nowrap;
 }
+/* Config descriptions contain inline code but still need to wrap as prose. */
+.doc-content table.config-fields:has(td:last-child > code:only-child) th:first-child,
+.doc-content table.config-fields:has(td:last-child > code:only-child) td:first-child { width: 1%; white-space: nowrap; }
+.doc-content table.config-fields:has(td:last-child > code:only-child) th:last-child,
+.doc-content table.config-fields:has(td:last-child > code:only-child) td:last-child { width: auto; white-space: normal; }
 /* Never break an inline code token inside a table: `word-break` on
    .doc-content code drops its min-content width to one character, which let a
    key column collapse to ~60px and stack `chat_model_choices` letter by letter.
@@ -806,6 +811,9 @@ button, input { font: inherit; }
    docs layout reflows rather than letting a wide row clip. */
 @media (max-width: 820px) {
   .doc-content table { display: block; overflow-x: auto; }
+}
+@media (max-width: 880px) {
+  .doc-content table.config-fields { display: block; overflow-x: auto; }
 }
 .doc-content blockquote {
   margin: 24px 0;

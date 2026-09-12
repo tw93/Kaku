@@ -37,6 +37,8 @@ When you ssh somewhere, that tab shows the host name instead of a local path, so
 
 When you reopen Kaku, it restores your windows, their panes, and each pane's working directory. If one pane cannot be saved, the rest of the session still returns.
 
+Right-click inside a pane to paste, search, open AI chat or the command palette, split in any direction, or close that pane. A TUI using the mouse keeps its own mouse handling. You can also enable the new-tab button in Settings.
+
 ## The shell, ready to go
 
 Kaku sets up a curated zsh (and fish) on first launch, so the shell feels modern without you editing config files.
@@ -46,7 +48,7 @@ Kaku sets up a curated zsh (and fish) on first launch, so the shell feels modern
 - **Jump to folders.** Type `z proj` to jump straight to a folder you visit often, no full path needed.
 - **Readable output.** Commands and errors are colored as you type, and `git diff` is paged through Delta when it is installed.
 
-Two touches save time without a keystroke: selecting text copies it to the clipboard as soon as you release the mouse, and `Cmd + Click` opens a file path or URL in its default app.
+Selecting text copies it when you release the mouse, and `Cmd + Click` opens a file path or URL in its default app. URLs that wrap automatically at the edge of the terminal retain their full address; unrelated text after a hard newline is not added to the link.
 
 ## The AI assistant
 

@@ -1,6 +1,12 @@
 # Features
 
-Kaku Assistant, AI Chat, error recovery, natural-language commands, and built-in shell tools.
+Right-click actions, clickable links, AI assistance, and built-in shell tools.
+
+## Mouse actions
+
+Right-click inside a pane to paste, search, open AI chat or the command palette, split in any direction, or close the clicked pane. Close confirmation follows your settings, and a TUI using the mouse retains its own handling.
+
+`Cmd + Click` opens URLs and file paths. URLs automatically wrapped at the terminal edge keep their full address; unrelated output after a hard newline stays out of the link target.
 
 ## Kaku Assistant
 
@@ -91,7 +97,7 @@ Kaku ships a minimal AppleScript dictionary so it shows up in Script Editor and 
 ```applescript
 tell application "Kaku"
   get name        -- "Kaku"
-  get version     -- e.g. "0.19.0"
+  get version     -- e.g. "0.20.0"
   get frontmost   -- true / false
   quit            -- optional `saving ask|yes|no`
 end tell

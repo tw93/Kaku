@@ -47,6 +47,8 @@ kaku doctor
 kaku update
 ```
 
+运行 `kaku --version`查看已安装版本，也可以用 `/Applications/Kaku.app/Contents/MacOS/kaku-gui --version`直接查询图形程序版本，不会打开窗口。
+
 ## kaku reset
 
 移除 Kaku 管理的 shell 和 tmux 集成、Kaku 管理的 git delta 默认值、部分 Kaku 状态，以及 `~/.config/kaku/kaku.lua` 里的托管主题块。托管块之外的用户 Lua 会保留。谨慎使用；如果还想恢复 shell 集成，再运行 `kaku init`。

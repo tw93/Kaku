@@ -47,6 +47,8 @@ Check for and install the latest Kaku release.
 kaku update
 ```
 
+Check the installed version with `kaku --version`. The bundled GUI executable also supports `/Applications/Kaku.app/Contents/MacOS/kaku-gui --version` without opening a window.
+
 ## kaku reset
 
 Remove Kaku-managed shell and tmux integration, Kaku-managed git delta defaults, selected Kaku state, and managed theme blocks in `~/.config/kaku/kaku.lua`. User-authored Lua outside managed blocks is preserved. Use with caution and run `kaku init` again if you want shell integration back.

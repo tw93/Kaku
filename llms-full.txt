@@ -5,7 +5,7 @@
 Homepage: https://kaku.fun
 Source: https://github.com/tw93/Kaku
 Author: Tw93 (also created Pake and Mole)
-Latest version: 0.19.0
+Latest version: 0.20.0
 Platform: macOS only (Windows and Linux are not supported yet)
 License: MIT
 
@@ -24,6 +24,7 @@ Kaku uses WezTerm's Lua configuration system. Some upstream features differ; rev
 
 ## Core features
 
+- Mouse actions: right-click inside a pane to paste, search, open AI chat or the command palette, split, or close that pane. Cmd+Click opens URLs and file paths, keeping automatically wrapped URLs intact.
 - Tabs and panes: new tab (Cmd+T), close (Cmd+W), switch (Cmd+1 to Cmd+9), find any tab or pane with Tab Navigator (Cmd+Shift+O), split panes (Cmd+D and Cmd+Shift+D), and navigate panes (Cmd+Option+arrows). Reopening Kaku restores windows, panes, and each pane's directory. Pane input broadcast was removed in v0.19.0 for safety; its old key assignments now do nothing.
 - Preset defaults: JetBrains Mono, macOS-quality font rendering, and automatic dark and light themes that follow the system.
 - Rendering: GPU-accelerated terminal text and graphics.

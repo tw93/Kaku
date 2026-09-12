@@ -1,6 +1,12 @@
 # 功能与 AI
 
-Kaku Assistant、AI Chat、错误恢复、自然语言命令和内置 Shell 工具。
+右键菜单、链接识别、AI 助手和内置 Shell 工具。
+
+## 鼠标操作
+
+在分屏内右键，可以粘贴、搜索、打开 AI 对话或命令面板，向任意方向拆分或关闭点中的分屏，关闭前按你的设置确认，正在使用鼠标的 TUI 会保留自己的鼠标操作。
+
+`Cmd + 点击`打开网址和文件路径，网址在终端边缘自动折行时仍保留完整地址，真正换行后的无关输出不会被拼进链接。
 
 ## Kaku Assistant
 
@@ -91,7 +97,7 @@ Kaku 内置一份极简的 AppleScript 字典，因此它会出现在 Script Edi
 ```applescript
 tell application "Kaku"
   get name        -- "Kaku"
-  get version     -- e.g. "0.19.0"
+  get version     -- e.g. "0.20.0"
   get frontmost   -- true / false
   quit            -- optional `saving ask|yes|no`
 end tell

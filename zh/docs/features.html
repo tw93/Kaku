@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
   <title>功能与 AI · Kaku 文档</title>
-  <meta name="description" content="Kaku Assistant、AI Chat、错误恢复、自然语言命令和内置 Shell 工具。">
+  <meta name="description" content="右键菜单、链接识别、AI 助手和内置 Shell 工具。">
   <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-kaku-32.png"><link rel="icon" type="image/png" sizes="192x192" href="/img/favicon-kaku-192.png"><link rel="apple-touch-icon" href="/img/favicon-kaku-180.png">
   <link rel="canonical" href="https://kaku.fun/zh/docs/features">
   <link rel="alternate" type="text/markdown" href="https://kaku.fun/zh/docs/features.md">
@@ -45,7 +45,7 @@
         "@id": "https://kaku.fun/zh/docs/features#article",
         "headline": "功能与 AI",
         "name": "功能与 AI",
-        "description": "Kaku Assistant、AI Chat、错误恢复、自然语言命令和内置 Shell 工具。",
+        "description": "右键菜单、链接识别、AI 助手和内置 Shell 工具。",
         "url": "https://kaku.fun/zh/docs/features",
         "inLanguage": "zh-CN",
         "isPartOf": {
@@ -74,21 +74,23 @@
 </head>
 <body>
   <a class="skip-link" href="#main-content">跳到内容</a>
-  <nav class="site-nav" aria-label="主导航"><div class="wide nav-inner"><a class="brand" href="/zh/"><strong>Kaku</strong></a><span class="eyebrow-sep">·</span><a class="version-link" href="https://github.com/tw93/Kaku/releases" target="_blank" rel="noopener noreferrer">v0.19.0</a><div class="nav-links"><a href="/zh/docs/" aria-current="page">文档</a></div><div class="nav-actions"><a class="nav-pill" aria-current="page" href="/zh/docs/features" hreflang="zh-CN">中</a><a class="nav-pill" href="/docs/features" hreflang="en">EN</a><a class="nav-icon" href="https://github.com/tw93/Kaku" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a><a class="nav-icon" href="https://x.com/HiTw93" target="_blank" rel="noopener noreferrer" aria-label="X"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a></div></div></nav>
+  <nav class="site-nav" aria-label="主导航"><div class="wide nav-inner"><a class="brand" href="/zh/"><strong>Kaku</strong></a><span class="eyebrow-sep">·</span><a class="version-link" href="https://github.com/tw93/Kaku/releases" target="_blank" rel="noopener noreferrer">v0.20.0</a><div class="nav-links"><a href="/zh/docs/" aria-current="page">文档</a></div><div class="nav-actions"><a class="nav-pill" aria-current="page" href="/zh/docs/features" hreflang="zh-CN">中</a><a class="nav-pill" href="/docs/features" hreflang="en">EN</a><a class="nav-icon" href="https://github.com/tw93/Kaku" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a><a class="nav-icon" href="https://x.com/HiTw93" target="_blank" rel="noopener noreferrer" aria-label="X"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a></div></div></nav>
   <main id="main-content" class="docs-page">
-    <header class="page-hero doc-hero"><div class="wide"><span class="label">文档</span><h1>功能与 AI</h1><p>Kaku Assistant、AI Chat、错误恢复、自然语言命令和内置 Shell 工具。</p></div></header>
+    <header class="page-hero doc-hero"><div class="wide"><span class="label">文档</span><h1>功能与 AI</h1><p>右键菜单、链接识别、AI 助手和内置 Shell 工具。</p></div></header>
     <section class="section docs-section">
       <div class="wide docs-layout">
         <aside class="docs-sidebar">
           <a class="docs-home" href="/zh/docs/">文档</a>
           <nav class="docs-menu" aria-label="Documentation pages"><a href="/zh/docs/"><span>安装</span></a><a href="/zh/docs/guide"><span>上手指南</span></a><a href="/zh/docs/features" aria-current="page"><span>功能与 AI</span></a><a href="/zh/docs/cli"><span>CLI 参考</span></a><a href="/zh/docs/configuration"><span>配置</span></a><a href="/zh/docs/keybindings"><span>快捷键</span></a><a href="/zh/docs/faq"><span>FAQ</span></a><a href="/zh/docs/contributing"><span>贡献</span></a></nav>
-          <div class="section-toc"><p>本页目录</p><a class="depth-2" href="#features-kaku-assistant">Kaku Assistant</a><a class="depth-2" href="#features-ai-chat-panel">AI Chat 面板</a><a class="depth-2" href="#features-window-snapshots">窗口快照</a><a class="depth-2" href="#features-applescript">AppleScript</a><a class="depth-2" href="#features-lazygit-integration">Lazygit 集成</a><a class="depth-2" href="#features-yazi-file-manager">Yazi 文件管理器</a><a class="depth-2" href="#features-remote-sessions">远程会话</a><a class="depth-2" href="#features-remote-files">远端文件</a><a class="depth-2" href="#features-shell-suite">Shell 套件</a></div>
+          <div class="section-toc"><p>本页目录</p><a class="depth-2" href="#features-mouse">鼠标操作</a><a class="depth-2" href="#features-kaku-assistant">Kaku Assistant</a><a class="depth-2" href="#features-ai-chat-panel">AI Chat 面板</a><a class="depth-2" href="#features-window-snapshots">窗口快照</a><a class="depth-2" href="#features-applescript">AppleScript</a><a class="depth-2" href="#features-lazygit-integration">Lazygit 集成</a><a class="depth-2" href="#features-yazi-file-manager">Yazi 文件管理器</a><a class="depth-2" href="#features-remote-sessions">远程会话</a><a class="depth-2" href="#features-remote-files">远端文件</a><a class="depth-2" href="#features-shell-suite">Shell 套件</a></div>
         </aside>
         <article class="doc-content">
+          <h2 id="features-mouse"><a class="anchor" href="#features-mouse" aria-label="链接到「鼠标操作」">#</a>鼠标操作</h2><p>在分屏内右键，可以粘贴、搜索、打开 AI 对话或命令面板，向任意方向拆分或关闭点中的分屏，关闭前按你的设置确认，正在使用鼠标的 TUI 会保留自己的鼠标操作。</p>
+          <p><code>Cmd + 点击</code>打开网址和文件路径，网址在终端边缘自动折行时仍保留完整地址，真正换行后的无关输出不会被拼进链接。</p>
           <h2 id="features-kaku-assistant"><a class="anchor" href="#features-kaku-assistant" aria-label="链接到「Kaku Assistant」">#</a>Kaku Assistant</h2><p>Kaku Assistant 可以为失败的命令提供建议、根据描述生成命令，也可以围绕终端输出和项目文件聊天。</p>
           <p><strong>配置</strong></p>
           <p>运行 <code>kaku ai</code> 打开 AI 设置面板。开启 Kaku Assistant，然后直接编辑模型、鉴权、Base URL 和 API key 字段。</p>
-          <table>
+          <table class="config-fields">
           <thead>
           <tr>
           <th align="left">字段</th>
@@ -142,7 +144,7 @@ kaku chat</code></pre>
           <p><code>#</code> 前缀在 zsh 和 fish 里都能用。请求进行中你的原始描述一直可见。如果模型给不出安全的命令，它会改成注入一段简短解释。危险命令会被载入但标记为需审查，永不自动执行。</p>
           <p><strong>assistant.toml 字段</strong></p>
           <p>配置文件在 <code>~/.config/kaku/assistant.toml</code>：</p>
-          <table>
+          <table class="config-fields">
           <thead>
           <tr>
           <th align="left">字段</th>
@@ -215,7 +217,7 @@ kaku chat</code></pre>
           <h2 id="features-applescript"><a class="anchor" href="#features-applescript" aria-label="链接到「AppleScript」">#</a>AppleScript</h2><p>Kaku 内置一份极简的 AppleScript 字典，因此它会出现在 Script Editor 和其他自动化工具里。暴露的接口故意做得很小，除了 <code>quit</code> 之外都是只读的。</p>
           <pre><code class="language-applescript"><span class="tok-k">tell</span> <span class="tok-b">application</span> <span class="tok-s">"Kaku"</span>
   <span class="tok-k">get</span> name        <span class="tok-c">-- "Kaku"</span>
-  <span class="tok-k">get</span> <span class="tok-b">version</span>     <span class="tok-c">-- e.g. "0.19.0"</span>
+  <span class="tok-k">get</span> <span class="tok-b">version</span>     <span class="tok-c">-- e.g. "0.20.0"</span>
   <span class="tok-k">get</span> frontmost   <span class="tok-c">-- true / false</span>
   <span class="tok-b">quit</span>            <span class="tok-c">-- optional `saving ask|yes|no`</span>
 <span class="tok-k">end</span> <span class="tok-k">tell</span></code></pre>
