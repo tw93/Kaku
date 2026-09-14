@@ -1460,6 +1460,28 @@ _kaku_set_ai_user_var() {
     _kaku_set_user_var "\$name" "\${capability}:\${value}"
 }
 
+# Last-command metadata for the shell-only /copy widget. Capture metadata,
+# not output: the GUI reads its existing scrollback only when requested.
+_kaku_copy_preexec() {
+    zmodload zsh/datetime 2>/dev/null || return
+    strftime -s _kaku_copy_start '%Y-%m-%dT%H:%M:%S%z' "\$EPOCHSECONDS"
+    typeset -g _kaku_copy_command="\$1"
+    typeset -g _kaku_copy_context="\$USER@\${HOST%%.*} \$PWD"
+    typeset -g _kaku_copy_pending=1
+}
+_kaku_copy_precmd() {
+    local last_status=\$1
+    if [[ "\${_kaku_copy_pending:-0}" == 1 ]]; then
+        strftime -s _kaku_copy_end '%Y-%m-%dT%H:%M:%S%z' "\$EPOCHSECONDS"
+        typeset -g _kaku_copy_status=\$last_status
+        typeset -g _kaku_copy_pending=0
+    fi
+    return 0
+}
+if [[ \${preexec_functions[(Ie)_kaku_copy_preexec]} -eq 0 ]]; then
+    preexec_functions+=(_kaku_copy_preexec)
+fi
+
 # Only emit exit code when a real command was executed.
 # Empty Enter should not re-trigger AI suggestions for the previous failure.
 typeset -g _kaku_ai_cmd_pending=0
@@ -1474,6 +1496,7 @@ _kaku_ai_preexec() {
 
 _kaku_ai_precmd() {
     local last_exit_code="\$?"
+    _kaku_copy_precmd "\$last_exit_code"
     if [[ -n "\${KAKU_AUTO_DISABLE:-}" ]]; then
         _kaku_ai_cmd_pending=0
         return 0
@@ -1524,6 +1547,25 @@ _kaku_ai_reset_waiting() { _kaku_ai_waiting=0; }
 add-zsh-hook precmd _kaku_ai_reset_waiting
 
 _kaku_ai_query_accept_line() {
+    # Runs only in the shell's line editor, never in a foreground TUI.
+    # Do not execute /copy or add it to history: repeated copies retain the
+    # same completed command and do not create a new command boundary.
+    if [[ "\$BUFFER" == '/copy' ]]; then
+        if [[ -z "\${_kaku_copy_end:-}" || "\${_kaku_copy_pending:-0}" == 1 ]]; then
+            zle -M 'No completed command to copy'
+            return
+        fi
+        (( _kaku_copy_request_id = \${_kaku_copy_request_id:-0} + 1 ))
+        local payload="\${_kaku_copy_request_id}"\$'\n'"\${_kaku_copy_start}"\$'\t'"\${_kaku_copy_end}"\$'\t'"\${_kaku_copy_status}"\$'\t'"\${_kaku_copy_context}"\$'\t'"\${_kaku_copy_command}"
+        if _kaku_set_ai_user_var 'kaku_copy_command' "\$payload"; then
+            BUFFER=
+            POSTDISPLAY=
+            zle redisplay
+        else
+            zle -M '/copy requires the Kaku shell integration and GUI'
+        fi
+        return
+    fi
     # Block repeat Enter only while buffer still shows the # query.
     # Auto-reset after 30 seconds to prevent permanent blocking if Lua side fails.
     if (( _kaku_ai_waiting )); then

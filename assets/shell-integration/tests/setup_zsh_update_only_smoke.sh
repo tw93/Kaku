@@ -79,6 +79,28 @@ if command -v zsh >/dev/null 2>&1; then
   fi
 
   # Execute the generated prompt hook, not a source-text match (#551).
+  HOME="$tmp_home" TERM=xterm-256color TERM_PROGRAM=Kaku zsh -dfc '
+    add-zsh-hook() { :; }
+    source "$HOME/.config/kaku/zsh/kaku.zsh" >/dev/null
+    _kaku_set_ai_user_var() { sent_name="$1"; sent_value="$2"; }
+    zle() { zle_action="$1"; }
+    _kaku_copy_preexec "dbt run --select example"
+    () { return 7; }
+    _kaku_ai_precmd
+    [[ $_kaku_copy_status == 7 && -n $_kaku_copy_start && -n $_kaku_copy_end ]] || exit 1
+    BUFFER=/copy
+    _kaku_ai_query_accept_line
+    [[ $sent_name == kaku_copy_command && $sent_value == *"dbt run --select example" ]] || exit 2
+    [[ -z $BUFFER && $zle_action == redisplay ]] || exit 3
+    previous="$sent_value"
+    BUFFER=/copy
+    _kaku_ai_query_accept_line
+    [[ $sent_value != "$previous" && ${sent_value#*$'\''\n'\''} == ${previous#*$'\''\n'\''} ]] || exit 4
+    BUFFER="/copy extra"
+    _kaku_ai_query_accept_line
+    [[ $zle_action == .accept-line ]] || exit 5
+  ' || fail "shell /copy metadata or accept-line behavior failed"
+
   mouse_reset="$(HOME="$tmp_home" TERM=xterm-256color TERM_PROGRAM=Kaku zsh -dfc '
     add-zsh-hook() { :; }
     source "$HOME/.config/kaku/zsh/kaku.zsh" >/dev/null

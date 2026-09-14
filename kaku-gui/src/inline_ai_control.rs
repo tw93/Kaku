@@ -19,6 +19,7 @@ const PRIVILEGED_USER_VARS: &[&str] = &[
     "kaku_last_exit_code",
     "kaku_open_ai_chat",
     "kaku_user_typing",
+    "kaku_copy_command",
 ];
 
 static ACTIVE_CAPABILITY: OnceLock<String> = OnceLock::new();

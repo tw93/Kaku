@@ -144,6 +144,22 @@ relative to the terminal cell size, for example `top = '15pt'`.
 
 ## Terminal Behavior
 
+**Copy the last command (zsh)**
+
+At an ordinary shell prompt, type `/copy` and press Enter. With the updated
+Kaku zsh integration loaded, this copies the last completed command and its
+retained output as plain text, with start/end timestamps, user/host/directory,
+and exit status. The header reconstructs a simple prompt rather than copying
+your prompt theme's escape sequences. `/copy` is handled by zsh's line editor,
+so commands with the same name inside Claude Code, Codex, and other foreground
+terminal applications are unaffected. Repeating `/copy` copies the same run.
+
+This requires shell semantic markers and a command start still present in
+scrollback. If the command cannot be matched to its input boundary, Kaku shows
+an error and preserves the clipboard. It is a copy of retained terminal output,
+not a raw log of overwritten progress lines. Fish/bash integration is not yet
+implemented for this command.
+
 **Cursor**
 
 ```lua

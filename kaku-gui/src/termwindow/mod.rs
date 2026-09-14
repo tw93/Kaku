@@ -80,6 +80,7 @@ pub mod background;
 pub mod box_model;
 pub mod charselect;
 pub mod clipboard;
+mod command_copy;
 pub mod keyevent;
 pub mod modal;
 mod mouseevent;
@@ -3562,6 +3563,22 @@ impl TermWindow {
                 return;
             }
         };
+
+        if name == "kaku_copy_command" {
+            if let Some(pane) = Mux::get().get_pane(pane_id) {
+                match command_copy::transcript(pane.as_ref(), &value) {
+                    Ok(text) => {
+                        self.copy_to_clipboard(
+                            config::keyassignment::ClipboardCopyDestination::Clipboard,
+                            text,
+                        );
+                        self.show_toast("Copied last command and output".to_string());
+                    }
+                    Err(err) => self.show_toast(format!("/copy: {err}")),
+                }
+            }
+            return;
+        }
 
         // `k` CLI running inside a Kaku pane signals us to open the AI chat overlay.
         if name == "kaku_open_ai_chat" {
