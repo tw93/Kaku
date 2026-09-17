@@ -49,10 +49,12 @@ Run `kaku ai` to enable Kaku Assistant, choose Auth Type (`codex` to reuse a Cod
 
 Full page: https://kaku.fun/compare
 
+Kaku is strongest when the job is a usable Mac terminal on day one: JetBrains Mono, automatic themes, Mac tab and pane shortcuts, session restore, a shell suite (completions, highlighting, z, Lazygit, Yazi, remote files), `kaku doctor`, and optional AI on the provider you configure. Suggestions never auto-run.
+
 - vs iTerm2: Kaku includes preset fonts, themes, shell integration, and Mac shortcuts, with an optional assistant connected to your own AI service. Stay on iTerm2 if a large existing config is doing real work.
 - vs Warp: Kaku is MIT licensed and requires no Kaku account. You configure your own AI service, and can customize the terminal with Lua. Warp is a commercial, account-centered AI product.
 - vs Ghostty: both are GPU-accelerated. Ghostty is thinner and expects you to bring fonts and tools. Kaku ships JetBrains Mono, themes, Lazygit, Yazi, remote files, and the optional assistant.
-- vs WezTerm: Kaku is based on WezTerm's engine and Lua configuration system, with Mac defaults, shell integration, and an optional AI assistant. Stay on WezTerm for Windows or Linux.
+- vs WezTerm: Kaku is based on WezTerm's engine and Lua configuration system, with Mac defaults, shell integration, the `kaku` CLI, and an optional AI assistant. Stay on WezTerm for Windows or Linux.
 - vs Terminal.app: enough for occasional commands. Kaku is for daily tabs, panes, session restore, and optional AI.
 
 ## Frequently asked questions

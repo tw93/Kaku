@@ -6,6 +6,16 @@
   <meta name="color-scheme" content="light">
   <title>Kaku vs iTerm2, Warp, Ghostty, and WezTerm</title>
   <meta name="description" content="A macOS terminal alternative comparison: what Kaku ships out of the box, and when iTerm2, Warp, Ghostty, WezTerm, or Terminal.app is the better fit.">
+  <meta property="og:title" content="Kaku vs iTerm2, Warp, Ghostty, and WezTerm">
+  <meta property="og:description" content="What Kaku ships on day one, and when another Mac terminal is the better fit.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://kaku.fun/shots/kaku-og.webp">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Kaku terminal in dark mode with tabs, panes, and tools">
+  <meta property="og:url" content="https://kaku.fun/compare">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://kaku.fun/shots/kaku-og.webp">
   <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-kaku-32.png"><link rel="icon" type="image/png" sizes="192x192" href="/img/favicon-kaku-192.png"><link rel="apple-touch-icon" href="/img/favicon-kaku-180.png">
   <link rel="canonical" href="https://kaku.fun/compare">
   <link rel="alternate" hreflang="en" href="https://kaku.fun/compare">
@@ -70,13 +80,24 @@
   <a class="skip-link" href="#main-content">Skip to content</a>
   <nav class="site-nav" aria-label="Primary navigation"><div class="wide nav-inner"><a class="brand" href="/"><strong>Kaku</strong></a><span class="eyebrow-sep">·</span><a class="version-link" href="https://github.com/tw93/Kaku/releases" target="_blank" rel="noopener noreferrer">v0.20.0</a><div class="nav-links"><a href="/docs/">Docs</a></div><div class="nav-actions"><a class="nav-pill" href="/zh/compare" hreflang="zh-CN">中</a><a class="nav-pill" aria-current="page" href="/compare" hreflang="en">EN</a><a class="nav-icon" href="https://github.com/tw93/Kaku" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a><a class="nav-icon" href="https://x.com/HiTw93" target="_blank" rel="noopener noreferrer" aria-label="X"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a></div></div></nav>
   <main id="main-content" class="docs-page">
-    <header class="page-hero doc-hero"><div class="wide"><span class="label">Compare</span><h1>Kaku vs iTerm2, Warp, Ghostty, and WezTerm</h1><p>A macOS terminal alternative, compared by the job you actually have, not by a feature checklist.</p></div></header>
+    <header class="page-hero doc-hero"><div class="wide"><span class="label">Compare</span><h1>Kaku vs iTerm2, Warp, Ghostty, and WezTerm</h1><p>Kaku is the macOS terminal that is ready on day one. Here is how that compares, and when another app is still the better fit.</p></div></header>
     <section class="section">
       <div class="wide">
         <article class="doc-content prose-doc">
           <h2 id="compare-start-with-the-job">Start with the job</h2>
           <p>Searching for a macOS terminal alternative usually means one of these jobs: get a usable terminal without an afternoon of config, keep a long iTerm2 setup, try a faster GPU terminal, or use an AI-heavy product. Kaku is built for the first job. It is a WezTerm-based Mac terminal with fonts, themes, tabs, panes, and shell tools already wired, plus an optional assistant that talks to the AI service you configure yourself.</p>
           <p>Other terminals stay better when the job is different. This page says when to stay put.</p>
+
+          <h2 id="compare-what-kaku-is-good-at">What Kaku is good at</h2>
+          <p>These are the reasons to pick Kaku, not a claim that it wins every row against every terminal.</p>
+          <ul>
+            <li><strong>Work on first launch.</strong> JetBrains Mono, macOS font rendering, automatic dark and light themes, copy on select, and Mac tab and pane shortcuts are already set.</li>
+            <li><strong>Tabs and panes that come back.</strong> New tab <span class="sk">Cmd + T</span>, split <span class="sk">Cmd + D</span>, find a pane with Tab Navigator <span class="sk">Cmd + Shift + O</span>. Reopen Kaku and the windows, panes, and directories return. Right-click pastes, searches, opens chat, or splits the clicked pane.</li>
+            <li><strong>A shell suite inside the app.</strong> Completions, syntax highlighting, and <code>z</code> directory jumping load in Kaku sessions. <span class="sk">Cmd + Shift + G</span> is Lazygit, <span class="sk">Cmd + Shift + Y</span> is Yazi, <span class="sk">Cmd + Shift + R</span> mounts the current SSH host.</li>
+            <li><strong>Optional AI on your provider.</strong> A failed command can draft a fix. <code>#</code> plus a sentence becomes a command. <span class="sk">Cmd + L</span> or <code>kaku chat</code> opens the same conversation. Suggestions paste for review and never auto-run. There is no Kaku account and no Kaku-operated model.</li>
+            <li><strong>A local CLI that checks itself.</strong> <code>kaku doctor</code> reports the app, PATH, and shell integration. <code>kaku config</code> and <code>kaku ai</code> are TUIs. Official install is <code>brew install --cask kaku</code>.</li>
+            <li><strong>Quiet about your machine.</strong> MIT licensed, no usage analytics. Every network call the app can make is listed on the <a href="/privacy">privacy page</a>.</li>
+          </ul>
 
           <h2 id="compare-at-a-glance">At a glance</h2>
           <table>
@@ -137,27 +158,54 @@
                 <td>None built in</td>
                 <td>None built in</td>
               </tr>
+              <tr>
+                <th scope="row">Shell tools</th>
+                <td>In the Kaku session</td>
+                <td>You add them</td>
+                <td>Product set</td>
+                <td>You add them</td>
+                <td>You add them</td>
+                <td>None</td>
+              </tr>
+              <tr>
+                <th scope="row">Install</th>
+                <td>DMG or official brew cask</td>
+                <td>Download</td>
+                <td>Product installer</td>
+                <td>Download</td>
+                <td>Download</td>
+                <td>Built in</td>
+              </tr>
+              <tr>
+                <th scope="row">Checkup</th>
+                <td><code>kaku doctor</code></td>
+                <td>None</td>
+                <td>Product UI</td>
+                <td>None</td>
+                <td>None</td>
+                <td>None</td>
+              </tr>
             </tbody>
           </table>
 
           <h2 id="compare-iterm2">Kaku vs iTerm2</h2>
-          <p>iTerm2 is the long-running macOS replacement for Terminal.app. People stay because they already have profiles, shortcuts, and muscle memory. Kaku is the better fit when you want fonts, dark and light themes, Mac-native tab and pane shortcuts, and a curated shell suite on first launch, without rebuilding that stack.</p>
+          <p>iTerm2 is the long-running macOS replacement for Terminal.app. People stay because they already have profiles, shortcuts, and muscle memory. Kaku is the better fit when you want that stack without assembling it: fonts and themes on day one, Mac-native tab and pane shortcuts, session restore, a right-click menu, clickable paths, and Lazygit or Yazi on a shortcut. <code>kaku doctor</code> tells you if PATH or shell integration is wrong, which iTerm2 does not do for you.</p>
           <p>Stay on iTerm2 if a large existing config is doing real work, or if you need a feature Kaku has not copied. Kaku does not try to be a complete iTerm2 clone.</p>
 
           <h2 id="compare-warp">Kaku vs Warp</h2>
-          <p>Warp is a commercial, AI-first terminal. Its assistant and workflows are part of the product. Kaku is MIT licensed, has no Kaku account, and does not provide or relay an AI service. You run <code>kaku ai</code> and point it at your own provider. Nothing auto-runs from a suggestion; <span class="sk">Cmd + Shift + E</span> pastes a fix for you to review.</p>
+          <p>Warp is a commercial, AI-first terminal. Its assistant and workflows are part of the product. Kaku is MIT licensed, has no Kaku account, and does not provide or relay an AI service. You run <code>kaku ai</code> and point it at your own provider. A failed command can draft a fix, <code>#</code> turns a sentence into a command, and <span class="sk">Cmd + L</span> opens chat. Nothing auto-runs; <span class="sk">Cmd + Shift + E</span> pastes a suggestion for you to review. The rest of the terminal still works if you never configure AI.</p>
           <p>Choose Warp if you want a hosted AI product in the terminal. Choose Kaku if you want an open-source Mac terminal where AI stays optional and local to your config.</p>
 
           <h2 id="compare-ghostty">Kaku vs Ghostty</h2>
-          <p>Ghostty is a fast, MIT-licensed GPU terminal. It is a strong pick when you want a modern emulator and are happy to bring your own shell tools, fonts, and editor-style workflow. Kaku is also GPU-accelerated, but it ships JetBrains Mono, automatic themes, Lazygit, Yazi, remote files, and the optional assistant already hooked up.</p>
+          <p>Ghostty is a fast, MIT-licensed GPU terminal. It is a strong pick when you want a modern emulator and are happy to bring your own shell tools, fonts, and editor-style workflow. Kaku is also GPU-accelerated. The difference is what is already hooked up: JetBrains Mono, automatic themes, session restore, completions and <code>z</code>, Lazygit, Yazi, remote files, and the optional assistant.</p>
           <p>Stay on Ghostty if you want a thinner terminal and already like your own setup. Reach for Kaku if the missing piece is the day-one suite, not another config file.</p>
 
           <h2 id="compare-wezterm">Kaku vs WezTerm</h2>
-          <p>Kaku is derived from WezTerm. It keeps WezTerm's Lua configuration system and a fast engine, then adds Mac defaults, shell integration, and the optional assistant. If you already have a WezTerm config you like, you can reuse much of it; some upstream options behave differently, so check the <a href="/docs/configuration">configuration guide</a>.</p>
+          <p>Kaku is derived from WezTerm. It keeps WezTerm's Lua configuration system and a fast engine, then adds the Mac-facing layer WezTerm leaves to you: opinionated defaults, shell integration, Tab Navigator, window snapshots, the <code>kaku</code> CLI, and the optional assistant. Official install is the Homebrew cask <code>kaku</code>. If you already have a WezTerm config you like, you can reuse much of it; some upstream options behave differently, so check the <a href="/docs/configuration">configuration guide</a>.</p>
           <p>Stay on WezTerm if you need Windows or Linux, or if you want upstream as-is. Kaku is macOS only.</p>
 
           <h2 id="compare-terminal-app">Kaku vs Terminal.app</h2>
-          <p>Terminal.app is already on the Mac and needs no extra install. It is enough for occasional commands. Kaku is for daily terminal work: tabs, split panes, session restore, clickable paths, and the optional assistant.</p>
+          <p>Terminal.app is already on the Mac and needs no extra install. It is enough for occasional commands. Kaku is for daily terminal work: split panes, session restore, clickable paths, a right-click menu, a shell suite, and an optional assistant that uses the provider you configure.</p>
 
           <h2 id="compare-when-not">When not to use Kaku</h2>
           <ul>

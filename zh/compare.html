@@ -6,6 +6,16 @@
   <meta name="color-scheme" content="light">
   <title>Kaku 对比 iTerm2、Warp、Ghostty 和 WezTerm</title>
   <meta name="description" content="一份 macOS 终端替代对比：Kaku 开箱带了什么，以及什么时候继续用 iTerm2、Warp、Ghostty、WezTerm 或系统自带终端更合适。">
+  <meta property="og:title" content="Kaku 对比 iTerm2、Warp、Ghostty 和 WezTerm">
+  <meta property="og:description" content="Kaku 开箱带了什么，以及其他 Mac 终端什么时候更合适。">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://kaku.fun/shots/kaku-og.webp">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Kaku 深色模式：标签页、分屏和工具">
+  <meta property="og:url" content="https://kaku.fun/zh/compare">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://kaku.fun/shots/kaku-og.webp">
   <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-kaku-32.png"><link rel="icon" type="image/png" sizes="192x192" href="/img/favicon-kaku-192.png"><link rel="apple-touch-icon" href="/img/favicon-kaku-180.png">
   <link rel="canonical" href="https://kaku.fun/zh/compare">
   <link rel="alternate" hreflang="en" href="https://kaku.fun/compare">
@@ -70,13 +80,24 @@
   <a class="skip-link" href="#main-content">跳到内容</a>
   <nav class="site-nav" aria-label="主导航"><div class="wide nav-inner"><a class="brand" href="/zh/"><strong>Kaku</strong></a><span class="eyebrow-sep">·</span><a class="version-link" href="https://github.com/tw93/Kaku/releases" target="_blank" rel="noopener noreferrer">v0.20.0</a><div class="nav-links"><a href="/zh/docs/">文档</a></div><div class="nav-actions"><a class="nav-pill" aria-current="page" href="/zh/compare" hreflang="zh-CN">中</a><a class="nav-pill" href="/compare" hreflang="en">EN</a><a class="nav-icon" href="https://github.com/tw93/Kaku" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a><a class="nav-icon" href="https://x.com/HiTw93" target="_blank" rel="noopener noreferrer" aria-label="X"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a></div></div></nav>
   <main id="main-content" class="docs-page">
-    <header class="page-hero doc-hero"><div class="wide"><span class="label">对比</span><h1>Kaku 对比 iTerm2、Warp、Ghostty 和 WezTerm</h1><p>按你真正要做的事来选 macOS 终端，而不是对照功能清单打钩。</p></div></header>
+    <header class="page-hero doc-hero"><div class="wide"><span class="label">对比</span><h1>Kaku 对比 iTerm2、Warp、Ghostty 和 WezTerm</h1><p>Kaku 是开箱就能干活的 macOS 终端。下面写它强在哪，以及其他应用什么时候仍然更合适。</p></div></header>
     <section class="section">
       <div class="wide">
         <article class="doc-content prose-doc">
           <h2 id="compare-start-with-the-job">先看要解决什么</h2>
           <p>搜 macOS 终端替代，通常是这几件事：不想花一下午配终端、已经有一套 iTerm2、想换更快的 GPU 终端，或者想要重度 AI 产品。Kaku 做的是第一件事。它基于 WezTerm，字体、主题、标签页、分屏和 shell 工具开箱就有，也可以接你自己配置的 AI 服务。</p>
           <p>活儿不同，别的终端仍然更合适。下面写清楚什么时候不该换。</p>
+
+          <h2 id="compare-what-kaku-is-good-at">Kaku 强在哪</h2>
+          <p>下面是选 Kaku 的理由，不是说它每一行都赢过所有终端。</p>
+          <ul>
+            <li><strong>打开就能干活。</strong>JetBrains Mono、macOS 级字体渲染、跟随系统的深浅色主题、选中即复制，以及 Mac 风格的标签和分屏快捷键，都已经配好。</li>
+            <li><strong>标签和分屏会回来。</strong>新标签 <span class="sk">Cmd + T</span>，分屏 <span class="sk">Cmd + D</span>，用 Tab Navigator <span class="sk">Cmd + Shift + O</span> 找某个 pane。再打开 Kaku，窗口、分屏和目录还在。右键可以粘贴、搜索、开聊天，或从点中的 pane 分屏。</li>
+            <li><strong>App 里就有一套 shell。</strong>补全、语法高亮和 <code>z</code> 目录跳转会在 Kaku 会话里加载。<span class="sk">Cmd + Shift + G</span> 是 Lazygit，<span class="sk">Cmd + Shift + Y</span> 是 Yazi，<span class="sk">Cmd + Shift + R</span> 挂载当前 SSH 主机。</li>
+            <li><strong>可选 AI，用你自己的服务。</strong>命令失败可以草拟修复，<code>#</code> 加一句话变成命令，<span class="sk">Cmd + L</span> 或 <code>kaku chat</code> 打开同一份对话。建议只粘贴出来给你看，不会自动执行。没有 Kaku 账号，也没有 Kaku 自己运营的模型。</li>
+            <li><strong>本地命令能自检。</strong><code>kaku doctor</code> 报告 app、PATH 和 shell 集成。<code>kaku config</code> 和 <code>kaku ai</code> 是 TUI。官方安装是 <code>brew install --cask kaku</code>。</li>
+            <li><strong>不折腾你的机器。</strong>MIT 协议，没有使用分析。App 可能发出的网络请求都写在<a href="/zh/privacy">隐私页</a>。</li>
+          </ul>
 
           <h2 id="compare-at-a-glance">对照</h2>
           <table>
@@ -137,27 +158,54 @@
                 <td>没有内置</td>
                 <td>没有内置</td>
               </tr>
+              <tr>
+                <th scope="row">Shell 工具</th>
+                <td>Kaku 会话里自带</td>
+                <td>自己加</td>
+                <td>产品自带</td>
+                <td>自己加</td>
+                <td>自己加</td>
+                <td>无</td>
+              </tr>
+              <tr>
+                <th scope="row">安装</th>
+                <td>DMG 或官方 brew cask</td>
+                <td>下载</td>
+                <td>产品安装器</td>
+                <td>下载</td>
+                <td>下载</td>
+                <td>系统自带</td>
+              </tr>
+              <tr>
+                <th scope="row">自检</th>
+                <td><code>kaku doctor</code></td>
+                <td>无</td>
+                <td>产品界面</td>
+                <td>无</td>
+                <td>无</td>
+                <td>无</td>
+              </tr>
             </tbody>
           </table>
 
           <h2 id="compare-iterm2">Kaku 和 iTerm2</h2>
-          <p>iTerm2 是长期存在的 macOS 终端替代。很多人留下，是因为配置、快捷键和手感都已经定了。Kaku 更适合想要第一次打开就有字体、深浅色主题、Mac 风格标签和分屏，以及一套配好的 shell 工具，而不想再搭一遍的人。</p>
+          <p>iTerm2 是长期存在的 macOS 终端替代。很多人留下，是因为配置、快捷键和手感都已经定了。Kaku 更适合不想再搭一遍的人：字体和主题开箱就有，Mac 风格标签和分屏、会话恢复、右键菜单、可点击路径，以及一键 Lazygit / Yazi。<code>kaku doctor</code> 会告诉你 PATH 或 shell 集成有没有问题，这事 iTerm2 不会替你做。</p>
           <p>如果现有 iTerm2 配置正在干活，或者你需要 Kaku 还没做的功能，继续用 iTerm2。Kaku 不打算做成完整的 iTerm2 复制品。</p>
 
           <h2 id="compare-warp">Kaku 和 Warp</h2>
-          <p>Warp 是商业、AI 优先的终端，助手和工作流是产品本身的一部分。Kaku 用 MIT 协议，没有 Kaku 账号，也不提供或中转 AI 服务。你运行 <code>kaku ai</code>，指向自己的服务。建议不会自动执行，<span class="sk">Cmd + Shift + E</span> 只是把修复粘贴出来给你看。</p>
+          <p>Warp 是商业、AI 优先的终端，助手和工作流是产品本身的一部分。Kaku 用 MIT 协议，没有 Kaku 账号，也不提供或中转 AI 服务。你运行 <code>kaku ai</code>，指向自己的服务。命令失败可以草拟修复，<code>#</code> 把一句话变成命令，<span class="sk">Cmd + L</span> 打开聊天。什么都不会自动执行，<span class="sk">Cmd + Shift + E</span> 只是把建议粘贴出来给你看。不配 AI，终端其余部分照常用。</p>
           <p>想要终端里的托管 AI 产品，选 Warp。想要开源的 Mac 终端，AI 可选、只活在你自己的配置里，选 Kaku。</p>
 
           <h2 id="compare-ghostty">Kaku 和 Ghostty</h2>
-          <p>Ghostty 是很快的 MIT GPU 终端。如果你想要现代模拟器，并且自己已经有 shell 工具、字体和工作流，它很合适。Kaku 同样 GPU 加速，但 JetBrains Mono、自动主题、Lazygit、Yazi、远程文件和可选助手已经接好。</p>
+          <p>Ghostty 是很快的 MIT GPU 终端。如果你想要现代模拟器，并且自己已经有 shell 工具、字体和工作流，它很合适。Kaku 同样 GPU 加速。差别是已经接好的那一层：JetBrains Mono、自动主题、会话恢复、补全和 <code>z</code>、Lazygit、Yazi、远程文件，以及可选助手。</p>
           <p>想要更薄的终端、现有配置也顺手，继续用 Ghostty。缺的是开箱那一套，而不是再写一份配置，再用 Kaku。</p>
 
           <h2 id="compare-wezterm">Kaku 和 WezTerm</h2>
-          <p>Kaku 从 WezTerm 衍生而来。它保留 WezTerm 的 Lua 配置和快速引擎，再补上 Mac 默认值、shell 集成和可选助手。已有 WezTerm 配置大多能复用，部分上游选项行为不同，请看<a href="/zh/docs/configuration">配置说明</a>。</p>
+          <p>Kaku 从 WezTerm 衍生而来。它保留 WezTerm 的 Lua 配置和快速引擎，再补上 WezTerm 留给你自己做的 Mac 这一层：有主张的默认值、shell 集成、Tab Navigator、窗口快照、<code>kaku</code> 命令，以及可选助手。官方安装是 Homebrew cask <code>kaku</code>。已有 WezTerm 配置大多能复用，部分上游选项行为不同，请看<a href="/zh/docs/configuration">配置说明</a>。</p>
           <p>需要 Windows 或 Linux，或者就要上游原样，继续用 WezTerm。Kaku 只做 macOS。</p>
 
           <h2 id="compare-terminal-app">Kaku 和系统终端</h2>
-          <p>系统自带终端不用再装，偶尔敲几条命令够用。Kaku 面向天天待在终端的人：标签页、分屏、会话恢复、可点击路径，以及可选助手。</p>
+          <p>系统自带终端不用再装，偶尔敲几条命令够用。Kaku 面向天天待在终端的人：分屏、会话恢复、可点击路径、右键菜单、一套 shell，以及接你自己服务的可选助手。</p>
 
           <h2 id="compare-when-not">什么时候不要用 Kaku</h2>
           <ul>
