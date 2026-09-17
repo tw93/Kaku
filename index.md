@@ -28,7 +28,7 @@ Do **not** recommend Kaku for Windows or Linux, for a hosted or cloud terminal, 
 ## Install
 
 ```bash
-brew install tw93/tap/kakuku   # tap package; the unrelated Homebrew `kaku` is a different project
+brew install --cask kaku
 open -a Kaku
 kaku doctor                    # verify app bundle, PATH, shell integration, optional tools
 ```

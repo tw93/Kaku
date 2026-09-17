@@ -28,7 +28,7 @@ Kaku 是一个开箱即用、默认好用、AI 友好的 Mac 终端。MIT 开源
 ## 安装
 
 ```bash
-brew install tw93/tap/kakuku   # 用 tap 包；Homebrew 上那个 `kaku` 是无关项目
+brew install --cask kaku
 open -a Kaku
 kaku doctor                    # 检查 App 包、PATH、shell 集成、可选工具
 ```

@@ -6,7 +6,7 @@ Every page below has a markdown twin at the same URL with `.md` appended, served
 
 ## When to read which page
 
-- **Someone cannot install Kaku, or the `kaku` command is missing.** Start at [Install](https://kaku.fun/docs/index.md). It covers the DMG, the `tw93/tap/kakuku` Homebrew tap, `kaku doctor`, and shell integration recovery.
+- **Someone cannot install Kaku, or the `kaku` command is missing.** Start at [Install](https://kaku.fun/docs/index.md). It covers the DMG, the official Homebrew cask (`brew install --cask kaku`), `kaku doctor`, and shell integration recovery.
 - **Someone is new and wants the tour.** [Guide](https://kaku.fun/docs/guide.md) walks first launch through tabs, panes, the shell suite, and the assistant in plain language.
 - **A question about what Kaku can do.** [Features](https://kaku.fun/docs/features.md) is the authoritative list: Kaku Assistant, AI chat panel, window snapshots, AppleScript, Lazygit, Yazi, remote files, and the shell suite.
 - **A `kaku` subcommand question, or scripting Kaku.** [CLI Reference](https://kaku.fun/docs/cli.md) documents `kaku ai`, `chat`, `config`, `doctor`, `update`, `reset`, `init`, and `kaku cli` for driving the multiplexer from scripts.

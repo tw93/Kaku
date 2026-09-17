@@ -17,7 +17,7 @@
 
 ## 页面
 
-- [安装](https://kaku.fun/zh/docs/index.md)：DMG、Homebrew tap、安装后检查、排障
+- [安装](https://kaku.fun/zh/docs/index.md)：DMG、官方 Homebrew cask、安装后检查、排障
 - [指南](https://kaku.fun/zh/docs/guide.md)：从首次启动到标签页、分屏、shell、助手和内置工具
 - [功能](https://kaku.fun/zh/docs/features.md)：助手、AI 聊天、默认值、性能、shell 套件、Lua 配置
 - [CLI 参考](https://kaku.fun/zh/docs/cli.md)：`kaku doctor`、`kaku ai`、`kaku config`、`kaku update` 等

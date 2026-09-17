@@ -8,7 +8,7 @@ Kaku 是完全公开的开源项目，除了安全报告，所有支持渠道都
 
 附上这些信息，方便定位问题：
 
-- 安装方式：DMG 还是 `brew install tw93/tap/kakuku`。
+- 安装方式：DMG 还是 `brew install --cask kaku`。
 - macOS 版本和芯片（Apple Silicon 还是 Intel）。
 - Kaku 版本，在本机运行 `kaku --version` 查看。
 - `kaku doctor` 的输出，它会报告 App 包、配置目录、PATH、shell 集成和可选工具的状态。

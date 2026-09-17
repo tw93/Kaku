@@ -4,7 +4,7 @@ Installation, config, shortcuts, AI setup, scrolling, fonts, Homebrew, and notif
 
 ## How do I install Kaku?
 
-Download the DMG from [GitHub Releases](https://github.com/tw93/Kaku/releases/latest), or install with `brew install tw93/tap/kakuku`. Use the tap package, not the unrelated Homebrew `kaku` package.
+Download the DMG from [GitHub Releases](https://github.com/tw93/Kaku/releases/latest), or install with `brew install --cask kaku`.
 
 ## What should I run after installing?
 
@@ -160,15 +160,22 @@ That is deliberate. The tools run on your Mac, but the working directory belongs
 
 Make sure the Kaku fish/zsh shell integration is sourced. Check with `kaku doctor`. The `y` wrapper requires the shell init to be loaded. A bare `yazi` call will not sync the directory.
 
-## Homebrew can't find the binary / wrong Kaku gets updated.
+## How do I install or update Kaku with Homebrew?
 
-There is an older unrelated package named `kaku` on Homebrew. Install Kaku with the tap to avoid conflicts:
+Install the official cask:
 
 ```bash
-brew install tw93/tap/kakuku
+brew install --cask kaku
 ```
 
-If you see checksum errors with `kaku update`, use `brew upgrade tw93/tap/kakuku` directly.
+Homebrew-managed installs update with `brew upgrade --cask kaku`, or with `kaku update` (it detects the cask).
+
+If you still have the older tap `tw93/tap/kakuku`, keep upgrading that tap, or move to the official cask:
+
+```bash
+brew uninstall --cask tw93/tap/kakuku
+brew install --cask kaku
+```
 
 ## Claude Code notifications don't appear.
 

@@ -4,7 +4,7 @@
 
 ## 怎么安装 Kaku？
 
-从 [GitHub Releases](https://github.com/tw93/Kaku/releases/latest) 下载 DMG，或运行 `brew install tw93/tap/kakuku`。注意要用 tap 包，不要装到 Homebrew 上那个无关的 `kaku` 包。
+从 [GitHub Releases](https://github.com/tw93/Kaku/releases/latest) 下载 DMG，或运行 `brew install --cask kaku`。
 
 ## 安装后先跑什么？
 
@@ -160,15 +160,22 @@ yazi 远端文件功能（`Cmd+Shift+R`）是为 SSH 会话设计的，通过 ss
 
 确认 shell 集成已 source，用 `kaku doctor` 检查。`y` 包装依赖 shell init，直接调用 `yazi` 不同步目录。
 
-## Homebrew 找不到二进制 / 升级错了 kaku 包。
+## 怎么用 Homebrew 安装或升级 Kaku？
 
-Homebrew 上有一个同名但无关的旧 `kaku` 包。装 Kaku 要用 tap 才能避免冲突：
+装官方 cask：
 
 ```bash
-brew install tw93/tap/kakuku
+brew install --cask kaku
 ```
 
-如果 `kaku update` 出 checksum 错误，直接用 `brew upgrade tw93/tap/kakuku`。
+Homebrew 安装的版本用 `brew upgrade --cask kaku` 升级，或直接运行 `kaku update`（它会识别 cask）。
+
+如果还在用以前的 tap `tw93/tap/kakuku`，可以继续升级那个 tap，也可以迁到官方 cask：
+
+```bash
+brew uninstall --cask tw93/tap/kakuku
+brew install --cask kaku
+```
 
 ## Claude Code 的通知不出现。
 

@@ -8,7 +8,7 @@ Open an issue at [github.com/tw93/Kaku/issues](https://github.com/tw93/Kaku/issu
 
 Include these details to help reproduce the problem:
 
-- Install method: DMG or `brew install tw93/tap/kakuku`.
+- Install method: DMG or `brew install --cask kaku`.
 - macOS version and chip (Apple Silicon or Intel).
 - Kaku version, shown by `kaku --version` in your installed app.
 - Output of `kaku doctor`, which reports the app bundle, config directory, PATH, shell integration, and optional tools.

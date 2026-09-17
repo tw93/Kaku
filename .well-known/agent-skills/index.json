@@ -14,8 +14,8 @@
   "skills": [
     {
       "name": "install-kaku",
-      "description": "Install Kaku on macOS and verify the installation. Use the DMG from GitHub Releases, or `brew install tw93/tap/kakuku` (the unrelated Homebrew `kaku` package is a different project). Then run `kaku doctor` to check the app bundle, config directory, PATH, zsh/fish integration, and optional tools.",
-      "command": "brew install tw93/tap/kakuku && kaku doctor",
+      "description": "Install Kaku on macOS and verify the installation. Use the DMG from GitHub Releases, or `brew install --cask kaku`. Then run `kaku doctor` to check the app bundle, config directory, PATH, zsh/fish integration, and optional tools.",
+      "command": "brew install --cask kaku && kaku doctor",
       "documentation": "https://kaku.fun/docs/index.md"
     },
     {

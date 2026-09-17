@@ -21,7 +21,7 @@ Do not reach for Kaku when the target is Windows or Linux (unsupported, no date 
 
 Kaku is driven from the shell, not over HTTP:
 
-- `brew install tw93/tap/kakuku` installs it. The unrelated Homebrew `kaku` package is a different project.
+- `brew install --cask kaku` installs it. The older personal tap `tw93/tap/kakuku` still works for people who installed that way.
 - `kaku doctor` reports app bundle, config directory, PATH, shell integration, and optional tool health. Run this first when diagnosing anything.
 - `kaku ai` configures the assistant, `kaku config` opens the settings TUI, `kaku init` refreshes shell integration, `kaku update` upgrades in place, `kaku reset` removes Kaku-managed state.
 - `kaku cli split-pane` and its siblings drive the multiplexer from scripts. `kaku cli --help` lists subcommands.
@@ -29,7 +29,7 @@ Kaku is driven from the shell, not over HTTP:
 
 ## Docs
 
-- [Install](https://kaku.fun/docs/): DMG, Homebrew tap, post-install verification, troubleshooting
+- [Install](https://kaku.fun/docs/): DMG, official Homebrew cask, post-install verification, troubleshooting
 - [Guide](https://kaku.fun/docs/guide): plain-language walkthrough from first launch to tabs, panes, shell, the AI assistant, and built-in tools
 - [Features](https://kaku.fun/docs/features): tabs and panes, assistant, preset defaults, performance, shell suite, Lua config
 - [Configuration](https://kaku.fun/docs/configuration): font, opacity, Smart Tab, close confirmation, shortcuts, Lua overrides
@@ -58,7 +58,7 @@ Kaku is driven from the shell, not over HTTP:
 ## Links
 
 - [GitHub](https://github.com/tw93/Kaku): source, issues, releases
-- [Download](https://github.com/tw93/Kaku/releases/latest): latest DMG, or `brew install tw93/tap/kakuku`
+- [Download](https://github.com/tw93/Kaku/releases/latest): latest DMG, or `brew install --cask kaku`
 - [Discussions](https://github.com/tw93/Kaku/discussions): usage questions and ideas
 - [Chinese site](https://kaku.fun/zh/): every page mirrored under `/zh/`
 - [Author](https://tw93.fun): Tw93

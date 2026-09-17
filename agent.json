@@ -52,8 +52,8 @@
     "Any integration that needs a network API, SDK, or hosted tool endpoint."
   ],
   "install": {
-    "homebrew": "brew install tw93/tap/kakuku",
-    "homebrewNote": "Use the tap package. The unrelated Homebrew `kaku` package is a different project.",
+    "homebrew": "brew install --cask kaku",
+    "homebrewNote": "Official Homebrew cask. The personal tap `tw93/tap/kakuku` remains valid for older installs.",
     "dmg": "https://github.com/tw93/Kaku/releases/latest",
     "verify": "kaku doctor",
     "docs": "https://kaku.fun/docs/index.md"

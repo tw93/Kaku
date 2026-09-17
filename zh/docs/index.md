@@ -12,15 +12,22 @@
 
 ## Homebrew
 
-如果你已经用 Homebrew 管理开发工具，可以用 tap 安装 Kaku。
+如果你已经用 Homebrew 管理开发工具，装官方 cask 即可。
 
 ```bash
-brew install tw93/tap/kakuku
+brew install --cask kaku
 open -a Kaku
 kaku doctor
 ```
 
-Homebrew 适合需要命令行安装和自动化更新的机器，注意包名是 `tw93/tap/kakuku`，不是 Homebrew 上旧的无关 `kaku` 包。
+Homebrew 适合需要命令行安装和自动化更新的机器。
+
+如果之前装的是个人 tap `tw93/tap/kakuku`，可以继续用那个 tap 升级，也可以迁到官方 cask：
+
+```bash
+brew uninstall --cask tw93/tap/kakuku
+brew install --cask kaku
+```
 
 ## 安装后
 
@@ -40,7 +47,7 @@ exec zsh -l
 ## 排查
 
 - 确认应用在 `/Applications/Kaku.app`，不要直接从 DMG 里运行。
-- Homebrew 安装失败时，确认使用的是 `brew install tw93/tap/kakuku`。如果 `kaku update` 遇到 checksum 问题，直接运行 `brew upgrade tw93/tap/kakuku`。
+- Homebrew 安装失败时，先运行 `brew update`，再执行 `brew install --cask kaku`。如果 Homebrew 安装的 Kaku 在 `kaku update` 时遇到 checksum 问题，直接运行 `brew upgrade --cask kaku`。
 - 首次配置 shell 工具可以运行 `kaku init`，它会准备 zsh/fish 集成，并在交互式 shell 里询问是否用 Homebrew 安装缺失的 Starship、Delta、Lazygit、Yazi 等可选工具。
 - AI 功能不可用时，打开 `kaku ai` 检查 Auth Type、Base URL、Simple Model、Deep Model 和 API key。
 - 提交 issue 时带上安装方式、macOS 版本、Kaku 版本和复现步骤。

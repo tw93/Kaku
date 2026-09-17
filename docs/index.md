@@ -12,15 +12,22 @@ Most users should download the latest DMG from GitHub Releases. Open the image, 
 
 ## Homebrew
 
-If you already manage developer tools with Homebrew, install Kaku from the tap.
+If you already manage developer tools with Homebrew, install the official cask.
 
 ```bash
-brew install tw93/tap/kakuku
+brew install --cask kaku
 open -a Kaku
 kaku doctor
 ```
 
-Homebrew fits machines that need command-line installation and scripted updates. The package is `tw93/tap/kakuku`, not the older unrelated `kaku` package on Homebrew.
+Homebrew fits machines that need command-line installation and scripted updates.
+
+If you previously installed the personal tap `tw93/tap/kakuku`, keep upgrading that tap, or move to the official cask:
+
+```bash
+brew uninstall --cask tw93/tap/kakuku
+brew install --cask kaku
+```
 
 ## After install
 
@@ -40,7 +47,7 @@ exec zsh -l
 ## Troubleshooting
 
 - Confirm the app lives at `/Applications/Kaku.app`. Do not run it directly from the DMG.
-- If Homebrew install fails, confirm you are using `brew install tw93/tap/kakuku`. If `kaku update` reports checksum issues, run `brew upgrade tw93/tap/kakuku` directly.
+- If Homebrew install fails, run `brew update` first, then `brew install --cask kaku`. If `kaku update` reports checksum issues on a Homebrew install, run `brew upgrade --cask kaku`.
 - For first-time shell tooling, run `kaku init`. It provisions zsh/fish integration and asks before installing missing optional tools such as Starship, Delta, Lazygit, and Yazi through Homebrew.
 - If AI features do not work, open `kaku ai` and check Auth Type, Base URL, Simple Model, Deep Model, and API key.
 - When filing an issue, include install method, macOS version, Kaku version, and reproduction steps.

@@ -18,8 +18,8 @@ Kaku uses WezTerm's Lua configuration system. Some upstream features differ; rev
 ## Installation
 
 - Download the DMG from GitHub Releases: https://github.com/tw93/Kaku/releases/latest
-- Or install with Homebrew: `brew install tw93/tap/kakuku`
-  - The tap formula is named `kakuku` because an unrelated `kaku` package already exists in Homebrew; the tap path avoids installing the wrong one.
+- Or install with Homebrew: `brew install --cask kaku`
+  - The older personal tap `tw93/tap/kakuku` still works for people who installed that way.
 - After installing, run `kaku doctor` to verify the app, PATH, and shell integration.
 
 ## Core features
@@ -53,7 +53,7 @@ Run `kaku ai` to enable Kaku Assistant, choose Auth Type (`codex` to reuse a Cod
 
 ## Frequently asked questions
 
-- How do I install Kaku? Download the DMG from GitHub Releases, or use the Homebrew tap: `brew install tw93/tap/kakuku`.
+- How do I install Kaku? Download the DMG from GitHub Releases, or install with Homebrew: `brew install --cask kaku`.
 - Is Kaku paid? No. Kaku is an MIT-licensed open source project.
 - Does Kaku run on Windows or Linux? Not yet. The current focus is making the native macOS experience solid first.
 - Do I need a Kaku account? No. Configure your own AI service through `kaku ai`.
