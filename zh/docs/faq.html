@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
   <title>FAQ · Kaku 文档</title>
-  <meta name="description" content="安装、配置、快捷键、AI 设置、滚动、字体、Homebrew 和通知相关问题。">
+  <meta name="description" content="安装、与 iTerm2 / Warp / Ghostty / WezTerm 的对比、配置、快捷键、AI 设置、滚动、字体、Homebrew 和通知。">
   <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-kaku-32.png"><link rel="icon" type="image/png" sizes="192x192" href="/img/favicon-kaku-192.png"><link rel="apple-touch-icon" href="/img/favicon-kaku-180.png">
   <link rel="canonical" href="https://kaku.fun/zh/docs/faq">
   <link rel="alternate" type="text/markdown" href="https://kaku.fun/zh/docs/faq.md">
@@ -45,7 +45,7 @@
         "@id": "https://kaku.fun/zh/docs/faq#article",
         "headline": "FAQ",
         "name": "FAQ",
-        "description": "安装、配置、快捷键、AI 设置、滚动、字体、Homebrew 和通知相关问题。",
+        "description": "安装、与 iTerm2 / Warp / Ghostty / WezTerm 的对比、配置、快捷键、AI 设置、滚动、字体、Homebrew 和通知。",
         "url": "https://kaku.fun/zh/docs/faq",
         "inLanguage": "zh-CN",
         "isPartOf": {
@@ -76,7 +76,7 @@
   <a class="skip-link" href="#main-content">跳到内容</a>
   <nav class="site-nav" aria-label="主导航"><div class="wide nav-inner"><a class="brand" href="/zh/"><strong>Kaku</strong></a><span class="eyebrow-sep">·</span><a class="version-link" href="https://github.com/tw93/Kaku/releases" target="_blank" rel="noopener noreferrer">v0.20.0</a><div class="nav-links"><a href="/zh/docs/" aria-current="page">文档</a></div><div class="nav-actions"><a class="nav-pill" aria-current="page" href="/zh/docs/faq" hreflang="zh-CN">中</a><a class="nav-pill" href="/docs/faq" hreflang="en">EN</a><a class="nav-icon" href="https://github.com/tw93/Kaku" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a><a class="nav-icon" href="https://x.com/HiTw93" target="_blank" rel="noopener noreferrer" aria-label="X"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a></div></div></nav>
   <main id="main-content" class="docs-page">
-    <header class="page-hero doc-hero"><div class="wide"><span class="label">文档</span><h1>FAQ</h1><p>安装、配置、快捷键、AI 设置、滚动、字体、Homebrew 和通知相关问题。</p></div></header>
+    <header class="page-hero doc-hero"><div class="wide"><span class="label">文档</span><h1>FAQ</h1><p>安装、与 iTerm2 / Warp / Ghostty / WezTerm 的对比、配置、快捷键、AI 设置、滚动、字体、Homebrew 和通知。</p></div></header>
     <section class="section docs-section">
       <div class="wide docs-layout">
         <aside class="docs-sidebar">
@@ -87,6 +87,7 @@
           <h2 id="faq-how-do-i-install-kaku"><a class="anchor" href="#faq-how-do-i-install-kaku" aria-label="链接到「怎么安装 Kaku」">#</a>怎么安装 Kaku？</h2><p>从 <a href="https://github.com/tw93/Kaku/releases/latest" target="_blank" rel="noopener noreferrer">GitHub Releases</a> 下载 DMG，或运行 <code>brew install --cask kaku</code>。</p>
           <h2 id="faq-what-should-i-run-after-installing"><a class="anchor" href="#faq-what-should-i-run-after-installing" aria-label="链接到「安装后先跑什么」">#</a>安装后先跑什么？</h2><p>先打开一次 Kaku，再运行 <code>kaku doctor</code>。如果 shell 找不到 <code>kaku</code>，运行 <code>/Applications/Kaku.app/Contents/MacOS/kaku init --update-only</code>，再用 <code>exec zsh -l</code> 重启 shell。</p>
           <h2 id="faq-is-there-a-windows-or-linux-version"><a class="anchor" href="#faq-is-there-a-windows-or-linux-version" aria-label="链接到「有 Windows 或 Linux 版本吗」">#</a>有 Windows 或 Linux 版本吗？</h2><p>暂时没有。Kaku 现在只做 macOS，等 macOS 体验打磨稳定后再考虑 Windows 和 Linux。</p>
+          <h2 id="faq-how-is-kaku-different-from-iterm2-warp-ghostty-or-wezterm"><a class="anchor" href="#faq-how-is-kaku-different-from-iterm2-warp-ghostty-or-wezterm" aria-label="链接到「Kaku 和 iTerm2、Warp、Ghostty、WezTerm 有什么区别」">#</a>Kaku 和 iTerm2、Warp、Ghostty、WezTerm 有什么区别？</h2><p>Kaku 是基于 WezTerm 的 Mac 终端，字体、主题、标签页、分屏和 shell 工具开箱就有，也可以接你自己配置的 AI 服务。iTerm2 和 WezTerm 更多要自己拼。Warp 是商业、围绕账号的 AI 产品。Ghostty 是很快的 GPU 终端，预设更少。什么时候不该换，见<a href="/zh/compare">对比页</a>。</p>
           <h2 id="faq-can-i-use-a-transparent-window"><a class="anchor" href="#faq-can-i-use-a-transparent-window" aria-label="链接到「开半透明窗口」">#</a>怎么开半透明窗口？</h2><p>在 <code>~/.config/kaku/kaku.lua</code> 里加：</p>
           <pre><code class="language-lua"><span class="tok-k">local</span> config = <span class="tok-b">require</span>(<span class="tok-s">"kaku"</span>).config
 config.window_background_opacity = <span class="tok-n">0.92</span>
@@ -154,6 +155,6 @@ brew install --cask kaku</code></pre>
       </div>
     </section>
   </main>
-  <footer class="site-footer"><div class="wide footer-inner"><div class="footer-mark"><img src="/img/kaku-mark.png" width="64" height="64" alt="Kaku" loading="lazy"><div><p class="wm-name">Kaku · 書</p><p class="wm-sub">开箱即用、默认好用、AI 友好的 Mac 终端。</p></div></div><div class="footer-colophon"><p class="footer-links"><a href="/zh/about">关于</a> · <a href="/zh/contact">联系</a> · <a href="/zh/privacy">隐私</a> · <a href="/zh/roadmap">Roadmap</a> · <a href="https://github.com/tw93/Kaku/releases" target="_blank" rel="noopener noreferrer">Changelog</a> · <a href="/zh/docs/">文档</a> · <a href="https://github.com/tw93/Kaku">GitHub</a> · <a href="https://github.com/tw93/Kaku/issues">Issues</a> · <a href="https://twitter.com/HiTw93">X</a></p><p class="footer-ethos">少和终端较劲 · Built on WezTerm · MIT · © 2026</p></div></div></footer>
+  <footer class="site-footer"><div class="wide footer-inner"><div class="footer-mark"><img src="/img/kaku-mark.png" width="64" height="64" alt="Kaku" loading="lazy"><div><p class="wm-name">Kaku · 書</p><p class="wm-sub">开箱即用、默认好用、AI 友好的 Mac 终端。</p></div></div><div class="footer-colophon"><p class="footer-links"><a href="/zh/about">关于</a> · <a href="/zh/compare">对比</a> · <a href="/zh/contact">联系</a> · <a href="/zh/privacy">隐私</a> · <a href="/zh/roadmap">Roadmap</a> · <a href="https://github.com/tw93/Kaku/releases" target="_blank" rel="noopener noreferrer">Changelog</a> · <a href="/zh/docs/">文档</a> · <a href="https://github.com/tw93/Kaku">GitHub</a> · <a href="https://github.com/tw93/Kaku/issues">Issues</a> · <a href="https://twitter.com/HiTw93">X</a></p><p class="footer-ethos">少和终端较劲 · Built on WezTerm · MIT · © 2026</p></div></div></footer>
 </body>
 </html>

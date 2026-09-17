@@ -24,7 +24,7 @@ Kaku 由独立开发者 Tw93 开发，他也是 [Pake](https://github.com/tw93/P
 
 每个页面都有 markdown 孪生版本：在任意 URL 后面加 `.md`，或者请求头带 `Accept: text/markdown`，拿到的是去掉页面外壳的同一份正文。[llms.txt](https://kaku.fun/llms.txt) 是精简索引，[llms-full.txt](https://kaku.fun/llms-full.txt) 是给语言模型和答案引擎用的完整单文件说明。
 
-可以从[文档](https://kaku.fun/zh/docs/)开始，用[路线图](https://kaku.fun/zh/roadmap)了解正在做什么，或者[联系我们](https://kaku.fun/zh/contact)。
+可以从[文档](https://kaku.fun/zh/docs/)开始。如果是从 iTerm2、Warp、Ghostty 或 WezTerm 过来，先看[终端对比](https://kaku.fun/zh/compare)。也可以用[路线图](https://kaku.fun/zh/roadmap)了解正在做什么，或者[联系我们](https://kaku.fun/zh/contact)。
 
 ---
 

@@ -33,7 +33,7 @@ The chrome aligns with the mole-mac (Kami) site so the two feel like one series:
 
 Inner content widths stay close to the blog: about 760px for prose and 1120px for page sections.
 
-Sidebar-less prose pages (`/about`, `/contact`, `/privacy`) reuse the docs chrome, `page-hero doc-hero` plus `article.doc-content`, with `.prose-doc` capping the reading width at 860px to match `.release-doc`.
+Sidebar-less prose pages (`/about`, `/compare`, `/contact`, `/privacy`) reuse the docs chrome, `page-hero doc-hero` plus `article.doc-content`, with `.prose-doc` capping the reading width at 860px to match `.release-doc`. Do not add a Mole-style `/blog` tree unless there are several dated essays to publish; the comparison page is the durable home for alternative-intent queries.
 
 ## Agent surface
 

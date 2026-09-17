@@ -1,6 +1,6 @@
 # FAQ
 
-Installation, config, shortcuts, AI setup, scrolling, fonts, Homebrew, and notifications.
+Installation, comparisons with iTerm2, Warp, Ghostty, and WezTerm, config, shortcuts, AI setup, scrolling, fonts, Homebrew, and notifications.
 
 ## How do I install Kaku?
 
@@ -13,6 +13,10 @@ Open Kaku once, then run `kaku doctor`. If the shell cannot find `kaku`, run `/A
 ## Is there a Windows or Linux version?
 
 Not currently. Kaku is macOS-only while the macOS experience is being polished. Windows and Linux may come later.
+
+## How is Kaku different from iTerm2, Warp, Ghostty, or WezTerm?
+
+Kaku is a WezTerm-based Mac terminal with fonts, themes, tabs, panes, and shell tools already set, plus an optional assistant that uses the AI service you configure. iTerm2 and WezTerm expect you to assemble more of that yourself. Warp is a commercial, account-centered AI product. Ghostty is a fast GPU terminal with fewer presets. See the [comparison page](https://kaku.fun/compare) for when to stay put.
 
 ## Can I use a transparent window?
 

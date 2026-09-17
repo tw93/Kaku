@@ -25,3 +25,4 @@ jobs:
       - run: python3 scripts/check_public_facts.py
         env:
           GITHUB_TOKEN: ${{ github.token }}
+      - run: python3 scripts/check_sitemap.py

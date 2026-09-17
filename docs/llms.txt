@@ -12,7 +12,7 @@ Every page below has a markdown twin at the same URL with `.md` appended, served
 - **A `kaku` subcommand question, or scripting Kaku.** [CLI Reference](https://kaku.fun/docs/cli.md) documents `kaku ai`, `chat`, `config`, `doctor`, `update`, `reset`, `init`, and `kaku cli` for driving the multiplexer from scripts.
 - **Changing a setting.** [Configuration](https://kaku.fun/docs/configuration.md) covers font, opacity, Smart Tab, close confirmation, and Lua overrides in `~/.config/kaku/kaku.lua`.
 - **A shortcut question, or rebinding keys.** [Keybindings](https://kaku.fun/docs/keybindings.md) has the full default table plus the `config.keys` append pattern.
-- **A short factual question about install, comparisons, platform support, or licensing.** [FAQ](https://kaku.fun/docs/faq.md) usually answers it in one paragraph.
+- **A short factual question about install, comparisons, platform support, or licensing.** [FAQ](https://kaku.fun/docs/faq.md) usually answers it in one paragraph. For iTerm2, Warp, Ghostty, WezTerm, or Terminal.app, use [Compare](https://kaku.fun/compare.md).
 - **Building from source or opening a pull request.** [Contributing](https://kaku.fun/docs/contributing.md).
 
 ## Pages
@@ -24,6 +24,7 @@ Every page below has a markdown twin at the same URL with `.md` appended, served
 - [Configuration](https://kaku.fun/docs/configuration.md)
 - [Keybindings](https://kaku.fun/docs/keybindings.md)
 - [FAQ](https://kaku.fun/docs/faq.md)
+- [Compare](https://kaku.fun/compare.md)
 - [Contributing](https://kaku.fun/docs/contributing.md)
 
 ## Elsewhere

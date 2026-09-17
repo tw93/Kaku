@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Kaku 对比 iTerm2、Warp、Ghostty 和 WezTerm</title>
+  <meta name="description" content="一份 macOS 终端替代对比：Kaku 开箱带了什么，以及什么时候继续用 iTerm2、Warp、Ghostty、WezTerm 或系统自带终端更合适。">
+  <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-kaku-32.png"><link rel="icon" type="image/png" sizes="192x192" href="/img/favicon-kaku-192.png"><link rel="apple-touch-icon" href="/img/favicon-kaku-180.png">
+  <link rel="canonical" href="https://kaku.fun/zh/compare">
+  <link rel="alternate" hreflang="en" href="https://kaku.fun/compare">
+  <link rel="alternate" hreflang="zh-CN" href="https://kaku.fun/zh/compare">
+  <link rel="alternate" hreflang="x-default" href="https://kaku.fun/compare">
+  <link rel="alternate" type="text/markdown" href="https://kaku.fun/zh/compare.md">
+  <link rel="stylesheet" href="/styles.css">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Kaku",
+            "item": "https://kaku.fun/zh/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "对比",
+            "item": "https://kaku.fun/zh/compare"
+          }
+        ]
+      },
+      {
+        "@type": "TechArticle",
+        "@id": "https://kaku.fun/zh/compare#article",
+        "headline": "Kaku 对比 iTerm2、Warp、Ghostty 和 WezTerm",
+        "name": "Kaku 对比 iTerm2、Warp、Ghostty 和 WezTerm",
+        "description": "一份 macOS 终端替代对比：Kaku 开箱带了什么，以及什么时候继续用 iTerm2、Warp、Ghostty、WezTerm 或系统自带终端更合适。",
+        "url": "https://kaku.fun/zh/compare",
+        "inLanguage": "zh-CN",
+        "isPartOf": {
+          "@id": "https://kaku.fun/#website"
+        },
+        "about": {
+          "@id": "https://kaku.fun/#software"
+        },
+        "publisher": {
+          "@id": "https://kaku.fun/#organization"
+        },
+        "author": {
+          "@type": "Person",
+          "name": "Tw93",
+          "url": "https://tw93.fun"
+        },
+        "encoding": {
+          "@type": "MediaObject",
+          "encodingFormat": "text/markdown",
+          "contentUrl": "https://kaku.fun/zh/compare.md"
+        }
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">跳到内容</a>
+  <nav class="site-nav" aria-label="主导航"><div class="wide nav-inner"><a class="brand" href="/zh/"><strong>Kaku</strong></a><span class="eyebrow-sep">·</span><a class="version-link" href="https://github.com/tw93/Kaku/releases" target="_blank" rel="noopener noreferrer">v0.20.0</a><div class="nav-links"><a href="/zh/docs/">文档</a></div><div class="nav-actions"><a class="nav-pill" aria-current="page" href="/zh/compare" hreflang="zh-CN">中</a><a class="nav-pill" href="/compare" hreflang="en">EN</a><a class="nav-icon" href="https://github.com/tw93/Kaku" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a><a class="nav-icon" href="https://x.com/HiTw93" target="_blank" rel="noopener noreferrer" aria-label="X"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a></div></div></nav>
+  <main id="main-content" class="docs-page">
+    <header class="page-hero doc-hero"><div class="wide"><span class="label">对比</span><h1>Kaku 对比 iTerm2、Warp、Ghostty 和 WezTerm</h1><p>按你真正要做的事来选 macOS 终端，而不是对照功能清单打钩。</p></div></header>
+    <section class="section">
+      <div class="wide">
+        <article class="doc-content prose-doc">
+          <h2 id="compare-start-with-the-job">先看要解决什么</h2>
+          <p>搜 macOS 终端替代，通常是这几件事：不想花一下午配终端、已经有一套 iTerm2、想换更快的 GPU 终端，或者想要重度 AI 产品。Kaku 做的是第一件事。它基于 WezTerm，字体、主题、标签页、分屏和 shell 工具开箱就有，也可以接你自己配置的 AI 服务。</p>
+          <p>活儿不同，别的终端仍然更合适。下面写清楚什么时候不该换。</p>
+
+          <h2 id="compare-at-a-glance">对照</h2>
+          <table>
+            <thead>
+              <tr>
+                <th></th>
+                <th>Kaku</th>
+                <th>iTerm2</th>
+                <th>Warp</th>
+                <th>Ghostty</th>
+                <th>WezTerm</th>
+                <th>系统终端</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">协议</th>
+                <td>MIT</td>
+                <td>GPL</td>
+                <td>商业软件</td>
+                <td>MIT</td>
+                <td>MIT</td>
+                <td>Apple</td>
+              </tr>
+              <tr>
+                <th scope="row">平台</th>
+                <td>仅 macOS</td>
+                <td>macOS</td>
+                <td>macOS 及其他</td>
+                <td>macOS 和 Linux</td>
+                <td>跨平台</td>
+                <td>macOS</td>
+              </tr>
+              <tr>
+                <th scope="row">账号</th>
+                <td>无</td>
+                <td>无</td>
+                <td>AI 围绕账号</td>
+                <td>无</td>
+                <td>无</td>
+                <td>无</td>
+              </tr>
+              <tr>
+                <th scope="row">默认值</th>
+                <td>开箱即用</td>
+                <td>自己拼</td>
+                <td>产品默认</td>
+                <td>快，预设少</td>
+                <td>自己拼</td>
+                <td>系统自带</td>
+              </tr>
+              <tr>
+                <th scope="row">AI</th>
+                <td>可选，用你的服务</td>
+                <td>没有内置</td>
+                <td>做进产品里</td>
+                <td>没有内置</td>
+                <td>没有内置</td>
+                <td>没有内置</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h2 id="compare-iterm2">Kaku 和 iTerm2</h2>
+          <p>iTerm2 是长期存在的 macOS 终端替代。很多人留下，是因为配置、快捷键和手感都已经定了。Kaku 更适合想要第一次打开就有字体、深浅色主题、Mac 风格标签和分屏，以及一套配好的 shell 工具，而不想再搭一遍的人。</p>
+          <p>如果现有 iTerm2 配置正在干活，或者你需要 Kaku 还没做的功能，继续用 iTerm2。Kaku 不打算做成完整的 iTerm2 复制品。</p>
+
+          <h2 id="compare-warp">Kaku 和 Warp</h2>
+          <p>Warp 是商业、AI 优先的终端，助手和工作流是产品本身的一部分。Kaku 用 MIT 协议，没有 Kaku 账号，也不提供或中转 AI 服务。你运行 <code>kaku ai</code>，指向自己的服务。建议不会自动执行，<span class="sk">Cmd + Shift + E</span> 只是把修复粘贴出来给你看。</p>
+          <p>想要终端里的托管 AI 产品，选 Warp。想要开源的 Mac 终端，AI 可选、只活在你自己的配置里，选 Kaku。</p>
+
+          <h2 id="compare-ghostty">Kaku 和 Ghostty</h2>
+          <p>Ghostty 是很快的 MIT GPU 终端。如果你想要现代模拟器，并且自己已经有 shell 工具、字体和工作流，它很合适。Kaku 同样 GPU 加速，但 JetBrains Mono、自动主题、Lazygit、Yazi、远程文件和可选助手已经接好。</p>
+          <p>想要更薄的终端、现有配置也顺手，继续用 Ghostty。缺的是开箱那一套，而不是再写一份配置，再用 Kaku。</p>
+
+          <h2 id="compare-wezterm">Kaku 和 WezTerm</h2>
+          <p>Kaku 从 WezTerm 衍生而来。它保留 WezTerm 的 Lua 配置和快速引擎，再补上 Mac 默认值、shell 集成和可选助手。已有 WezTerm 配置大多能复用，部分上游选项行为不同，请看<a href="/zh/docs/configuration">配置说明</a>。</p>
+          <p>需要 Windows 或 Linux，或者就要上游原样，继续用 WezTerm。Kaku 只做 macOS。</p>
+
+          <h2 id="compare-terminal-app">Kaku 和系统终端</h2>
+          <p>系统自带终端不用再装，偶尔敲几条命令够用。Kaku 面向天天待在终端的人：标签页、分屏、会话恢复、可点击路径，以及可选助手。</p>
+
+          <h2 id="compare-when-not">什么时候不要用 Kaku</h2>
+          <ul>
+            <li><strong>Windows 或 Linux。</strong>不支持，也不承诺时间表。</li>
+            <li><strong>托管或浏览器终端。</strong>Kaku 是本地 Mac 应用。</li>
+            <li><strong>API、SDK 或 MCP server。</strong>这些都不存在。自动化走本地 <code>kaku</code> 命令。</li>
+            <li><strong>完整的 iTerm2 或 WezTerm 复制品。</strong>有些上游和 iTerm2 功能是故意没做的。</li>
+          </ul>
+
+          <h2 id="compare-install">安装 Kaku</h2>
+          <p>官方 Homebrew cask：</p>
+          <pre><code class="language-bash">brew install --cask kaku
+kaku doctor</code></pre>
+          <p>也可以从 <a href="https://github.com/tw93/Kaku/releases/latest" target="_blank" rel="noopener noreferrer">GitHub Releases</a> 下载 DMG。<a href="/zh/docs/">安装说明</a>里有检查步骤，以及旧个人 tap 的迁移。</p>
+        </article>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer"><div class="wide footer-inner"><div class="footer-mark"><img src="/img/kaku-mark.png" width="64" height="64" alt="Kaku" loading="lazy"><div><p class="wm-name">Kaku · 書</p><p class="wm-sub">开箱即用、默认好用、AI 友好的 Mac 终端。</p></div></div><div class="footer-colophon"><p class="footer-links"><a href="/zh/about">关于</a> · <a href="/zh/compare">对比</a> · <a href="/zh/contact">联系</a> · <a href="/zh/privacy">隐私</a> · <a href="/zh/roadmap">Roadmap</a> · <a href="https://github.com/tw93/Kaku/releases" target="_blank" rel="noopener noreferrer">Changelog</a> · <a href="/zh/docs/">文档</a> · <a href="https://github.com/tw93/Kaku">GitHub</a> · <a href="https://github.com/tw93/Kaku/issues">Issues</a> · <a href="https://twitter.com/HiTw93">X</a></p><p class="footer-ethos">少和终端较劲 · Built on WezTerm · MIT · © 2026</p></div></div></footer>
+</body>
+</html>

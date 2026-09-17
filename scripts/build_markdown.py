@@ -34,6 +34,7 @@ PAGES = [
     "docs/contributing.html",
     "roadmap.html",
     "about.html",
+    "compare.html",
     "contact.html",
     "privacy.html",
 ]

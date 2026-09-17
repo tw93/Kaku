@@ -92,6 +92,7 @@
     {"title": "Configuration", "url": "https://kaku.fun/docs/configuration", "markdown": "https://kaku.fun/docs/configuration.md"},
     {"title": "Keybindings", "url": "https://kaku.fun/docs/keybindings", "markdown": "https://kaku.fun/docs/keybindings.md"},
     {"title": "FAQ", "url": "https://kaku.fun/docs/faq", "markdown": "https://kaku.fun/docs/faq.md"},
+    {"title": "Compare", "url": "https://kaku.fun/compare", "markdown": "https://kaku.fun/compare.md"},
     {"title": "Contributing", "url": "https://kaku.fun/docs/contributing", "markdown": "https://kaku.fun/docs/contributing.md"},
     {"title": "Roadmap", "url": "https://kaku.fun/roadmap", "markdown": "https://kaku.fun/roadmap.md"},
     {"title": "About", "url": "https://kaku.fun/about", "markdown": "https://kaku.fun/about.md"},

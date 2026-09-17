@@ -64,6 +64,7 @@ Full reference: <https://kaku.fun/docs/cli.md>.
 - [Configuration](https://kaku.fun/docs/configuration.md): font, opacity, Smart Tab, shortcuts, Lua overrides
 - [Keybindings](https://kaku.fun/docs/keybindings.md): tab, pane, window, and tool shortcuts
 - [FAQ](https://kaku.fun/docs/faq.md): install, comparisons, platform support, licensing
+- [Compare](https://kaku.fun/compare.md): Kaku vs iTerm2, Warp, Ghostty, WezTerm, and Terminal.app
 - [Contributing](https://kaku.fun/docs/contributing.md): build and pull request workflow
 - [Roadmap](https://kaku.fun/roadmap.md): current version and what is planned next
 - [About](https://kaku.fun/about.md) · [Contact](https://kaku.fun/contact.md) · [Privacy](https://kaku.fun/privacy.md)

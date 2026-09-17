@@ -1,6 +1,6 @@
 # FAQ
 
-安装、配置、快捷键、AI 设置、滚动、字体、Homebrew 和通知相关问题。
+安装、与 iTerm2 / Warp / Ghostty / WezTerm 的对比、配置、快捷键、AI 设置、滚动、字体、Homebrew 和通知。
 
 ## 怎么安装 Kaku？
 
@@ -13,6 +13,10 @@
 ## 有 Windows 或 Linux 版本吗？
 
 暂时没有。Kaku 现在只做 macOS，等 macOS 体验打磨稳定后再考虑 Windows 和 Linux。
+
+## Kaku 和 iTerm2、Warp、Ghostty、WezTerm 有什么区别？
+
+Kaku 是基于 WezTerm 的 Mac 终端，字体、主题、标签页、分屏和 shell 工具开箱就有，也可以接你自己配置的 AI 服务。iTerm2 和 WezTerm 更多要自己拼。Warp 是商业、围绕账号的 AI 产品。Ghostty 是很快的 GPU 终端，预设更少。什么时候不该换，见[对比页](https://kaku.fun/zh/compare)。
 
 ## 怎么开半透明窗口？
 

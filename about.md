@@ -24,7 +24,7 @@ Kaku is built by Tw93, an independent developer who also created [Pake](https://
 
 Every page here has a markdown twin: append `.md` to any URL, or send `Accept: text/markdown`, and you get the same prose without the page chrome. [llms.txt](https://kaku.fun/llms.txt) is the short index and [llms-full.txt](https://kaku.fun/llms-full.txt) is the complete single-file summary for language models and answer engines.
 
-Start at the [docs](https://kaku.fun/docs/), check the [roadmap](https://kaku.fun/roadmap) for what is being worked on, or [get in touch](https://kaku.fun/contact).
+Start at the [docs](https://kaku.fun/docs/), read the [terminal comparison](https://kaku.fun/compare) if you are coming from iTerm2, Warp, Ghostty, or WezTerm, check the [roadmap](https://kaku.fun/roadmap) for what is being worked on, or [get in touch](https://kaku.fun/contact).
 
 ---
 

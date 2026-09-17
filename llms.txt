@@ -36,6 +36,7 @@ Kaku is driven from the shell, not over HTTP:
 - [Keybindings](https://kaku.fun/docs/keybindings): tab, pane, window, and tool shortcuts
 - [CLI](https://kaku.fun/docs/cli): the `kaku` command, `kaku doctor`, `kaku ai`, `kaku config`, `kaku update`
 - [FAQ](https://kaku.fun/docs/faq): install, comparisons, platform support, licensing
+- [Compare](https://kaku.fun/compare): Kaku vs iTerm2, Warp, Ghostty, WezTerm, and Terminal.app
 - [Contributing](https://kaku.fun/docs/contributing): build and pull request workflow
 - [Roadmap](https://kaku.fun/roadmap): current version and what is planned next
 - [Docs-only index](https://kaku.fun/docs/llms.txt): scoped llms.txt for the documentation section

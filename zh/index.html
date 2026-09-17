@@ -56,6 +56,7 @@
           "https://github.com/tw93/Kaku",
           "https://github.com/tw93",
           "https://x.com/HiTw93",
+          "https://formulae.brew.sh/cask/kaku",
           "https://kaku.fun"
         ],
         "author": {
@@ -103,6 +104,7 @@
           "https://github.com/tw93/Kaku",
           "https://github.com/tw93",
           "https://x.com/HiTw93",
+          "https://formulae.brew.sh/cask/kaku",
           "https://tw93.fun"
         ],
         "contactPoint": [
@@ -198,7 +200,7 @@
         "name": "Kaku 和 iTerm2 有什么区别？",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Kaku 预设了字体、主题、Shell 集成和 Mac 快捷键，也有可选的内置助手，连接用户自己配置的 AI 服务。"
+          "text": "Kaku 预设了字体、主题、Shell 集成和 Mac 快捷键，也有可选的内置助手，连接用户自己配置的 AI 服务。完整对比：https://kaku.fun/zh/compare"
         }
       },
       {
@@ -206,7 +208,23 @@
         "name": "Kaku 和 Warp 有什么区别？",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Kaku 使用 MIT 协议，无需 Kaku 账号，AI 服务由用户自行配置，也可以用 Lua 自定义终端。"
+          "text": "Kaku 使用 MIT 协议，无需 Kaku 账号，AI 服务由用户自行配置，也可以用 Lua 自定义终端。完整对比：https://kaku.fun/zh/compare"
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Kaku 和 Ghostty 有什么区别？",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Ghostty 是很快的 GPU 终端，配置主要靠自己。Kaku 同样 GPU 加速，但字体、主题、shell 工具和可选助手开箱就有。完整对比：https://kaku.fun/zh/compare"
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Kaku 和 WezTerm 有什么区别？",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Kaku 从 WezTerm 衍生而来，保留 Lua 配置，并补上 Mac 默认值、shell 集成和可选助手。Windows 或 Linux 仍然更适合继续用 WezTerm。完整对比：https://kaku.fun/zh/compare"
         }
       },
       {
@@ -357,9 +375,13 @@
           <dt>怎么安装？</dt>
           <dd>从 <a href="https://github.com/tw93/Kaku/releases/latest" target="_blank" rel="noopener noreferrer">GitHub Releases</a> 下载 DMG，或用 Homebrew 安装：<code>brew install --cask kaku</code>。</dd>
           <dt>Kaku 和 iTerm2 有什么区别？</dt>
-          <dd>Kaku 预设了字体、主题、Shell 集成和 Mac 快捷键，也有可选的内置助手，连接用户自己配置的 AI 服务。</dd>
+          <dd>Kaku 预设了字体、主题、Shell 集成和 Mac 快捷键，也有可选的内置助手，连接用户自己配置的 AI 服务。见<a href="/zh/compare">完整对比</a>。</dd>
           <dt>Kaku 和 Warp 有什么区别？</dt>
-          <dd>Kaku 使用 MIT 协议，无需 Kaku 账号，AI 服务由用户自行配置，也可以用 Lua 自定义终端。</dd>
+          <dd>Kaku 使用 MIT 协议，无需 Kaku 账号，AI 服务由用户自行配置，也可以用 Lua 自定义终端。见<a href="/zh/compare">完整对比</a>。</dd>
+          <dt>Kaku 和 Ghostty 有什么区别？</dt>
+          <dd>Ghostty 是很快的 GPU 终端，配置主要靠自己。Kaku 同样 GPU 加速，但字体、主题、shell 工具和可选助手开箱就有。见<a href="/zh/compare">完整对比</a>。</dd>
+          <dt>Kaku 和 WezTerm 有什么区别？</dt>
+          <dd>Kaku 从 WezTerm 衍生而来，保留 Lua 配置，并补上 Mac 默认值、shell 集成和可选助手。Windows 或 Linux 仍然更适合继续用 WezTerm。见<a href="/zh/compare">完整对比</a>。</dd>
           <dt>Kaku 收费吗？</dt>
           <dd>不收费，Kaku 是 MIT 协议的开源项目。</dd>
           <dt>支持 Windows 或 Linux 吗？</dt>
@@ -368,6 +390,6 @@
       </div>
     </section>
   </main>
-  <footer class="site-footer"><div class="wide footer-inner"><div class="footer-mark"><img src="/img/kaku-mark.png" width="64" height="64" alt="Kaku" loading="lazy"><div><p class="wm-name">Kaku · 書</p><p class="wm-sub">开箱即用、默认好用、AI 友好的 Mac 终端。</p></div></div><div class="footer-colophon"><p class="footer-links"><a href="/zh/about">关于</a> · <a href="/zh/contact">联系</a> · <a href="/zh/privacy">隐私</a> · <a href="/zh/roadmap">Roadmap</a> · <a href="https://github.com/tw93/Kaku/releases" target="_blank" rel="noopener noreferrer">Changelog</a> · <a href="/zh/docs/">文档</a> · <a href="https://github.com/tw93/Kaku">GitHub</a> · <a href="https://github.com/tw93/Kaku/issues">Issues</a> · <a href="https://twitter.com/HiTw93">X</a></p><p class="footer-ethos">少和终端较劲 · Built on WezTerm · MIT · © 2026</p></div></div></footer>
+  <footer class="site-footer"><div class="wide footer-inner"><div class="footer-mark"><img src="/img/kaku-mark.png" width="64" height="64" alt="Kaku" loading="lazy"><div><p class="wm-name">Kaku · 書</p><p class="wm-sub">开箱即用、默认好用、AI 友好的 Mac 终端。</p></div></div><div class="footer-colophon"><p class="footer-links"><a href="/zh/about">关于</a> · <a href="/zh/compare">对比</a> · <a href="/zh/contact">联系</a> · <a href="/zh/privacy">隐私</a> · <a href="/zh/roadmap">Roadmap</a> · <a href="https://github.com/tw93/Kaku/releases" target="_blank" rel="noopener noreferrer">Changelog</a> · <a href="/zh/docs/">文档</a> · <a href="https://github.com/tw93/Kaku">GitHub</a> · <a href="https://github.com/tw93/Kaku/issues">Issues</a> · <a href="https://twitter.com/HiTw93">X</a></p><p class="footer-ethos">少和终端较劲 · Built on WezTerm · MIT · © 2026</p></div></div></footer>
 </body>
 </html>
