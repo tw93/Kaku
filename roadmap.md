@@ -1,30 +1,30 @@
 # Roadmap
 
-Kaku is in the 0.19.x line. Current work focuses on dependable session restore, safer pane behavior, AI workflows, and daily terminal polish.
+Kaku is on the 0.20.x line. This cycle is about keeping sessions intact through crashes, filling in the right-click menu, and fixing a few crashes around launching and closing windows.
 
 ## Now
 
-1. Make installation and shell setup easier to follow.
-2. Make it easier to connect an AI service and diagnose connection problems.
-3. Restore windows, panes, and working directories more reliably.
+1. Save the session while Kaku is running, so a crash or force quit still brings back your windows, panes, and working directories.
+2. Fill in the right-click menu, starting with Copy, and fix tab bar gaps such as the missing index on split tabs.
+3. Fix the spots where launching or closing a window could crash.
 
 ---
 
 ## Next
 
 1. Make terminal settings easier to find and understand.
-2. Continue hardening the AI tool sandbox and file-access policy.
-3. Improve macOS distribution, update, and first-launch experience.
+2. Keep tightening the AI tool sandbox and file-access rules.
+3. Polish install, update, and first launch on macOS, building on the switch to the official Homebrew cask.
 
 ---
 
 ## Later
 
-1. Evaluate non-macOS platforms without promising a timeline.
-2. Session recording and replay, only if the workflow stays local and understandable.
+1. Evaluate non-macOS platforms, with no timeline.
+2. Session recording and replay, only if it stays local and easy to understand.
 3. More IDE, tmux, and remote-development integrations.
 
-Release notes live in [GitHub Releases](https://github.com/tw93/Kaku/releases). Implementation details still live in [GitHub Issues](https://github.com/tw93/Kaku/issues).
+Release notes are on [GitHub Releases](https://github.com/tw93/Kaku/releases), and bugs and implementation details are discussed in [GitHub Issues](https://github.com/tw93/Kaku/issues).
 
 ---
 
