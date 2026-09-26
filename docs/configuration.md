@@ -47,7 +47,7 @@ Settings (`kaku config`) edits common settings and Lua overrides in this same fi
 
 **Theme**
 
-Kaku follows the macOS appearance by default, switching between Kaku Dark and Kaku Light. Pick Auto in `kaku config` to go back to that. To pin one theme:
+New installs start in Kaku Dark, because the generated `kaku.lua` sets `config.color_scheme = "Kaku Dark"`. A config without that line, including any created before V0.21.0, keeps following the macOS appearance and switches between Kaku Dark and Kaku Light. Pick Auto in `kaku config` to follow macOS. To pin one theme:
 
 ```lua
 config.color_scheme = "Kaku Dark"   -- always dark
@@ -157,7 +157,7 @@ config.copy_strip_leading_whitespace = true  -- default: false
 
 **Restore previous session**
 
-Kaku reopens the tabs and panes from your last session on launch, and this is on by default. Set it to `false` to stop both saving and restoring:
+Kaku reopens the tabs and panes from your last session on launch, and this is on by default. The session is also saved within a minute of opening or closing a window, tab, or pane, so a crash or force quit still brings back the last layout. Set it to `false` to stop both saving and restoring:
 
 ```lua
 config.restore_previous_session = false  -- default: true

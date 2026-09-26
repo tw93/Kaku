@@ -5,7 +5,7 @@
 Homepage: https://kaku.fun
 Source: https://github.com/tw93/Kaku
 Author: Tw93 (also created Pake and Mole)
-Latest version: 0.20.0
+Latest version: 0.21.0
 Platform: macOS only (Windows and Linux are not supported yet)
 License: MIT
 

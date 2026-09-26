@@ -7,7 +7,7 @@
     "description": "Kaku is a macOS-native terminal emulator derived from WezTerm and tuned for AI-assisted terminal work. It ships practical defaults on day one (JetBrains Mono, macOS font rendering, automatic dark and light themes), fast tabs and split panes on native macOS shortcuts, a curated shell suite (Lazygit, Yazi, remote files, z, completion, syntax highlighting), and a built-in assistant that drafts a fix when a command fails and turns plain language into commands. It uses WezTerm's Lua configuration system for terminal customization.",
     "category": "DeveloperApplication",
     "type": "desktop-application",
-    "version": "0.20.0",
+    "version": "0.21.0",
     "license": "MIT",
     "licenseUrl": "https://opensource.org/licenses/MIT",
     "homepage": "https://kaku.fun",

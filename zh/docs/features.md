@@ -4,7 +4,7 @@ Kaku 比普通终端多做了哪些事，从右键菜单、链接识别到 AI �
 
 ## 鼠标操作
 
-在分屏里右键，可以粘贴、搜索、打开 AI 对话或命令面板，往任意方向拆分，或者关掉点中的分屏，关闭前要不要确认跟着你的设置走，正在接管鼠标的 TUI 还是会自己收到这次右键。
+在分屏里右键，可以复制选中的文字、粘贴、搜索、打开 AI 对话或命令面板，往任意方向拆分，或者关掉点中的分屏，关闭前要不要确认跟着你的设置走，正在接管鼠标的 TUI 还是会自己收到这次右键。
 
 `Cmd + 点击`打开网址和文件路径，网址在终端边缘自动折行也能拿到完整地址，硬换行之后的无关输出不会被拼进链接。
 
@@ -99,7 +99,7 @@ Kaku 带了一份极简的 AppleScript 字典，所以能在 Script Editor 和�
 ```applescript
 tell application "Kaku"
   get name        -- "Kaku"
-  get version     -- e.g. "0.20.0"
+  get version     -- e.g. "0.21.0"
   get frontmost   -- true / false
   quit            -- optional `saving ask|yes|no`
 end tell

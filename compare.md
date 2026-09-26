@@ -9,7 +9,7 @@ People switch terminals for a handful of reasons. They want something usable wit
 ## What Kaku is good at
 
 - **Works on first launch.** JetBrains Mono, macOS font rendering, light and dark themes that follow the system, copy on select, and Mac-style tab and pane shortcuts are all set.
-- **Tabs and panes that survive a relaunch.** Cmd + T opens a tab, Cmd + D splits, and Cmd + Shift + O opens Tab Navigator to find a pane. Quit and reopen, and your windows, panes, and directories are still there. Right-click to paste, search, open chat, or split the pane under the cursor.
+- **Tabs and panes that survive a relaunch.** Cmd + T opens a tab, Cmd + D splits, and Cmd + Shift + O opens Tab Navigator to find a pane. Quit and reopen, and your windows, panes, and directories are still there. Right-click to copy, paste, search, open chat, or split the pane under the cursor.
 - **Shell tools built in.** Completions, syntax highlighting, and `z` for jumping between directories work in every Kaku session. Cmd + Shift + G opens Lazygit, Cmd + Shift + Y opens Yazi, and Cmd + Shift + R mounts files from the current SSH host.
 - **Optional AI on your own service.** Failed commands come back with a suggested fix, `#` plus a sentence becomes a command, and Cmd + L and `kaku chat` share one conversation. Suggestions land at the prompt for you to review and never run on their own. There is no Kaku account and no Kaku-hosted model.
 - **Easy to troubleshoot.** `kaku doctor` checks the app, PATH, and shell integration, and `kaku config` and `kaku ai` are settings screens right in the terminal.

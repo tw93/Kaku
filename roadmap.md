@@ -1,20 +1,18 @@
 # Roadmap
 
-Kaku is on the 0.20.x line. This cycle is about keeping sessions intact through crashes, filling in the right-click menu, and fixing a few crashes around launching and closing windows.
+Kaku is on the 0.21.x line. V0.21.0 shipped crash-safe session saving, Copy in the right-click menu, and a dark default for new installs, so this cycle turns to settings, the AI tool sandbox, and the install and update path.
 
 ## Now
 
-1. Save the session while Kaku is running, so a crash or force quit still brings back your windows, panes, and working directories.
-2. Fill in the right-click menu, starting with Copy, and fix tab bar gaps such as the missing index on split tabs.
-3. Fix the spots where launching or closing a window could crash.
+1. Make terminal settings easier to find and understand.
+2. Keep tightening the AI tool sandbox and file-access rules.
+3. Polish install, update, and first launch on macOS, building on the switch to the official Homebrew cask.
 
 ---
 
 ## Next
 
-1. Make terminal settings easier to find and understand.
-2. Keep tightening the AI tool sandbox and file-access rules.
-3. Polish install, update, and first launch on macOS, building on the switch to the official Homebrew cask.
+1. Track down interface problems that only show up after Kaku runs for a long time, such as the tab bar disappearing.
 
 ---
 

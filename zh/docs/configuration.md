@@ -47,7 +47,7 @@ return config
 
 **主题**
 
-Kaku 默认跟随 macOS 外观，在 Kaku Dark 和 Kaku Light 之间自动切换，想回到这种方式，在 `kaku config` 里选 Auto 就行。要固定用一套主题：
+新安装默认用 Kaku Dark，因为首次生成的 `kaku.lua` 里写了 `config.color_scheme = "Kaku Dark"`，配置里没有这一行的，包括 V0.21.0 之前生成的配置，仍然跟随 macOS 外观在 Kaku Dark 和 Kaku Light 之间切换，想跟随系统就在 `kaku config` 里选 Auto。要固定用一套主题：
 
 ```lua
 config.color_scheme = "Kaku Dark"   -- always dark
@@ -157,7 +157,7 @@ config.copy_strip_leading_whitespace = true  -- default: false
 
 **恢复上次会话**
 
-Kaku 启动时会重新打开上次的标签和分屏，这个功能默认开启，设为 `false` 就既不保存也不恢复会话：
+Kaku 启动时会重新打开上次的标签和分屏，这个功能默认开启，开关窗口、标签或分屏后一分钟内也会保存一次，崩溃或强制退出后也能恢复上次的布局，设为 `false` 就既不保存也不恢复会话：
 
 ```lua
 config.restore_previous_session = false  -- default: true

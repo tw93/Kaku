@@ -9,7 +9,7 @@ Kaku 想做的是装好就能用的 Mac 终端，这页写它和几款常见终�
 ## Kaku 强在哪
 
 - **打开就能用。**JetBrains Mono、macOS 字体渲染、跟随系统的深浅色、选中即复制，还有 Mac 风格的标签和分屏快捷键，都已经配好。
-- **标签和分屏重开还在。**Cmd + T 开标签，Cmd + D 分屏，Cmd + Shift + O 打开 Tab Navigator 找分屏，关掉再打开 Kaku，窗口、分屏和目录都还在，右键还能粘贴、搜索、开 AI 对话，或者从点中的分屏再拆一个。
+- **标签和分屏重开还在。**Cmd + T 开标签，Cmd + D 分屏，Cmd + Shift + O 打开 Tab Navigator 找分屏，关掉再打开 Kaku，窗口、分屏和目录都还在，右键还能复制、粘贴、搜索、开 AI 对话，或者从点中的分屏再拆一个。
 - **自带一套 shell 工具。**补全、语法高亮和 `z` 跳目录在 Kaku 里直接能用，Cmd + Shift + G 开 Lazygit，Cmd + Shift + Y 开 Yazi，Cmd + Shift + R 挂载当前 SSH 主机的文件。
 - **AI 可选，用你自己的服务。**命令报错时给出修复，`#` 加一句话生成命令，Cmd + L 和 `kaku chat` 打开的是同一份对话，建议只会放到命令行给你看，不会自动执行，Kaku 也没有账号和自己的模型。
 - **出了问题能自查。**`kaku doctor` 会检查 app、PATH 和 shell 集成，`kaku config` 和 `kaku ai` 都是直接在终端里操作的设置界面。

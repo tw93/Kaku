@@ -4,7 +4,7 @@ What Kaku does beyond a plain terminal, from right-click actions to the assistan
 
 ## Mouse actions
 
-Right-click inside a pane to paste, search, open AI chat or the command palette, split in any direction, or close the clicked pane. Closing asks for confirmation if your settings say so, and a TUI that captures the mouse still gets the right-click itself.
+Right-click inside a pane to copy the selection, paste, search, open AI chat or the command palette, split in any direction, or close the clicked pane. Closing asks for confirmation if your settings say so, and a TUI that captures the mouse still gets the right-click itself.
 
 `Cmd + Click` opens URLs and file paths. A URL that wraps at the terminal edge still opens in full, and text after a hard newline never gets pulled into the link.
 
@@ -99,7 +99,7 @@ Kaku ships a minimal AppleScript dictionary, so it shows up in Script Editor and
 ```applescript
 tell application "Kaku"
   get name        -- "Kaku"
-  get version     -- e.g. "0.20.0"
+  get version     -- e.g. "0.21.0"
   get frontmost   -- true / false
   quit            -- optional `saving ask|yes|no`
 end tell
