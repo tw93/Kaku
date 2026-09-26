@@ -8,7 +8,7 @@
 
 ### 最常改的几项
 
-先从 `font_size`、`window_background_opacity`、`copy_on_select` 和 `smart_tab_mode` 这几项改起。
+先从 `font_size`、`window_background_opacity`、`copy_on_select` 和 [`smart_tab_mode`](https://kaku.fun/zh/docs/features#features-shell-suite) 这几项改起。
 
 ## 配置文件
 

@@ -187,10 +187,6 @@ export KAKU_TAB_ACCEPT_SUGGEST_FIRST=0  # 改回 completion-first（suggestion-f
 export KAKU_SMART_TAB_DISABLE=1         # disable Smart Tab
 ```
 
-```fish
-set -gx KAKU_SMART_TAB_DISABLE 1
-```
-
 shell rc 里设的环境变量优先于 `kaku.lua`。Smart Tab 只在 Kaku 会话里生效（`TERM_PROGRAM=Kaku`，或者从 Kaku 里启动的 tmux）。
 
 ---

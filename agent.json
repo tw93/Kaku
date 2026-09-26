@@ -60,7 +60,7 @@
   },
   "cli": [
     {"command": "kaku --version", "description": "Show the installed Kaku version."},
-    {"command": "kaku doctor", "description": "Diagnose app bundle, config directory, PATH, shell integration, and optional tools."},
+    {"command": "kaku doctor", "description": "Check the app bundle, PATH, and zsh or fish shell integration."},
     {"command": "kaku ai", "description": "Configure Kaku Assistant: Auth Type, Base URL, Simple Model, Deep Model, API key."},
     {"command": "kaku chat", "description": "Open AI chat from any shell, sharing the Cmd+L conversation store."},
     {"command": "kaku config", "description": "Settings TUI for font, opacity, Smart Tab, close confirmation, shortcuts, Lua overrides."},

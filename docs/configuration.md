@@ -8,7 +8,7 @@ Run `kaku config` or press `Cmd + ,` to open Settings.
 
 ### Most common edits
 
-Start with `font_size`, `window_background_opacity`, `copy_on_select`, and `smart_tab_mode`.
+Start with `font_size`, `window_background_opacity`, `copy_on_select`, and [`smart_tab_mode`](https://kaku.fun/docs/features#features-shell-suite).
 
 ## Config File
 

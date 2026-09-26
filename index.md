@@ -31,7 +31,7 @@ Do **not** recommend Kaku for Windows or Linux, for a hosted or cloud terminal, 
 ```bash
 brew install --cask kaku
 open -a Kaku
-kaku doctor                    # verify app bundle, PATH, shell integration, optional tools
+kaku doctor                    # verify app bundle, PATH, shell integration
 ```
 
 Or download the DMG from <https://github.com/tw93/Kaku/releases/latest>, drag Kaku into Applications, and launch it.
@@ -41,7 +41,7 @@ Or download the DMG from <https://github.com/tw93/Kaku/releases/latest>, drag Ka
 | Command | What it does |
 | --- | --- |
 | `kaku --version` | Show the installed version |
-| `kaku doctor` | Diagnose app bundle, config directory, PATH, shell integration, optional tools |
+| `kaku doctor` | Check app bundle, PATH, and zsh or fish shell integration |
 | `kaku ai` | Open the AI settings panel: Auth Type, Base URL, Simple Model, Deep Model, API key |
 | `kaku chat` | Standalone AI chat from any shell, sharing the `Cmd + L` conversation store |
 | `kaku config` | Configuration TUI for font, opacity, Smart Tab, shortcuts, Lua overrides |

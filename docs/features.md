@@ -187,10 +187,6 @@ export KAKU_TAB_ACCEPT_SUGGEST_FIRST=0  # completion-first (suggestion-first is 
 export KAKU_SMART_TAB_DISABLE=1         # disable Smart Tab
 ```
 
-```fish
-set -gx KAKU_SMART_TAB_DISABLE 1
-```
-
 Environment variables in your shell rc override `kaku.lua`. Smart Tab only runs in Kaku sessions (`TERM_PROGRAM=Kaku`, or tmux started from a Kaku shell).
 
 ---

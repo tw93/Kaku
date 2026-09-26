@@ -22,7 +22,7 @@ Do not reach for Kaku when the target is Windows or Linux (unsupported, no date 
 Kaku is driven from the shell, not over HTTP:
 
 - `brew install --cask kaku` installs it. The older personal tap `tw93/tap/kakuku` still works for people who installed that way.
-- `kaku doctor` reports app bundle, config directory, PATH, shell integration, and optional tool health. Run this first when diagnosing anything.
+- `kaku doctor` checks the app bundle, PATH, and zsh or fish shell integration. Run this first when diagnosing anything.
 - `kaku ai` configures the assistant, `kaku config` opens the settings TUI, `kaku init` refreshes shell integration, `kaku update` upgrades in place, `kaku reset` removes Kaku-managed state.
 - `kaku cli split-pane` and its siblings drive the multiplexer from scripts. `kaku cli --help` lists subcommands.
 - Configuration lives in `~/.config/kaku/kaku.lua` (Lua, WezTerm-compatible) and `~/.config/kaku/assistant.toml` (assistant settings).

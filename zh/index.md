@@ -31,7 +31,7 @@ Kaku 是一个开箱即用、默认好用、AI 友好的 Mac 终端。MIT 开源
 ```bash
 brew install --cask kaku
 open -a Kaku
-kaku doctor                    # 检查 App 包、PATH、shell 集成、可选工具
+kaku doctor                    # 检查 App 包、PATH、shell 集成
 ```
 
 或者从 <https://github.com/tw93/Kaku/releases/latest> 下载 DMG，把 Kaku 拖进 Applications 后启动。
@@ -41,7 +41,7 @@ kaku doctor                    # 检查 App 包、PATH、shell 集成、可选�
 | 命令 | 作用 |
 | --- | --- |
 | `kaku --version` | 查看已安装版本 |
-| `kaku doctor` | 诊断 App 包、配置目录、PATH、shell 集成、可选工具 |
+| `kaku doctor` | 检查 App 包、PATH 和 zsh、fish 的 shell 集成 |
 | `kaku ai` | 打开 AI 设置面板：Auth Type、Base URL、Simple Model、Deep Model、API key |
 | `kaku chat` | 从任意 shell 启动独立 AI 聊天，与 `Cmd + L` 共享会话存储 |
 | `kaku config` | 配置 TUI：字体、透明度、Smart Tab、快捷键、Lua 覆盖 |
