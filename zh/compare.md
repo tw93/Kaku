@@ -1,23 +1,19 @@
 # Kaku 对比 iTerm2、Warp、Ghostty 和 WezTerm
 
-Kaku 是开箱就能干活的 macOS 终端。下面写它强在哪，以及其他应用什么时候仍然更合适。
+Kaku 想做的是装好就能用的 Mac 终端，这页写它和几款常见终端差在哪，以及什么情况下不必换。
 
 ## 先看要解决什么
 
-搜 macOS 终端替代，通常是这几件事：不想花一下午配终端、已经有一套 iTerm2、想换更快的 GPU 终端，或者想要重度 AI 产品。Kaku 做的是第一件事。它基于 WezTerm，字体、主题、标签页、分屏和 shell 工具开箱就有，也可以接你自己配置的 AI 服务。
-
-活儿不同，别的终端仍然更合适。下面写清楚什么时候不该换。
+想换终端的理由一般就那几种，不想花一下午配终端，已经有一套顺手的 iTerm2，想要更快的 GPU 终端，或者想要 AI 做进产品里的那种，Kaku 解决的是第一种，字体、主题、标签、分屏和 shell 工具都配好了，AI 服务可以接你自己的。
 
 ## Kaku 强在哪
 
-下面是选 Kaku 的理由，不是说它每一行都赢过所有终端。
-
-- **打开就能干活。**JetBrains Mono、macOS 级字体渲染、跟随系统的深浅色主题、选中即复制，以及 Mac 风格的标签和分屏快捷键，都已经配好。
-- **标签和分屏会回来。**新标签 Cmd + T，分屏 Cmd + D，用 Tab Navigator Cmd + Shift + O 找某个 pane。再打开 Kaku，窗口、分屏和目录还在。右键可以粘贴、搜索、开聊天，或从点中的 pane 分屏。
-- **App 里就有一套 shell。**补全、语法高亮和 `z` 目录跳转会在 Kaku 会话里加载。Cmd + Shift + G 是 Lazygit，Cmd + Shift + Y 是 Yazi，Cmd + Shift + R 挂载当前 SSH 主机。
-- **可选 AI，用你自己的服务。**命令失败可以草拟修复，`#` 加一句话变成命令，Cmd + L 或 `kaku chat` 打开同一份对话。建议只粘贴出来给你看，不会自动执行。没有 Kaku 账号，也没有 Kaku 自己运营的模型。
-- **本地命令能自检。**`kaku doctor` 报告 app、PATH 和 shell 集成。`kaku config` 和 `kaku ai` 是 TUI。官方安装是 `brew install --cask kaku`。
-- **不折腾你的机器。**MIT 协议，没有使用分析。App 可能发出的网络请求都写在[隐私页](https://kaku.fun/zh/privacy)。
+- **打开就能用。**JetBrains Mono、macOS 字体渲染、跟随系统的深浅色、选中即复制，还有 Mac 风格的标签和分屏快捷键，都已经配好。
+- **标签和分屏重开还在。**Cmd + T 开标签，Cmd + D 分屏，Cmd + Shift + O 打开 Tab Navigator 找分屏，关掉再打开 Kaku，窗口、分屏和目录都还在，右键还能粘贴、搜索、开 AI 对话，或者从点中的分屏再拆一个。
+- **自带一套 shell 工具。**补全、语法高亮和 `z` 跳目录在 Kaku 里直接能用，Cmd + Shift + G 开 Lazygit，Cmd + Shift + Y 开 Yazi，Cmd + Shift + R 挂载当前 SSH 主机的文件。
+- **AI 可选，用你自己的服务。**命令报错时给出修复，`#` 加一句话生成命令，Cmd + L 和 `kaku chat` 打开的是同一份对话，建议只会放到命令行给你看，不会自动执行，Kaku 也没有账号和自己的模型。
+- **出了问题能自查。**`kaku doctor` 会检查 app、PATH 和 shell 集成，`kaku config` 和 `kaku ai` 都是直接在终端里操作的设置界面。
+- **不碰你的数据。**MIT 开源，没有使用统计，App 会发出的网络请求都列在[隐私页](https://kaku.fun/zh/privacy)。
 
 ## 对照
 
@@ -34,38 +30,38 @@ Kaku 是开箱就能干活的 macOS 终端。下面写它强在哪，以及其�
 
 ## Kaku 和 iTerm2
 
-iTerm2 是长期存在的 macOS 终端替代。很多人留下，是因为配置、快捷键和手感都已经定了。Kaku 更适合不想再搭一遍的人：字体和主题开箱就有，Mac 风格标签和分屏、会话恢复、右键菜单、可点击路径，以及一键 Lazygit / Yazi。`kaku doctor` 会告诉你 PATH 或 shell 集成有没有问题，这事 iTerm2 不会替你做。
+iTerm2 是 Mac 上用得最久的终端替代，很多人留下是因为配置、快捷键和手感早就调顺了，Kaku 适合不想再从头搭一遍的人，字体主题开箱就有，标签分屏、会话恢复、右键菜单、可点击路径和一键打开的 Lazygit、Yazi 都在，PATH 或 shell 集成出问题时，`kaku doctor` 会直接告诉你。
 
-如果现有 iTerm2 配置正在干活，或者你需要 Kaku 还没做的功能，继续用 iTerm2。Kaku 不打算做成完整的 iTerm2 复制品。
+现有的 iTerm2 配置用得好好的，或者要用 Kaku 还没有的功能，那就继续用 iTerm2，Kaku 也不打算把它完整复刻一遍。
 
 ## Kaku 和 Warp
 
-Warp 是商业、AI 优先的终端，助手和工作流是产品本身的一部分。Kaku 用 MIT 协议，没有 Kaku 账号，也不提供或中转 AI 服务。你运行 `kaku ai`，指向自己的服务。命令失败可以草拟修复，`#` 把一句话变成命令，Cmd + L 打开聊天。什么都不会自动执行，Cmd + Shift + E 只是把建议粘贴出来给你看。不配 AI，终端其余部分照常用。
+Warp 是商业软件，AI 优先，助手和工作流就是产品本身，Kaku 是 MIT 开源，没有账号，也不提供或中转 AI 服务，运行 `kaku ai` 填上你自己的服务就行，报错修复、`#` 生成命令、Cmd + L 打开对话这些都有，但不会自动执行任何东西，Cmd + Shift + E 只是把建议放到命令行，不配 AI 也不影响其他功能。
 
-想要终端里的托管 AI 产品，选 Warp。想要开源的 Mac 终端，AI 可选、只活在你自己的配置里，选 Kaku。
+想要终端里一整套托管的 AI 产品，选 Warp，想要开源、AI 可选而且只走你自己配置的 Mac 终端，选 Kaku。
 
 ## Kaku 和 Ghostty
 
-Ghostty 是很快的 MIT GPU 终端。如果你想要现代模拟器，并且自己已经有 shell 工具、字体和工作流，它很合适。Kaku 同样 GPU 加速。差别是已经接好的那一层：JetBrains Mono、自动主题、会话恢复、补全和 `z`、Lazygit、Yazi、远程文件，以及可选助手。
+Ghostty 是很快的 GPU 终端，MIT 开源，如果 shell 工具、字体和工作流你都已经配好了，它很合适，Kaku 同样用 GPU 渲染，区别在于已经接好的那一层，JetBrains Mono、自动主题、会话恢复、补全和 `z`、Lazygit、Yazi、远程文件，还有可选的助手。
 
-想要更薄的终端、现有配置也顺手，继续用 Ghostty。缺的是开箱那一套，而不是再写一份配置，再用 Kaku。
+想要更轻的终端，现有配置也顺手，就继续用 Ghostty，缺的是开箱那一套、又不想再写一份配置，可以试试 Kaku。
 
 ## Kaku 和 WezTerm
 
-Kaku 从 WezTerm 衍生而来。它保留 WezTerm 的 Lua 配置和快速引擎，再补上 WezTerm 留给你自己做的 Mac 这一层：有主张的默认值、shell 集成、Tab Navigator、窗口快照、`kaku` 命令，以及可选助手。官方安装是 Homebrew cask `kaku`。已有 WezTerm 配置大多能复用，部分上游选项行为不同，请看[配置说明](https://kaku.fun/zh/docs/configuration)。
+Kaku 从 WezTerm 衍生而来，保留了它的 Lua 配置和渲染引擎，再把 WezTerm 留给你自己做的 Mac 这一层补上，包括默认值、shell 集成、Tab Navigator、窗口快照、`kaku` 命令和可选助手，已有的 WezTerm 配置大多能直接用，个别上游选项行为不同，见[配置说明](https://kaku.fun/zh/docs/configuration)。
 
-需要 Windows 或 Linux，或者就要上游原样，继续用 WezTerm。Kaku 只做 macOS。
+要在 Windows 或 Linux 上用，或者就想要原版，继续用 WezTerm，Kaku 只做 macOS。
 
 ## Kaku 和系统终端
 
-系统自带终端不用再装，偶尔敲几条命令够用。Kaku 面向天天待在终端的人：分屏、会话恢复、可点击路径、右键菜单、一套 shell，以及接你自己服务的可选助手。
+系统自带的终端不用装，偶尔敲几条命令够用了，Kaku 面向天天待在终端里的人，分屏、会话恢复、可点击路径、右键菜单、一套 shell 工具，以及接你自己服务的可选助手。
 
 ## 什么时候不要用 Kaku
 
 - **Windows 或 Linux。**不支持，也不承诺时间表。
 - **托管或浏览器终端。**Kaku 是本地 Mac 应用。
-- **API、SDK 或 MCP server。**这些都不存在。自动化走本地 `kaku` 命令。
-- **完整的 iTerm2 或 WezTerm 复制品。**有些上游和 iTerm2 功能是故意没做的。
+- **API、SDK 或 MCP server。**都没有，自动化用本地的 `kaku` 命令。
+- **完整复刻 iTerm2 或 WezTerm。**有些功能是故意没做的。
 
 ## 安装 Kaku
 
@@ -76,7 +72,7 @@ brew install --cask kaku
 kaku doctor
 ```
 
-也可以从 [GitHub Releases](https://github.com/tw93/Kaku/releases/latest) 下载 DMG。[安装说明](https://kaku.fun/zh/docs/)里有检查步骤，以及旧个人 tap 的迁移。
+也可以从 [GitHub Releases](https://github.com/tw93/Kaku/releases/latest) 下载 DMG。[安装说明](https://kaku.fun/zh/docs/)里有装完后的检查步骤，以及从旧的个人 tap 迁移的方法。
 
 ---
 

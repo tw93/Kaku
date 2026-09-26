@@ -197,34 +197,10 @@
       },
       {
         "@type": "Question",
-        "name": "Kaku 和 iTerm2 有什么区别？",
+        "name": "和 iTerm2、Warp、Ghostty、WezTerm 比有什么不同？",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Kaku 预设了字体、主题、Shell 集成和 Mac 快捷键，也有可选的内置助手，连接用户自己配置的 AI 服务。完整对比：https://kaku.fun/zh/compare"
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Kaku 和 Warp 有什么区别？",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Kaku 使用 MIT 协议，无需 Kaku 账号，AI 服务由用户自行配置，也可以用 Lua 自定义终端。完整对比：https://kaku.fun/zh/compare"
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Kaku 和 Ghostty 有什么区别？",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Ghostty 是很快的 GPU 终端，配置主要靠自己。Kaku 同样 GPU 加速，但字体、主题、shell 工具和可选助手开箱就有。完整对比：https://kaku.fun/zh/compare"
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Kaku 和 WezTerm 有什么区别？",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Kaku 从 WezTerm 衍生而来，保留 Lua 配置，并补上 Mac 默认值、shell 集成和可选助手。Windows 或 Linux 仍然更适合继续用 WezTerm。完整对比：https://kaku.fun/zh/compare"
+          "text": "简单说就是字体、主题和 Shell 工具开箱配好，不用注册账号，AI 服务用你自己的，每一款的具体差别写在对比页里：https://kaku.fun/zh/compare"
         }
       },
       {
@@ -240,7 +216,7 @@
         "name": "支持 Windows 或 Linux 吗？",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "暂时不支持，当前重点是先把 macOS 原生体验打磨稳定。"
+          "text": "暂时不支持，眼下先把 Mac 上的体验做好。"
         }
       }
     ]
@@ -265,12 +241,11 @@
       <div class="hero-wrap hero-centered">
         <h1>Kaku<span class="cn-orbit"><span class="cn">書</span></span></h1>
         <p class="hero-sub">一个开箱即用、默认好用、AI 友好的 Mac 终端，开源，无需账号。</p>
-        <div class="hero-trust"><span>零配置</span><span>轻快</span><span>AI 友好</span></div>
         <div class="hero-actions">
           <a class="btn btn-primary" href="https://github.com/tw93/Kaku/releases/latest" target="_blank" rel="noopener noreferrer">下载 Kaku</a>
           <a class="btn btn-secondary" href="/zh/docs/">安装指南</a>
         </div>
-        <p class="hero-sub"><a href="/zh/compare">对比 iTerm2、Warp、Ghostty 和 WezTerm</a></p>
+        <p class="hero-more"><a href="/zh/compare">对比 iTerm2、Warp、Ghostty 和 WezTerm</a></p>
       </div>
     </section>
     <section class="section">
@@ -278,11 +253,11 @@
         <div class="section-head">
           <span class="section-num">00 · 看界面</span>
           <h2>实际长这样</h2>
-          <p>深色和浅色、调过的字体、原生 macOS 质感，两套体验一致。</p>
+          <p>深色浅色跟随系统，字体渲染都调过。</p>
         </div>
         <div class="gallery">
-          <figure class="shot"><img src="/shots/kaku-dark.webp" width="1920" height="1192" loading="lazy" alt="Kaku 深色主题截图"><figcaption>深色主题：标签、分屏和终端工具在同一个快速工作区。</figcaption></figure>
-          <figure class="shot"><img src="/shots/kaku-light.webp" width="1920" height="1192" loading="lazy" alt="Kaku 浅色主题截图"><figcaption>浅色主题：原生 macOS 质感，字体清晰好读。</figcaption></figure>
+          <figure class="shot"><img src="/shots/kaku-dark.webp" width="1920" height="1192" loading="lazy" alt="Kaku 深色主题截图"><figcaption>深色主题</figcaption></figure>
+          <figure class="shot"><img src="/shots/kaku-light.webp" width="1920" height="1192" loading="lazy" alt="Kaku 浅色主题截图"><figcaption>浅色主题</figcaption></figure>
         </div>
       </div>
     </section>
@@ -297,8 +272,8 @@
         </div>
         <div class="prose">
           <span class="section-num">01 · 标签与分屏</span>
-          <h2>标签和分屏，手感和 macOS 其它地方一致。</h2>
-          <p>新建标签、分屏和切换都用熟悉的快捷键，也可以右键粘贴、搜索、打开 AI 对话或管理分屏，重新打开 Kaku 时，窗口、分屏和各自目录会一起恢复。</p>
+          <h2>标签和分屏，还是 Mac 上那套快捷键</h2>
+          <p>⌘T 开标签，⌘D 分屏，⌘1 到 ⌘9 切换，右键可以粘贴、搜索或打开 AI 对话，退出后再打开 Kaku，窗口、分屏和各自的目录都还在。</p>
           <p><a href="/zh/docs/keybindings">查看全部快捷键</a></p>
         </div>
       </div>
@@ -307,8 +282,8 @@
       <div class="wide terminal-demo">
         <div class="prose">
           <span class="section-num">02 · 助手</span>
-          <h2>失败的命令，不该只是一行红字。</h2>
-          <p>配置助手后，命令失败时可以获取修复建议，按 <span class="sk">Cmd + Shift + E</span> 放回命令行，危险命令绝不自动执行。输入 <code>#</code> 加一句话，还能把自然语言变成命令。</p>
+          <h2>命令报错，不该只剩一行红字</h2>
+          <p>配好助手后，命令跑错了它会给出改好的写法，按 <span class="sk">Cmd + Shift + E</span> 放回命令行，执不执行还是你来决定，想不起命令怎么写时，输入 <code>#</code> 加一句大白话也行。</p>
           <p><a href="/zh/docs/features">了解助手</a></p>
         </div>
         <div class="terminal-window">
@@ -325,32 +300,32 @@
       <div class="wide">
         <div class="section-head">
           <span class="section-num">03 · 默认值</span>
-          <h2>常用设置已经配好</h2>
-          <p>字体、主题、快捷键和 Shell 集成已经配好，打开就能开始用。</p>
+          <h2>装好就能用</h2>
+          <p>字体、主题、快捷键和 Shell 集成都提前配好了，不用先去改配置文件。</p>
         </div>
         <div class="feature-grid">
-          <a class="feature" href="/zh/docs/keybindings"><span class="mark">01</span><strong>标签与分屏</strong><span>用原生快捷键新建、拆分和切换，并恢复窗口、分屏与目录。</span></a>
-          <a class="feature" href="/zh/docs/configuration"><span class="mark">02</span><strong>字体与主题</strong><span>JetBrains Mono、macOS 字体渲染，深浅色自动切换。</span></a>
-          <a class="feature" href="/zh/docs/features"><span class="mark">03</span><strong>快而轻量</strong><span>用 GPU 渲染终端文字和图形。</span></a>
-          <a class="feature" href="/zh/docs/features"><span class="mark">04</span><strong>小细节</strong><span>选中即复制、点击网址和文件路径、查看历史输出、视觉提醒。</span></a>
-          <a class="feature" href="/zh/docs/features"><span class="mark">05</span><strong>Shell 套件</strong><span>Lazygit、Yazi、远端文件、z、补全和高亮。</span></a>
-          <a class="feature" href="/zh/docs/features"><span class="mark">06</span><strong>AI 助手</strong><span>修复失败命令、把一句话变成命令，需要时才出现。</span></a>
-          <a class="feature" href="/zh/docs/configuration"><span class="mark">07</span><strong>Lua 配置</strong><span>沿用 WezTerm 的 Lua 配置方式，自定义终端外观和行为。</span></a>
+          <a class="feature" href="/zh/docs/keybindings"><span class="mark">01</span><strong>标签与分屏</strong><span>原生快捷键，重开后恢复窗口和目录</span></a>
+          <a class="feature" href="/zh/docs/configuration"><span class="mark">02</span><strong>字体与主题</strong><span>JetBrains Mono，macOS 字体渲染，深浅色跟随系统</span></a>
+          <a class="feature" href="/zh/docs/features"><span class="mark">03</span><strong>快而轻量</strong><span>文字和图形都走 GPU 渲染</span></a>
+          <a class="feature" href="/zh/docs/features"><span class="mark">04</span><strong>小细节</strong><span>选中即复制，网址和路径点一下就开，历史输出随时回看</span></a>
+          <a class="feature" href="/zh/docs/features"><span class="mark">05</span><strong>Shell 套件</strong><span>Lazygit、Yazi、远端文件、z、补全和高亮</span></a>
+          <a class="feature" href="/zh/docs/features"><span class="mark">06</span><strong>AI 助手</strong><span>修报错的命令，把一句话变成命令，不用时不打扰</span></a>
+          <a class="feature" href="/zh/docs/configuration"><span class="mark">07</span><strong>Lua 配置</strong><span>沿用 WezTerm 的 Lua 配置，外观和行为都能改</span></a>
         </div>
       </div>
     </section>
     <section class="section">
       <div class="wide">
         <div class="section-head">
-          <span class="section-num">04 · 日常入口</span>
+          <span class="section-num">04 · 上手</span>
           <h2>从这里开始</h2>
-          <p>安装后就能开始用，需要时再配置自己的 AI 服务，或调整终端设置。</p>
+          <p>装完直接用，AI 服务和其他设置等用到时再配。</p>
         </div>
         <div class="workflow-list">
-          <article class="workflow-item"><span class="mark">01</span><h3>安装</h3><p>用 DMG，或运行 <code>brew install --cask kaku</code>，再用 <code>kaku doctor</code> 检查 app、PATH 和 shell 集成。</p></article>
-          <article class="workflow-item"><span class="mark">02</span><h3>AI 设置</h3><p>运行 <code>kaku ai</code>，配置自己的 AI 服务和模型。配置好后，<span class="sk">Cmd + L</span> 打开 AI Chat。</p></article>
-          <article class="workflow-item"><span class="mark">03</span><h3>工具</h3><p><span class="sk">Cmd + Shift + G</span> 打开 Lazygit，<span class="sk">Cmd + Shift + Y</span> 打开 Yazi，SSH 会话里用 <span class="sk">Cmd + Shift + R</span> 挂载远端文件。</p></article>
-          <article class="workflow-item"><span class="mark">04</span><h3>配置</h3><p>打开 <code>kaku config</code> TUI 调整字号、透明度、Smart Tab、关闭确认、快捷键和 Lua 覆盖。</p></article>
+          <article class="workflow-item"><span class="mark">01</span><h3>安装</h3><p>下载 DMG 或运行 <code>brew install --cask kaku</code>，装完跑一次 <code>kaku doctor</code>，看看 app、PATH 和 shell 集成是否正常。</p></article>
+          <article class="workflow-item"><span class="mark">02</span><h3>AI 设置</h3><p>运行 <code>kaku ai</code> 填上自己的 AI 服务和模型，之后按 <span class="sk">Cmd + L</span> 就能打开 AI 对话。</p></article>
+          <article class="workflow-item"><span class="mark">03</span><h3>工具</h3><p><span class="sk">Cmd + Shift + G</span> 打开 Lazygit，<span class="sk">Cmd + Shift + Y</span> 打开 Yazi，在 SSH 会话里按 <span class="sk">Cmd + Shift + R</span> 可以挂载远端文件。</p></article>
+          <article class="workflow-item"><span class="mark">04</span><h3>配置</h3><p>运行 <code>kaku config</code>，在终端里改字号、透明度、Smart Tab、关闭确认和快捷键，更细的地方用 Lua 覆盖。</p></article>
         </div>
       </div>
     </section>
@@ -361,7 +336,7 @@
           <h2>先是我自己天天在用</h2>
         </div>
         <div class="section-body prose">
-          <p>我重度依赖终端。用了多年 Alacritty 图它快，后来转向 AI 编码，想要更顺手的标签和分屏。Kaku 基于一套快速可靠的引擎，加上实用默认值和 Shell 工具，也可以接入自己配置的 AI 服务。</p>
+          <p>我工作和生活里的事大多在命令行里做，之前用了很久 Alacritty，可它没有多标签，做 AI 编码时很不方便，其他几款也试过，总有字体、窗口或者要登录这类小问题，我想要一个装好就能用、不用先写一堆配置的终端，于是做了 Kaku。</p>
           <p>Tw93 · <a href="https://twitter.com/HiTw93" target="_blank" rel="noopener noreferrer">@HiTw93</a></p>
         </div>
       </div>
@@ -375,18 +350,12 @@
         <dl class="faq">
           <dt>怎么安装？</dt>
           <dd>从 <a href="https://github.com/tw93/Kaku/releases/latest" target="_blank" rel="noopener noreferrer">GitHub Releases</a> 下载 DMG，或用 Homebrew 安装：<code>brew install --cask kaku</code>。</dd>
-          <dt>Kaku 和 iTerm2 有什么区别？</dt>
-          <dd>Kaku 预设了字体、主题、Shell 集成和 Mac 快捷键，也有可选的内置助手，连接用户自己配置的 AI 服务。见<a href="/zh/compare">完整对比</a>。</dd>
-          <dt>Kaku 和 Warp 有什么区别？</dt>
-          <dd>Kaku 使用 MIT 协议，无需 Kaku 账号，AI 服务由用户自行配置，也可以用 Lua 自定义终端。见<a href="/zh/compare">完整对比</a>。</dd>
-          <dt>Kaku 和 Ghostty 有什么区别？</dt>
-          <dd>Ghostty 是很快的 GPU 终端，配置主要靠自己。Kaku 同样 GPU 加速，但字体、主题、shell 工具和可选助手开箱就有。见<a href="/zh/compare">完整对比</a>。</dd>
-          <dt>Kaku 和 WezTerm 有什么区别？</dt>
-          <dd>Kaku 从 WezTerm 衍生而来，保留 Lua 配置，并补上 Mac 默认值、shell 集成和可选助手。Windows 或 Linux 仍然更适合继续用 WezTerm。见<a href="/zh/compare">完整对比</a>。</dd>
+          <dt>和 iTerm2、Warp、Ghostty、WezTerm 比有什么不同？</dt>
+          <dd>简单说就是字体、主题和 Shell 工具开箱配好，不用注册账号，AI 服务用你自己的，每一款的具体差别写在<a href="/zh/compare">对比页</a>里。</dd>
           <dt>Kaku 收费吗？</dt>
           <dd>不收费，Kaku 是 MIT 协议的开源项目。</dd>
           <dt>支持 Windows 或 Linux 吗？</dt>
-          <dd>暂时不支持，当前重点是先把 macOS 原生体验打磨稳定。</dd>
+          <dd>暂时不支持，眼下先把 Mac 上的体验做好。</dd>
         </dl>
       </div>
     </section>

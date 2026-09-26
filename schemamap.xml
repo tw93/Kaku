@@ -12,25 +12,25 @@
   <!-- schema.org WebPage objects, one JSON object per line (JSONL). -->
   <url>
     <loc>https://kaku.fun/feeds/pages.jsonl</loc>
-    <lastmod>2026-09-17</lastmod>
+    <lastmod>2026-09-26</lastmod>
   </url>
   <!-- Structured product, install, CLI, and docs view of the homepage. -->
   <url>
     <loc>https://kaku.fun/agent.json</loc>
-    <lastmod>2026-09-17</lastmod>
+    <lastmod>2026-09-26</lastmod>
   </url>
   <!-- Capability index: what Kaku can do and which doc backs each capability. -->
   <url>
     <loc>https://kaku.fun/.well-known/agent-skills/index.json</loc>
-    <lastmod>2026-09-17</lastmod>
+    <lastmod>2026-09-26</lastmod>
   </url>
   <!-- Prose context for language models. -->
   <url>
     <loc>https://kaku.fun/llms.txt</loc>
-    <lastmod>2026-09-17</lastmod>
+    <lastmod>2026-09-26</lastmod>
   </url>
   <url>
     <loc>https://kaku.fun/llms-full.txt</loc>
-    <lastmod>2026-09-17</lastmod>
+    <lastmod>2026-09-26</lastmod>
   </url>
 </urlset>
