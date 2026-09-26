@@ -76,7 +76,7 @@
   <a class="skip-link" href="#main-content">跳到内容</a>
   <nav class="site-nav" aria-label="主导航"><div class="wide nav-inner"><a class="brand" href="/zh/"><strong>Kaku</strong></a><span class="eyebrow-sep">·</span><a class="version-link" href="https://github.com/tw93/Kaku/releases" target="_blank" rel="noopener noreferrer">v0.20.0</a><div class="nav-links"><a href="/zh/docs/" aria-current="page">文档</a></div><div class="nav-actions"><a class="nav-pill" aria-current="page" href="/zh/docs/cli" hreflang="zh-CN">中</a><a class="nav-pill" href="/docs/cli" hreflang="en">EN</a><a class="nav-icon" href="https://github.com/tw93/Kaku" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a><a class="nav-icon" href="https://x.com/HiTw93" target="_blank" rel="noopener noreferrer" aria-label="X"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a></div></div></nav>
   <main id="main-content" class="docs-page">
-    <header class="page-hero doc-hero"><div class="wide"><span class="label">文档</span><h1>CLI 参考</h1><p>在 shell 里打开 AI 设置、聊天、配置、诊断、更新和多路复用命令。</p></div></header>
+    <header class="page-hero doc-hero"><div class="wide"><span class="label">文档</span><h1>CLI 参考</h1><p>kaku 命令能做的事，从 AI 设置到诊断和更新。</p></div></header>
     <section class="section docs-section">
       <div class="wide docs-layout">
         <aside class="docs-sidebar">
@@ -85,38 +85,34 @@
           <div class="section-toc"><p>本页目录</p><a class="depth-2" href="#cli-kaku-ai">kaku ai</a><a class="depth-2" href="#cli-kaku-chat">kaku chat</a><a class="depth-2" href="#cli-kaku-config">kaku config</a><a class="depth-2" href="#cli-kaku-doctor">kaku doctor</a><a class="depth-2" href="#cli-kaku-update">kaku update</a><a class="depth-2" href="#cli-kaku-reset">kaku reset</a><a class="depth-2" href="#cli-kaku-init">kaku init</a><a class="depth-2" href="#cli-kaku-cli">kaku cli</a></div>
         </aside>
         <article class="doc-content">
-          <p>在终端里运行 <code>kaku</code> 查看所有可用命令。</p>
-          <h2 id="cli-kaku-ai"><a class="anchor" href="#cli-kaku-ai" aria-label="链接到「kaku ai」">#</a>kaku ai</h2><p>在 Kaku 里打开 AI 设置面板。配置外部编码工具（Claude Code、Codex、Gemini CLI 等）和 Kaku Assistant。</p>
+          <p>直接运行 <code>kaku</code>，可以从几个常用命令里挑一个。</p>
+          <h2 id="cli-kaku-ai"><a class="anchor" href="#cli-kaku-ai" aria-label="链接到「kaku ai」">#</a>kaku ai</h2><p>打开 AI 设置面板，配置 Kaku Assistant 和 Claude Code、Codex、Gemini CLI、Copilot CLI、Kimi Code 这些外部编码工具。</p>
           <pre><code class="language-bash">kaku ai</code></pre>
-          <h2 id="cli-kaku-chat"><a class="anchor" href="#cli-kaku-chat" aria-label="链接到「kaku chat」">#</a>kaku chat</h2><p>从任意 shell 启动 Kaku 的独立 AI 对话。它是内置 <code>k</code> 助手的一个好记别名，
-          所以即使 <code>k</code> 不在 PATH 上也能用。</p>
+          <h2 id="cli-kaku-chat"><a class="anchor" href="#cli-kaku-chat" aria-label="链接到「kaku chat」">#</a>kaku chat</h2><p>在任意 shell 里启动 Kaku 的 AI 对话，它就是内置 <code>k</code> 命令的别名，<code>k</code> 不在 PATH 上时也能用。</p>
           <pre><code class="language-bash">kaku chat                 <span class="tok-c"># open interactive chat
 </span>kaku chat <span class="tok-s">"explain this"</span>  <span class="tok-c"># one-shot prompt
 </span></code></pre>
-          <p>对话使用 <code>~/.config/kaku/assistant.toml</code>，和 <code>Cmd + L</code> overlay 共享同一份对话与
-          记忆文件，在交互模式下支持 <code>/new</code>、<code>/resume</code>、<code>/clear</code>、
-          <code>/status</code>、<code>/memory</code> 和 <code>/exit</code>。</p>
-          <h2 id="cli-kaku-config"><a class="anchor" href="#cli-kaku-config" aria-label="链接到「kaku config」">#</a>kaku config</h2><p>打开 Kaku 配置 TUI，用来调整常用设置和 Lua 覆盖。它会确保 <code>~/.config/kaku/kaku.lua</code> 存在，也可以在设置面板里用 <code>Cmd + ,</code> 打开。</p>
+          <p>对话读取 <code>~/.config/kaku/assistant.toml</code>，和 <code>Cmd + L</code> 聊天面板共用同一份对话和记忆，交互模式下支持 <code>/new</code>、<code>/resume</code>、<code>/clear</code>、<code>/status</code>、<code>/memory</code> 和 <code>/exit</code>。</p>
+          <h2 id="cli-kaku-config"><a class="anchor" href="#cli-kaku-config" aria-label="链接到「kaku config」">#</a>kaku config</h2><p>打开配置 TUI，调整常用设置和 Lua 覆盖，<code>~/.config/kaku/kaku.lua</code> 不存在时会先创建，在 Kaku 里按 <code>Cmd + ,</code> 打开的也是这个界面。</p>
           <pre><code class="language-bash">kaku config</code></pre>
-          <h2 id="cli-kaku-doctor"><a class="anchor" href="#cli-kaku-doctor" aria-label="链接到「kaku doctor」">#</a>kaku doctor</h2><p>跑一遍诊断，确认 Kaku 的 app bundle、shell 集成、PATH 条目和可选工具都正常。安装后或感觉哪里坏了，先跑它。</p>
+          <h2 id="cli-kaku-doctor"><a class="anchor" href="#cli-kaku-doctor" aria-label="链接到「kaku doctor」">#</a>kaku doctor</h2><p>检查 app bundle、PATH 和 shell 集成，刚装完或者感觉哪里不对时先跑一遍。</p>
           <pre><code class="language-bash">kaku doctor</code></pre>
-          <h2 id="cli-kaku-update"><a class="anchor" href="#cli-kaku-update" aria-label="链接到「kaku update」">#</a>kaku update</h2><p>检查并安装最新的 Kaku 版本。</p>
+          <h2 id="cli-kaku-update"><a class="anchor" href="#cli-kaku-update" aria-label="链接到「kaku update」">#</a>kaku update</h2><p>下载并安装最新的 Kaku 版本。</p>
           <pre><code class="language-bash">kaku update</code></pre>
-          <p>运行 <code>kaku --version</code>查看已安装版本，也可以用 <code>/Applications/Kaku.app/Contents/MacOS/kaku-gui --version</code>直接查询图形程序版本，不会打开窗口。</p>
-          <h2 id="cli-kaku-reset"><a class="anchor" href="#cli-kaku-reset" aria-label="链接到「kaku reset」">#</a>kaku reset</h2><p>移除 Kaku 管理的 shell 和 tmux 集成、Kaku 管理的 git delta 默认值、部分 Kaku 状态，以及 <code>~/.config/kaku/kaku.lua</code> 里的托管主题块。托管块之外的用户 Lua 会保留。谨慎使用；如果还想恢复 shell 集成，再运行 <code>kaku init</code>。</p>
+          <p>运行 <code>kaku --version</code> 可以查看已安装的版本，想查图形程序的版本又不想开窗口，可以运行 <code>/Applications/Kaku.app/Contents/MacOS/kaku-gui --version</code>。</p>
+          <h2 id="cli-kaku-reset"><a class="anchor" href="#cli-kaku-reset" aria-label="链接到「kaku reset」">#</a>kaku reset</h2><p>移除 Kaku 管理的 shell 和 tmux 集成、git delta 默认配置和部分状态，以及 <code>~/.config/kaku/kaku.lua</code> 里托管的主题块，托管块之外你自己写的 Lua 会保留。这个命令要谨慎用，之后想恢复 shell 集成再跑一次 <code>kaku init</code>。</p>
           <pre><code class="language-bash">kaku reset</code></pre>
-          <h2 id="cli-kaku-init"><a class="anchor" href="#cli-kaku-init" aria-label="链接到「kaku init」">#</a>kaku init</h2><p>为 zsh 和/或 fish 配置或刷新 Kaku 的 shell 集成。会创建 <code>~/.config/kaku/zsh/kaku.zsh</code>，并可选创建 <code>~/.config/kaku/fish/kaku.fish</code>。在交互式 shell 里，它会询问是否通过 Homebrew 安装缺失的 Starship、Delta、Lazygit、Yazi 等可选 CLI 工具。</p>
+          <h2 id="cli-kaku-init"><a class="anchor" href="#cli-kaku-init" aria-label="链接到「kaku init」">#</a>kaku init</h2><p>为 zsh、fish 或两者配置或刷新 shell 集成，会生成 <code>~/.config/kaku/zsh/kaku.zsh</code>，按需生成 <code>~/.config/kaku/fish/kaku.fish</code>，在交互式 shell 里还会问你要不要用 Homebrew 装上缺失的 Starship、Delta、Lazygit、Yazi 这些可选工具。</p>
           <pre><code class="language-bash">kaku init</code></pre>
-          <p>如果 <code>kaku</code> 命令从 shell 里消失了，用这个刷新集成，不触发可选工具安装提示：</p>
+          <p>shell 里突然找不到 <code>kaku</code> 命令时，用下面的命令刷新集成，不会弹出可选工具的安装提示：</p>
           <pre><code class="language-bash">/Applications/Kaku.app/Contents/MacOS/kaku init --update-only
 <span class="tok-b">exec</span> zsh -l</code></pre>
-          <h2 id="cli-kaku-cli"><a class="anchor" href="#cli-kaku-cli" aria-label="链接到「kaku cli」">#</a>kaku cli</h2><p>从脚本和外部工具与 Kaku 的多路复用器交互。</p>
+          <h2 id="cli-kaku-cli"><a class="anchor" href="#cli-kaku-cli" aria-label="链接到「kaku cli」">#</a>kaku cli</h2><p>在脚本和外部工具里操作 Kaku 的多路复用器，比如让 AI 工具或 shell 脚本自动开分屏和标签。</p>
           <pre><code class="language-bash">kaku cli split-pane                          <span class="tok-c"># split current pane
 </span>kaku cli split-pane -- bash -c <span class="tok-s">"echo hello"</span>  <span class="tok-c"># split and run a command
 </span>kaku cli --help                              <span class="tok-c"># list all subcommands
 </span>kaku cli split-pane --help                   <span class="tok-c"># help for a specific subcommand
 </span></code></pre>
-          <p>适合把 Kaku 接进需要以编程方式打开分屏或标签的 AI 工具和 shell 脚本。</p>
           <nav class="doc-pager" aria-label="Pagination"><a href="/zh/docs/features"><span>上一页</span><strong>功能与 AI</strong></a><a href="/zh/docs/configuration"><span>下一页</span><strong>配置</strong></a></nav>
         </article>
       </div>

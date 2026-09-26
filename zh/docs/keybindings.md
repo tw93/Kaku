@@ -1,6 +1,6 @@
 # 快捷键
 
-窗口、标签、分屏、shell 编辑、AI 功能、Lazygit 和 Yazi 的默认快捷键。
+全部默认快捷键，以及怎么加自己的。
 
 所有快捷键都用 macOS 原生的修饰键。`Opt` = Option/Alt，`Ctrl` = Control。
 
@@ -17,7 +17,7 @@
 | 退出 | `Cmd + Q` |
 | 切换全局窗口 | `Cmd + Opt + Ctrl + K` |
 
-> `Cmd + W` 很聪明：有多个分屏时关闭当前分屏，有多个标签或窗口时关闭标签，否则隐藏应用。
+> `Cmd + W` 会看情况处理，有多个分屏时关闭当前分屏，有多个标签或窗口时关闭标签，否则隐藏应用。
 
 ## 标签
 
@@ -89,7 +89,7 @@
 
 ## 自定义快捷键
 
-往 `~/.config/kaku/kaku.lua` 里**追加**绑定到 `config.keys`。不要赋一个新表，那会清掉 Kaku 的默认值。
+在 `~/.config/kaku/kaku.lua` 里往 `config.keys` **追加**绑定，不要直接给它赋一个新表，那样会把 Kaku 的默认快捷键清掉。
 
 ```lua
 -- ~/.config/kaku/kaku.lua (after loading bundled config)

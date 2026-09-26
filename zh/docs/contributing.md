@@ -1,6 +1,6 @@
 # 贡献
 
-本地环境、构建命令、PR 流程和 CI 检查。
+怎么在本地构建 Kaku，以及怎么提 PR。
 
 ## 环境准备
 
@@ -23,23 +23,23 @@ make install-tools
 make install-hooks
 ```
 
-环境准备好后，`make app` 会把本地 debug app bundle 编译到 `dist/Kaku.app`。它用于开发和验证，不是普通用户的安装方式。
+环境准备好后，`make app` 会在 `dist/Kaku.app` 编出一个 debug 版的 app bundle，给开发和测试用，日常使用还是装 DMG 或 Homebrew 的版本。
 
 ## 日常开发
 
-常用 Make 目标如下，覆盖格式化、类型检查、测试和本地运行。
+常用的 Make 目标覆盖格式化、类型检查、测试和本地运行。
 
 | 命令 | 用途 |
 | --- | --- |
 | `make fmt` | 自动格式化代码，需要 nightly Rust |
 | `make fmt-check` | 只检查格式，不修改文件 |
-| `make check` | cargo check，捕获类型和语法错误 |
+| `make check` | 跑 cargo check，找出类型和语法错误 |
 | `make test` | 跑单元测试 |
-| `make dev` | 本地快速 debug 运行，从 `target/debug` 启动 `kaku-gui` |
+| `make dev` | 本地快速调试，编译 `kaku-gui` 并从 `target/debug` 启动 |
 | `make build` | 编译二进制，不打 app bundle |
-| `make app` | 编译本地测试用的 debug app bundle 到 `dist/Kaku.app` |
+| `make app` | 在 `dist/Kaku.app` 编出本地测试用的 debug app bundle |
 
-推荐的开发循环：
+平时的开发流程：
 
 ```bash
 make fmt        # 先格式化
@@ -48,7 +48,7 @@ make test       # 跑测试
 make dev        # 本地快速运行，不打包
 ```
 
-需要调整日志等级时给 `make dev` 加环境变量：
+调整 `make dev` 的日志等级：
 
 ```bash
 RUST_LOG=debug make dev
@@ -81,7 +81,7 @@ RUST_LOG=debug make dev
 4. 提交并推送。
 5. 开 PR，目标分支选 `main`。
 
-代码改动会触发格式、编译和测试检查。Universal 构建单独运行，由构建流程变更、定时任务或手动触发；仅修改 Markdown 不会触发这些检查。
+代码改动会触发格式、编译和测试检查，universal 构建另外跑，只在构建流程有改动、定时任务或手动触发时运行，只改 Markdown 的提交两者都不会触发。
 
 [查看现有 Pull Requests](https://github.com/tw93/Kaku/pulls)
 

@@ -1,6 +1,6 @@
 # Contributing
 
-Local setup, build commands, PR workflow, and CI checks.
+How to build Kaku locally and send a pull request.
 
 ## Setup
 
@@ -23,7 +23,7 @@ make install-tools
 make install-hooks
 ```
 
-After setup, `make app` builds a local debug app bundle at `dist/Kaku.app`. Use it for development and verification; normal users should install from the DMG or Homebrew.
+After setup, `make app` builds a debug app bundle at `dist/Kaku.app` for development and testing. For everyday use, install from the DMG or Homebrew.
 
 ## Development
 
@@ -31,15 +31,15 @@ Make targets cover formatting, type checks, tests, and local runs.
 
 | Command | Purpose |
 | --- | --- |
-| `make fmt` | Auto-format code, requires nightly Rust |
-| `make fmt-check` | Check formatting without modifying files |
-| `make check` | Compile check, catch type and syntax errors |
+| `make fmt` | Format the code, needs nightly Rust |
+| `make fmt-check` | Check formatting without changing files |
+| `make check` | Run cargo check to catch type and syntax errors |
 | `make test` | Run unit tests |
-| `make dev` | Fast local debug: build `kaku-gui` and run from `target/debug` |
-| `make build` | Compile binaries (no app bundle) |
-| `make app` | Build a debug app bundle to `dist/Kaku.app` for local testing |
+| `make dev` | Quick local debugging, builds `kaku-gui` and runs it from `target/debug` |
+| `make build` | Build the binaries without an app bundle |
+| `make app` | Build a debug app bundle at `dist/Kaku.app` for local testing |
 
-Recommended workflow:
+A typical loop:
 
 ```bash
 make fmt        # format first
@@ -48,7 +48,7 @@ make test       # run tests
 make dev        # fast local run without packaging
 ```
 
-Override the log level for `make dev`:
+To change the log level for `make dev`:
 
 ```bash
 RUST_LOG=debug make dev
@@ -56,7 +56,7 @@ RUST_LOG=debug make dev
 
 ## Build Release
 
-Reproduce release artifacts locally. Official releases run through `scripts/release.sh`.
+These commands reproduce the release artifacts locally. Official releases go through `scripts/release.sh`.
 
 ```bash
 # Build app and DMG, release, universal binary
@@ -81,7 +81,7 @@ Reproduce release artifacts locally. Official releases run through `scripts/rele
 4. Commit and push.
 5. Open a PR targeting `main`.
 
-CI checks formatting, compilation, and tests for code changes. Universal builds run separately for build-pipeline changes, on a schedule, or on manual dispatch. Markdown-only changes do not trigger these checks.
+For code changes, CI checks formatting, compilation, and tests. Universal builds run separately, on build-pipeline changes, on a schedule, or when dispatched by hand. Changes that only touch Markdown trigger neither.
 
 [Browse open Pull Requests](https://github.com/tw93/Kaku/pulls)
 

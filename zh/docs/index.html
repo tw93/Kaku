@@ -70,7 +70,7 @@
   <a class="skip-link" href="#main-content">跳到内容</a>
   <nav class="site-nav" aria-label="主导航"><div class="wide nav-inner"><a class="brand" href="/zh/"><strong>Kaku</strong></a><span class="eyebrow-sep">·</span><a class="version-link" href="https://github.com/tw93/Kaku/releases" target="_blank" rel="noopener noreferrer">v0.20.0</a><div class="nav-links"><a href="/zh/docs/" aria-current="page">文档</a></div><div class="nav-actions"><a class="nav-pill" aria-current="page" href="/zh/docs/" hreflang="zh-CN">中</a><a class="nav-pill" href="/docs/" hreflang="en">EN</a><a class="nav-icon" href="https://github.com/tw93/Kaku" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a><a class="nav-icon" href="https://x.com/HiTw93" target="_blank" rel="noopener noreferrer" aria-label="X"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a></div></div></nav>
   <main id="main-content" class="docs-page">
-    <header class="page-hero doc-hero"><div class="wide"><span class="label">文档</span><h1>安装</h1><p>用 DMG 或 Homebrew 把 Kaku 加入 macOS 工作流，再检查 shell 集成。</p></div></header>
+    <header class="page-hero doc-hero"><div class="wide"><span class="label">文档</span><h1>安装</h1><p>用 DMG 或 Homebrew 装好 Kaku，再检查一下 shell 集成。</p></div></header>
     <section class="section docs-section">
       <div class="wide docs-layout">
         <aside class="docs-sidebar">
@@ -80,32 +80,31 @@
         </aside>
         <article class="doc-content">
           <blockquote>
-            <p>大多数用户直接用 DMG。已经用 Homebrew 管理软件时再选 Homebrew。开发者环境放在 <a href="/zh/docs/contributing">贡献文档</a>。</p>
+            <p>大多数人装 DMG 就行，想用命令行安装或脚本化更新再选 Homebrew，要自己编译 Kaku 可以看<a href="/zh/docs/contributing">贡献文档</a>。</p>
           </blockquote>
           <h2 id="install-dmg"><a class="anchor" href="#install-dmg" aria-label="链接到「下载 DMG」">#</a>下载 DMG</h2>
-                    <p>推荐大多数用户直接从 GitHub Releases 下载最新 DMG，下载后打开镜像，把 Kaku 拖到 Applications，再从应用列表启动。</p>
+                    <p>从 GitHub Releases 下载最新的 DMG，打开后把 Kaku 拖进 Applications，再从应用列表启动。</p>
                     <p><a href="https://github.com/tw93/Kaku/releases/latest" target="_blank" rel="noopener noreferrer">打开最新 Release</a></p>
                     <h2 id="install-homebrew"><a class="anchor" href="#install-homebrew" aria-label="链接到「Homebrew」">#</a>Homebrew</h2>
-                    <p>如果你已经用 Homebrew 管理开发工具，装官方 cask 即可。</p>
+                    <p>平时用 Homebrew 管理开发工具的话，直接装官方 cask：</p>
                     <pre><code class="language-bash">brew install --cask kaku
 open -a Kaku
 kaku doctor</code></pre>
-                    <p>Homebrew 适合需要命令行安装和自动化更新的机器。</p>
-                    <p>如果之前装的是个人 tap <code>tw93/tap/kakuku</code>，可以继续用那个 tap 升级，也可以迁到官方 cask：</p>
+                    <p>之前从个人 tap <code>tw93/tap/kakuku</code> 装的，可以继续从那里升级，也可以换到官方 cask：</p>
                     <pre><code class="language-bash">brew uninstall --cask tw93/tap/kakuku
 brew install --cask kaku</code></pre>
                     <h2 id="install-after-install"><a class="anchor" href="#install-after-install" aria-label="链接到「安装后」">#</a>安装后</h2>
-                    <p>安装完成后先打开一次 Kaku，再运行 <code>kaku doctor</code>，会检查 app bundle、配置目录、PATH、zsh/fish shell 集成和可选工具可用性。</p>
+                    <p>装好后先打开一次 Kaku，再运行 <code>kaku doctor</code>，它会检查 app bundle、PATH 和 zsh/fish 的 shell 集成。</p>
                     <pre><code class="language-bash">/Applications/Kaku.app/Contents/MacOS/kaku doctor</code></pre>
-                    <p>如果 shell 里找不到 <code>kaku</code>，用应用内置二进制恢复 shell 集成，然后重开登录 shell：</p>
+                    <p>如果 shell 里找不到 <code>kaku</code>，用应用自带的二进制恢复 shell 集成，再重开登录 shell：</p>
                     <pre><code class="language-bash">/Applications/Kaku.app/Contents/MacOS/kaku init --update-only
 <span class="tok-b">exec</span> zsh -l</code></pre>
                     <h2 id="install-troubleshooting"><a class="anchor" href="#install-troubleshooting" aria-label="链接到「排查」">#</a>排查</h2>
                     <ul>
                       <li>确认应用在 <code>/Applications/Kaku.app</code>，不要直接从 DMG 里运行。</li>
-                      <li>Homebrew 安装失败时，先运行 <code>brew update</code>，再执行 <code>brew install --cask kaku</code>。如果 Homebrew 安装的 Kaku 在 <code>kaku update</code> 时遇到 checksum 问题，直接运行 <code>brew upgrade --cask kaku</code>。</li>
-                      <li>首次配置 shell 工具可以运行 <code>kaku init</code>，它会准备 zsh/fish 集成，并在交互式 shell 里询问是否用 Homebrew 安装缺失的 Starship、Delta、Lazygit、Yazi 等可选工具。</li>
-                      <li>AI 功能不可用时，打开 <code>kaku ai</code> 检查 Auth Type、Base URL、Simple Model、Deep Model 和 API key。</li>
+                      <li>Homebrew 装不上时先跑 <code>brew update</code>，再重新 <code>brew install --cask kaku</code>，用 Homebrew 装的 Kaku 如果 <code>kaku update</code> 报 checksum 错误，改用 <code>brew upgrade --cask kaku</code>。</li>
+                      <li>第一次配置 shell 时运行 <code>kaku init</code>，它会配好 zsh/fish 集成，在交互式 shell 里还会问你要不要用 Homebrew 装上缺失的 Starship、Delta、Lazygit、Yazi 这些可选工具。</li>
+                      <li>AI 功能用不了时，打开 <code>kaku ai</code> 检查一下 Auth Type、Base URL、Simple Model、Deep Model 和 API key。</li>
                       <li>提交 issue 时带上安装方式、macOS 版本、Kaku 版本和复现步骤。</li>
                     </ul>
                     <p><a href="https://github.com/tw93/Kaku/issues" target="_blank" rel="noopener noreferrer">打开 GitHub Issues</a></p>

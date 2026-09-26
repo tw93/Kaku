@@ -1,12 +1,12 @@
 # CLI Reference
 
-Open AI settings, chat, config, diagnostics, update, and multiplexer commands from the shell.
+What the kaku command does, from AI setup to diagnostics and updates.
 
-Run `kaku` in your terminal to see all available commands.
+Run `kaku` with no arguments to pick from the main commands.
 
 ## kaku ai
 
-Open the AI settings panel inside Kaku. Configure external coding tools (Claude Code, Codex, Gemini CLI, Copilot CLI, Kimi Code, etc.) and Kaku Assistant.
+Opens the AI settings panel, where you configure Kaku Assistant and external coding tools such as Claude Code, Codex, Gemini CLI, Copilot CLI, and Kimi Code.
 
 ```bash
 kaku ai
@@ -14,18 +14,18 @@ kaku ai
 
 ## kaku chat
 
-Start Kaku's standalone AI chat from any shell. This is a discoverable alias for the bundled `k` helper, so it works even when `k` is not on your PATH.
+Starts Kaku's AI chat from any shell. It's an alias for the bundled `k` helper, so it works even when `k` isn't on your PATH.
 
 ```bash
 kaku chat                 # open interactive chat
 kaku chat "explain this"  # one-shot prompt
 ```
 
-The chat uses `~/.config/kaku/assistant.toml`, shares the same conversation and memory files as the `Cmd + L` overlay, and supports `/new`, `/resume`, `/clear`, `/status`, `/memory`, and `/exit` in interactive mode.
+It reads `~/.config/kaku/assistant.toml`, shares conversations and memory with the `Cmd + L` overlay, and in interactive mode supports `/new`, `/resume`, `/clear`, `/status`, `/memory`, and `/exit`.
 
 ## kaku config
 
-Open the Kaku configuration TUI for common settings and Lua overrides. It ensures `~/.config/kaku/kaku.lua` exists and is also accessible from the settings panel with `Cmd + ,`.
+Opens the settings TUI for common options and Lua overrides, creating `~/.config/kaku/kaku.lua` if it doesn't exist yet. Inside Kaku, `Cmd + ,` opens the same screen.
 
 ```bash
 kaku config
@@ -33,7 +33,7 @@ kaku config
 
 ## kaku doctor
 
-Run diagnostics and verify that Kaku's app bundle, shell integration, PATH entries, and optional tools are healthy. Use this first after installation or when something feels broken.
+Checks the app bundle, PATH, and shell integration. Run it first after installing, or whenever something seems broken.
 
 ```bash
 kaku doctor
@@ -41,17 +41,17 @@ kaku doctor
 
 ## kaku update
 
-Check for and install the latest Kaku release.
+Downloads and installs the latest Kaku release.
 
 ```bash
 kaku update
 ```
 
-Check the installed version with `kaku --version`. The bundled GUI executable also supports `/Applications/Kaku.app/Contents/MacOS/kaku-gui --version` without opening a window.
+`kaku --version` prints the installed version. To check the GUI binary without opening a window, run `/Applications/Kaku.app/Contents/MacOS/kaku-gui --version`.
 
 ## kaku reset
 
-Remove Kaku-managed shell and tmux integration, Kaku-managed git delta defaults, selected Kaku state, and managed theme blocks in `~/.config/kaku/kaku.lua`. User-authored Lua outside managed blocks is preserved. Use with caution and run `kaku init` again if you want shell integration back.
+Removes the shell and tmux integration, git delta defaults, and some of the state that Kaku manages, plus the managed theme blocks in `~/.config/kaku/kaku.lua`. Lua you wrote outside those blocks is kept. Use it with care, and run `kaku init` again to get the shell integration back.
 
 ```bash
 kaku reset
@@ -59,13 +59,13 @@ kaku reset
 
 ## kaku init
 
-Set up or refresh Kaku's shell integration for zsh and/or fish. Creates `~/.config/kaku/zsh/kaku.zsh` and optionally `~/.config/kaku/fish/kaku.fish`. In an interactive shell, it asks before installing missing optional CLI tools such as Starship, Delta, Lazygit, and Yazi via Homebrew.
+Sets up or refreshes shell integration for zsh, fish, or both, creating `~/.config/kaku/zsh/kaku.zsh` and optionally `~/.config/kaku/fish/kaku.fish`. In an interactive shell it asks before installing missing optional tools such as Starship, Delta, Lazygit, and Yazi through Homebrew.
 
 ```bash
 kaku init
 ```
 
-If the `kaku` command goes missing from your shell, refresh integration without optional tool prompts:
+If the `kaku` command disappears from your shell, refresh the integration without the tool prompts:
 
 ```bash
 /Applications/Kaku.app/Contents/MacOS/kaku init --update-only
@@ -74,7 +74,7 @@ exec zsh -l
 
 ## kaku cli
 
-Interact with the Kaku multiplexer from scripts and external tools.
+Drives the Kaku multiplexer from scripts and external tools, such as an AI tool or shell script that needs to open panes or tabs.
 
 ```bash
 kaku cli split-pane                          # split current pane
@@ -82,8 +82,6 @@ kaku cli split-pane -- bash -c "echo hello"  # split and run a command
 kaku cli --help                              # list all subcommands
 kaku cli split-pane --help                   # help for a specific subcommand
 ```
-
-Useful for integrating Kaku with AI tools or shell scripts that need to open panes or tabs programmatically.
 
 ---
 

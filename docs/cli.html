@@ -76,7 +76,7 @@
   <a class="skip-link" href="#main-content">Skip to content</a>
   <nav class="site-nav" aria-label="Primary navigation"><div class="wide nav-inner"><a class="brand" href="/"><strong>Kaku</strong></a><span class="eyebrow-sep">·</span><a class="version-link" href="https://github.com/tw93/Kaku/releases" target="_blank" rel="noopener noreferrer">v0.20.0</a><div class="nav-links"><a href="/docs/" aria-current="page">Docs</a></div><div class="nav-actions"><a class="nav-pill" href="/zh/docs/cli" hreflang="zh-CN">中</a><a class="nav-pill" aria-current="page" href="/docs/cli" hreflang="en">EN</a><a class="nav-icon" href="https://github.com/tw93/Kaku" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a><a class="nav-icon" href="https://x.com/HiTw93" target="_blank" rel="noopener noreferrer" aria-label="X"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a></div></div></nav>
   <main id="main-content" class="docs-page">
-    <header class="page-hero doc-hero"><div class="wide"><span class="label">Docs</span><h1>CLI Reference</h1><p>Open AI settings, chat, config, diagnostics, update, and multiplexer commands from the shell.</p></div></header>
+    <header class="page-hero doc-hero"><div class="wide"><span class="label">Docs</span><h1>CLI Reference</h1><p>What the kaku command does, from AI setup to diagnostics and updates.</p></div></header>
     <section class="section docs-section">
       <div class="wide docs-layout">
         <aside class="docs-sidebar">
@@ -85,38 +85,34 @@
           <div class="section-toc"><p>On this page</p><a class="depth-2" href="#cli-kaku-ai">kaku ai</a><a class="depth-2" href="#cli-kaku-chat">kaku chat</a><a class="depth-2" href="#cli-kaku-config">kaku config</a><a class="depth-2" href="#cli-kaku-doctor">kaku doctor</a><a class="depth-2" href="#cli-kaku-update">kaku update</a><a class="depth-2" href="#cli-kaku-reset">kaku reset</a><a class="depth-2" href="#cli-kaku-init">kaku init</a><a class="depth-2" href="#cli-kaku-cli">kaku cli</a></div>
         </aside>
         <article class="doc-content">
-          <p>Run <code>kaku</code> in your terminal to see all available commands.</p>
-          <h2 id="cli-kaku-ai"><a class="anchor" href="#cli-kaku-ai" aria-label="Link to kaku ai">#</a>kaku ai</h2><p>Open the AI settings panel inside Kaku. Configure external coding tools (Claude Code, Codex, Gemini CLI, Copilot CLI, Kimi Code, etc.) and Kaku Assistant.</p>
+          <p>Run <code>kaku</code> with no arguments to pick from the main commands.</p>
+          <h2 id="cli-kaku-ai"><a class="anchor" href="#cli-kaku-ai" aria-label="Link to kaku ai">#</a>kaku ai</h2><p>Opens the AI settings panel, where you configure Kaku Assistant and external coding tools such as Claude Code, Codex, Gemini CLI, Copilot CLI, and Kimi Code.</p>
           <pre><code class="language-bash">kaku ai</code></pre>
-          <h2 id="cli-kaku-chat"><a class="anchor" href="#cli-kaku-chat" aria-label="Link to kaku chat">#</a>kaku chat</h2><p>Start Kaku&#39;s standalone AI chat from any shell. This is a discoverable alias for
-          the bundled <code>k</code> helper, so it works even when <code>k</code> is not on your PATH.</p>
+          <h2 id="cli-kaku-chat"><a class="anchor" href="#cli-kaku-chat" aria-label="Link to kaku chat">#</a>kaku chat</h2><p>Starts Kaku&#39;s AI chat from any shell. It&#39;s an alias for the bundled <code>k</code> helper, so it works even when <code>k</code> isn&#39;t on your PATH.</p>
           <pre><code class="language-bash">kaku chat                 <span class="tok-c"># open interactive chat
 </span>kaku chat <span class="tok-s">"explain this"</span>  <span class="tok-c"># one-shot prompt
 </span></code></pre>
-          <p>The chat uses <code>~/.config/kaku/assistant.toml</code>, shares the same conversation and
-          memory files as the <code>Cmd + L</code> overlay, and supports <code>/new</code>, <code>/resume</code>, <code>/clear</code>,
-          <code>/status</code>, <code>/memory</code>, and <code>/exit</code> in interactive mode.</p>
-          <h2 id="cli-kaku-config"><a class="anchor" href="#cli-kaku-config" aria-label="Link to kaku config">#</a>kaku config</h2><p>Open the Kaku configuration TUI for common settings and Lua overrides. It ensures <code>~/.config/kaku/kaku.lua</code> exists and is also accessible from the settings panel with <code>Cmd + ,</code>.</p>
+          <p>It reads <code>~/.config/kaku/assistant.toml</code>, shares conversations and memory with the <code>Cmd + L</code> overlay, and in interactive mode supports <code>/new</code>, <code>/resume</code>, <code>/clear</code>, <code>/status</code>, <code>/memory</code>, and <code>/exit</code>.</p>
+          <h2 id="cli-kaku-config"><a class="anchor" href="#cli-kaku-config" aria-label="Link to kaku config">#</a>kaku config</h2><p>Opens the settings TUI for common options and Lua overrides, creating <code>~/.config/kaku/kaku.lua</code> if it doesn&#39;t exist yet. Inside Kaku, <code>Cmd + ,</code> opens the same screen.</p>
           <pre><code class="language-bash">kaku config</code></pre>
-          <h2 id="cli-kaku-doctor"><a class="anchor" href="#cli-kaku-doctor" aria-label="Link to kaku doctor">#</a>kaku doctor</h2><p>Run diagnostics and verify that Kaku&#39;s app bundle, shell integration, PATH entries, and optional tools are healthy. Use this first after installation or when something feels broken.</p>
+          <h2 id="cli-kaku-doctor"><a class="anchor" href="#cli-kaku-doctor" aria-label="Link to kaku doctor">#</a>kaku doctor</h2><p>Checks the app bundle, PATH, and shell integration. Run it first after installing, or whenever something seems broken.</p>
           <pre><code class="language-bash">kaku doctor</code></pre>
-          <h2 id="cli-kaku-update"><a class="anchor" href="#cli-kaku-update" aria-label="Link to kaku update">#</a>kaku update</h2><p>Check for and install the latest Kaku release.</p>
+          <h2 id="cli-kaku-update"><a class="anchor" href="#cli-kaku-update" aria-label="Link to kaku update">#</a>kaku update</h2><p>Downloads and installs the latest Kaku release.</p>
           <pre><code class="language-bash">kaku update</code></pre>
-          <p>Check the installed version with <code>kaku --version</code>. The bundled GUI executable also supports <code>/Applications/Kaku.app/Contents/MacOS/kaku-gui --version</code> without opening a window.</p>
-          <h2 id="cli-kaku-reset"><a class="anchor" href="#cli-kaku-reset" aria-label="Link to kaku reset">#</a>kaku reset</h2><p>Remove Kaku-managed shell and tmux integration, Kaku-managed git delta defaults, selected Kaku state, and managed theme blocks in <code>~/.config/kaku/kaku.lua</code>. User-authored Lua outside managed blocks is preserved. Use with caution and run <code>kaku init</code> again if you want shell integration back.</p>
+          <p><code>kaku --version</code> prints the installed version. To check the GUI binary without opening a window, run <code>/Applications/Kaku.app/Contents/MacOS/kaku-gui --version</code>.</p>
+          <h2 id="cli-kaku-reset"><a class="anchor" href="#cli-kaku-reset" aria-label="Link to kaku reset">#</a>kaku reset</h2><p>Removes the shell and tmux integration, git delta defaults, and some of the state that Kaku manages, plus the managed theme blocks in <code>~/.config/kaku/kaku.lua</code>. Lua you wrote outside those blocks is kept. Use it with care, and run <code>kaku init</code> again to get the shell integration back.</p>
           <pre><code class="language-bash">kaku reset</code></pre>
-          <h2 id="cli-kaku-init"><a class="anchor" href="#cli-kaku-init" aria-label="Link to kaku init">#</a>kaku init</h2><p>Set up or refresh Kaku&#39;s shell integration for zsh and/or fish. Creates <code>~/.config/kaku/zsh/kaku.zsh</code> and optionally <code>~/.config/kaku/fish/kaku.fish</code>. In an interactive shell, it asks before installing missing optional CLI tools such as Starship, Delta, Lazygit, and Yazi via Homebrew.</p>
+          <h2 id="cli-kaku-init"><a class="anchor" href="#cli-kaku-init" aria-label="Link to kaku init">#</a>kaku init</h2><p>Sets up or refreshes shell integration for zsh, fish, or both, creating <code>~/.config/kaku/zsh/kaku.zsh</code> and optionally <code>~/.config/kaku/fish/kaku.fish</code>. In an interactive shell it asks before installing missing optional tools such as Starship, Delta, Lazygit, and Yazi through Homebrew.</p>
           <pre><code class="language-bash">kaku init</code></pre>
-          <p>If the <code>kaku</code> command goes missing from your shell, refresh integration without optional tool prompts:</p>
+          <p>If the <code>kaku</code> command disappears from your shell, refresh the integration without the tool prompts:</p>
           <pre><code class="language-bash">/Applications/Kaku.app/Contents/MacOS/kaku init --update-only
 <span class="tok-b">exec</span> zsh -l</code></pre>
-          <h2 id="cli-kaku-cli"><a class="anchor" href="#cli-kaku-cli" aria-label="Link to kaku cli">#</a>kaku cli</h2><p>Interact with the Kaku multiplexer from scripts and external tools.</p>
+          <h2 id="cli-kaku-cli"><a class="anchor" href="#cli-kaku-cli" aria-label="Link to kaku cli">#</a>kaku cli</h2><p>Drives the Kaku multiplexer from scripts and external tools, such as an AI tool or shell script that needs to open panes or tabs.</p>
           <pre><code class="language-bash">kaku cli split-pane                          <span class="tok-c"># split current pane
 </span>kaku cli split-pane -- bash -c <span class="tok-s">"echo hello"</span>  <span class="tok-c"># split and run a command
 </span>kaku cli --help                              <span class="tok-c"># list all subcommands
 </span>kaku cli split-pane --help                   <span class="tok-c"># help for a specific subcommand
 </span></code></pre>
-          <p>Useful for integrating Kaku with AI tools or shell scripts that need to open panes or tabs programmatically.</p>
           <nav class="doc-pager" aria-label="Pagination"><a href="/docs/features"><span>Previous</span><strong>Features</strong></a><a href="/docs/configuration"><span>Next</span><strong>Configuration</strong></a></nav>
         </article>
       </div>

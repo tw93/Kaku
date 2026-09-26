@@ -76,7 +76,7 @@
   <a class="skip-link" href="#main-content">跳到内容</a>
   <nav class="site-nav" aria-label="主导航"><div class="wide nav-inner"><a class="brand" href="/zh/"><strong>Kaku</strong></a><span class="eyebrow-sep">·</span><a class="version-link" href="https://github.com/tw93/Kaku/releases" target="_blank" rel="noopener noreferrer">v0.20.0</a><div class="nav-links"><a href="/zh/docs/" aria-current="page">文档</a></div><div class="nav-actions"><a class="nav-pill" aria-current="page" href="/zh/docs/contributing" hreflang="zh-CN">中</a><a class="nav-pill" href="/docs/contributing" hreflang="en">EN</a><a class="nav-icon" href="https://github.com/tw93/Kaku" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a><a class="nav-icon" href="https://x.com/HiTw93" target="_blank" rel="noopener noreferrer" aria-label="X"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a></div></div></nav>
   <main id="main-content" class="docs-page">
-    <header class="page-hero doc-hero"><div class="wide"><span class="label">文档</span><h1>贡献</h1><p>本地环境、构建命令、PR 流程和 CI 检查。</p></div></header>
+    <header class="page-hero doc-hero"><div class="wide"><span class="label">文档</span><h1>贡献</h1><p>怎么在本地构建 Kaku，以及怎么提 PR。</p></div></header>
     <section class="section docs-section">
       <div class="wide docs-layout">
         <aside class="docs-sidebar">
@@ -101,28 +101,28 @@ rustup toolchain install <span class="tok-n">1</span>.95.0
 
 <span class="tok-c"># 装 pre-commit hook：每次提交前会跑 format + test
 </span>make install-hooks</code></pre>
-                    <p>环境准备好后，<code>make app</code> 会把本地 debug app bundle 编译到 <code>dist/Kaku.app</code>。它用于开发和验证，不是普通用户的安装方式。</p>
+                    <p>环境准备好后，<code>make app</code> 会在 <code>dist/Kaku.app</code> 编出一个 debug 版的 app bundle，给开发和测试用，日常使用还是装 DMG 或 Homebrew 的版本。</p>
                     <h2 id="contributing-development"><a class="anchor" href="#contributing-development" aria-label="链接到「日常开发」">#</a>日常开发</h2>
-                    <p>常用 Make 目标如下，覆盖格式化、类型检查、测试和本地运行。</p>
+                    <p>常用的 Make 目标覆盖格式化、类型检查、测试和本地运行。</p>
                     <table>
                       <thead><tr><th>命令</th><th>用途</th></tr></thead>
                       <tbody>
                         <tr><td><code>make fmt</code></td><td>自动格式化代码，需要 nightly Rust</td></tr>
                         <tr><td><code>make fmt-check</code></td><td>只检查格式，不修改文件</td></tr>
-                        <tr><td><code>make check</code></td><td>cargo check，捕获类型和语法错误</td></tr>
+                        <tr><td><code>make check</code></td><td>跑 cargo check，找出类型和语法错误</td></tr>
                         <tr><td><code>make test</code></td><td>跑单元测试</td></tr>
-                        <tr><td><code>make dev</code></td><td>本地快速 debug 运行，从 <code>target/debug</code> 启动 <code>kaku-gui</code></td></tr>
+                        <tr><td><code>make dev</code></td><td>本地快速调试，编译 <code>kaku-gui</code> 并从 <code>target/debug</code> 启动</td></tr>
                         <tr><td><code>make build</code></td><td>编译二进制，不打 app bundle</td></tr>
-                        <tr><td><code>make app</code></td><td>编译本地测试用的 debug app bundle 到 <code>dist/Kaku.app</code></td></tr>
+                        <tr><td><code>make app</code></td><td>在 <code>dist/Kaku.app</code> 编出本地测试用的 debug app bundle</td></tr>
                       </tbody>
                     </table>
-                    <p>推荐的开发循环：</p>
+                    <p>平时的开发流程：</p>
                     <pre><code class="language-bash">make fmt        <span class="tok-c"># 先格式化
 </span>make check      <span class="tok-c"># 确认能编译
 </span>make <span class="tok-b">test</span>       <span class="tok-c"># 跑测试
 </span>make dev        <span class="tok-c"># 本地快速运行，不打包
 </span></code></pre>
-                    <p>需要调整日志等级时给 <code>make dev</code> 加环境变量：</p>
+                    <p>调整 <code>make dev</code> 的日志等级：</p>
                     <pre><code class="language-bash">RUST_LOG=debug make dev</code></pre>
                     <h2 id="contributing-build-release"><a class="anchor" href="#contributing-build-release" aria-label="链接到「发布构建」">#</a>发布构建</h2>
                     <p>本地复现发布产物的几条命令，正式发布走 <code>scripts/release.sh</code>。</p>
@@ -146,7 +146,7 @@ rustup toolchain install <span class="tok-n">1</span>.95.0
                       <li>提交并推送。</li>
                       <li>开 PR，目标分支选 <code>main</code>。</li>
                     </ol>
-                    <p>代码改动会触发格式、编译和测试检查。Universal 构建单独运行，由构建流程变更、定时任务或手动触发；仅修改 Markdown 不会触发这些检查。</p>
+                    <p>代码改动会触发格式、编译和测试检查，universal 构建另外跑，只在构建流程有改动、定时任务或手动触发时运行，只改 Markdown 的提交两者都不会触发。</p>
                     <p><a href="https://github.com/tw93/Kaku/pulls" target="_blank" rel="noopener noreferrer">查看现有 Pull Requests</a></p>
           <nav class="doc-pager" aria-label="Pagination"><a href="/zh/docs/faq"><span>上一页</span><strong>FAQ</strong></a><span></span></nav>
         </article>

@@ -70,7 +70,7 @@
   <a class="skip-link" href="#main-content">Skip to content</a>
   <nav class="site-nav" aria-label="Primary navigation"><div class="wide nav-inner"><a class="brand" href="/"><strong>Kaku</strong></a><span class="eyebrow-sep">·</span><a class="version-link" href="https://github.com/tw93/Kaku/releases" target="_blank" rel="noopener noreferrer">v0.20.0</a><div class="nav-links"><a href="/docs/" aria-current="page">Docs</a></div><div class="nav-actions"><a class="nav-pill" href="/zh/docs/" hreflang="zh-CN">中</a><a class="nav-pill" aria-current="page" href="/docs/" hreflang="en">EN</a><a class="nav-icon" href="https://github.com/tw93/Kaku" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a><a class="nav-icon" href="https://x.com/HiTw93" target="_blank" rel="noopener noreferrer" aria-label="X"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a></div></div></nav>
   <main id="main-content" class="docs-page">
-    <header class="page-hero doc-hero"><div class="wide"><span class="label">Docs</span><h1>Install</h1><p>Add Kaku to your macOS workflow with the DMG or Homebrew, then verify the shell setup.</p></div></header>
+    <header class="page-hero doc-hero"><div class="wide"><span class="label">Docs</span><h1>Install</h1><p>Install Kaku with the DMG or Homebrew, then check the shell setup.</p></div></header>
     <section class="section docs-section">
       <div class="wide docs-layout">
         <aside class="docs-sidebar">
@@ -80,33 +80,32 @@
         </aside>
         <article class="doc-content">
           <blockquote>
-            <p>Most people should use the DMG. Use Homebrew when you want command-line installs or scripted updates. Developer setup lives in <a href="/docs/contributing">Contributing</a>.</p>
+            <p>Most people should use the DMG. Homebrew suits command-line installs and scripted updates. To build Kaku yourself, see <a href="/docs/contributing">Contributing</a>.</p>
           </blockquote>
           <h2 id="install-dmg"><a class="anchor" href="#install-dmg" aria-label="Link to Download DMG">#</a>Download DMG</h2>
-                    <p>Most users should download the latest DMG from GitHub Releases. Open the image, drag Kaku into Applications, then launch it from the app list.</p>
+                    <p>Download the latest DMG from GitHub Releases, open it, drag Kaku into Applications, then launch it from the app list.</p>
                     <p><a href="https://github.com/tw93/Kaku/releases/latest" target="_blank" rel="noopener noreferrer">Open latest Release</a></p>
                     <h2 id="install-homebrew"><a class="anchor" href="#install-homebrew" aria-label="Link to Homebrew">#</a>Homebrew</h2>
-                    <p>If you already manage developer tools with Homebrew, install the official cask.</p>
+                    <p>If you already manage developer tools with Homebrew, install the official cask:</p>
                     <pre><code class="language-bash">brew install --cask kaku
 open -a Kaku
 kaku doctor</code></pre>
-                    <p>Homebrew fits machines that need command-line installation and scripted updates.</p>
-                    <p>If you previously installed the personal tap <code>tw93/tap/kakuku</code>, keep upgrading that tap, or move to the official cask:</p>
+                    <p>If you installed from the personal tap <code>tw93/tap/kakuku</code> earlier, you can keep upgrading it there or switch to the official cask:</p>
                     <pre><code class="language-bash">brew uninstall --cask tw93/tap/kakuku
 brew install --cask kaku</code></pre>
                     <h2 id="install-after-install"><a class="anchor" href="#install-after-install" aria-label="Link to After install">#</a>After install</h2>
-                    <p>Open Kaku once after installation, then run <code>kaku doctor</code>. It checks the app bundle, config directory, PATH, zsh/fish shell integration, and optional tool availability.</p>
+                    <p>Open Kaku once, then run <code>kaku doctor</code>. It checks the app bundle, PATH, and zsh/fish shell integration.</p>
                     <pre><code class="language-bash">/Applications/Kaku.app/Contents/MacOS/kaku doctor</code></pre>
-                    <p>If your shell cannot find <code>kaku</code>, restore shell integration with the bundled binary, then restart your login shell:</p>
+                    <p>If your shell can&#39;t find <code>kaku</code>, restore the integration with the bundled binary and restart your login shell:</p>
                     <pre><code class="language-bash">/Applications/Kaku.app/Contents/MacOS/kaku init --update-only
 <span class="tok-b">exec</span> zsh -l</code></pre>
                     <h2 id="install-troubleshooting"><a class="anchor" href="#install-troubleshooting" aria-label="Link to Troubleshooting">#</a>Troubleshooting</h2>
                     <ul>
-                      <li>Confirm the app lives at <code>/Applications/Kaku.app</code>. Do not run it directly from the DMG.</li>
-                      <li>If Homebrew install fails, run <code>brew update</code> first, then <code>brew install --cask kaku</code>. If <code>kaku update</code> reports checksum issues on a Homebrew install, run <code>brew upgrade --cask kaku</code>.</li>
-                      <li>For first-time shell tooling, run <code>kaku init</code>. It provisions zsh/fish integration and asks before installing missing optional tools such as Starship, Delta, Lazygit, and Yazi through Homebrew.</li>
-                      <li>If AI features do not work, open <code>kaku ai</code> and check Auth Type, Base URL, Simple Model, Deep Model, and API key.</li>
-                      <li>When filing an issue, include install method, macOS version, Kaku version, and reproduction steps.</li>
+                      <li>Make sure the app is in <code>/Applications/Kaku.app</code> and not running from the mounted DMG.</li>
+                      <li>If the Homebrew install fails, run <code>brew update</code> and try <code>brew install --cask kaku</code> again. If <code>kaku update</code> reports a checksum error on a Homebrew install, use <code>brew upgrade --cask kaku</code> instead.</li>
+                      <li>To set up the shell for the first time, run <code>kaku init</code>. It sets up zsh/fish integration and, in an interactive shell, asks before installing missing optional tools such as Starship, Delta, Lazygit, and Yazi through Homebrew.</li>
+                      <li>If AI features don&#39;t work, open <code>kaku ai</code> and check Auth Type, Base URL, Simple Model, Deep Model, and API key.</li>
+                      <li>When filing an issue, include how you installed Kaku, your macOS and Kaku versions, and steps to reproduce.</li>
                     </ul>
                     <p><a href="https://github.com/tw93/Kaku/issues" target="_blank" rel="noopener noreferrer">Open GitHub Issues</a></p>
           <nav class="doc-pager" aria-label="Pagination"><span></span><a href="/docs/guide"><span>Next</span><strong>Guide</strong></a></nav>

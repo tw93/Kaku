@@ -76,7 +76,7 @@
   <a class="skip-link" href="#main-content">Skip to content</a>
   <nav class="site-nav" aria-label="Primary navigation"><div class="wide nav-inner"><a class="brand" href="/"><strong>Kaku</strong></a><span class="eyebrow-sep">·</span><a class="version-link" href="https://github.com/tw93/Kaku/releases" target="_blank" rel="noopener noreferrer">v0.20.0</a><div class="nav-links"><a href="/docs/" aria-current="page">Docs</a></div><div class="nav-actions"><a class="nav-pill" href="/zh/docs/guide" hreflang="zh-CN">中</a><a class="nav-pill" aria-current="page" href="/docs/guide" hreflang="en">EN</a><a class="nav-icon" href="https://github.com/tw93/Kaku" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a><a class="nav-icon" href="https://x.com/HiTw93" target="_blank" rel="noopener noreferrer" aria-label="X"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a></div></div></nav>
   <main id="main-content" class="docs-page">
-    <header class="page-hero doc-hero"><div class="wide"><span class="label">Docs</span><h1>Guide</h1><p>A plain-language tour of Kaku: what you see, where to click, and what each shortcut does.</p></div></header>
+    <header class="page-hero doc-hero"><div class="wide"><span class="label">Docs</span><h1>Guide</h1><p>How to use Kaku day to day, from the first window to the AI assistant.</p></div></header>
     <section class="section docs-section">
       <div class="wide docs-layout">
         <aside class="docs-sidebar">
@@ -86,83 +86,82 @@
         </aside>
         <article class="doc-content">
           <blockquote>
-            <p>New to Kaku? This page walks through the app the way you actually use it, from the first window to the AI assistant. For full reference, see <a href="/docs/features">Features</a>, <a href="/docs/keybindings">Keybindings</a>, and <a href="/docs/configuration">Configuration</a>.</p>
+            <p>For every option, see <a href="/docs/features">Features</a>, <a href="/docs/keybindings">Keybindings</a>, and <a href="/docs/configuration">Configuration</a>.</p>
           </blockquote>
-          <figure class="shot"><img src="/shots/kaku-dark.webp" width="1920" height="1192" loading="lazy" alt="Kaku terminal showing the tab bar, panes, and shell prompt"><figcaption>One Kaku window: tabs along the bottom, panes side by side, and a ready-to-go shell.</figcaption></figure>
+          <figure class="shot"><img src="/shots/kaku-dark.webp" width="1920" height="1192" loading="lazy" alt="Kaku terminal showing the tab bar, panes, and shell prompt"><figcaption>Tabs along the bottom, panes side by side.</figcaption></figure>
 
           <h2 id="guide-first-launch"><a class="anchor" href="#guide-first-launch" aria-label="Link to First launch">#</a>First launch</h2>
-          <p>Open Kaku and you get a single terminal window with a shell prompt, ready to type. There is no setup wizard and no account to create.</p>
+          <p>Open Kaku and you get one window with a shell prompt. There's no setup wizard and no account.</p>
           <ul>
-            <li><strong>Theme follows macOS.</strong> Kaku starts in dark or light to match your system appearance, and switches automatically when the system does.</li>
-            <li><strong>Window controls sit in the tab bar.</strong> The macOS close, minimize, and zoom buttons are tucked into the top-left of the tab strip, so the window stays clean.</li>
-            <li><strong>The tab bar hides itself.</strong> With one tab open there is nothing extra on screen; it appears the moment you open a second tab.</li>
+            <li><strong>Theme follows macOS.</strong> Kaku picks dark or light to match your system and switches when the system does.</li>
+            <li><strong>No title bar.</strong> The close, minimize, and zoom buttons sit in the top-left corner of the window.</li>
+            <li><strong>The tab bar stays out of the way.</strong> It's hidden while you have one tab and appears when you open a second.</li>
           </ul>
-          <p>If your shell cannot find the <code>kaku</code> command afterwards, run <code>kaku doctor</code> to check the setup. See <a href="/docs/">Install</a> for first-run details.</p>
+          <p>If your shell can't find the <code>kaku</code> command, run <code>kaku doctor</code>. First-run details are on the <a href="/docs/">Install</a> page.</p>
 
           <h2 id="guide-tabs-panes"><a class="anchor" href="#guide-tabs-panes" aria-label="Link to Tabs and panes">#</a>Tabs &amp; panes</h2>
-          <p>Tabs and splits use the macOS shortcuts you already expect, so you rarely need the menu.</p>
+          <p>Tabs and splits use the shortcuts you'd expect on a Mac.</p>
           <table>
           <thead>
           <tr><th align="left">You want to</th><th align="left">Press</th><th align="left">What happens</th></tr>
           </thead>
           <tbody>
-          <tr><td align="left">Open a new tab</td><td align="left"><code>Cmd + T</code></td><td align="left">Adds a tab in the same folder and reveals the tab bar.</td></tr>
-          <tr><td align="left">Find a tab or pane</td><td align="left"><code>Cmd + Shift + O</code></td><td align="left">Opens Tab Navigator; type to filter and jump straight to any pane.</td></tr>
-          <tr><td align="left">Split left / right</td><td align="left"><code>Cmd + D</code></td><td align="left">Splits the current pane into two side by side.</td></tr>
-          <tr><td align="left">Split top / bottom</td><td align="left"><code>Cmd + Shift + D</code></td><td align="left">Stacks a second pane below the current one.</td></tr>
+          <tr><td align="left">Open a new tab</td><td align="left"><code>Cmd + T</code></td><td align="left">Opens a tab in the same folder and shows the tab bar.</td></tr>
+          <tr><td align="left">Find a tab or pane</td><td align="left"><code>Cmd + Shift + O</code></td><td align="left">Opens the Tab Navigator. Type to filter, then jump to any pane.</td></tr>
+          <tr><td align="left">Split left / right</td><td align="left"><code>Cmd + D</code></td><td align="left">Puts a second pane beside the current one.</td></tr>
+          <tr><td align="left">Split top / bottom</td><td align="left"><code>Cmd + Shift + D</code></td><td align="left">Puts a second pane below the current one.</td></tr>
           <tr><td align="left">Move between panes</td><td align="left"><code>Cmd + Opt + arrows</code></td><td align="left">Moves focus to the pane in that direction.</td></tr>
-          <tr><td align="left">Close pane / tab</td><td align="left"><code>Cmd + W</code></td><td align="left">Closes the active pane, or the tab if it is the last pane, otherwise hides the app.</td></tr>
-          <tr><td align="left">Reopen a closed tab</td><td align="left"><code>Cmd + Shift + T</code></td><td align="left">Restores the last tab you closed, in its old folder.</td></tr>
-          <tr><td align="left">Rename a tab</td><td align="left">Double-click its title</td><td align="left">Type a name; press Enter to keep it.</td></tr>
+          <tr><td align="left">Close pane / tab</td><td align="left"><code>Cmd + W</code></td><td align="left">Closes the active pane. On a tab's last pane it closes the tab, and on the last tab of the last window it hides Kaku.</td></tr>
+          <tr><td align="left">Reopen a closed tab</td><td align="left"><code>Cmd + Shift + T</code></td><td align="left">Brings back the last tab you closed, in its old folder.</td></tr>
+          <tr><td align="left">Rename a tab</td><td align="left">Double-click its title</td><td align="left">Type a name, then press Enter.</td></tr>
           </tbody>
           </table>
-          <p>Inside the Tab Navigator, <code>Backspace</code> on the highlighted tab closes it, with the same confirmation you get anywhere else. It only closes while the filter box is empty, so you can still delete what you typed.</p>
-          <p>When you ssh somewhere, that tab shows the host name instead of a local path, so a remote tab is easy to spot. See <a href="/docs/features#features-remote-sessions">Remote Sessions</a> for what else changes on a remote host.</p>
-          <p>When you reopen Kaku, it restores your windows, their panes, and each pane's working directory. If one pane cannot be saved, the rest of the session still returns.</p>
+          <p>In the Tab Navigator, <code>Backspace</code> closes the highlighted tab, with the usual confirmation. It only does that while the filter box is empty, so you can still delete what you typed.</p>
+          <p>An ssh tab shows the host name instead of a local path, so remote tabs are easy to spot. <a href="/docs/features#features-remote-sessions">Remote Sessions</a> covers what else changes on a remote host.</p>
+          <p>Kaku reopens with your windows, panes, and each pane's working directory. If one pane can't be saved, the rest still come back.</p>
 
-          <p>Right-click inside a pane to paste, search, open AI chat or the command palette, split in any direction, or close that pane. A TUI using the mouse keeps its own mouse handling. You can also enable the new-tab button in Settings.</p>
+          <p>Right-click inside a pane to paste, search, open AI chat or the command palette, split in any direction, or close the pane. TUIs that use the mouse keep their own mouse handling. You can also turn on a new-tab button in Settings.</p>
 
           <h2 id="guide-shell"><a class="anchor" href="#guide-shell" aria-label="Link to The shell, ready to go">#</a>The shell, ready to go</h2>
-          <p>Kaku sets up a curated zsh (and fish) on first launch, so the shell feels modern without you editing config files.</p>
+          <p>Kaku sets up zsh or fish on first launch, so you get a modern shell without editing config files.</p>
           <ul>
-            <li><strong>Autosuggestions.</strong> As you type, a grey suggestion from your history appears ahead of the cursor.</li>
-            <li><strong>Smart Tab.</strong> Press <code>Tab</code> to accept that grey suggestion when one is showing, or to open the completion list when it is not. This is the default; you can switch it in <a href="/docs/configuration">Configuration</a>.</li>
-            <li><strong>Jump to folders.</strong> Type <code>z proj</code> to jump straight to a folder you visit often, no full path needed.</li>
-            <li><strong>Readable output.</strong> Commands and errors are colored as you type, and <code>git diff</code> is paged through Delta when it is installed.</li>
+            <li><strong>Autosuggestions.</strong> As you type, a grey suggestion from your history appears after the cursor.</li>
+            <li><strong>Smart Tab.</strong> <code>Tab</code> accepts the grey suggestion when there is one and opens the completion list when there isn't. That's the default, and you can change it in <a href="/docs/configuration">Configuration</a>.</li>
+            <li><strong>Jump to folders.</strong> <code>z proj</code> takes you to a folder you visit often, no full path needed.</li>
+            <li><strong>Readable output.</strong> Commands and errors are colored as you type, and <code>git diff</code> pages through Delta when it's installed.</li>
           </ul>
-          <p>Selecting text copies it when you release the mouse, and <code>Cmd + Click</code> opens a file path or URL in its default app. URLs that wrap automatically at the edge of the terminal retain their full address; unrelated text after a hard newline is not added to the link.</p>
+          <p>Selecting text copies it when you release the mouse. <code>Cmd + Click</code> opens a file path or URL in its default app. A URL that wraps at the edge of the terminal still opens in full, and text after a real line break isn't pulled into the link.</p>
 
           <h2 id="guide-assistant"><a class="anchor" href="#guide-assistant" aria-label="Link to The AI assistant">#</a>The AI assistant</h2>
-          <p>The assistant is optional. Until you enable it, Kaku sends no AI requests. Once enabled, failed commands can trigger an automatic fix suggestion; command generation and chat still start only when you ask. Turn it on once with <code>kaku ai</code>: enable Kaku Assistant, choose Auth Type (<code>codex</code> to reuse your Codex login, or <code>api_key</code> for OpenAI-compatible endpoints), then set Simple Model and Deep Model. After that there are three ways to use it.</p>
+          <p>The assistant is off until you turn it on, and until then Kaku sends no AI requests. Once it's on, a failed command can trigger a fix suggestion automatically, while command generation and chat only run when you ask.</p>
+          <p>To turn it on, run <code>kaku ai</code>, enable Kaku Assistant, pick an Auth Type (<code>codex</code> reuses your Codex login, <code>api_key</code> works with OpenAI-compatible endpoints), and set Simple Model and Deep Model. Then you can use it three ways.</p>
           <ol>
-            <li><strong>Fix a failed command.</strong> When a command exits with an error, Kaku drafts a fix and shows it just under the prompt. Press <code>Cmd + Shift + E</code> to paste the suggestion in. Risky commands like <code>rm -rf</code> are pasted for review but never run on their own.</li>
-            <li><strong>Plain language to a command.</strong> Type <code>#</code> and a sentence, such as <code># find and kill the process on port 3000</code>, then press Enter. Kaku turns it into a real command and drops it at the prompt, ready for you to check and run.</li>
-            <li><strong>Open the chat panel.</strong> Press <code>Cmd + L</code> for a chat that streams formatted answers, highlights code, and can read the current terminal context. From any shell, <code>k "..."</code> or <code>kaku chat</code> opens the same conversation.</li>
+            <li><strong>Fix a failed command.</strong> When a command exits with an error, Kaku shows a suggested fix under the prompt. Press <code>Cmd + Shift + E</code> to paste it in. Risky commands like <code>rm -rf</code> are pasted for you to review and never run on their own.</li>
+            <li><strong>Plain language to a command.</strong> Type <code>#</code> and a sentence, like <code># find and kill the process on port 3000</code>, then press Enter. Kaku turns it into a command and leaves it at the prompt for you to check and run.</li>
+            <li><strong>Open the chat panel.</strong> <code>Cmd + L</code> opens a chat that streams formatted answers, highlights code, and can read the current terminal. From any shell, <code>k "..."</code> or <code>kaku chat</code> opens the same conversation.</li>
           </ol>
-          <p>You configure your own AI service. Setup details are in <a href="/docs/features">Features</a>.</p>
+          <p>You bring your own AI service. Kaku doesn't provide or relay one. Full setup is in <a href="/docs/features">Features</a>.</p>
 
           <h2 id="guide-tools"><a class="anchor" href="#guide-tools" aria-label="Link to Built-in tools">#</a>Built-in tools</h2>
-          <p>A few terminal tools are one shortcut away. Each opens in the current pane and returns you to the shell when you quit.</p>
+          <p>Lazygit and Yazi open in the current pane and drop you back in the shell when you quit. Remote files opens in a new tab.</p>
           <table>
           <thead>
           <tr><th align="left">Tool</th><th align="left">Press</th><th align="left">What it does</th></tr>
           </thead>
           <tbody>
           <tr><td align="left">Lazygit</td><td align="left"><code>Cmd + Shift + G</code></td><td align="left">A visual git interface for the current repo.</td></tr>
-          <tr><td align="left">Yazi</td><td align="left"><code>Cmd + Shift + Y</code></td><td align="left">A file manager that drops you into the folder you pick.</td></tr>
-          <tr><td align="left">Remote files</td><td align="left"><code>Cmd + Shift + R</code></td><td align="left">Mounts the current SSH host's files locally and browses them.</td></tr>
+          <tr><td align="left">Yazi</td><td align="left"><code>Cmd + Shift + Y</code></td><td align="left">A file manager that leaves you in the folder you pick.</td></tr>
+          <tr><td align="left">Remote files</td><td align="left"><code>Cmd + Shift + R</code></td><td align="left">Mounts the current SSH host's files locally and opens them in Yazi.</td></tr>
           </tbody>
           </table>
-          <p>If a tool is missing, run <code>kaku init</code> and Kaku offers to install it. Theme and behavior details are in <a href="/docs/features">Features</a>.</p>
+          <p>If Lazygit or Yazi is missing, run <code>kaku init</code> and it offers to install them. Remote files also needs sshfs. <a href="/docs/features">Features</a> covers that, plus themes and behavior.</p>
 
           <h2 id="guide-settings"><a class="anchor" href="#guide-settings" aria-label="Link to Settings and health">#</a>Settings &amp; health</h2>
-          <p>Kaku ships with sensible defaults, so you can change as little or as much as you like.</p>
           <ul>
-            <li><strong>Quick settings.</strong> Press <code>Cmd + ,</code> to open the settings panel for common options like the scrollbar, Smart Tab mode, and AI models.</li>
-            <li><strong>Full config.</strong> Run <code>kaku config</code> to open the configuration TUI, where you can set font size, window opacity, custom shortcuts, and Lua overrides. See <a href="/docs/configuration">Configuration</a>.</li>
-            <li><strong>Check the setup.</strong> Run <code>kaku doctor</code> any time something feels off; it verifies the app bundle, PATH, shell integration, and optional tools.</li>
+            <li><strong>Settings.</strong> Press <code>Cmd + ,</code> or run <code>kaku config</code> to open the settings TUI for the scrollbar, Smart Tab mode, font size, window opacity, and more. AI models are set in <code>kaku ai</code>.</li>
+            <li><strong>Lua config.</strong> Custom shortcuts and other Lua overrides go in <code>~/.config/kaku/kaku.lua</code>. Press <code>e</code> in the settings TUI to open it in your editor. See <a href="/docs/configuration">Configuration</a>.</li>
+            <li><strong>Check the setup.</strong> Run <code>kaku doctor</code> whenever something feels off. It checks the Kaku binary, PATH, and shell integration.</li>
           </ul>
-          <p>That is the whole loop: install, optionally set up AI, then tune the terminal to taste. Browse the rest of the docs whenever you need a specific detail.</p>
           <nav class="doc-pager" aria-label="Pagination"><a href="/docs/"><span>Previous</span><strong>Install</strong></a><a href="/docs/features"><span>Next</span><strong>Features</strong></a></nav>
         </article>
       </div>

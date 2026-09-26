@@ -76,7 +76,7 @@
   <a class="skip-link" href="#main-content">Skip to content</a>
   <nav class="site-nav" aria-label="Primary navigation"><div class="wide nav-inner"><a class="brand" href="/"><strong>Kaku</strong></a><span class="eyebrow-sep">·</span><a class="version-link" href="https://github.com/tw93/Kaku/releases" target="_blank" rel="noopener noreferrer">v0.20.0</a><div class="nav-links"><a href="/docs/" aria-current="page">Docs</a></div><div class="nav-actions"><a class="nav-pill" href="/zh/docs/features" hreflang="zh-CN">中</a><a class="nav-pill" aria-current="page" href="/docs/features" hreflang="en">EN</a><a class="nav-icon" href="https://github.com/tw93/Kaku" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a><a class="nav-icon" href="https://x.com/HiTw93" target="_blank" rel="noopener noreferrer" aria-label="X"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a></div></div></nav>
   <main id="main-content" class="docs-page">
-    <header class="page-hero doc-hero"><div class="wide"><span class="label">Docs</span><h1>Features</h1><p>Right-click actions, clickable links, AI assistance, and built-in shell tools.</p></div></header>
+    <header class="page-hero doc-hero"><div class="wide"><span class="label">Docs</span><h1>Features</h1><p>What Kaku does beyond a plain terminal, from right-click actions to the assistant and shell tools.</p></div></header>
     <section class="section docs-section">
       <div class="wide docs-layout">
         <aside class="docs-sidebar">
@@ -85,11 +85,11 @@
           <div class="section-toc"><p>On this page</p><a class="depth-2" href="#features-mouse">Mouse actions</a><a class="depth-2" href="#features-kaku-assistant">Kaku Assistant</a><a class="depth-2" href="#features-ai-chat-panel">AI Chat Panel</a><a class="depth-2" href="#features-window-snapshots">Window Snapshots</a><a class="depth-2" href="#features-applescript">AppleScript</a><a class="depth-2" href="#features-lazygit-integration">Lazygit Integration</a><a class="depth-2" href="#features-yazi-file-manager">Yazi File Manager</a><a class="depth-2" href="#features-remote-sessions">Remote Sessions</a><a class="depth-2" href="#features-remote-files">Remote Files</a><a class="depth-2" href="#features-shell-suite">Shell Suite</a></div>
         </aside>
         <article class="doc-content">
-          <h2 id="features-mouse"><a class="anchor" href="#features-mouse" aria-label="Link to Mouse actions">#</a>Mouse actions</h2><p>Right-click inside a pane to paste, search, open AI chat or the command palette, split in any direction, or close the clicked pane. Close confirmation follows your settings, and a TUI using the mouse retains its own handling.</p>
-          <p><code>Cmd + Click</code> opens URLs and file paths. URLs automatically wrapped at the terminal edge keep their full address; unrelated output after a hard newline stays out of the link target.</p>
-          <h2 id="features-kaku-assistant"><a class="anchor" href="#features-kaku-assistant" aria-label="Link to Kaku Assistant">#</a>Kaku Assistant</h2><p>Kaku Assistant suggests fixes for failed commands, generates commands from descriptions, and provides chat about terminal output and project files.</p>
+          <h2 id="features-mouse"><a class="anchor" href="#features-mouse" aria-label="Link to Mouse actions">#</a>Mouse actions</h2><p>Right-click inside a pane to paste, search, open AI chat or the command palette, split in any direction, or close the clicked pane. Closing asks for confirmation if your settings say so, and a TUI that captures the mouse still gets the right-click itself.</p>
+          <p><code>Cmd + Click</code> opens URLs and file paths. A URL that wraps at the terminal edge still opens in full, and text after a hard newline never gets pulled into the link.</p>
+          <h2 id="features-kaku-assistant"><a class="anchor" href="#features-kaku-assistant" aria-label="Link to Kaku Assistant">#</a>Kaku Assistant</h2><p>Kaku Assistant suggests fixes for failed commands, turns descriptions into commands, and chats about terminal output and project files.</p>
           <p><strong>Setup</strong></p>
-          <p>Run <code>kaku ai</code> to open the AI settings panel. Enable Kaku Assistant and edit the model, auth, base URL, and API key fields directly.</p>
+          <p>Run <code>kaku ai</code> to open the AI settings, enable Kaku Assistant, and fill in these fields:</p>
           <table class="config-fields">
           <thead>
           <tr>
@@ -103,11 +103,11 @@
           </tr>
           <tr>
           <td align="left">Simple Model</td>
-          <td align="left">Used for <code>#</code> command generation, command fixes, and lightweight chat</td>
+          <td align="left"><code>#</code> command generation, command fixes, and lightweight chat</td>
           </tr>
           <tr>
           <td align="left">Deep Model</td>
-          <td align="left">Used for primary <code>Cmd + L</code> / <code>k</code> chat and tool use</td>
+          <td align="left">Main <code>Cmd + L</code> / <code>k</code> chat and tool use</td>
           </tr>
           <tr>
           <td align="left">Base URL</td>
@@ -115,37 +115,31 @@
           </tr>
           <tr>
           <td align="left">API Key</td>
-          <td align="left">API key from the selected AI service when Auth Type is API key</td>
+          <td align="left">Your provider's API key, when Auth Type is API key</td>
           </tr>
           </tbody></table>
-          <p>For custom OpenAI-compatible services, keep Auth Type set to API key, enter the service's Base URL, and set the model names manually.</p>
-          <p>For API-key connections, enter the API root (for example <code>https://api.openai.com/v1</code>) and choose <strong>API Mode</strong>: <code>chat_completions</code> or <code>responses</code>. Responses mode also offers <strong>Native Web Search</strong> when supported by the provider.</p>
-          <p>With Codex authentication, Kaku reads your Codex connection settings. <strong>Follow Codex</strong> uses that connection's model; you can also set Simple Model and Deep Model separately in Kaku.</p>
-          <h2 id="features-ai-chat-panel"><a class="anchor" href="#features-ai-chat-panel" aria-label="Link to AI Chat Panel">#</a>AI Chat Panel</h2><p>Press <code>Cmd + L</code> to open the built-in AI chat panel. It streams Markdown answers,
-          highlights code blocks, can include terminal context, and can use approved tools
-          for project files, shell commands, web search, and memory. Press <code>Shift + Tab</code>
-          inside the panel to toggle between the Simple Model and Deep Model when they
-          are different. Type <code>/suggest</code> in the panel to have Kaku predict the next
-          message you might want to send.</p>
-          <p>From a shell, use <code>k</code> or <code>kaku chat</code> for the same conversation store:</p>
+          <p>For a custom OpenAI-compatible service, keep Auth Type on API key, enter its Base URL, and type the model names yourself.</p>
+          <p>API-key connections also pick an <strong>API Mode</strong>, <code>chat_completions</code> or <code>responses</code>. In Responses mode you can turn on <strong>Native Web Search</strong> if the provider supports it.</p>
+          <p>With Codex auth, Kaku reads your existing Codex connection. <strong>Follow Codex</strong> uses that connection's model, or you can set Simple Model and Deep Model separately in Kaku.</p>
+          <h2 id="features-ai-chat-panel"><a class="anchor" href="#features-ai-chat-panel" aria-label="Link to AI Chat Panel">#</a>AI Chat Panel</h2><p>Press <code>Cmd + L</code> to open the AI chat panel. Answers stream in as Markdown with highlighted code blocks, the panel can include terminal context, and with your approval it uses tools for project files, shell commands, web search, and memory. It also tells the model the project type, detected from files like <code>Cargo.toml</code> or <code>package.json</code> in the current directory.</p>
+          <p>When the Simple Model and Deep Model differ, <code>Shift + Tab</code> switches between them. When they are the same, <code>/model</code> lists every model the current provider returns, and your configured model always stays on the list. Type <code>/suggest</code> to have Kaku predict the next message you might send.</p>
+          <p>In a shell, <code>k</code> and <code>kaku chat</code> pick up the same conversations:</p>
           <pre><code class="language-bash">k <span class="tok-s">"summarize the current project"</span>
 kaku chat</code></pre>
-          <p>The standalone CLI is intentionally simpler than the overlay: it streams plain
-          terminal text and supports <code>/new</code>, <code>/resume</code>, <code>/clear</code>, <code>/status</code>, <code>/memory</code>,
-          and <code>/exit</code>.</p>
+          <p>The shell version is simpler than the panel. It streams plain text and supports <code>/new</code>, <code>/resume</code>, <code>/clear</code>, <code>/status</code>, <code>/memory</code>, and <code>/exit</code>.</p>
           <p><strong>Error recovery</strong></p>
-          <p>When a command exits with a non-zero status, Kaku Assistant automatically sends the failed command, exit code, working directory, and git branch to the LLM and displays a suggested fix inline. Press <code>Cmd + Shift + E</code> to paste it back. Dangerous commands (e.g. <code>rm -rf</code>, <code>git reset --hard</code>) are pasted but never auto-executed.</p>
-          <p>The assistant does not trigger on: <code>Ctrl+C</code> exits, help flags, bare package manager calls, git pull conflicts, or non-shell foreground processes.</p>
+          <p>When a command exits with a non-zero status, Kaku Assistant sends the command, exit code, working directory, and git branch to the model and shows a suggested fix inline. Press <code>Cmd + Shift + E</code> to paste it. Dangerous commands such as <code>rm -rf</code> or <code>git reset --hard</code> are pasted but never run automatically.</p>
+          <p>It stays quiet for <code>Ctrl+C</code> exits, help flags, bare package manager calls, git pull conflicts, and non-shell foreground processes.</p>
           <p><strong>Natural language to command</strong></p>
-          <p>Type <code># &lt;description&gt;</code> at the prompt and press Enter to generate a shell command from plain English. Kaku intercepts the line before the shell sees it, sends your query along with the current directory and git branch to the LLM, and injects the resulting command back into the prompt ready to review and run.</p>
+          <p>Type <code># &lt;description&gt;</code> at the prompt and press Enter. Kaku catches the line before the shell runs it, sends it to the model along with the current directory and git branch, and puts the resulting command back at the prompt for you to review and run.</p>
           <pre><code># list all files modified in the last 7 days
 # find and kill the process on port 3000
 # compress the src folder excluding node_modules
 </code></pre>
-          <p><code>#</code> generation and the automatic command fix go through the same provider and credentials as <code>Cmd + L</code>, so a Codex or Copilot login works for them too, not only an API key.</p>
-          <p>The <code>#</code> prefix works in both zsh and fish. The original query stays visible while the request is in flight. If the model cannot produce a safe command, it explains instead. Dangerous commands are loaded but flagged for review, never auto-executed.</p>
+          <p><code>#</code> generation and automatic fixes use the same provider and credentials as <code>Cmd + L</code>, so a Codex or Copilot login works here too, not just an API key.</p>
+          <p>The <code>#</code> prefix works in zsh and fish. Your query stays on screen while the request runs. If the model can't come up with a safe command, it explains why instead. Dangerous commands are loaded but flagged for review, never run automatically.</p>
           <p><strong>assistant.toml fields</strong></p>
-          <p>The config lives at <code>~/.config/kaku/assistant.toml</code>:</p>
+          <p>The config file is <code>~/.config/kaku/assistant.toml</code>:</p>
           <table class="config-fields">
           <thead>
           <tr>
@@ -159,23 +153,23 @@ kaku chat</code></pre>
           </tr>
           <tr>
           <td align="left"><code>api_key</code></td>
-          <td align="left">Your AI service API key</td>
+          <td align="left">API key for your AI service</td>
           </tr>
           <tr>
           <td align="left"><code>model</code></td>
-          <td align="left">Simple Model for <code>#</code> command generation, command fixes, and lightweight chat</td>
+          <td align="left">Simple Model, for <code>#</code> command generation, command fixes, and lightweight chat</td>
           </tr>
           <tr>
           <td align="left"><code>chat_model</code></td>
-          <td align="left">Deep Model for primary <code>Cmd + L</code> / <code>k</code> chat and tool use</td>
+          <td align="left">Deep Model, for main <code>Cmd + L</code> / <code>k</code> chat and tool use</td>
           </tr>
           <tr>
           <td align="left"><code>chat_model_choices</code></td>
-          <td align="left">Optional curated list of chat models for the overlay picker</td>
+          <td align="left">Optional list of chat models for the panel's model picker, used instead of the provider's list</td>
           </tr>
           <tr>
           <td align="left"><code>auto_fix_ignored_exit_codes</code></td>
-          <td align="left">Optional exit codes that should not trigger automatic command-fix suggestions, e.g. <code>[2]</code></td>
+          <td align="left">Optional exit codes that never trigger a fix suggestion, e.g. <code>[2]</code></td>
           </tr>
           <tr>
           <td align="left"><code>base_url</code></td>
@@ -195,67 +189,62 @@ kaku chat</code></pre>
           </tr>
           <tr>
           <td align="left"><code>web_fetch_script</code></td>
-          <td align="left">Optional custom URL-to-Markdown fetch script</td>
+          <td align="left">Optional custom script that fetches a URL as Markdown</td>
           </tr>
           <tr>
           <td align="left"><code>chat_tools_enabled</code></td>
-          <td align="left">Set to <code>false</code> to disable tool calling for chat services without tool support</td>
+          <td align="left">Set to <code>false</code> for chat services that don't support tool calling</td>
           </tr>
           <tr>
           <td align="left"><code>auth_type</code></td>
-          <td align="left">Advanced auth mode: <code>api_key</code>, <code>codex</code>, or <code>copilot</code>. The settings panel offers the first two; <code>copilot</code> is set by hand</td>
+          <td align="left">Auth mode: <code>api_key</code>, <code>codex</code>, or <code>copilot</code>. The settings panel offers the first two, <code>copilot</code> is set by hand</td>
           </tr>
           <tr>
           <td align="left"><code>memory_curator_model</code></td>
           <td align="left">Optional cheaper model for background memory curation</td>
           </tr>
           </tbody></table>
-          <p>Older configs may still contain <code>fast_model</code>; Kaku treats it as the Simple Model
-          and folds it back into <code>model</code> the next time the assistant settings are saved.</p>
-          <h2 id="features-window-snapshots"><a class="anchor" href="#features-window-snapshots" aria-label="Link to Window Snapshots">#</a>Window Snapshots</h2><p>Kaku saves multi-tab and multi-pane window layouts automatically when you close
-          or hide a window. Use <strong>Shell &gt; Restore Previous Window</strong> or
-          <code>Cmd + Option + Shift + T</code> to reopen the last saved layout. Kaku tolerates
-          missing or corrupted snapshot files and simply reports that no snapshot is
-          available.</p>
-          <h2 id="features-applescript"><a class="anchor" href="#features-applescript" aria-label="Link to AppleScript">#</a>AppleScript</h2><p>Kaku ships a minimal AppleScript dictionary so it shows up in Script Editor and other automation tools. The exposed surface is intentionally small and read-only apart from <code>quit</code>.</p>
+          <p>Older configs may still have <code>fast_model</code>. Kaku reads it as the Simple Model and folds it into <code>model</code> the next time you save the assistant settings.</p>
+          <h2 id="features-window-snapshots"><a class="anchor" href="#features-window-snapshots" aria-label="Link to Window Snapshots">#</a>Window Snapshots</h2><p>Kaku saves multi-tab and multi-pane window layouts when you close or hide a window. <strong>Shell &gt; Restore Previous Window</strong> or <code>Cmd + Option + Shift + T</code> reopens the last one. If the snapshot file is missing or corrupted, Kaku just tells you there is no snapshot to restore.</p>
+          <h2 id="features-applescript"><a class="anchor" href="#features-applescript" aria-label="Link to AppleScript">#</a>AppleScript</h2><p>Kaku ships a minimal AppleScript dictionary, so it shows up in Script Editor and other automation tools. It is deliberately small and read-only apart from <code>quit</code>.</p>
           <pre><code class="language-applescript"><span class="tok-k">tell</span> <span class="tok-b">application</span> <span class="tok-s">"Kaku"</span>
   <span class="tok-k">get</span> name        <span class="tok-c">-- "Kaku"</span>
   <span class="tok-k">get</span> <span class="tok-b">version</span>     <span class="tok-c">-- e.g. "0.20.0"</span>
   <span class="tok-k">get</span> frontmost   <span class="tok-c">-- true / false</span>
   <span class="tok-b">quit</span>            <span class="tok-c">-- optional `saving ask|yes|no`</span>
 <span class="tok-k">end</span> <span class="tok-k">tell</span></code></pre>
-          <p>Open <code>/Applications/Kaku.app</code> in Script Editor → File → Open Dictionary to browse the full dictionary. There is no <code>do script</code> verb, Kaku does not expose shell execution to AppleScript.</p>
-          <h2 id="features-lazygit-integration"><a class="anchor" href="#features-lazygit-integration" aria-label="Link to Lazygit Integration">#</a>Lazygit Integration</h2><p>Press <code>Cmd + Shift + G</code> to launch lazygit in the current pane. Kaku auto-detects the lazygit binary from PATH or common Homebrew locations.</p>
-          <p>When a git repo has uncommitted changes and lazygit has not been used in that directory yet, Kaku shows a one-time hint to remind you it is available.</p>
-          <p>Install lazygit with <code>brew install lazygit</code> or via <code>kaku init</code>.</p>
-          <h2 id="features-yazi-file-manager"><a class="anchor" href="#features-yazi-file-manager" aria-label="Link to Yazi File Manager">#</a>Yazi File Manager</h2><p>Press <code>Cmd + Shift + Y</code> to launch yazi in the current pane. The shell wrapper <code>y</code> also launches yazi and syncs the shell working directory on exit.</p>
-          <p><strong>Theme sync</strong>: Kaku automatically updates <code>~/.config/yazi/theme.toml</code> to match the active color scheme (Kaku Dark or Kaku Light). No manual yazi theme setup needed.</p>
-          <p>Install yazi with <code>brew install yazi</code> or via <code>kaku init</code>.</p>
-          <h2 id="features-remote-sessions"><a class="anchor" href="#features-remote-sessions" aria-label="Link to Remote Sessions">#</a>Remote Sessions</h2><p>When a pane is connected to another machine, Kaku labels the tab with an ssh glyph and the host name instead of a local path, so remote tabs read differently at a glance. In a split tab only the remote pane contributes its host name to the title, so you can tell which side is local. Kaku recognizes <code>ssh</code>, <code>mosh</code>, <code>autossh</code>, and <code>et</code> sessions.</p>
-          <p>The AI chat panel behaves differently inside a remote pane. Local file and shell tools are turned off, because the working directory belongs to the other host and running them here would hit same-named local paths instead. The panel answers from what is on screen and suggests commands for you to run on the remote host. <code>@cwd</code> is unavailable there and says so rather than attaching the wrong directory.</p>
-          <p>The bundled zsh, fish, and bash integrations wrap <code>ssh</code> the same way: they fall back to <code>xterm-256color</code> when the remote host has no <code>kaku</code> terminfo entry, and <code>mosh</code> gets the same fallback. If you define your own <code>ssh</code> function, Kaku leaves it alone.</p>
-          <h2 id="features-remote-files"><a class="anchor" href="#features-remote-files" aria-label="Link to Remote Files">#</a>Remote Files</h2><p>Press <code>Cmd + Shift + R</code> to mount the current SSH session&#39;s remote filesystem locally via <code>sshfs</code> and open it in yazi.</p>
-          <p>Kaku auto-detects the SSH target from the active pane. The mount lives at <code>~/Library/Caches/dev.kaku/sshfs/&lt;host&gt;</code>.</p>
+          <p>To browse the full dictionary, choose File &gt; Open Dictionary in Script Editor and pick <code>/Applications/Kaku.app</code>. There is no <code>do script</code> verb, so AppleScript cannot run shell commands through Kaku.</p>
+          <h2 id="features-lazygit-integration"><a class="anchor" href="#features-lazygit-integration" aria-label="Link to Lazygit Integration">#</a>Lazygit Integration</h2><p>Press <code>Cmd + Shift + G</code> to open lazygit in the current pane. Kaku finds the binary on PATH or in the usual Homebrew locations.</p>
+          <p>When a git repo has uncommitted changes and you haven't used lazygit in that directory yet, Kaku shows a one-time hint.</p>
+          <p>Install lazygit with <code>brew install lazygit</code> or through <code>kaku init</code>.</p>
+          <h2 id="features-yazi-file-manager"><a class="anchor" href="#features-yazi-file-manager" aria-label="Link to Yazi File Manager">#</a>Yazi File Manager</h2><p>Press <code>Cmd + Shift + Y</code> to open yazi in the current pane. The <code>y</code> shell wrapper also opens yazi and syncs the shell's working directory when you quit.</p>
+          <p><strong>Theme sync</strong>: Kaku keeps <code>~/.config/yazi/theme.toml</code> matched to the active color scheme (Kaku Dark or Kaku Light), so yazi needs no theme setup.</p>
+          <p>Install yazi with <code>brew install yazi</code> or through <code>kaku init</code>.</p>
+          <h2 id="features-remote-sessions"><a class="anchor" href="#features-remote-sessions" aria-label="Link to Remote Sessions">#</a>Remote Sessions</h2><p>When a pane is connected to another machine, its tab shows an ssh glyph and the host name instead of a local path, so remote tabs stand out at a glance. In a split tab only the remote pane puts its host name in the title, so you can tell which side is local. Kaku recognizes <code>ssh</code>, <code>mosh</code>, <code>autossh</code>, and <code>et</code> sessions.</p>
+          <p>In a remote pane the AI chat panel turns off local file and shell tools, because the working directory belongs to the other host and running them here would hit same-named local paths. It also skips detecting the local project type. The panel answers from what is on screen and suggests commands for you to run on the remote host. <code>@cwd</code> is unavailable there and says so instead of attaching the wrong directory.</p>
+          <p>The bundled zsh, fish, and bash integrations wrap <code>ssh</code> so it falls back to <code>xterm-256color</code> when the remote host has no <code>kaku</code> terminfo entry, and <code>mosh</code> gets the same fallback. If you define your own <code>ssh</code> function, Kaku leaves it alone.</p>
+          <h2 id="features-remote-files"><a class="anchor" href="#features-remote-files" aria-label="Link to Remote Files">#</a>Remote Files</h2><p>Press <code>Cmd + Shift + R</code> to mount the current SSH session&#39;s remote filesystem with <code>sshfs</code> and open it in yazi.</p>
+          <p>Kaku picks up the SSH target from the active pane and mounts it at <code>~/Library/Caches/dev.kaku/sshfs/&lt;host&gt;</code>.</p>
           <p>Requirements: <code>sshfs</code> installed (<code>brew install macfuse sshfs</code>) and key-based SSH auth to the remote host.</p>
-          <h2 id="features-shell-suite"><a class="anchor" href="#features-shell-suite" aria-label="Link to Shell Suite">#</a>Shell Suite</h2><p>Kaku ships a curated set of shell plugins that load automatically inside Kaku sessions.</p>
+          <h2 id="features-shell-suite"><a class="anchor" href="#features-shell-suite" aria-label="Link to Shell Suite">#</a>Shell Suite</h2><p>Kaku bundles a set of shell plugins that load automatically in Kaku sessions.</p>
           <p><strong>Zsh plugins (built-in)</strong></p>
           <ul>
-          <li><strong>zsh-z</strong>: Smarter <code>cd</code> that learns your most-used directories and reuses your existing <code>~/.z</code> history. Use <code>z &lt;dir&gt;</code>, <code>z -l &lt;dir&gt;</code> to list matches, <code>z -t</code> for recent directories. <code>cd</code> + Tab also falls back to this history.</li>
-          <li><strong>zsh-completions</strong>: Extended completions for common CLI tools.</li>
-          <li><strong>fast-syntax-highlighting</strong>: Real-time command coloring and error highlighting, with richer colors and faster startup than zsh-syntax-highlighting.</li>
-          <li><strong>zsh-autosuggestions</strong>: Fish-style history-based completions as you type.</li>
+          <li><strong>zsh-z</strong>: Smarter <code>cd</code> that learns your most-used directories and reuses your existing <code>~/.z</code> history. <code>z &lt;dir&gt;</code> jumps, <code>z -l &lt;dir&gt;</code> lists matches, and <code>z -t</code> shows recent directories. When filesystem completion finds nothing, <code>cd</code> + Tab falls back to this history.</li>
+          <li><strong>zsh-completions</strong>: Extra completions for common CLI tools.</li>
+          <li><strong>fast-syntax-highlighting</strong>: Live command coloring and error highlighting, with richer colors and faster startup than zsh-syntax-highlighting.</li>
+          <li><strong>zsh-autosuggestions</strong>: Fish-style suggestions from your history as you type.</li>
           </ul>
           <p><strong>Fish support</strong></p>
-          <p>Run <code>kaku init</code> to provision <code>~/.config/kaku/fish/kaku.fish</code> for fish users. <code>kaku doctor</code> verifies both zsh and fish integration paths.</p>
+          <p>For fish, <code>kaku init</code> sets up <code>~/.config/kaku/fish/kaku.fish</code>, and <code>kaku doctor</code> checks both the zsh and fish integration.</p>
           <p><strong>Optional tools (installed via <code>kaku init</code>)</strong></p>
           <ul>
-          <li><strong>Starship</strong>: Fast, customizable prompt with git and environment info. Kaku only applies it inside Kaku, so your other terminals keep their own prompt.</li>
+          <li><strong>Starship</strong>: Fast, customizable prompt with git and environment info. It only applies inside Kaku, so your other terminals keep their own prompt. To use it in every terminal, set <code>KAKU_PROMPT_EVERYWHERE=1</code> before the Kaku line in your shell rc.</li>
           <li><strong>Delta</strong>: Syntax-highlighting pager for git diff and grep.</li>
           <li><strong>Lazygit</strong>: Terminal git UI.</li>
           <li><strong>Yazi</strong>: Terminal file manager.</li>
           </ul>
           <p><strong>Smart Tab</strong></p>
-          <p>Kaku&#39;s Smart Tab overrides the Tab key in zsh to provide smarter completion behavior. It supports three modes:</p>
+          <p>Smart Tab takes over the Tab key in zsh for smarter completion. It has three modes:</p>
           <table>
           <thead>
           <tr>
@@ -266,31 +255,31 @@ kaku chat</code></pre>
           </thead>
           <tbody><tr>
           <td align="left">Suggestion First (default)</td>
-          <td align="left">Tab accepts the grey autosuggestion when one is visible, otherwise falls back to the completion list</td>
-          <td align="left">- (this is the default)</td>
+          <td align="left">Tab accepts the grey autosuggestion when one is showing, otherwise opens the completion list</td>
+          <td align="left">None</td>
           </tr>
           <tr>
           <td align="left">Completion First</td>
-          <td align="left">Tab shows the completion list first; use <code>-&gt;</code> to accept the autosuggestion</td>
+          <td align="left">Tab opens the completion list first, and <code>-&gt;</code> accepts the autosuggestion</td>
           <td align="left"><code>KAKU_TAB_ACCEPT_SUGGEST_FIRST=0</code></td>
           </tr>
           <tr>
           <td align="left">Off</td>
-          <td align="left">Disables Smart Tab entirely, restoring native zsh Tab behavior</td>
+          <td align="left">Turns Smart Tab off and restores native zsh Tab behavior</td>
           <td align="left"><code>KAKU_SMART_TAB_DISABLE=1</code></td>
           </tr>
           </tbody></table>
-          <p>You can also set the mode via <code>kaku config</code> (the <strong>Smart Tab</strong> option under Behavior) or in <code>kaku.lua</code>:</p>
+          <p>You can also set the mode in <code>kaku config</code> (<strong>Smart Tab</strong> under Behavior) or in <code>kaku.lua</code>:</p>
           <pre><code class="language-lua">config.smart_tab_mode = <span class="tok-s">"suggestion_first"</span>   <span class="tok-c">-- default: Tab accepts autosuggestions first</span>
 config.smart_tab_mode = <span class="tok-s">"completion_first"</span>   <span class="tok-c">-- Tab shows the completion list first</span>
 config.smart_tab_mode = <span class="tok-s">"off"</span>                <span class="tok-c">-- disable Smart Tab</span></code></pre>
-          <p>If you prefer environment variables (for example, because you share your zshrc across terminals), add one of these before sourcing the Kaku shell integration:</p>
+          <p>If you'd rather use environment variables, for example because one zshrc serves several terminals, add one of these before the line that sources Kaku's shell integration:</p>
           <pre><code class="language-zsh"><span class="tok-b">export</span> KAKU_TAB_ACCEPT_SUGGEST_FIRST=<span class="tok-n">0</span>  <span class="tok-c"># completion-first (suggestion-first is the default)
 # or
 </span><span class="tok-b">export</span> KAKU_SMART_TAB_DISABLE=<span class="tok-n">1</span>         <span class="tok-c"># disable Smart Tab
 </span></code></pre>
           <pre><code class="language-fish"><span class="tok-k">set</span> -gx KAKU_SMART_TAB_DISABLE 1</code></pre>
-          <p>Environment variables set in your shell rc take precedence over <code>kaku.lua</code> settings. Smart Tab is only active inside Kaku sessions (<code>TERM_PROGRAM=Kaku</code>).</p>
+          <p>Environment variables in your shell rc override <code>kaku.lua</code>. Smart Tab only runs in Kaku sessions (<code>TERM_PROGRAM=Kaku</code>, or tmux started from a Kaku shell).</p>
           <nav class="doc-pager" aria-label="Pagination"><a href="/docs/guide"><span>Previous</span><strong>Guide</strong></a><a href="/docs/cli"><span>Next</span><strong>CLI Reference</strong></a></nav>
         </article>
       </div>

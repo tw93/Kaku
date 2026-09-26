@@ -1,6 +1,6 @@
 # Keybindings
 
-Default shortcuts for windows, tabs, panes, shell editing, AI features, Lazygit, and Yazi.
+Every default shortcut, and how to add your own.
 
 All keybindings use macOS-native modifier keys. `Opt` = Option/Alt, `Ctrl` = Control.
 
@@ -89,7 +89,7 @@ All keybindings use macOS-native modifier keys. `Opt` = Option/Alt, `Ctrl` = Con
 
 ## Custom Keybindings
 
-Add bindings to `~/.config/kaku/kaku.lua` by **appending** to `config.keys`. Do not assign a new table, this would erase Kaku's defaults.
+Add bindings to `~/.config/kaku/kaku.lua` by **appending** to `config.keys`. Do not assign a new table. That would erase Kaku's defaults.
 
 ```lua
 -- ~/.config/kaku/kaku.lua (after loading bundled config)
@@ -107,7 +107,7 @@ table.insert(config.keys, {
 })
 ```
 
-For the full list of available actions, see [WezTerm KeyAssignment reference](https://wezfurlong.org/wezterm/config/lua/keyassignment/).
+For the full list of available actions, see the [WezTerm KeyAssignment reference](https://wezfurlong.org/wezterm/config/lua/keyassignment/).
 
 ---
 

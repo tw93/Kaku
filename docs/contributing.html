@@ -76,7 +76,7 @@
   <a class="skip-link" href="#main-content">Skip to content</a>
   <nav class="site-nav" aria-label="Primary navigation"><div class="wide nav-inner"><a class="brand" href="/"><strong>Kaku</strong></a><span class="eyebrow-sep">·</span><a class="version-link" href="https://github.com/tw93/Kaku/releases" target="_blank" rel="noopener noreferrer">v0.20.0</a><div class="nav-links"><a href="/docs/" aria-current="page">Docs</a></div><div class="nav-actions"><a class="nav-pill" href="/zh/docs/contributing" hreflang="zh-CN">中</a><a class="nav-pill" aria-current="page" href="/docs/contributing" hreflang="en">EN</a><a class="nav-icon" href="https://github.com/tw93/Kaku" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a><a class="nav-icon" href="https://x.com/HiTw93" target="_blank" rel="noopener noreferrer" aria-label="X"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a></div></div></nav>
   <main id="main-content" class="docs-page">
-    <header class="page-hero doc-hero"><div class="wide"><span class="label">Docs</span><h1>Contributing</h1><p>Local setup, build commands, PR workflow, and CI checks.</p></div></header>
+    <header class="page-hero doc-hero"><div class="wide"><span class="label">Docs</span><h1>Contributing</h1><p>How to build Kaku locally and send a pull request.</p></div></header>
     <section class="section docs-section">
       <div class="wide docs-layout">
         <aside class="docs-sidebar">
@@ -101,31 +101,31 @@ rustup toolchain install <span class="tok-n">1</span>.95.0
 
 <span class="tok-c"># Install pre-commit hook (format + test before each commit)
 </span>make install-hooks</code></pre>
-                    <p>After setup, <code>make app</code> builds a local debug app bundle at <code>dist/Kaku.app</code>. Use it for development and verification; normal users should install from the DMG or Homebrew.</p>
+                    <p>After setup, <code>make app</code> builds a debug app bundle at <code>dist/Kaku.app</code> for development and testing. For everyday use, install from the DMG or Homebrew.</p>
                     <h2 id="contributing-development"><a class="anchor" href="#contributing-development" aria-label="Link to Development">#</a>Development</h2>
                     <p>Make targets cover formatting, type checks, tests, and local runs.</p>
                     <table>
                       <thead><tr><th>Command</th><th>Purpose</th></tr></thead>
                       <tbody>
-                        <tr><td><code>make fmt</code></td><td>Auto-format code, requires nightly Rust</td></tr>
-                        <tr><td><code>make fmt-check</code></td><td>Check formatting without modifying files</td></tr>
-                        <tr><td><code>make check</code></td><td>Compile check, catch type and syntax errors</td></tr>
+                        <tr><td><code>make fmt</code></td><td>Format the code, needs nightly Rust</td></tr>
+                        <tr><td><code>make fmt-check</code></td><td>Check formatting without changing files</td></tr>
+                        <tr><td><code>make check</code></td><td>Run cargo check to catch type and syntax errors</td></tr>
                         <tr><td><code>make test</code></td><td>Run unit tests</td></tr>
-                        <tr><td><code>make dev</code></td><td>Fast local debug: build <code>kaku-gui</code> and run from <code>target/debug</code></td></tr>
-                        <tr><td><code>make build</code></td><td>Compile binaries (no app bundle)</td></tr>
-                        <tr><td><code>make app</code></td><td>Build a debug app bundle to <code>dist/Kaku.app</code> for local testing</td></tr>
+                        <tr><td><code>make dev</code></td><td>Quick local debugging, builds <code>kaku-gui</code> and runs it from <code>target/debug</code></td></tr>
+                        <tr><td><code>make build</code></td><td>Build the binaries without an app bundle</td></tr>
+                        <tr><td><code>make app</code></td><td>Build a debug app bundle at <code>dist/Kaku.app</code> for local testing</td></tr>
                       </tbody>
                     </table>
-                    <p>Recommended workflow:</p>
+                    <p>A typical loop:</p>
                     <pre><code class="language-bash">make fmt        <span class="tok-c"># format first
 </span>make check      <span class="tok-c"># verify it compiles
 </span>make <span class="tok-b">test</span>       <span class="tok-c"># run tests
 </span>make dev        <span class="tok-c"># fast local run without packaging
 </span></code></pre>
-                    <p>Override the log level for <code>make dev</code>:</p>
+                    <p>To change the log level for <code>make dev</code>:</p>
                     <pre><code class="language-bash">RUST_LOG=debug make dev</code></pre>
                     <h2 id="contributing-build-release"><a class="anchor" href="#contributing-build-release" aria-label="Link to Build Release">#</a>Build Release</h2>
-                    <p>Reproduce release artifacts locally. Official releases run through <code>scripts/release.sh</code>.</p>
+                    <p>These commands reproduce the release artifacts locally. Official releases go through <code>scripts/release.sh</code>.</p>
                     <pre><code class="language-bash"><span class="tok-c"># Build app and DMG, release, universal binary
 </span>./scripts/build.sh
 <span class="tok-c"># Outputs: dist/Kaku.app and dist/Kaku.dmg
@@ -146,7 +146,7 @@ rustup toolchain install <span class="tok-n">1</span>.95.0
                       <li>Commit and push.</li>
                       <li>Open a PR targeting <code>main</code>.</li>
                     </ol>
-                    <p>CI checks formatting, compilation, and tests for code changes. Universal builds run separately for build-pipeline changes, on a schedule, or on manual dispatch. Markdown-only changes do not trigger these checks.</p>
+                    <p>For code changes, CI checks formatting, compilation, and tests. Universal builds run separately, on build-pipeline changes, on a schedule, or when dispatched by hand. Changes that only touch Markdown trigger neither.</p>
                     <p><a href="https://github.com/tw93/Kaku/pulls" target="_blank" rel="noopener noreferrer">Browse open Pull Requests</a></p>
           <nav class="doc-pager" aria-label="Pagination"><a href="/docs/faq"><span>Previous</span><strong>FAQ</strong></a><span></span></nav>
         </article>
