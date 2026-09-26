@@ -16,7 +16,7 @@ Kaku shares the Kami parchment system used across the family sites (mole.fit and
 
 ## Typography
 
-Serif-first, matching the family. English pages use Charter with Georgia / Palatino fallbacks; Chinese pages use `TsangerJinKai02`, `Source Han Serif SC`, then `Songti SC`. Body and headings share the serif. System sans (`--ui`) is reserved for small uppercase labels; monospace (`JetBrains Mono`) is for terminal prompts, code snippets, and the version tag. Do not add a font CDN by default.
+Serif-first, matching the family. English pages use Charter with Georgia / Palatino fallbacks; Chinese pages use `TsangerJinKai02`, `Source Han Serif SC`, then `Songti SC`. Body, headings, and small labels (eyebrows, captions, nav) all share the serif; `--ui` is an alias of `--serif`, and labels are never uppercased. Reading copy is 17px, secondary copy 16px, labels and meta 13 to 15px, with nothing under 12px outside code. Monospace (`JetBrains Mono`) is for terminal prompts, code snippets, and the version tag. Do not add a font CDN by default.
 
 ## Components
 
@@ -26,7 +26,7 @@ Buttons are pill-shaped (999px radius), at least 44px tall, with a filled ink-bl
 
 The chrome aligns with the mole-mac (Kami) site so the two feel like one series:
 
-- A top eyebrow strip, not a sticky nav bar: wordmark plus version (mono) on the left, Docs plus the language toggle plus GitHub/X icons on the right, in small uppercase serif.
+- A top eyebrow strip, not a sticky nav bar: wordmark plus version (mono) on the left, Docs plus the language toggle plus GitHub/X icons on the right, in small serif.
 - A left-aligned big-serif hero (`Kaku` with the `書` orbit glyph and a blur-in rise), a serif tagline, and a single dotted trust row in place of stat and tag clutter.
 - Sections separated by generous vertical rhythm (96px) rather than divider lines; only the hero keeps a bottom rule.
 - A footer that carries the `Kaku · 書` serif wordmark and an italic ethos line. Because Kaku is a multi-page doc site, the footer keeps its Product / Docs / Community / Project link columns rather than collapsing to mole's single-page colophon.

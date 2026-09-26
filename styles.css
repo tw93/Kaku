@@ -23,7 +23,7 @@
   --term-muted: #9b978c;
   --serif: "TsangerJinKai02", "Source Han Serif SC", "Noto Serif CJK SC", "Songti SC", "STSong", Georgia, serif;
   --sans: var(--serif);
-  --ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+  --ui: var(--serif);
   --mono: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
   --radius-sm: 4px;
   --radius-md: 8px;
@@ -50,7 +50,7 @@ body {
   background: var(--paper);
   color: var(--ink);
   font-family: var(--serif);
-  font-size: 15px;
+  font-size: 17px;
   line-height: 1.7;
   letter-spacing: 0;
   -webkit-font-smoothing: antialiased;
@@ -87,7 +87,7 @@ button, input { font: inherit; }
   color: var(--paper-elev);
   padding: 8px 14px;
   font-family: var(--ui);
-  font-size: 13px;
+  font-size: 14px;
   transition: transform 160ms var(--ease);
 }
 .skip-link:focus { transform: translateY(0); }
@@ -100,20 +100,18 @@ button, input { font: inherit; }
 .label {
   color: var(--ink-muted);
   font-family: var(--ui);
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 500;
-  letter-spacing: 0.4px;
+  letter-spacing: 0;
   line-height: 1;
-  text-transform: uppercase;
 }
 .eyebrow {
   margin: 0 0 18px;
   color: var(--ink-muted);
   font-family: var(--ui);
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 500;
-  letter-spacing: 0.4px;
-  text-transform: uppercase;
+  letter-spacing: 0;
 }
 .section-head {
   display: grid;
@@ -131,16 +129,15 @@ button, input { font: inherit; }
 .section-head p {
   margin: 0;
   color: var(--ink-dim);
-  font-size: 15px;
+  font-size: 17px;
   line-height: 1.7;
 }
 .section-num {
   display: block;
   font-family: var(--ui);
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 500;
-  letter-spacing: 0.6px;
-  text-transform: uppercase;
+  letter-spacing: 0;
   color: var(--brand);
   margin-bottom: 6px;
 }
@@ -192,10 +189,9 @@ button, input { font: inherit; }
   margin: 0 auto;
   padding: 0 64px;
   font-family: var(--serif);
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 500;
-  letter-spacing: 1.2px;
-  text-transform: uppercase;
+  letter-spacing: 0;
   color: var(--ink-muted);
 }
 .brand {
@@ -219,7 +215,7 @@ button, input { font: inherit; }
 }
 .version-link {
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   letter-spacing: 0;
   text-transform: none;
@@ -231,10 +227,9 @@ button, input { font: inherit; }
 .nav-links a {
   color: var(--brand);
   font-family: var(--serif);
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 500;
-  letter-spacing: 1.2px;
-  text-transform: uppercase;
+  letter-spacing: 0;
   transition: color 160ms var(--ease);
 }
 .nav-links a:hover { color: var(--brand-light); }
@@ -246,10 +241,9 @@ button, input { font: inherit; }
   padding: 0;
   color: var(--ink-muted);
   font-family: var(--serif);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
-  letter-spacing: 1.2px;
-  text-transform: uppercase;
+  letter-spacing: 0;
   transition: color 160ms var(--ease);
 }
 .nav-pill[aria-current="page"] { color: var(--brand); }
@@ -309,6 +303,14 @@ button, input { font: inherit; }
   justify-content: flex-start;
   margin-top: 0;
 }
+.hero-more {
+  margin: 22px 0 0;
+  font-family: var(--serif);
+  font-size: 15px;
+  line-height: 1.5;
+}
+.hero-more a { color: var(--ink-muted); transition: color 160ms var(--ease); }
+.hero-more a:hover { color: var(--brand); }
 .hero-trust {
   display: flex;
   flex-wrap: wrap;
@@ -316,7 +318,7 @@ button, input { font: inherit; }
   gap: 0;
   margin: 0 0 30px;
   font-family: var(--serif);
-  font-size: 13px;
+  font-size: 15px;
   color: var(--ink-muted);
 }
 .hero-trust span:not(:last-child)::after {
@@ -341,7 +343,7 @@ button, input { font: inherit; }
   padding: 24px;
   color: var(--term-text);
   font-family: var(--mono);
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.7;
 }
 .term-line { margin: 0 0 7px; }
@@ -389,12 +391,12 @@ button, input { font: inherit; }
 .feature .mark {
   color: var(--ink-muted);
   font-family: var(--ui);
-  font-size: 12px;
+  font-size: 13px;
   letter-spacing: 0.3px;
   transition: color 160ms var(--ease);
 }
 .feature strong { color: var(--ink); font-size: 18px; font-weight: 500; line-height: 1.28; }
-.feature span { color: var(--ink-dim); font-family: var(--serif); font-size: 15px; line-height: 1.6; }
+.feature span { color: var(--ink-dim); font-family: var(--serif); font-size: 16px; line-height: 1.6; }
 .feature:hover strong { color: var(--brand); }
 .feature:hover .mark { color: var(--brand); }
 
@@ -419,9 +421,8 @@ button, input { font: inherit; }
   margin-bottom: 4px;
   color: var(--term-muted);
   font-family: var(--ui);
-  font-size: 11px;
-  letter-spacing: 0.4px;
-  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0;
 }
 .workflow-list {
   display: grid;
@@ -440,7 +441,7 @@ button, input { font: inherit; }
 .workflow-item .mark {
   color: var(--ink-muted);
   font-family: var(--ui);
-  font-size: 12px;
+  font-size: 13px;
   letter-spacing: 0.3px;
 }
 .workflow-item h3 {
@@ -454,7 +455,7 @@ button, input { font: inherit; }
   margin: 0;
   color: var(--ink-dim);
   font-family: var(--serif);
-  font-size: 15px;
+  font-size: 16px;
   line-height: 1.65;
 }
 
@@ -479,7 +480,7 @@ button, input { font: inherit; }
   padding: 10px 2px 0;
   color: var(--ink-muted);
   font-family: var(--ui);
-  font-size: 12px;
+  font-size: 14px;
   letter-spacing: 0.2px;
 }
 
@@ -531,14 +532,14 @@ button, input { font: inherit; }
   margin: 0 0 18px;
   color: var(--ink-dim);
   font-family: var(--serif);
-  font-size: 15px;
+  font-size: 16px;
   line-height: 1.6;
 }
 .doc-card p {
   margin: 0;
   color: var(--ink-dim);
   font-family: var(--serif);
-  font-size: 15px;
+  font-size: 16px;
   line-height: 1.6;
 }
 .doc-card:hover h2 { color: var(--brand); }
@@ -593,10 +594,9 @@ button, input { font: inherit; }
   border-bottom: 0;
   color: var(--ink-muted);
   font-family: var(--ui);
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 500;
-  letter-spacing: 0.3px;
-  text-transform: uppercase;
+  letter-spacing: 0;
 }
 .docs-home:hover { color: var(--brand); }
 .docs-menu {
@@ -621,13 +621,13 @@ button, input { font: inherit; }
 }
 .docs-menu span {
   color: inherit;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 500;
   line-height: 1.2;
 }
 .docs-menu small {
   color: var(--ink-muted);
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.45;
   display: none;
 }
@@ -642,15 +642,14 @@ button, input { font: inherit; }
   margin: 0 0 6px;
   color: var(--ink-muted);
   font-family: var(--ui);
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 500;
-  letter-spacing: 0.4px;
-  text-transform: uppercase;
+  letter-spacing: 0;
 }
 .section-toc a {
   padding: 4px 0;
   color: var(--ink-muted);
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.35;
 }
 .section-toc a.depth-3 { padding-left: 12px; }
@@ -748,7 +747,7 @@ button, input { font: inherit; }
   background: transparent;
   color: var(--term-text);
   padding: 0;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.65;
   word-break: normal;
 }
@@ -774,10 +773,9 @@ button, input { font: inherit; }
 .doc-content th {
   color: var(--ink-muted);
   font-family: var(--ui);
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 500;
-  letter-spacing: 0.4px;
-  text-transform: uppercase;
+  letter-spacing: 0;
   white-space: nowrap;
 }
 .doc-content td:first-child { color: var(--ink); }
@@ -849,10 +847,9 @@ button, input { font: inherit; }
 .doc-pager span {
   color: var(--ink-muted);
   font-family: var(--ui);
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 500;
-  letter-spacing: 0.4px;
-  text-transform: uppercase;
+  letter-spacing: 0;
 }
 .doc-pager strong {
   color: var(--brand);
@@ -879,7 +876,7 @@ button, input { font: inherit; }
   margin: 0 0 40px;
   color: var(--ink-muted);
   font-family: var(--serif);
-  font-size: 15px;
+  font-size: 17px;
   letter-spacing: 0.2px;
 }
 .release-doc h2 {
@@ -895,7 +892,7 @@ button, input { font: inherit; }
   margin-left: 12px;
   color: var(--ink-muted);
   font-family: var(--serif);
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 400;
   letter-spacing: 0.4px;
 }
@@ -916,7 +913,7 @@ button, input { font: inherit; }
   padding: 0 0 0 28px;
   color: var(--ink-dim);
   font-family: var(--serif);
-  font-size: 15px;
+  font-size: 16px;
   line-height: 1.65;
   counter-increment: rel-item;
 }
@@ -929,7 +926,7 @@ button, input { font: inherit; }
   width: 24px;
   color: var(--ink-muted);
   font-family: var(--serif);
-  font-size: 15px;
+  font-size: 16px;
   line-height: 1.65;
   font-variant-numeric: tabular-nums;
 }
@@ -939,7 +936,7 @@ button, input { font: inherit; }
 }
 .release-doc ol li code {
   font-family: var(--mono);
-  font-size: 13px;
+  font-size: 14px;
   color: var(--brand);
   background: var(--brand-tint);
   padding: 1px 5px;
@@ -949,7 +946,7 @@ button, input { font: inherit; }
   margin: 28px 0 0;
   color: var(--ink-muted);
   font-family: var(--serif);
-  font-size: 14px;
+  font-size: 15px;
 }
 .faq { max-width: none; margin: 0; padding: 0; }
 .faq dt {
@@ -966,12 +963,12 @@ button, input { font: inherit; }
   margin: 0;
   color: var(--ink-dim);
   font-family: var(--serif);
-  font-size: 15px;
+  font-size: 16px;
   line-height: 1.7;
 }
 .faq dd code {
   font-family: var(--mono);
-  font-size: 13px;
+  font-size: 14px;
   color: var(--brand);
   background: var(--brand-tint);
   border: 0;
@@ -1022,13 +1019,13 @@ button, input { font: inherit; }
   margin: 4px 0 0;
   color: var(--ink-dim);
   font-family: var(--serif);
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.4;
 }
 .footer-colophon {
   max-width: 580px;
   font-family: var(--serif);
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.65;
   color: var(--ink-muted);
   text-align: right;
@@ -1098,7 +1095,7 @@ button, input { font: inherit; }
   .hero { padding: 32px 0 40px; }
   .hero h1 { font-size: 56px; }
   .hero-actions { flex-wrap: wrap; gap: 12px; }
-  .btn { padding: 12px 22px; font-size: 14px; }
+  .btn { padding: 12px 22px; font-size: 15px; }
   .feature-grid, .quick-grid, .doc-grid, .doc-pager, .gallery { grid-template-columns: 1fr; }
   .docs-sidebar { gap: 12px; }
   .docs-menu {
@@ -1124,11 +1121,11 @@ button, input { font: inherit; }
   }
   .workflow-item, .feature, .doc-card { grid-template-columns: 1fr; gap: 8px; }
   .workflow-item p, .feature span:last-child { grid-column: auto; }
-  .doc-content { font-size: 15px; }
+  .doc-content { font-size: 16px; }
   .doc-content .anchor { display: none; }
   .doc-content h2 { font-size: 22px; }
   .doc-content pre { margin-left: -2px; margin-right: -2px; padding: 14px; }
-  .doc-content pre code { font-size: 11.5px; line-height: 1.55; }
+  .doc-content pre code { font-size: 12.5px; line-height: 1.55; }
   .doc-content th, .doc-content td { min-width: 132px; padding: 10px 11px; }
   .doc-pager a:last-child { text-align: left; }
 }
