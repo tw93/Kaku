@@ -37,7 +37,7 @@ An ssh tab shows the host name instead of a local path, so remote tabs are easy 
 
 Kaku reopens with your windows, panes, and each pane's working directory. If one pane can't be saved, the rest still come back.
 
-Right-click inside a pane to copy the selection, paste, search, open AI chat or the command palette, split in any direction, or close the pane. TUIs that use the mouse keep their own mouse handling. You can also turn on a new-tab button in Settings.
+Right-click inside a pane to copy the selection, paste, search, open AI chat or the command palette, split in any direction, close the pane, or open and close tabs. TUIs that use the mouse keep their own mouse handling. Right-click a tab to open a new tab, open Tab Navigator, or close that tab, and the + at the end of the tab bar opens a new tab.
 
 ## The shell, ready to go
 

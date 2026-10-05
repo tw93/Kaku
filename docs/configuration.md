@@ -189,7 +189,7 @@ When a background tab rings the bell (BEL), its title shows a small dot. To turn
 config.bell_tab_indicator = false
 ```
 
-The new-tab button is hidden by default. Turn on New Tab Button in `kaku config`, or set `config.show_new_tab_button_in_tab_bar = true`.
+The new-tab button is shown by default. Turn off New Tab Button in `kaku config`, or set `config.show_new_tab_button_in_tab_bar = false`.
 
 **Scrollbar**
 

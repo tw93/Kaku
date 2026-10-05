@@ -189,7 +189,7 @@ config.tab_title_show_foreground_process = true    -- show "dirname·codex" whil
 config.bell_tab_indicator = false
 ```
 
-新建标签按钮默认不显示，可以在 `kaku config` 里打开 New Tab Button，或者写 `config.show_new_tab_button_in_tab_bar = true`。
+新建标签按钮默认显示，不需要的话可以在 `kaku config` 里关掉 New Tab Button，或者写 `config.show_new_tab_button_in_tab_bar = false`。
 
 **滚动条**
 
