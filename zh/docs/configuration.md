@@ -133,6 +133,14 @@ config.cursor_thickness = "2px"
 config.cursor_blink_rate = 500
 ```
 
+**输入法（IME）**
+
+默认情况下，输入法正在组合的文字会覆盖光标后的字符。如果希望组合文字以插入方式显示、不遮挡后续字符：
+
+```lua
+config.ime_preedit_rendering = "BuiltinInsert"
+```
+
 **回滚缓冲**
 
 ```lua
@@ -175,13 +183,16 @@ config.split_pane_inherit_working_directory = true -- new splits
 
 **标签栏**
 
-只有一个标签时标签栏会隐藏，自动生成的标签标题默认显示当前目录，你可以调整标签栏位置、缩短路径，或者在路径旁边显示正在跑的命令：
+只有一个标签时标签栏会隐藏，自动生成的标签标题默认显示当前目录，你可以调整标签栏位置、缩短路径，让它显示 Claude Code 等程序设置的动态标题，或者在路径旁边显示正在跑的命令：
 
 ```lua
 config.tab_bar_at_bottom = false                   -- move to top
 config.tab_title_show_basename_only = true         -- show "dirname" instead of "parent/dirname"
 config.tab_title_show_foreground_process = true    -- show "dirname·codex" while commands run
+config.tab_title_use_pane_title = true             -- show titles set by apps like Claude Code
 ```
+
+开启 `config.tab_title_use_pane_title = true` 后，标签会显示 Claude Code 这类命令行应用上报的标题，手动双击重命名过的标签依然保留你的自定义名字。
 
 后台标签响铃（BEL）时，标题上会出现一个小圆点，要关掉：
 
@@ -189,7 +200,7 @@ config.tab_title_show_foreground_process = true    -- show "dirname·codex" whil
 config.bell_tab_indicator = false
 ```
 
-新建标签按钮默认显示，不需要的话可以在 `kaku config` 里关掉 New Tab Button，或者写 `config.show_new_tab_button_in_tab_bar = false`。
+新建标签按钮默认显示，右键标签可以新建、打开标签导航或关闭标签。不需要新建按钮的话，可以在 `kaku config` 里关掉 New Tab Button，或者写 `config.show_new_tab_button_in_tab_bar = false`。
 
 **滚动条**
 
@@ -232,6 +243,14 @@ config.selection_wheel_scroll_behavior = "Ignore"
 ```lua
 config.send_composed_key_when_left_alt_is_pressed = false  -- default: left = Meta
 config.send_composed_key_when_right_alt_is_pressed = true  -- default: right = Compose
+```
+
+**Kitty 键盘协议**
+
+开启后，Neovim 和 Herdr 里的 Esc 与向前删除键可正常识别，交换 Backspace 与 Delete 的设置也会生效：
+
+```lua
+config.enable_kitty_keyboard = true
 ```
 
 **关闭确认**

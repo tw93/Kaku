@@ -74,7 +74,7 @@
 </head>
 <body>
   <a class="skip-link" href="#main-content">Skip to content</a>
-  <nav class="site-nav" aria-label="Primary navigation"><div class="wide nav-inner"><a class="brand" href="/"><strong>Kaku</strong></a><span class="eyebrow-sep">·</span><a class="version-link" href="https://github.com/tw93/Kaku/releases" target="_blank" rel="noopener noreferrer">v0.21.0</a><div class="nav-links"><a href="/docs/" aria-current="page">Docs</a></div><div class="nav-actions"><a class="nav-pill" href="/zh/docs/configuration" hreflang="zh-CN">中</a><a class="nav-pill" aria-current="page" href="/docs/configuration" hreflang="en">EN</a><a class="nav-icon" href="https://github.com/tw93/Kaku" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a><a class="nav-icon" href="https://x.com/HiTw93" target="_blank" rel="noopener noreferrer" aria-label="X"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a></div></div></nav>
+  <nav class="site-nav" aria-label="Primary navigation"><div class="wide nav-inner"><a class="brand" href="/"><strong>Kaku</strong></a><span class="eyebrow-sep">·</span><a class="version-link" href="https://github.com/tw93/Kaku/releases" target="_blank" rel="noopener noreferrer">v0.22.0</a><div class="nav-links"><a href="/docs/" aria-current="page">Docs</a></div><div class="nav-actions"><a class="nav-pill" href="/zh/docs/configuration" hreflang="zh-CN">中</a><a class="nav-pill" aria-current="page" href="/docs/configuration" hreflang="en">EN</a><a class="nav-icon" href="https://github.com/tw93/Kaku" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a><a class="nav-icon" href="https://x.com/HiTw93" target="_blank" rel="noopener noreferrer" aria-label="X"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a></div></div></nav>
   <main id="main-content" class="docs-page">
     <header class="page-hero doc-hero"><div class="wide"><span class="label">Docs</span><h1>Configuration</h1><p>Change fonts, themes, the tab bar, shortcuts, and the assistant, in Settings or in Lua.</p></div></header>
     <section class="section docs-section">
@@ -160,6 +160,9 @@ config.macos_window_background_blur = <span class="tok-n">20</span>  <span class
           <pre><code class="language-lua">config.default_cursor_style = <span class="tok-s">"BlinkingBar"</span>
 config.cursor_thickness = <span class="tok-s">"2px"</span>
 config.cursor_blink_rate = <span class="tok-n">500</span></code></pre>
+          <p><strong>Input methods (IME)</strong></p>
+          <p>By default, composing text in an input method covers the character under the cursor. To shift following characters inline while composing instead:</p>
+          <pre><code class="language-lua">config.ime_preedit_rendering = <span class="tok-s">"BuiltinInsert"</span></code></pre>
           <p><strong>Scrollback</strong></p>
           <pre><code class="language-lua">config.scrollback_lines = <span class="tok-n">10000</span>  <span class="tok-c">-- default</span></code></pre>
           <p><strong>Copy on select</strong></p>
@@ -177,13 +180,15 @@ config.cursor_blink_rate = <span class="tok-n">500</span></code></pre>
 config.tab_inherit_working_directory = <span class="tok-b">true</span>       <span class="tok-c">-- new tabs</span>
 config.split_pane_inherit_working_directory = <span class="tok-b">true</span> <span class="tok-c">-- new splits</span></code></pre>
           <p><strong>Tab bar</strong></p>
-          <p>The tab bar stays hidden while only one tab is open, and automatic tab titles show the current directory. You can move the bar, shorten path titles, or show the running command next to the path:</p>
+          <p>The tab bar stays hidden while only one tab is open, and automatic tab titles show the current directory. You can move the bar, shorten path titles, show dynamic titles from tools like Claude Code, or show the running command next to the path:</p>
           <pre><code class="language-lua">config.tab_bar_at_bottom = <span class="tok-b">false</span>                   <span class="tok-c">-- move to top</span>
 config.tab_title_show_basename_only = <span class="tok-b">true</span>         <span class="tok-c">-- show "dirname" instead of "parent/dirname"</span>
-config.tab_title_show_foreground_process = <span class="tok-b">true</span>    <span class="tok-c">-- show "dirname·codex" while commands run</span></code></pre>
+config.tab_title_show_foreground_process = <span class="tok-b">true</span>    <span class="tok-c">-- show "dirname·codex" while commands run</span>
+config.tab_title_use_pane_title = <span class="tok-b">true</span>             <span class="tok-c">-- show titles set by apps like Claude Code</span></code></pre>
+          <p>Setting <code>config.tab_title_use_pane_title = true</code> shows the title set by tools such as Claude Code, while tabs you renamed by hand keep your custom name.</p>
           <p>When a background tab rings the bell (BEL), its title shows a small dot. To turn that off:</p>
           <pre><code class="language-lua">config.bell_tab_indicator = <span class="tok-b">false</span></code></pre>
-          <p>The new-tab button is shown by default. Turn off New Tab Button in <code>kaku config</code>, or set <code>config.show_new_tab_button_in_tab_bar = false</code>.</p>
+          <p>The new-tab button is shown by default, and right-clicking a tab offers New Tab, Tab Navigator, and Close Tab. Turn off New Tab Button in <code>kaku config</code>, or set <code>config.show_new_tab_button_in_tab_bar = false</code>.</p>
           <p><strong>Scrollbar</strong></p>
           <p>Off by default. Turn on Scrollbar in <code>kaku config</code>, or in Lua:</p>
           <pre><code class="language-lua">config.enable_scroll_bar = <span class="tok-b">true</span></code></pre>
@@ -209,6 +214,9 @@ config.selection_wheel_scroll_behavior = <span class="tok-s">"Ignore"</span></co
           <p>Left Option sends Meta, handy for word navigation in Vim and Neovim. Right Option types composed characters.</p>
           <pre><code class="language-lua">config.send_composed_key_when_left_alt_is_pressed = <span class="tok-b">false</span>  <span class="tok-c">-- default: left = Meta</span>
 config.send_composed_key_when_right_alt_is_pressed = <span class="tok-b">true</span>  <span class="tok-c">-- default: right = Compose</span></code></pre>
+          <p><strong>Kitty keyboard protocol</strong></p>
+          <p>To enable full key event reporting for Neovim and Herdr (fixing Escape, forward Delete, and swapped keys):</p>
+          <pre><code class="language-lua">config.enable_kitty_keyboard = <span class="tok-b">true</span></code></pre>
           <p><strong>Close confirmation</strong></p>
           <p>Kaku can ask before closing a window, tab, or pane that still has work running. Each option takes <code>NeverPrompt</code>, <code>SmartPrompt</code>, or <code>AlwaysPrompt</code>, and the bundled config sets all three to <code>SmartPrompt</code>:</p>
           <pre><code class="language-lua">config.window_close_confirmation = <span class="tok-s">"SmartPrompt"</span>  <span class="tok-c">-- bundled default</span>

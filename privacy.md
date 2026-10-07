@@ -29,7 +29,7 @@ kaku.fun is a static site. It sets no cookies, runs no analytics or tracking scr
 
 Kaku is MIT licensed, so you can check every claim here against the code at [github.com/tw93/Kaku](https://github.com/tw93/Kaku). If something does not match, it is a bug, and an [issue](https://github.com/tw93/Kaku/issues) is welcome. Material changes to this page will be noted in the release notes of the version that ships them.
 
-Last reviewed for Kaku v0.20.0.
+Last reviewed for Kaku v0.22.0.
 
 ---
 

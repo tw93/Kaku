@@ -11,7 +11,7 @@ Kaku 是开源项目，除了安全报告，其他问题都在公开渠道里交
 - 安装方式：DMG 还是 `brew install --cask kaku`。
 - macOS 版本和芯片（Apple Silicon 还是 Intel）。
 - Kaku 版本，运行 `kaku --version` 查看。
-- `kaku doctor` 的输出，它会检查 App 包、配置目录、PATH、shell 集成和可选工具。
+- `kaku doctor` 的输出或生成的脱敏诊断包（.zip 文件）。
 - 复现步骤，以及你原本期望看到什么。
 
 ## 提问与想法

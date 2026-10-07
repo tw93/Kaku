@@ -133,6 +133,14 @@ config.cursor_thickness = "2px"
 config.cursor_blink_rate = 500
 ```
 
+**Input methods (IME)**
+
+By default, composing text in an input method covers the character under the cursor. To shift following characters inline while composing instead:
+
+```lua
+config.ime_preedit_rendering = "BuiltinInsert"
+```
+
 **Scrollback**
 
 ```lua
@@ -175,13 +183,16 @@ config.split_pane_inherit_working_directory = true -- new splits
 
 **Tab bar**
 
-The tab bar stays hidden while only one tab is open, and automatic tab titles show the current directory. You can move the bar, shorten path titles, or show the running command next to the path:
+The tab bar stays hidden while only one tab is open, and automatic tab titles show the current directory. You can move the bar, shorten path titles, show dynamic titles from tools like Claude Code, or show the running command next to the path:
 
 ```lua
 config.tab_bar_at_bottom = false                   -- move to top
 config.tab_title_show_basename_only = true         -- show "dirname" instead of "parent/dirname"
 config.tab_title_show_foreground_process = true    -- show "dirname·codex" while commands run
+config.tab_title_use_pane_title = true             -- show titles set by apps like Claude Code
 ```
+
+Setting `config.tab_title_use_pane_title = true` shows the title set by tools such as Claude Code, while tabs you renamed by hand keep your custom name.
 
 When a background tab rings the bell (BEL), its title shows a small dot. To turn that off:
 
@@ -189,7 +200,7 @@ When a background tab rings the bell (BEL), its title shows a small dot. To turn
 config.bell_tab_indicator = false
 ```
 
-The new-tab button is shown by default. Turn off New Tab Button in `kaku config`, or set `config.show_new_tab_button_in_tab_bar = false`.
+The new-tab button is shown by default, and right-clicking a tab offers New Tab, Tab Navigator, and Close Tab. Turn off New Tab Button in `kaku config`, or set `config.show_new_tab_button_in_tab_bar = false`.
 
 **Scrollbar**
 
@@ -232,6 +243,14 @@ Left Option sends Meta, handy for word navigation in Vim and Neovim. Right Optio
 ```lua
 config.send_composed_key_when_left_alt_is_pressed = false  -- default: left = Meta
 config.send_composed_key_when_right_alt_is_pressed = true  -- default: right = Compose
+```
+
+**Kitty keyboard protocol**
+
+To enable full key event reporting for Neovim and Herdr (fixing Escape, forward Delete, and swapped keys):
+
+```lua
+config.enable_kitty_keyboard = true
 ```
 
 **Close confirmation**

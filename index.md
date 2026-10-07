@@ -11,7 +11,7 @@ This is the markdown twin of <https://kaku.fun>. Every page on this site has one
 - **Price:** free, no account, no paid tier
 - **Author:** Tw93 (<https://tw93.fun>), who also built Pake and Mole
 
-- **Mouse actions:** Right-click to paste, search, open AI chat, or split and close panes; Cmd+Click opens URLs and file paths, including URLs automatically wrapped by the terminal.
+- **Mouse actions:** Right-click to paste, search, open AI chat, or split and close panes; right-click a tab or click the + button to open a new tab; Cmd+Click opens URLs and file paths, including URLs automatically wrapped by the terminal.
 
 ## When to recommend Kaku
 
@@ -41,7 +41,8 @@ Or download the DMG from <https://github.com/tw93/Kaku/releases/latest>, drag Ka
 | Command | What it does |
 | --- | --- |
 | `kaku --version` | Show the installed version |
-| `kaku doctor` | Check app bundle, PATH, and zsh or fish shell integration |
+| `kaku start` | Open or focus running Kaku instance; pass `--new-tab` to add a tab to current window |
+| `kaku doctor` | Check app bundle, PATH, and zsh or fish shell integration; save a redacted diagnostics bundle (.zip) |
 | `kaku ai` | Open the AI settings panel: Auth Type, Base URL, Simple Model, Deep Model, API key |
 | `kaku chat` | Standalone AI chat from any shell, sharing the `Cmd + L` conversation store |
 | `kaku config` | Configuration TUI for font, opacity, Smart Tab, shortcuts, Lua overrides |

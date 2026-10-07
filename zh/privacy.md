@@ -29,7 +29,7 @@ kaku.fun 是静态站点，不设 cookie，不跑统计和追踪脚本，不嵌�
 
 Kaku 是 MIT 开源的，本页每一条都可以对着 [github.com/tw93/Kaku](https://github.com/tw93/Kaku) 的代码核对，发现对不上就是 bug，欢迎[提 issue](https://github.com/tw93/Kaku/issues)。本页有实质变化时，会写进对应版本的发布说明。
 
-最后核对版本：Kaku v0.20.0。
+最后核对版本：Kaku v0.22.0。
 
 ---
 

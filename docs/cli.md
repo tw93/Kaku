@@ -2,7 +2,7 @@
 
 What the kaku command does, from AI setup to diagnostics and updates.
 
-Run `kaku` with no arguments to pick from the main commands.
+Run `kaku` with no arguments to pick from the main commands. `kaku start` opens in the running Kaku instance, and `kaku start --new-tab` adds a tab to the current window.
 
 ## kaku ai
 
@@ -33,10 +33,11 @@ kaku config
 
 ## kaku doctor
 
-Checks the app bundle, PATH, and shell integration. Run it first after installing, or whenever something seems broken.
+Checks the app bundle, PATH, and shell integration. It saves a redacted diagnostic bundle (.zip) on your Mac to attach to bug reports. Run `kaku doctor --fix` to apply safe automatic fixes.
 
 ```bash
 kaku doctor
+kaku doctor --fix
 ```
 
 ## kaku update

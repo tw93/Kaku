@@ -74,7 +74,7 @@
 </head>
 <body>
   <a class="skip-link" href="#main-content">跳到内容</a>
-  <nav class="site-nav" aria-label="主导航"><div class="wide nav-inner"><a class="brand" href="/zh/"><strong>Kaku</strong></a><span class="eyebrow-sep">·</span><a class="version-link" href="https://github.com/tw93/Kaku/releases" target="_blank" rel="noopener noreferrer">v0.21.0</a><div class="nav-links"><a href="/zh/docs/" aria-current="page">文档</a></div><div class="nav-actions"><a class="nav-pill" aria-current="page" href="/zh/docs/configuration" hreflang="zh-CN">中</a><a class="nav-pill" href="/docs/configuration" hreflang="en">EN</a><a class="nav-icon" href="https://github.com/tw93/Kaku" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a><a class="nav-icon" href="https://x.com/HiTw93" target="_blank" rel="noopener noreferrer" aria-label="X"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a></div></div></nav>
+  <nav class="site-nav" aria-label="主导航"><div class="wide nav-inner"><a class="brand" href="/zh/"><strong>Kaku</strong></a><span class="eyebrow-sep">·</span><a class="version-link" href="https://github.com/tw93/Kaku/releases" target="_blank" rel="noopener noreferrer">v0.22.0</a><div class="nav-links"><a href="/zh/docs/" aria-current="page">文档</a></div><div class="nav-actions"><a class="nav-pill" aria-current="page" href="/zh/docs/configuration" hreflang="zh-CN">中</a><a class="nav-pill" href="/docs/configuration" hreflang="en">EN</a><a class="nav-icon" href="https://github.com/tw93/Kaku" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a><a class="nav-icon" href="https://x.com/HiTw93" target="_blank" rel="noopener noreferrer" aria-label="X"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a></div></div></nav>
   <main id="main-content" class="docs-page">
     <header class="page-hero doc-hero"><div class="wide"><span class="label">文档</span><h1>配置</h1><p>字体、主题、标签栏、快捷键和助手怎么改，用设置界面或者 Lua 都行。</p></div></header>
     <section class="section docs-section">
@@ -160,6 +160,9 @@ config.macos_window_background_blur = <span class="tok-n">20</span>  <span class
           <pre><code class="language-lua">config.default_cursor_style = <span class="tok-s">"BlinkingBar"</span>
 config.cursor_thickness = <span class="tok-s">"2px"</span>
 config.cursor_blink_rate = <span class="tok-n">500</span></code></pre>
+          <p><strong>输入法（IME）</strong></p>
+          <p>默认情况下，输入法正在组合的文字会覆盖光标后的字符。如果希望组合文字以插入方式显示、不遮挡后续字符：</p>
+          <pre><code class="language-lua">config.ime_preedit_rendering = <span class="tok-s">"BuiltinInsert"</span></code></pre>
           <p><strong>回滚缓冲</strong></p>
           <pre><code class="language-lua">config.scrollback_lines = <span class="tok-n">10000</span>  <span class="tok-c">-- default</span></code></pre>
           <p><strong>选中即复制</strong></p>
@@ -177,13 +180,15 @@ config.cursor_blink_rate = <span class="tok-n">500</span></code></pre>
 config.tab_inherit_working_directory = <span class="tok-b">true</span>       <span class="tok-c">-- new tabs</span>
 config.split_pane_inherit_working_directory = <span class="tok-b">true</span> <span class="tok-c">-- new splits</span></code></pre>
           <p><strong>标签栏</strong></p>
-          <p>只有一个标签时标签栏会隐藏，自动生成的标签标题默认显示当前目录，你可以调整标签栏位置、缩短路径，或者在路径旁边显示正在跑的命令：</p>
+          <p>只有一个标签时标签栏会隐藏，自动生成的标签标题默认显示当前目录，你可以调整标签栏位置、缩短路径，让它显示 Claude Code 等程序设置的动态标题，或者在路径旁边显示正在跑的命令：</p>
           <pre><code class="language-lua">config.tab_bar_at_bottom = <span class="tok-b">false</span>                   <span class="tok-c">-- move to top</span>
 config.tab_title_show_basename_only = <span class="tok-b">true</span>         <span class="tok-c">-- show "dirname" instead of "parent/dirname"</span>
-config.tab_title_show_foreground_process = <span class="tok-b">true</span>    <span class="tok-c">-- show "dirname·codex" while commands run</span></code></pre>
+config.tab_title_show_foreground_process = <span class="tok-b">true</span>    <span class="tok-c">-- show "dirname·codex" while commands run</span>
+config.tab_title_use_pane_title = <span class="tok-b">true</span>             <span class="tok-c">-- show titles set by apps like Claude Code</span></code></pre>
+          <p>开启 <code>config.tab_title_use_pane_title = true</code> 后，标签会显示 Claude Code 这类命令行应用上报的标题，手动双击重命名过的标签依然保留你的自定义名字。</p>
           <p>后台标签响铃（BEL）时，标题上会出现一个小圆点，要关掉：</p>
           <pre><code class="language-lua">config.bell_tab_indicator = <span class="tok-b">false</span></code></pre>
-          <p>新建标签按钮默认显示，不需要的话可以在 <code>kaku config</code> 里关掉 New Tab Button，或者写 <code>config.show_new_tab_button_in_tab_bar = false</code>。</p>
+          <p>新建标签按钮默认显示，右键标签可以新建、打开标签导航或关闭标签。不需要新建按钮的话，可以在 <code>kaku config</code> 里关掉 New Tab Button，或者写 <code>config.show_new_tab_button_in_tab_bar = false</code>。</p>
           <p><strong>滚动条</strong></p>
           <p>默认关闭，可以在 <code>kaku config</code> 里打开 Scrollbar，或者在 Lua 里写：</p>
           <pre><code class="language-lua">config.enable_scroll_bar = <span class="tok-b">true</span></code></pre>
@@ -209,6 +214,9 @@ config.selection_wheel_scroll_behavior = <span class="tok-s">"Ignore"</span></co
           <p>左 Option 发送 Meta，在 Vim、Neovim 里按词移动时用得上，右 Option 用来输入组合字符。</p>
           <pre><code class="language-lua">config.send_composed_key_when_left_alt_is_pressed = <span class="tok-b">false</span>  <span class="tok-c">-- default: left = Meta</span>
 config.send_composed_key_when_right_alt_is_pressed = <span class="tok-b">true</span>  <span class="tok-c">-- default: right = Compose</span></code></pre>
+          <p><strong>Kitty 键盘协议</strong></p>
+          <p>开启后，Neovim 和 Herdr 里的 Esc 与向前删除键可正常识别，交换 Backspace 与 Delete 的设置也会生效：</p>
+          <pre><code class="language-lua">config.enable_kitty_keyboard = <span class="tok-b">true</span></code></pre>
           <p><strong>关闭确认</strong></p>
           <p>关闭还有任务在跑的窗口、标签或分屏前，Kaku 可以先问一句。每一项都可以设为 <code>NeverPrompt</code>、<code>SmartPrompt</code> 或 <code>AlwaysPrompt</code>，内置配置三项都是 <code>SmartPrompt</code>：</p>
           <pre><code class="language-lua">config.window_close_confirmation = <span class="tok-s">"SmartPrompt"</span>  <span class="tok-c">-- bundled default</span>

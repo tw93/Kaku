@@ -2,7 +2,7 @@
 
 kaku 命令能做的事，从 AI 设置到诊断和更新。
 
-直接运行 `kaku`，可以从几个常用命令里挑一个。
+直接运行 `kaku`，可以从几个常用命令里挑一个。`kaku start` 会在已经运行的 Kaku 里打开，加上 `--new-tab` 可以在当前窗口新建标签。
 
 ## kaku ai
 
@@ -33,10 +33,11 @@ kaku config
 
 ## kaku doctor
 
-检查 app bundle、PATH 和 shell 集成，刚装完或者感觉哪里不对时先跑一遍。
+检查 app bundle、PATH 和 shell 集成，并在本地生成一份脱敏的诊断包（.zip），提 issue 时可以直接附上。加上 `--fix` 可以自动安全修复常见问题。
 
 ```bash
 kaku doctor
+kaku doctor --fix
 ```
 
 ## kaku update

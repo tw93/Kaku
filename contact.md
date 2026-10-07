@@ -11,7 +11,7 @@ To help reproduce the problem, include:
 - Install method: DMG or `brew install --cask kaku`.
 - macOS version and chip (Apple Silicon or Intel).
 - Kaku version, from `kaku --version`.
-- Output of `kaku doctor`, which checks the app bundle, config directory, PATH, shell integration, and optional tools.
+- Output or redacted diagnostics bundle (.zip) from `kaku doctor`.
 - Steps to reproduce, and what you expected to happen.
 
 ## Questions and ideas
