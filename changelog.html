@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Changelog · Kaku</title>
+  <meta name="description" content="Stable Kaku releases, newest first. Nightly builds stay on GitHub. Subscribe with RSS.">
+  <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-kaku-32.png"><link rel="icon" type="image/png" sizes="192x192" href="/img/favicon-kaku-192.png"><link rel="apple-touch-icon" href="/img/favicon-kaku-180.png"><link rel="alternate" hreflang="en" href="https://kaku.fun/changelog">
+  <link rel="canonical" href="https://kaku.fun/changelog"><link rel="alternate" type="application/rss+xml" title="Kaku releases" href="https://kaku.fun/feed.xml">
+  <link rel="alternate" type="text/markdown" href="https://kaku.fun/changelog.md"><link rel="alternate" hreflang="zh-CN" href="https://kaku.fun/zh/changelog"><link rel="alternate" hreflang="x-default" href="https://kaku.fun/changelog"><link rel="stylesheet" href="/styles.css">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Kaku",
+          "item": "https://kaku.fun/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Changelog",
+          "item": "https://kaku.fun/changelog"
+        }
+      ]
+    },
+    {
+      "@type": "TechArticle",
+      "@id": "https://kaku.fun/changelog#article",
+      "headline": "Changelog",
+      "name": "Changelog",
+      "description": "Stable Kaku releases, newest first. Nightly builds stay on GitHub. Subscribe with RSS.",
+      "url": "https://kaku.fun/changelog",
+      "inLanguage": "en",
+      "isPartOf": {
+        "@id": "https://kaku.fun/#website"
+      },
+      "about": {
+        "@id": "https://kaku.fun/#software"
+      },
+      "publisher": {
+        "@id": "https://kaku.fun/#organization"
+      },
+      "author": {
+        "@type": "Person",
+        "name": "Tw93",
+        "url": "https://tw93.fun"
+      },
+      "encoding": {
+        "@type": "MediaObject",
+        "encodingFormat": "text/markdown",
+        "contentUrl": "https://kaku.fun/changelog.md"
+      }
+    }
+  ]
+}
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <nav class="site-nav" aria-label="Primary navigation"><div class="wide nav-inner"><a class="brand" href="/"><strong>Kaku</strong></a><span class="eyebrow-sep">·</span><a class="version-link" href="https://github.com/tw93/Kaku/releases" target="_blank" rel="noopener noreferrer">v0.22.0</a><div class="nav-links"><a href="/docs/">Docs</a></div><div class="nav-actions"><a class="nav-pill" href="/zh/changelog" hreflang="zh-CN">中</a><a class="nav-pill" aria-current="page" href="/changelog" hreflang="en">EN</a><a class="nav-icon" href="https://github.com/tw93/Kaku" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a><a class="nav-icon" href="https://x.com/HiTw93" target="_blank" rel="noopener noreferrer" aria-label="X"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a></div></div></nav>
+  <main id="main-content"><section class="section"><div class="wide release-doc">
+<h1>Changelog</h1>
+<p class="release-sub">Stable Kaku releases, newest first. Nightly builds stay on GitHub. Subscribe with <a href="/feed.xml">RSS</a>.</p>
+<h2 id="v0.22.0">V0.22.0 Handy <span class="release-date">2026-10-05</span></h2>
+<ol>
+<li><b>Tab Bar</b>: Tabs are easier to hit with a finger over remote desktop, a + button opens new tabs, and right-clicking a tab offers New Tab, Tab Navigator, and Close Tab.</li>
+<li><b>Typing Lag</b>: Panes that once showed inline images no longer freeze typing each time Kaku saves the session in the background.</li>
+<li><b>App Titles</b>: Set <code>config.tab_title_use_pane_title = true</code> to show the titles apps like Claude Code set, while tabs you renamed keep your name.</li>
+<li><b>Kitty Keyboard</b>: With <code>enable_kitty_keyboard</code> on, Escape and forward Delete work in Herdr and Neovim, and swapping Backspace and Delete applies there too.</li>
+<li><b>Input Methods</b>: Set <code>config.ime_preedit_rendering = 'BuiltinInsert'</code> to show the text you are composing as inserted text instead of covering the next character.</li>
+<li><b>Powerlevel10k</b>: Kaku no longer prints anything before the first prompt, so Powerlevel10k instant prompt stops warning.</li>
+<li><b>Command Line</b>: <code>kaku start</code> now opens in the Kaku that is already running instead of launching a second copy, and <code>--new-tab</code> adds a tab to the current window.</li>
+<li><b>Split Panes</b>: The line between top and bottom panes now sits where their backgrounds meet, and with inactive panes dimmed it blends into the background while the dimming reaches the window edges.</li>
+<li><b>Diagnostics</b>: <code>kaku doctor</code> saves a redacted diagnostic bundle you can attach to a bug report.</li>
+</ol>
+<p class="release-more"><a href="https://github.com/tw93/Kaku/releases/tag/V0.22.0">GitHub</a> · <a href="https://github.com/tw93/Kaku/releases/download/V0.22.0/Kaku.dmg">DMG</a></p>
+<hr>
+<h2 id="v0.21.0">V0.21.0 Ink <span class="release-date">2026-09-26</span></h2>
+<ol>
+<li><b>Official Homebrew Cask</b>: Kaku is finally in the official Homebrew cask, so <code>brew install --cask kaku</code> installs it directly, <code>kaku update</code> recognizes it, and installs from the personal tap keep updating too.</li>
+<li><b>Session Recovery</b>: Kaku now saves your windows, tabs, and panes while it runs, so a crash or force quit still brings back the last layout.</li>
+<li><b>Context Menu</b>: Copy appears at the top of the right-click menu when text is selected, so copying with the mouse works even with copy on select turned off.</li>
+<li><b>Tab Bar</b>: Tabs split into several panes now show their index number too.</li>
+<li><b>Themes</b>: New installs start in Kaku Dark while existing setups keep their current theme, and bright cyan in Kaku Light is easier to read.</li>
+<li><b>Stability and Security</b>: A tab that is closing can no longer take every window down, and the TLS library is updated for a security advisory.</li>
+</ol>
+<p class="release-more"><a href="https://github.com/tw93/Kaku/releases/tag/V0.21.0">GitHub</a> · <a href="https://github.com/tw93/Kaku/releases/download/V0.21.0/Kaku.dmg">DMG</a></p>
+<p class="release-more">Special thanks to @TeamMeng for their contribution to this release.</p>
+<hr>
+<h2 id="v0.20.0">V0.20.0 Steady <span class="release-date">2026-09-12</span></h2>
+<ol>
+<li><b>Window Behavior</b>: Native macOS dragging and edge tiling work again, closing windows no longer triggers a delayed repaint crash, and new windows skip repeated waits after graphics initialization fails.</li>
+<li><b>Shell Integration</b>: Returning to the prompt clears stray mouse reports after a TUI exits unexpectedly, tmux keeps its prompt and Smart Tab, and fish grep completion expands correctly.</li>
+<li><b>AI Model Selection</b>: Switching providers no longer reuses the previous provider's model list, all returned models are shown, and manually configured models remain available.</li>
+<li><b>AI Chat</b>: Chats include local project type information without probing local projects during remote sessions, and cancellation interrupts retry waits promptly.</li>
+<li><b>Context Menu</b>: Right-click to paste, search, open AI chat, or manage panes, with an option in Settings to show the new-tab button.</li>
+<li><b>Theme Settings</b>: Standalone configurations can use the built-in light and dark themes, Settings saves to the custom configuration used at launch, manual color overrides are shown explicitly, and Fancy tabs use the selected theme.</li>
+<li><b>Link Detection</b>: Unrelated text after a hard newline stays out of link targets while automatically wrapped URLs keep their complete addresses.</li>
+<li><b>Version Reporting</b>: The GUI executable reports its package version without initializing a window.</li>
+</ol>
+<p class="release-more"><a href="https://github.com/tw93/Kaku/releases/tag/V0.20.0">GitHub</a> · <a href="https://github.com/tw93/Kaku/releases/download/V0.20.0/Kaku.dmg">DMG</a></p>
+<p class="release-more">Special thanks to @elonnzhang, @trxuan, and @yansigit for their contributions to this release.</p>
+<hr>
+<h2 id="v0.19.0">V0.19.0 Restored <span class="release-date">2026-08-24</span></h2>
+<ol>
+<li><b>Pane Input Broadcast Removed</b>: It was too easy to trigger by accident and could repeat a risky command in unrelated panes, so existing key assignments now do nothing.</li>
+<li><b>Sessions Restore More Completely</b>: Reopening Kaku brings back your windows, their panes, and each pane's directory, and one pane that fails to save no longer costs you the rest.</li>
+<li><b>Closing No Longer Hits the Wrong Pane</b>: A close confirmation stays tied to the pane it belongs to, and closing the active tab leaves you on the expected one.</li>
+<li><b>Display and Integration Fixes</b>: Light-theme selections stay visible, lazygit works in nested shells, clearing history leaves full-screen programs intact, tab renaming no longer freezes titles, and slow synchronized output stops tearing.</li>
+</ol>
+<p class="release-more"><a href="https://github.com/tw93/Kaku/releases/tag/V0.19.0">GitHub</a> · <a href="https://github.com/tw93/Kaku/releases/download/V0.19.0/Kaku.dmg">DMG</a></p>
+<p class="release-more">Special thanks to @shlroland and @dufu1991 for their contributions to this release.</p>
+<hr>
+<h2 id="v0.18.0">V0.18.0 Detached <span class="release-date">2026-08-08</span></h2>
+<ol>
+<li><b>Move a Tab to Its Own Window</b>: Pull the current tab, and every pane inside it, into a new window from the command palette or the Window menu.</li>
+<li><b>Windows Stay Below the Menu Bar</b>: Dragging between displays no longer parks a title bar behind the menu bar where the cursor cannot reach it, on side-by-side and stacked arrangements alike.</li>
+<li><b>Updates Ask First</b>: Restarting from the menu and upgrading through Homebrew both confirm before they act.</li>
+</ol>
+<p class="release-more"><a href="https://github.com/tw93/Kaku/releases/tag/V0.18.0">GitHub</a> · <a href="https://github.com/tw93/Kaku/releases/download/V0.18.0/Kaku.dmg">DMG</a></p>
+<hr>
+<h2 id="v0.17.0">V0.17.0 Linked <span class="release-date">2026-08-02</span></h2>
+<ol>
+<li><b>Responses API and Native Search</b>: Choose <code>api_mode = "responses"</code> for Responses-compatible endpoints, and turn on provider-hosted web search without a separate search key.</li>
+<li><b>Pick Your Managed Shell</b>: <code>kaku init</code> can install zsh or fish on purpose, and Kaku keeps that choice across XDG config paths instead of only trusting <code>$SHELL</code>.</li>
+<li><b>Richer Terminal Clicks</b>: Cmd+Click opens bare domains like <code>github.com</code>, file links can launch your editor via <code>config.file_link_editor</code>, and Option+Click moves the cursor inside the current input line.</li>
+<li><b>Safer AI Tools</b>: Tool paths, web requests, and code search are harder to abuse; incomplete streams no longer look like successful turns.</li>
+<li><b>Stability Fixes</b>: Launch no longer dies on oversized draw batches, windows stay below the menu bar, top tabs line up with traffic lights, font fallback is safer, and shell state plus drag-select scroll behave more predictably.</li>
+</ol>
+<p class="release-more"><a href="https://github.com/tw93/Kaku/releases/tag/V0.17.0">GitHub</a> · <a href="https://github.com/tw93/Kaku/releases/download/V0.17.0/Kaku.dmg">DMG</a></p>
+<p class="release-more">Special thanks to @ddotz and @F1Justin for their contributions to this release.</p>
+<hr>
+<h2 id="v0.16.0">V0.16.0 Trusted <span class="release-date">2026-07-26</span></h2>
+<ol>
+<li><b>Inline AI Uses Your Provider</b>: The <code>#</code> prompt and the automatic quick-fix now go through the same transport as Cmd+L, so Codex, Copilot, and API-key setups all just work.</li>
+<li><b>Authenticated Controls</b>: Shell control messages now carry a local capability, so terminal output can no longer borrow your configured credentials to fire assistant requests.</li>
+<li><b>Close Tabs From The Navigator</b>: Press Backspace on a highlighted tab to close it, with the same confirmation you get everywhere else.</li>
+<li><b>Display Fixes</b>: Titlebar spacing follows the display, AI chat picks up a live appearance switch, overlays resize after a pane split, and link underlines survive hover.</li>
+<li><b>Fixes</b>: Starship setup stays inside Kaku instead of taking over your other terminals, white backgrounds stay readable, and menu commands run the bundled CLI.</li>
+</ol>
+<p class="release-more"><a href="https://github.com/tw93/Kaku/releases/tag/V0.16.0">GitHub</a> · <a href="https://github.com/tw93/Kaku/releases/download/V0.16.0/Kaku.dmg">DMG</a></p>
+<p class="release-more">Special thanks to @zwrong and @mortalYoung for their contributions to this release.</p>
+<hr>
+<h2 id="v0.15.0">V0.15.0 Connected <span class="release-date">2026-07-18</span></h2>
+<ol>
+<li><b>Remote Tabs</b>: Tabs connected over ssh now show a dedicated icon with the host name, split tabs reveal which pane is remote, and mosh, autossh, and et sessions are recognized too.</li>
+<li><b>AI in SSH Sessions</b>: AI chat now understands when the current directory lives on a remote host, stops running local commands against it, and answers from the terminal context instead.</li>
+<li><b>SSH Everywhere</b>: The fish integration keeps your own ssh function and gains the 1Password fix, env-prefixed ssh aliases work again, and mosh gets the same terminfo fallback as ssh.</li>
+<li><b>Session Restore</b>: Restored ssh panes return to their remote working directory, and when a window cannot come back Kaku says how many were kept and retries them on the next launch.</li>
+<li><b>Fixes</b>: Text selection clears right after Ctrl+L instead of lingering, Cmd+, focuses the existing settings window instead of stacking new ones, and AI shell commands work for fish users again.</li>
+</ol>
+<p class="release-more"><a href="https://github.com/tw93/Kaku/releases/tag/V0.15.0">GitHub</a> · <a href="https://github.com/tw93/Kaku/releases/download/V0.15.0/Kaku.dmg">DMG</a></p>
+<p class="release-more">Special thanks to @shlroland, @mortalYoung, and @darion-yaphet for their contributions to this release.</p>
+<hr>
+<h2 id="v0.14.0">V0.14.0 Focused <span class="release-date">2026-07-11</span></h2>
+<ol>
+<li><b>Pane Navigation</b>: Tab Navigator now lists every pane inside split tabs and lets you jump directly to the one you need, while narrow tab titles keep the active pane visible.</li>
+<li><b>Tab Renaming</b>: The rename dialog has clearer text and cursor behavior, canceling with Escape or the mouse no longer leaves a phantom selection, and automatic split-pane titles stay intact.</li>
+<li><b>Tabs &amp; Selection</b>: Tab separators are cleaner, selected text is easier to see in dark themes, and double-click selection now respects boundaries between CJK and Latin text.</li>
+<li><b>Session Restore</b>: Closed tabs stay closed after restart, incomplete restores preserve the original recovery data, and SSH sessions can be restored from saved snapshots again.</li>
+<li><b>Security &amp; Stability</b>: Dependency advisories for <code>anyhow</code> and <code>crossbeam-epoch</code> are resolved, while pane actions and mouse releases handle disappearing UI state more safely.</li>
+</ol>
+<p class="release-more"><a href="https://github.com/tw93/Kaku/releases/tag/V0.14.0">GitHub</a> · <a href="https://github.com/tw93/Kaku/releases/download/V0.14.0/Kaku.dmg">DMG</a></p>
+<hr>
+<h2 id="v0.13.0">V0.13.0 Faster <span class="release-date">2026-07-05</span></h2>
+<ol>
+<li><b>Startup &amp; Prompt</b>: Kaku now does less work before the first frame and keeps shell, config, and font caches warm, so new windows and prompts feel faster.</li>
+<li><b>Default Prompt</b>: The bundled prompt now shows Git status and Node version while keeping the same compact terminal feel.</li>
+<li><b>Tab Titles</b>: Tabs stay path-focused by default, with an optional Command Tab Titles setting for showing running tools such as <code>project·claude</code>; split panes also keep their titles readable.</li>
+<li><b>AI Chat</b>: Long streaming conversations no longer re-highlight the whole chat on every update, keeping the AI panel smoother during large sessions.</li>
+<li><b>Window &amp; Terminal Stability</b>: Moving between displays, half-intensity text, resizing terminals smaller, and deferred config setup are handled more reliably.</li>
+</ol>
+<p class="release-more"><a href="https://github.com/tw93/Kaku/releases/tag/V0.13.0">GitHub</a> · <a href="https://github.com/tw93/Kaku/releases/download/V0.13.0/Kaku.dmg">DMG</a></p>
+<hr>
+<h2 id="v0.12.4">V0.12.4 Safer <span class="release-date">2026-06-30</span></h2>
+<ol>
+<li><b>Open Links</b>: Cmd+Click now opens a hovered link even inside mouse-capturing tools like Claude, Codex, or vim, so it works the same everywhere.</li>
+<li><b>Window Tiling</b>: Windows now honor the macOS native drag-to-edge tiling and snap into the system split layouts.</li>
+<li><b>AI File Edits</b>: The assistant no longer risks running out of memory when it patches a very large file.</li>
+<li><b>Dependencies</b>: Updated the bundled git and file-handling libraries to close three reported safety advisories.</li>
+</ol>
+<p class="release-more"><a href="https://github.com/tw93/Kaku/releases/tag/V0.12.4">GitHub</a> · <a href="https://github.com/tw93/Kaku/releases/download/V0.12.4/Kaku.dmg">DMG</a></p>
+<hr>
+<h2 id="v0.12.3">V0.12.3 Cleaner <span class="release-date">2026-06-21</span></h2>
+<ol>
+<li><b>System Proxy</b>: AI requests to local and self-hosted models no longer fail when a system proxy is on; private and loopback addresses now connect directly.</li>
+<li><b>Terminal Redraw</b>: Scrolling a selection list in tools like the skills picker no longer leaves garbled rows behind.</li>
+<li><b>Credentials</b>: API keys and tokens are no longer passed on the command line, so they stay out of process listings.</li>
+<li><b>Transparency</b>: With window transparency enabled, the top strip and rounded corners match the rest of the window instead of showing a darker band or black corners.</li>
+<li><b>Path Highlight</b>: An existing directory in the command line no longer carries a stray underline, including the doubled one that appeared on hover.</li>
+</ol>
+<p class="release-more"><a href="https://github.com/tw93/Kaku/releases/tag/V0.12.3">GitHub</a> · <a href="https://github.com/tw93/Kaku/releases/download/V0.12.3/Kaku.dmg">DMG</a></p>
+<hr>
+<h2 id="v0.12.2">V0.12.2 Steadier <span class="release-date">2026-06-13</span></h2>
+<ol>
+<li><b>Sleep Wake</b>: After the Mac sleeps or an external display is unplugged, Kaku no longer freezes on a stale frame; rendering recovers right away while your tasks keep running.</li>
+<li><b>External Displays</b>: Dragging a window on an external display no longer makes it jump at the first move, and Window Center plus <code>--position</code> land on the right spot when screens use different scales.</li>
+<li><b>Selection</b>: In mouse-enabled apps such as Claude Code, holding the left button while scrolling no longer paints a selection highlight that cannot be cleared, and a plain click clears any leftover one.</li>
+<li><b>Yazi</b>: Newer Yazi versions refused to start with config files written by earlier Kaku; those files are now repaired automatically.</li>
+<li><b>Windows</b>: A new window opened into a fullscreen Space fills the screen right away, and cold start no longer flashes a second empty window.</li>
+<li><b>Updates</b>: Clicking the update notification now asks for confirmation first, so running tasks are no longer interrupted by a stray click.</li>
+</ol>
+<p class="release-more"><a href="https://github.com/tw93/Kaku/releases/tag/V0.12.2">GitHub</a> · <a href="https://github.com/tw93/Kaku/releases/download/V0.12.2/Kaku.dmg">DMG</a></p>
+<hr>
+<h2 id="v0.12.1">V0.12.1 Smoother <span class="release-date">2026-06-08</span></h2>
+<ol>
+<li><b>Shell Setup</b>: Upgrading from 0.12 no longer shows <code>[comment]: command not found</code> during zsh setup.</li>
+<li><b>Prompt Colors</b>: Starship, tmux, Powerline, and box-drawing separators keep their intended colors instead of turning into bright blocks.</li>
+<li><b>SmartPrompt</b>: Cmd+Q no longer asks for confirmation at an idle shell just because background helpers such as <code>gitstatusd</code> are running.</li>
+<li><b>Scrolling</b>: During long AI output, scrolling or resizing no longer jumps to the top of history; Kaku keeps you with the current output.</li>
+<li><b>Smart Tab</b>: New and bundled configs now let Tab accept the grey autosuggestion first, then fall back to completion. Set <code>smart_tab_mode = 'completion_first'</code> to keep the old behavior.</li>
+<li><b>Nightly Package</b>: The Nightly package is now a signed and notarized DMG, so testing the latest fixes feels like installing a normal release.</li>
+</ol>
+<p class="release-more"><a href="https://github.com/tw93/Kaku/releases/tag/V0.12.1">GitHub</a> · <a href="https://github.com/tw93/Kaku/releases/download/V0.12.1/Kaku.dmg">DMG</a></p>
+<hr>
+<h2 id="v0.12.0">V0.12.0 Sharper ✂️ <span class="release-date">2026-06-05</span></h2>
+<ol>
+<li><b>Session Scrollback</b>: Reopening restores each pane's scrollback up to 1,500 lines, reflowing when the width changed.</li>
+<li><b>Codex Backend</b>: Kaku Assistant runs on your existing Codex / ChatGPT login, no separate API key needed.</li>
+<li><b>AI Chat</b>: The chat overlay streams answers in real time, suggests your next message with <code>/suggest</code>, and reopens reliably every time.</li>
+<li><b>AI Shell</b>: The <code>#</code> quick-fix adds injection detection, and tool access blocks credential files like <code>.env</code> and SSH keys in any directory.</li>
+<li><b>SmartPrompt</b>: Cmd+Q quits instantly when every pane sits at a shell prompt, and asks first when an agent or editor is running.</li>
+<li><b>macOS Window</b>: Theme flips refresh all windows at once, fullscreen exit is clean, and a title-bar click no longer maximizes.</li>
+<li><b>Document Open</b>: PDFs, images, media, archives, and Office files open in their default app instead of VS Code.</li>
+<li><b>Tidy</b>: <code>smart_tab_mode</code> is added, Simplified Chinese localization is removed, the zsh comment highlight is brighter, and new CI gates are in place.</li>
+</ol>
+<p class="release-more"><a href="https://github.com/tw93/Kaku/releases/tag/V0.12.0">GitHub</a> · <a href="https://github.com/tw93/Kaku/releases/download/V0.12.0/Kaku.dmg">DMG</a></p>
+<p class="release-more">Special thanks to @t0m-car for the non-fancy tab bar fixes.</p>
+<hr>
+<h2 id="v0.11.0">V0.11.0 Steady 🧭 <span class="release-date">2026-05-17</span></h2>
+<ol>
+<li><b>AI Reasoning</b>: DeepSeek-compatible, GLM, Kimi, and Fireworks reasoning streams now stay hidden while final answers remain clean.</li>
+<li><b>Kaku Chat</b>: <code>kaku chat</code> shows a compact thinking state during hidden reasoning and avoids recording empty AI turns.</li>
+<li><b>Chinese UI</b>: Kaku now includes Simplified Chinese localization for the app shell, command palette, settings, and AI chat.</li>
+<li><b>Shell Setup</b>: <code>kaku init</code> is safer around read-only config paths, existing jump providers, Cmd+Backspace, Yazi themes, and <code>#</code> AI queries.</li>
+<li><b>Session Restore</b>: New restore settings make window snapshots easier to understand and control from config.</li>
+<li><b>Window Control</b>: Cmd+W now closes the last fullscreen tab correctly, and title-bar dragging avoids accidental snap or maximize.</li>
+<li><b>Mouse and Tabs</b>: Top-tab hit testing, integrated title buttons, tab drag animation, and scrollback selection are more stable.</li>
+<li><b>Rendering</b>: Bar cursors, low-DPI toast text, color emoji sizing, and pane background alignment have been tightened.</li>
+<li><b>AI Transport</b>: Streaming, IME composition, empty API keys, proxy handling, and shell query setup are more robust across providers.</li>
+<li><b>Maintenance</b>: Agent guides, config docs, release checks, and contributor metadata are updated for the current maintainer workflow.</li>
+</ol>
+<p class="release-more"><a href="https://github.com/tw93/Kaku/releases/tag/V0.11.0">GitHub</a> · <a href="https://github.com/tw93/Kaku/releases/download/V0.11.0/Kaku.dmg">DMG</a></p>
+<p class="release-more">Special thanks to @t0m-car for the low-DPI toast clipping fix.</p>
+<hr>
+<h2 id="v0.10.0">V0.10.0 Chat 🪄 <span class="release-date">2026-05-10</span></h2>
+<ol>
+<li><b>AI Chat</b>: One engine, two surfaces: <code>Cmd+L</code> opens the in-terminal panel inside Kaku, while <code>k</code> or <code>kaku chat</code> drops the same engine into an alternate-screen TUI that works in any terminal or over SSH, with streaming Markdown, syntax highlighting, shell context, project tools, web search, memory, theme detection, safer cancel and approval semantics, and inline <code>#</code> queries that land in shell history.</li>
+<li><b>AI Configuration and Safety</b>: Assistant settings now use Simple and Deep models per task with live model loading, proxy-aware requests, OAuth setup, and broader provider responses, while stricter shell approvals, sensitive-path guards covering search and project tools, tighter file write and patch limits, failed-command context, and clearer parse errors keep the engine inside safe lines.</li>
+<li><b>Smart Close Protection</b>: <code>Cmd+W</code> and <code>Cmd+Shift+W</code> now ask before killing a pane that runs claude, codex, cursor-agent, gemini, vim, cargo, npm, or any non-shell process, while bare shells still close silently.</li>
+<li><b>Window Snapshots</b>: Kaku auto-saves multi-tab and multi-pane layouts, restored via <code>Cmd+Option+Shift+T</code>, Shell → Restore Previous Window, or the Command Palette.</li>
+<li><b>AppleScript Dictionary</b>: Kaku ships a full AppleScript dictionary, so windows, tabs, and panes are scriptable from Shortcuts, Hammerspoon, or any automation tool that drives macOS apps.</li>
+<li><b>Animated Tab Drag</b>: Drag a tab and the neighbors slide into place instead of snapping, so reordering reads as one fluid gesture.</li>
+<li><b>Softer Dark Theme</b>: Kaku Dark now uses lower-saturation highlight colors and a slightly dimmed foreground, reducing glare on long sessions while keeping the overall Kaku look.</li>
+<li><b>Cold Start and Shell Speed</b>: Faster startup through Lua bytecode caching, deferred font and config initialization, and cached shell user vars.</li>
+<li><b>Background Updates</b>: Updates download in the background and fail closed on checksum mismatch, with more reliable proxy and MacPorts detection along the way.</li>
+<li><b>Bug Fixes</b>: Fullscreen crashes, display races, resize gaps, cursor reflow, links, selection, light-theme readability, and TUI copy are all addressed.</li>
+</ol>
+<p class="release-more"><a href="https://github.com/tw93/Kaku/releases/tag/V0.10.0">GitHub</a> · <a href="https://github.com/tw93/Kaku/releases/download/V0.10.0/Kaku.dmg">DMG</a></p>
+<p class="release-more">Special thanks to @s010s, @SherlockSalvatore, @darion-yaphet, @ddotz, @beautifulrem, @yxspace, and @fanweixiao for their contributions to this release.</p>
+<hr>
+<h2 id="v0.9.0">V0.9.0 Spark ✨ <span class="release-date">2026-04-04</span></h2>
+<ol>
+<li><b>Natural Language to Command</b>: Type <code># &lt;description&gt;</code> at the prompt, press Enter, and Kaku injects the generated command back ready to run. Saved to shell history. Works in zsh and fish.</li>
+<li><b>Option+Click Cursor Movement</b>: Click anywhere on the current line to move the cursor to that position. Wide characters and multi-byte input are handled correctly.</li>
+<li><b>Always on Top</b>: Pin any window above others via the Window menu. Toggle on or off at any time.</li>
+<li><b>Traffic Lights Position</b>: New <code>traffic_lights</code> option in Settings to customize the macOS window control button position.</li>
+<li><b>Performance</b>: Tab title Lua callbacks are batched with a single Config serialization pass.</li>
+<li><b>Stability Fixes</b>: Fixed a crash on Option+Click, divide-by-zero in split pane sizing, and unwrap panic in mouse event handling.</li>
+<li><b>Shell and Assistant</b>: Added MiniMax as a built-in provider preset. Fixed zsh-z update display and heredoc quoting edge cases.</li>
+</ol>
+<p class="release-more"><a href="https://github.com/tw93/Kaku/releases/tag/V0.9.0">GitHub</a> · <a href="https://github.com/tw93/Kaku/releases/download/V0.9.0/Kaku.dmg">DMG</a></p>
+<p class="release-more">Special thanks to @fanweixiao and @LanternCX for their contributions to this release.</p>
+<hr>
+<h2 id="v0.8.0">V0.8.0 Fish 🐟 <span class="release-date">2026-03-23</span></h2>
+<ol>
+<li><b>Fish Shell Support</b>: Full fish shell integration via <code>kaku init</code>, including Starship prompt, Yazi launcher, theme sync, and conf.d entrypoint.</li>
+<li><b>Bell Tab Indicator</b>: Background tabs show a bell prefix when tasks finish, with optional Dock badge and toggleable tab prefix.</li>
+<li><b>Remember Last Directory</b>: Kaku restores the last working directory when opening new tabs or windows. Can be disabled via <code>kaku config</code>.</li>
+<li><b>Update &amp; Doctor in Tabs</b>: <code>kaku update</code> and <code>kaku doctor</code> now open in a dedicated tab instead of blocking the current session.</li>
+<li><b>Basename-only Tab Titles</b>: New <code>tab_title_basename_only</code> option to show just the directory name instead of the full path.</li>
+<li><b>Scrollback Fix</b>: Fixed viewport jumping to top during rapid output, snapping to bottom after scrolling up, and viewport jumping when using Claude Code.</li>
+<li><b>Bug Fixes &amp; Close Shortcuts</b>: Fixed window hide, Cmd+Click links, clipboard paste, emoji width, and SSH alias conflicts. Close dialogs now support Enter to confirm and Esc to cancel. Fixed Cmd+Q crash (RefCell double-borrow) and transparent corner arcs on macOS 26.</li>
+</ol>
+<p class="release-more"><a href="https://github.com/tw93/Kaku/releases/tag/V0.8.0">GitHub</a> · <a href="https://github.com/tw93/Kaku/releases/download/V0.8.0/Kaku.dmg">DMG</a></p>
+<p class="release-more">Special thanks to @mystersu, @ddotz, @rookie-ricardo, @s010s, @anzksdk, @cynosurech, and @XinCao for their contributions to this release.</p>
+<hr>
+<h2 id="v0.7.1">V0.7.1 Flow 🌊 <span class="release-date">2026-03-13</span></h2>
+<ol>
+<li><b>Auto Theme &amp; UI Refresh</b>: Kaku now auto-switches between dark and light modes with macOS, with improved transparency rendering and Yazi theme sync.</li>
+<li><b>Safer Close &amp; Interaction</b>: Added tab and pane close confirmations, refreshed overlay styling, and fixed title bar interaction so double-click zoom no longer interferes with window dragging.</li>
+<li><b>Better Settings Workflow</b>: <code>kaku config</code> now provides clearer grouped sections, a pinned footer with contextual key hints, safer config parsing, and more reliable reload behavior.</li>
+<li><b>Improved AI Configuration</b>: <code>kaku ai</code> now supports Antigravity model setup, quota tracking, background loading, and more reliable OAuth token refresh.</li>
+<li><b>Optional Rounded Scrollbars</b>: Added custom rounded scrollbars that can be enabled from <code>kaku config</code>.</li>
+<li><b>Pane Input Broadcast</b>: Added pane input broadcast modes for synchronized typing across panes, with safeguards to ensure overlay input is never broadcast by mistake.</li>
+<li><b>File &amp; Editor Workflow</b>: Improved file path link opening, added a remote files shortcut for SSH sessions, and better respects the <code>$EDITOR</code> environment for config editing flows.</li>
+<li><b>Bug Fixes &amp; Stability</b>: Fixed AeroSpace/yabai resize flicker, hardened managed shell and tmux integration, scoped Smart Tab to Kaku sessions by default, and improved Starship RPROMPT fallback behavior.</li>
+</ol>
+<p class="release-more"><a href="https://github.com/tw93/Kaku/releases/tag/V0.7.1">GitHub</a> · <a href="https://github.com/tw93/Kaku/releases/download/V0.7.1/Kaku.dmg">DMG</a></p>
+<p class="release-more">Special thanks to @frankekn, @crossly, @iwen-conf, and @zxh326 for their contributions to this release.</p>
+<hr>
+<h2 id="v0.6.0">V0.6.0 Clarity ☀️ <span class="release-date">2026-03-08</span></h2>
+<ol>
+<li><b>Light Theme Improvements</b>: Kaku now brings a more polished light theme with dynamic font weight, improved ANSI colors, and Claude Code-specific color overrides, including better quote background rendering.</li>
+<li><b>AI Usage Visibility</b>: The AI settings panel now shows usage summaries and remaining quota more clearly, with added Kimi Code support, Kimi usage tracking, background loading, and more reliable Claude OAuth token refresh persistence. Custom request headers (<code>custom_headers</code>) can now also be set in the config file for private or proxied deployments.</li>
+<li><b>Interactive Settings TUI</b>: <code>kaku config</code> is now a richer interactive settings editor with save-on-exit behavior, theme-aware updates, and more reliable config syncing.</li>
+<li><b>Better Tab Workflow</b>: Tabs can now be reordered with drag and drop, renamed inline by double-clicking, reopened with <code>Cmd + Shift + T</code> after closing, or renamed programmatically via the <code>kaku set-tab-title</code> command.</li>
+<li><b>Path Hyperlinks</b>: Terminal output now supports opening file path hyperlinks directly, with better handling for relative paths and decoded file paths.</li>
+<li><b>Smarter Shell Integration</b>: Improved first-run shell setup without Homebrew, fixed zsh source line escaping, repaired Starship right prompt leakage after <code>Ctrl + C</code>, removed the forced <code>TERM=kaku</code> setting that broke the Delete key over SSH, and made AI shell hooks more reliable when <code>TERM</code> falls back to <code>xterm-256color</code>.</li>
+<li><b>Selection and UI Polish</b>: Preserved text selection during terminal output, fixed stale window padding overrides, improved fullscreen inset and padding alignment, and unified selection colors across displays.</li>
+<li><b>macOS Input and Window Fixes</b>: Fixed non-Latin IME blocking <code>Cmd + alnum</code> shortcuts, fixed <code>Cmd + Shift + Symbol</code> key bindings, improved dead key handling, fixed Turkish keyboard tilde input, and improved fullscreen, maximize, display refresh, and global hotkey restore behavior.</li>
+<li><b>Terminal, Memory, and Notification Improvements</b>: Added a Dock badge for unread bell notifications, improved scrollback memory with lazy allocation, capped background image and gradient render cache sizes for more stable long-session memory usage, and further improved update actions, menu command handling, and terminal interaction reliability.</li>
+<li><b>Release and Upgrade Hardening</b>: Hardened the automated release pipeline, centralized config migration metadata, and bumped the config migration version to <code>14</code> so existing users receive the required shell integration refresh and prompt helper fix.</li>
+</ol>
+<p class="release-more"><a href="https://github.com/tw93/Kaku/releases/tag/V0.6.0">GitHub</a> · <a href="https://github.com/tw93/Kaku/releases/download/V0.6.0/Kaku.dmg">DMG</a></p>
+<p class="release-more">Special thanks to @frankekn, @ddnio, @GavinRiver, and @nguyenphutrong for their contributions to this release. If Kaku helps you, please consider giving it a star and recommending it to your friends.</p>
+<hr>
+<h2 id="v0.5.1">V0.5.1 Kindness 🌴 <span class="release-date">2026-02-28</span></h2>
+<ol>
+<li>Fixed shell alias conflict, <code>y</code> launcher no longer clashes with existing aliases like <code>alias y=yarn</code></li>
+<li>Fixed SSH remote display, sessions now forward <code>TERM=xterm-256color</code> to prevent broken rendering on servers without Kaku's terminfo</li>
+<li>Fixed <code>Cmd + Shift + ,</code> keybinding not passing through to tmux and other terminal apps</li>
+<li>Fixed CLI panic when running <code>kaku cli split-pane</code></li>
+<li>Fixed misleading "error" toast appearing in AI assistant during analysis</li>
+<li>Fixed update notification appearing on startup even when check_for_updates is disabled</li>
+</ol>
+<p class="release-more"><a href="https://github.com/tw93/Kaku/releases/tag/V0.5.1">GitHub</a> · <a href="https://github.com/tw93/Kaku/releases/download/V0.5.1/Kaku.dmg">DMG</a></p>
+<hr>
+<h2 id="v0.5.0">V0.5.0 Yohaku 🪽 <span class="release-date">2026-02-27</span></h2>
+<ol>
+<li><b>AI Shell Error Fixer</b>: When a command fails, Kaku sends it to an AI model and shows a fix suggestion right in the terminal. Press <code>Cmd + Shift + E</code> to apply it.</li>
+<li><b>Yazi Built In</b>: Press <code>Cmd + Shift + Y</code> or type <code>y</code> to open Yazi. Layout and theme config are set up automatically on first run. <code>cd + Tab</code> also falls back to zsh-z history when no filesystem match is found.</li>
+<li><b>Command Palette</b>: Press <code>Cmd + Shift + P</code> for quick command search with fuzzy matching and native text editing support.</li>
+<li><b>Kaku Doctor</b>: Run <code>kaku doctor</code> to check your setup and fix common issues interactively.</li>
+<li><b>Global Hotkey</b>: Press <code>Ctrl + Opt + Cmd + K</code> to show or hide Kaku from anywhere. Configurable via <code>macos_global_hotkey</code>.</li>
+<li><b>Shell Text Editing</b>: Use <code>Cmd + A</code> to select all, <code>Shift + Arrow</code> to extend selection, and type to replace, just like a native text editor, right in your shell prompt.</li>
+<li><b>Expanded AI Config</b>: <code>kaku ai</code> now covers Kaku Assistant, Factory Droid, and opencode.jsonc all in one place.</li>
+<li><b>Bell Indicator</b>: Tabs show a blinking dot when they receive a bell while you are in another tab.</li>
+<li><b>Better Scrolling and Input</b>: Smoother trackpad scrolling in <code>less</code> and <code>man</code> with DECSET 1007 alternate scroll support. IME popup positioning is fixed for CJK input methods like Typeless.</li>
+<li><b>Native Window Shadow</b>: Window shadow is restored on macOS after being disabled to work around a GPU usage issue in earlier builds.</li>
+<li><b>Faster Startup and Smaller Bundle</b>: Lua bytecode caching and deferred module loading cut launch time. Fat LTO and single codegen unit reduce binary size.</li>
+<li><b>Shell Integration Fix</b>: Kaku's shell integration now loads in all terminal environments instead of only when <code>$TERM</code> is set to <code>kaku</code>. Plugins already loaded by your own config are no longer duplicated.</li>
+</ol>
+<p class="release-more"><a href="https://github.com/tw93/Kaku/releases/tag/V0.5.0">GitHub</a> · <a href="https://github.com/tw93/Kaku/releases/download/V0.5.0/Kaku.dmg">DMG</a></p>
+<p class="release-more">Special thanks to @jaost, @nguyenphutrong, @mickyyy68, and @guohai for their contributions to this release. If Kaku helps you, please consider giving it a star and recommending it to your friends.</p>
+<hr>
+<h2 id="v0.4.0">V0.4.0 AIIIIIII 🥂 <span class="release-date">2026-02-19</span></h2>
+<ol>
+<li><b>New <code>kaku ai</code> Command</b>: Added <code>kaku ai</code> to manage your current AI coding tool configs in one place, with improved editor interaction, account display, and OAuth re-auth flow.</li>
+<li><b>Better Startup and Rendering on macOS</b>: Kaku now defaults to WebGpu with OpenGL fallback, delivers better rendering quality, and reduces memory usage from about 200MB to about 80MB in typical scenarios.</li>
+<li><b>Lazygit Workflow Built In</b>: Added <code>Cmd + Shift + G</code>, in-terminal launch flow, and contextual hints for git repositories.</li>
+<li><b>Split UX Enhancements</b>: Added a current pane marker so you can spot the active pane at a glance. Also added <code>split_thickness</code> config and precise split-line intersection alignment.</li>
+<li><b>Better Window and Pane Controls</b>: <code>Cmd + W</code> closing logic now works as expected across panes, tabs, and multi-window setups. Added <code>Cmd + Opt + Arrows</code> to jump between panes.</li>
+<li><b>Shell Setup Improved</b>: Refined first-run and update shell flow with optional Homebrew CLI tool install and smarter Tab completion behavior.</li>
+<li><b>SSH Remote and 1Password Support</b>: Remote SSH sessions now force <code>TERM=xterm-256color</code> to avoid terminfo issues. Shell integration also auto-detects the 1Password SSH agent and adds <code>IdentitiesOnly=yes</code> to stop auth failures from too many offered keys.</li>
+<li><b>Per-Pane Encoding Support</b>: Added pane-level encoding switching with support for <code>UTF-8</code>, <code>GBK</code>, <code>GB18030</code>, <code>Big5</code>, <code>EUC-KR</code>, and <code>Shift-JIS</code>.</li>
+<li><b>URL Scheme for Pane Activation</b>: Added <code>kaku://open-tab?tty=&lt;device&gt;</code> so external tools like scripts or AI agents can jump straight to a specific terminal pane by TTY name.</li>
+</ol>
+<p class="release-more"><a href="https://github.com/tw93/Kaku/releases/tag/V0.4.0">GitHub</a> · <a href="https://github.com/tw93/Kaku/releases/download/V0.4.0/Kaku.dmg">DMG</a></p>
+<p class="release-more">Thanks to @WongLoki, @liu-kan, @OiAnthony, @XueshiQiao, and @CTHua for the contributions.</p>
+<hr>
+<h2 id="v0.3.1">V0.3.1 New Year 🎋 <span class="release-date">2026-02-16</span></h2>
+<ol>
+<li><b>Clear Screen with Cmd+K</b>: Use <code>Cmd+K</code> to clear the screen. <code>Cmd+R</code> is still supported for compatibility.</li>
+<li><b>Toggle Split Direction</b>: Press <code>Cmd+Shift+S</code> to toggle a split pane between horizontal and vertical layout. Zoom state and minimum size are properly handled.</li>
+<li><b>SSH Compatibility Fix</b>: SSH sessions now use <code>xterm-256color</code> as TERM, both for built-in SSH domains and when running <code>ssh</code> directly in the terminal. Remote hosts no longer fail due to missing <code>kaku</code> terminfo.</li>
+<li><b>macOS Dictation Support</b>: Fixed <code>selected_range</code> to return a valid cursor position, enabling macOS dictation and voice input to work correctly.</li>
+<li><b>Tab Completion Restored</b>: Removed Smart Tab behavior. Tab key now shows the completion list as expected. Use Right Arrow to accept autosuggestions.</li>
+<li><b>Auto-Create User Config</b>: <code>kaku init</code> now automatically creates <code>~/.config/kaku/kaku.lua</code> if it doesn't exist.</li>
+<li><b>OpenCode Theme Setup</b>: <code>kaku init</code> can optionally set up a Kaku-matching theme for OpenCode, with user confirmation before writing.</li>
+<li><b>Bluetooth Permission</b>: Added <code>NSBluetoothAlwaysUsageDescription</code> to Info.plist for terminal-based BLE development workflows.</li>
+</ol>
+<p class="release-more"><a href="https://github.com/tw93/Kaku/releases/tag/V0.3.1">GitHub</a> · <a href="https://github.com/tw93/Kaku/releases/download/V0.3.1/Kaku.dmg">DMG</a></p>
+<p class="release-more">Thanks to @GavinRiver for the contribution. If you find Kaku helpful, feel free to star the project and share it with your friends.</p>
+<hr>
+<h2 id="v0.3.0">V0.3.0 Happy 🥙 <span class="release-date">2026-02-16</span></h2>
+<ol>
+<li><b>Smoother Fullscreen</b>: Transitions are now stable with less flicker. Padding stays correct when you split panes or create tabs in fullscreen. Fullscreen tab bar visibility and split rendering were refined for cleaner layout.</li>
+<li><b>Window Restore Stability</b>: Kaku now persists window size and position during move/resize, with display-aware restore for better multi-monitor behavior.</li>
+<li><b>Toast Notifications</b>: Copy text and see <code>Copied!</code> appear at the bottom right. Reload config and get instant confirmation. You now know when things actually work.</li>
+<li><b>SSH Host in Tabs</b>: When connected to a remote server, the tab shows the hostname. No more guessing which tab is which server.</li>
+<li><b>Finder Integration</b>: Right-click any folder in Finder and select <code>Open in Kaku</code>. Terminal opens with that folder as your working directory. Service open requests are now queued until GUI is ready for more reliable startup behavior.</li>
+<li><b>Default Terminal</b>: Set Kaku as your system default via menu bar <code>Kaku</code> → <code>Set as Default Terminal</code>. Shell scripts and terminal file types will open in Kaku instead of Terminal.app.</li>
+<li><b>Shell History Peek</b>: In vim or tmux, scroll up to view your shell history without leaving. Scroll down to return. No need to quit vim to check previous output.</li>
+<li><b>Image Paste</b>: Copy images from other apps and paste directly into terminal apps in Kaku. Images save to temp and the path auto-inserts.</li>
+<li><b>Selection Autoscroll</b>: Drag to select text and move upward beyond the viewport, the view now auto-scrolls so you can select more content above. Fixed a bug where this stopped working during drag capture.</li>
+<li><b>Transparent Window Fix</b>: Fixed edge artifacts when using window background opacity. Gaps now fill properly with background color.</li>
+<li><b>Multi-File Dock Drop</b>: Drag multiple files or folders to the Kaku Dock icon. Each opens in its own tab.</li>
+<li><b>Better Font Rendering</b>: Fixed compressed text on macOS and wide glyphs getting squeezed. Icon fonts like Nerd Fonts now display at proper width, and low-resolution displays now use a smaller default font size for better readability.</li>
+<li><b>Bar Cursor</b>: Changed from block to bar cursor, more common in modern terminals. Supports Vim mode cursor switching between normal and insert modes. Cursor blinking behavior is restored with a tuned default blink rate (<code>500ms</code>) and improved inactive-pane cursor rendering.</li>
+<li><b>Clearer Split Labels</b>: Menu now shows <code>Split Pane Top/Bottom</code> and <code>Split Pane Left/Right</code> instead of confusing <code>Vertically/Horizontally</code>.</li>
+<li><b>Safer <code>kaku update</code></b>: Prevents upgrading the wrong Homebrew package and only probes caskroom-managed installs.</li>
+<li><b>[color_scheme](cci:1://file:///Users/tw93/www/Kaku/config/src/config.rs:1469:4-1525:5) Override Fix</b>: User-defined [color_scheme](cci:1://file:///Users/tw93/www/Kaku/config/src/config.rs:1469:4-1525:5) now correctly overrides the bundled <code>Kaku</code> theme.</li>
+<li><b>Lower GPU Usage</b>: Disabled window shadow by default to reduce GPU overhead on macOS, and the window looks even cleaner.</li>
+</ol>
+<p class="release-more"><a href="https://github.com/tw93/Kaku/releases/tag/V0.3.0">GitHub</a> · <a href="https://github.com/tw93/Kaku/releases/download/V0.3.0/Kaku.dmg">DMG</a></p>
+<p class="release-more">Thanks to @mickyyy68, @Viking602, @GavinRiver, @QuentinHsu for their contributions. If you find Kaku helpful, feel free to star the project and share it with your friends.</p>
+<hr>
+<h2 id="v0.2.0">V0.2.0 Craft 🍺 <span class="release-date">2026-02-13</span></h2>
+<ol>
+<li><b>Universal Binary</b>: One app for both Apple Silicon and Intel Macs. No need to choose between architectures. Optimized Rust build for smaller size and better performance.</li>
+<li><b>Apple Notarized</b>: After 3 years of failed applications, I finally wrote to Cook to complain. Problem solved. Developer ID acquired. 698 RMB well spent. Just so you can open Kaku without security warnings on day one.</li>
+<li><b>Fixed Config Loading</b>: User config at <code>~/.config/kaku/kaku.lua</code> now loads correctly instead of being overridden by defaults.</li>
+<li><b>Homebrew Support</b>: Install with <code>brew install tw93/tap/kakuku</code> and upgrade with <code>brew upgrade kakuku</code>.</li>
+<li><b>Fullscreen Time Display</b>: A subtle clock in the bottom-right corner during fullscreen, even when deep in AI coding flow, keep track of time and get some rest. Your health comes first. Plus smoother fullscreen transitions.</li>
+<li><b>Smarter Window Controls</b>: Double-click title bar or tab area to toggle zoom. Better window restoration, improved title bar drag to prevent text selection scrolling, configurable split pane gap, and cleaner alignment.</li>
+<li><b>Unified CLI</b>: New <code>kaku</code> command with <code>init</code>, <code>update</code>, <code>reset</code>, <code>config</code> and more for quick setup and maintenance.</li>
+<li><b>Enhanced Git Delta</b>: Better theme alignment, side-by-side diff by default, and cleaner headers for easier code review.</li>
+<li><b>Chinese Path Support</b>: Tab titles now display Chinese characters correctly instead of URL-encoded strings.</li>
+<li><b>Persistent Sessions</b>: <code>Cmd+W</code> closes current pane or tab; when only one remains, hides the window instead of quitting.</li>
+<li><b>Better UX</b>: Font zoom and window size persist across restarts. Smarter Tab completion prioritizes filesystem matches.</li>
+<li><b>Visual Polish</b>: Fixed split pane alignment and underline overflow, eliminated tab switching stutter, upgraded to Unicode v14 for better emoji support.</li>
+<li><b>Menu Bar</b>: Improved menu bar with Command Palette, Settings, Check for Updates, and native notifications.</li>
+<li><b>Built-in Updater</b>: Automatic update notifications. Click "Kaku" → "Check for Updates" in menu bar, or run <code>kaku update</code> in terminal.</li>
+</ol>
+<p class="release-more"><a href="https://github.com/tw93/Kaku/releases/tag/V0.2.0">GitHub</a> · <a href="https://github.com/tw93/Kaku/releases/download/V0.2.0/Kaku.dmg">DMG</a></p>
+<p class="release-more">Since the changes in this version are pretty crazy, please let me know if you run into any problems. Thanks to @yikZero, @iwen-conf, @GavinRiver, @dongowu, @yamamel for their contributions. If you find Kaku helpful, feel free to star this project.</p>
+<hr>
+<h2 id="v0.1.1">V0.1.1 Easy to use 🍤 <span class="release-date">2026-02-09</span></h2>
+<ol>
+<li><b>Crisp Font Rendering</b>: Optimized macOS font rasterization settings (enabled Light Hinting) for clearer, sharper text, especially on Retina displays.</li>
+<li><b>Kaku Theme</b>: Introducing the signature Kaku Theme, a high-contrast, AI-optimized dark theme designed for long coding sessions with Claude/Codex.</li>
+<li><b>Enhanced Onboarding</b>: The first-run wizard now offers to apply the Kaku Theme automatically, giving you a perfect environment instantly.</li>
+<li><b>Zero Config Polish</b>: Improved default settings and streamlined the initial setup process for an even smoother out-of-the-box experience.</li>
+<li><b>Debug Overlay</b>: Added a new debug overlay for easier troubleshooting of shell integration and configuration issues.</li>
+<li><b>Shell Integration</b>: Launched a robust <code>setup_zsh.sh</code> script with common aliases and git shortcuts to supercharge your terminal workflow.</li>
+<li><b>Tab Bar Improvements</b>: Custom tab bar now supports path-based titles and visual indicators; fixed runtime errors with <code>get_current_working_dir</code>.</li>
+<li><b>Under the Hood</b>: Automated version synchronization and various internal improvements for stability. Addressed macOS permission prompts for a smoother experience. Renamed internal project references to <code>kaku</code> for consistent branding.</li>
+</ol>
+<p class="release-more"><a href="https://github.com/tw93/Kaku/releases/tag/V0.1.1">GitHub</a> · <a href="https://github.com/tw93/Kaku/releases/download/V0.1.1/Kaku.dmg">DMG</a></p>
+<p class="release-more">If macOS blocks the app, go to System Settings → Privacy &amp; Security → click Open Anyway.</p>
+<hr>
+<h2 id="v0.1.0">V0.1.0 Freshmen 🧝‍♀️ <span class="release-date">2026-02-08</span></h2>
+<ol>
+<li>First Release: Kaku is now live! A fast, out-of-the-box terminal built for AI coding, deeply customized for macOS with GPU acceleration.</li>
+<li>Built-in Shell Suite: Comes with pre-configured Starship prompt, z smart directory jumper, Syntax Highlighting, Autosuggestions.</li>
+<li>Smart Onboarding: Features an intelligent first-run wizard that detects your environment, safely backs up existing configs.</li>
+<li>Native Experience: Optimized for macOS with smooth animations, intuitive shortcuts, split pane management, and focus mode.</li>
+<li>Universal Binary: Fully optimized support for both Apple Silicon and Intel Macs in a single lightweight DMG.</li>
+</ol>
+<p class="release-more"><a href="https://github.com/tw93/Kaku/releases/tag/V0.1.0">GitHub</a> · <a href="https://github.com/tw93/Kaku/releases/download/V0.1.0/Kaku.dmg">DMG</a></p>
+<p class="release-more">If macOS blocks the app, go to System Settings → Privacy &amp; Security → click "Open Anyway".</p>
+</div></section></main>
+  <footer class="site-footer"><div class="wide footer-inner"><div class="footer-mark"><img src="/img/kaku-mark.png" width="64" height="64" alt="Kaku" loading="lazy"><div><p class="wm-name">Kaku · 書</p><p class="wm-sub">An AI-friendly Mac terminal, ready out of the box.</p></div></div><div class="footer-colophon"><p class="footer-links"><a href="/about">About</a> · <a href="/compare">Compare</a> · <a href="/contact">Contact</a> · <a href="/privacy">Privacy</a> · <a href="/roadmap">Roadmap</a> · <a href="/changelog">Changelog</a> · <a href="/docs/">Docs</a> · <a href="https://github.com/tw93/Kaku">GitHub</a> · <a href="https://github.com/tw93/Kaku/issues">Issues</a> · <a href="https://twitter.com/HiTw93">X</a></p><p class="footer-ethos">Less time fighting the terminal · Built on WezTerm · MIT · © 2026</p></div></div></footer>
+</body>
+</html>

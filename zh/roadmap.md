@@ -22,7 +22,7 @@ Kaku 现在是 0.21.x 版本线，V0.21.0 已经做到崩溃后也能恢复会�
 2. 会话录制和回放，前提是全程在本地，用起来一看就懂。
 3. 和 IDE、tmux、远程开发做更多集成。
 
-发布说明在 [GitHub Releases](https://github.com/tw93/Kaku/releases)，具体问题和实现讨论放在 [GitHub Issues](https://github.com/tw93/Kaku/issues)。
+发布说明在 [更新日志](https://kaku.fun/zh/changelog)，具体问题和实现讨论放在 [GitHub Issues](https://github.com/tw93/Kaku/issues)。
 
 ---
 

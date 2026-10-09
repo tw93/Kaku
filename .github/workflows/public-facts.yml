@@ -21,6 +21,9 @@ jobs:
       - run: python -m pip install Pygments
       - run: python3 scripts/build_markdown.py --check
       - run: python3 scripts/build_feed.py --check
+      - run: python3 scripts/build_releases.py --check
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
       - run: python3 scripts/highlight.py --check
       - run: python3 scripts/check_public_facts.py
         env:

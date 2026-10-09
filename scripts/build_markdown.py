@@ -32,6 +32,7 @@ PAGES = [
     "docs/keybindings.html",
     "docs/faq.html",
     "docs/contributing.html",
+    "changelog.html",
     "roadmap.html",
     "about.html",
     "compare.html",

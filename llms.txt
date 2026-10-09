@@ -39,6 +39,7 @@ Kaku is driven from the shell, not over HTTP:
 - [Compare](https://kaku.fun/compare): Kaku vs iTerm2, Warp, Ghostty, WezTerm, and Terminal.app
 - [Contributing](https://kaku.fun/docs/contributing): build and pull request workflow
 - [Roadmap](https://kaku.fun/roadmap): current version and what is planned next
+- [Changelog](https://kaku.fun/changelog): stable releases, newest first, English and Chinese notes
 - [Docs-only index](https://kaku.fun/docs/llms.txt): scoped llms.txt for the documentation section
 
 ## Project
@@ -54,6 +55,8 @@ Kaku is driven from the shell, not over HTTP:
 - [Agent Skills index](https://kaku.fun/.well-known/agent-skills/index.json): capability index with names and descriptions
 - [Full context for LLMs](https://kaku.fun/llms-full.txt): complete features, comparisons, install, and FAQ in one file
 - [Schema map](https://kaku.fun/schemamap.xml): NLWeb schema feed index, pointing at the JSONL page feed
+- [Release feed](https://kaku.fun/feed.xml): RSS of stable releases, without Nightly
+- [Release data](https://kaku.fun/feeds/releases.json): version, date, codename, changelog items, and download URL
 - [Sitemap](https://kaku.fun/sitemap.xml): every page, English and Chinese
 
 ## Links

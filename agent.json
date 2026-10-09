@@ -109,6 +109,7 @@
     "agentSkills": "https://kaku.fun/.well-known/agent-skills/index.json",
     "schemaMap": "https://kaku.fun/schemamap.xml",
     "pageFeed": "https://kaku.fun/feeds/pages.jsonl",
+    "releases": "https://kaku.fun/feeds/releases.json",
     "sitemap": "https://kaku.fun/sitemap.xml"
   },
   "support": {

@@ -22,7 +22,7 @@ Kaku is on the 0.21.x line. V0.21.0 shipped crash-safe session saving, Copy in t
 2. Session recording and replay, only if it stays local and easy to understand.
 3. More IDE, tmux, and remote-development integrations.
 
-Release notes are on [GitHub Releases](https://github.com/tw93/Kaku/releases), and bugs and implementation details are discussed in [GitHub Issues](https://github.com/tw93/Kaku/issues).
+Release notes are on [the changelog](https://kaku.fun/changelog), and bugs and implementation details are discussed in [GitHub Issues](https://github.com/tw93/Kaku/issues).
 
 ---
 

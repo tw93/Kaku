@@ -41,6 +41,7 @@ The site serves a machine-readable twin of itself so AI agents do not have to sc
 
 - **Markdown twins.** Every content page has a `.md` sibling. `scripts/build_markdown.py` generates them from the HTML, so never hand-edit a generated `.md`. The two homepage twins, `index.md` and `zh/index.md`, are the exception: they are hand written, because the landing page is marketing layout rather than prose. `vercel.json` serves markdown on `Accept: text/markdown` for `/` and `/zh`, aliases `/llms.md` to `/index.md`, and sets `Vary: Accept`.
 - **Page feed.** `scripts/build_feed.py` emits `feeds/pages.jsonl`, one schema.org `WebPage` per page, indexed by `schemamap.xml` and announced by the `Schemamap:` directive in `robots.txt`.
+- **Release feed.** `scripts/build_releases.py` writes `feed.xml`, `feeds/releases.json`, and the English and Chinese changelog pages from stable GitHub releases. Nightly builds are not included. Do not hand-edit those files.
 - **Hand-maintained.** `llms.txt` (plus the scoped `docs/llms.txt` and `zh/llms.txt`), `agent.json` (served at `/?mode=agent`), and `.well-known/agent-skills/index.json`. Keep the version number, CLI surface, and docs list in these in step with the docs when they change.
 - **JSON-LD.** The homepages carry a `@graph` with `SoftwareApplication`, `Organization`, `WebSite`, and a `WebPage` with `speakable`. Every other content page carries `BreadcrumbList` plus `TechArticle`. New pages need both, and a `<link rel="alternate" type="text/markdown">` in `<head>`.
 
@@ -53,6 +54,7 @@ Verify with a static server, desktop screenshot, 375px mobile screenshot, and li
 ```bash
 python3 scripts/build_markdown.py --check
 python3 scripts/build_feed.py --check
+python3 scripts/build_releases.py --check
 ```
 
 Routing and header behavior (`Accept` negotiation, `?mode=agent`, `Link`, `Vary`) can only be exercised with `vercel dev`, and `vercel dev` ignores the `has` property, so the two `has`-based rewrites are confirmed only on a real deployment.

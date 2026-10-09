@@ -39,7 +39,7 @@
         },
         {
           "key": "Link",
-          "value": "</sitemap.xml>; rel=\"sitemap\"; type=\"application/xml\", </llms.txt>; rel=\"alternate\"; type=\"text/plain\"; title=\"llms.txt\", </.well-known/agent-skills/index.json>; rel=\"service-desc\"; type=\"application/json\", </schemamap.xml>; rel=\"describedby\"; type=\"application/xml\""
+          "value": "</sitemap.xml>; rel=\"sitemap\"; type=\"application/xml\", </llms.txt>; rel=\"alternate\"; type=\"text/plain\"; title=\"llms.txt\", </.well-known/agent-skills/index.json>; rel=\"service-desc\"; type=\"application/json\", </schemamap.xml>; rel=\"describedby\"; type=\"application/xml\", </feed.xml>; rel=\"alternate\"; type=\"application/rss+xml\"; title=\"Kaku releases\""
         }
       ]
     },
@@ -66,7 +66,16 @@
       ]
     },
     {
-      "source": "/feeds/(.*)",
+      "source": "/feed.xml",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/rss+xml; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/feeds/pages.jsonl",
       "headers": [
         {
           "key": "Content-Type",
@@ -83,7 +92,7 @@
         },
         {
           "key": "Link",
-          "value": "</index.md>; rel=\"alternate\"; type=\"text/markdown\", </sitemap.xml>; rel=\"sitemap\"; type=\"application/xml\", </llms.txt>; rel=\"alternate\"; type=\"text/plain\"; title=\"llms.txt\", </llms-full.txt>; rel=\"alternate\"; type=\"text/plain\"; title=\"llms-full.txt\", </.well-known/agent-skills/index.json>; rel=\"service-desc\"; type=\"application/json\", </schemamap.xml>; rel=\"describedby\"; type=\"application/xml\", </agent.json>; rel=\"alternate\"; type=\"application/json\"; title=\"agent view\""
+          "value": "</index.md>; rel=\"alternate\"; type=\"text/markdown\", </sitemap.xml>; rel=\"sitemap\"; type=\"application/xml\", </llms.txt>; rel=\"alternate\"; type=\"text/plain\"; title=\"llms.txt\", </llms-full.txt>; rel=\"alternate\"; type=\"text/plain\"; title=\"llms-full.txt\", </.well-known/agent-skills/index.json>; rel=\"service-desc\"; type=\"application/json\", </schemamap.xml>; rel=\"describedby\"; type=\"application/xml\", </agent.json>; rel=\"alternate\"; type=\"application/json\"; title=\"agent view\", </feed.xml>; rel=\"alternate\"; type=\"application/rss+xml\"; title=\"Kaku releases\""
         }
       ]
     }

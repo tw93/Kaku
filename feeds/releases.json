@@ -1,0 +1,2107 @@
+{
+  "product": "Kaku",
+  "feed": "https://kaku.fun/feed.xml",
+  "changelog": "https://kaku.fun/changelog",
+  "changelogZh": "https://kaku.fun/zh/changelog",
+  "source": "https://github.com/tw93/Kaku/releases",
+  "releases": [
+    {
+      "version": "0.22.0",
+      "tag": "V0.22.0",
+      "name": "V0.22.0 Handy",
+      "codename": "Handy",
+      "publishedAt": "2026-10-05T06:59:22Z",
+      "url": "https://kaku.fun/changelog#v0.22.0",
+      "urlZh": "https://kaku.fun/zh/changelog#v0.22.0",
+      "github": "https://github.com/tw93/Kaku/releases/tag/V0.22.0",
+      "items": [
+        {
+          "label": "Tab Bar",
+          "text": "Tabs are easier to hit with a finger over remote desktop, a + button opens new tabs, and right-clicking a tab offers New Tab, Tab Navigator, and Close Tab."
+        },
+        {
+          "label": "Typing Lag",
+          "text": "Panes that once showed inline images no longer freeze typing each time Kaku saves the session in the background."
+        },
+        {
+          "label": "App Titles",
+          "text": "Set `config.tab_title_use_pane_title = true` to show the titles apps like Claude Code set, while tabs you renamed keep your name."
+        },
+        {
+          "label": "Kitty Keyboard",
+          "text": "With `enable_kitty_keyboard` on, Escape and forward Delete work in Herdr and Neovim, and swapping Backspace and Delete applies there too."
+        },
+        {
+          "label": "Input Methods",
+          "text": "Set `config.ime_preedit_rendering = 'BuiltinInsert'` to show the text you are composing as inserted text instead of covering the next character."
+        },
+        {
+          "label": "Powerlevel10k",
+          "text": "Kaku no longer prints anything before the first prompt, so Powerlevel10k instant prompt stops warning."
+        },
+        {
+          "label": "Command Line",
+          "text": "`kaku start` now opens in the Kaku that is already running instead of launching a second copy, and `--new-tab` adds a tab to the current window."
+        },
+        {
+          "label": "Split Panes",
+          "text": "The line between top and bottom panes now sits where their backgrounds meet, and with inactive panes dimmed it blends into the background while the dimming reaches the window edges."
+        },
+        {
+          "label": "Diagnostics",
+          "text": "`kaku doctor` saves a redacted diagnostic bundle you can attach to a bug report."
+        }
+      ],
+      "itemsZh": [
+        {
+          "label": "标签栏",
+          "text": "远程桌面下用手指也更容易点中标签，标签栏末尾多了 + 按钮，右键标签可以新建、打开标签导航或关闭标签。"
+        },
+        {
+          "label": "输入卡顿",
+          "text": "Kaku 在后台保存会话时，显示过内联图片的分屏不会再让输入卡住。"
+        },
+        {
+          "label": "程序标题",
+          "text": "设置 `config.tab_title_use_pane_title = true` 后，标签会显示 Claude Code 这类程序设置的标题，手动重命名过的标签保留你起的名字。"
+        },
+        {
+          "label": "Kitty 键盘",
+          "text": "开启 `enable_kitty_keyboard` 后，Herdr 和 Neovim 里的 Esc 和向前删除恢复正常，交换 Backspace 与 Delete 的设置也会生效。"
+        },
+        {
+          "label": "输入法",
+          "text": "设置 `config.ime_preedit_rendering = 'BuiltinInsert'` 后，输入法正在组合的文字会插入显示，不再盖住后面的字。"
+        },
+        {
+          "label": "Powerlevel10k",
+          "text": "Kaku 不再在第一个提示符前输出内容，Powerlevel10k 的 instant prompt 不会再报警告。"
+        },
+        {
+          "label": "命令行",
+          "text": "`kaku start` 会在已经运行的 Kaku 里打开，不再另起一个，加上 `--new-tab` 会在当前窗口新建标签。"
+        },
+        {
+          "label": "分屏",
+          "text": "上下分屏的分隔线现在落在两侧背景的交界处，开启非活动分屏变暗后，分隔线融入背景，变暗也会铺满到窗口边缘。"
+        },
+        {
+          "label": "诊断",
+          "text": "`kaku doctor` 会生成一份脱敏的诊断包，提 bug 时可以直接附上。"
+        }
+      ],
+      "download": "https://github.com/tw93/Kaku/releases/download/V0.22.0/Kaku.dmg"
+    },
+    {
+      "version": "0.21.0",
+      "tag": "V0.21.0",
+      "name": "V0.21.0 Ink",
+      "codename": "Ink",
+      "publishedAt": "2026-09-26T11:42:50Z",
+      "url": "https://kaku.fun/changelog#v0.21.0",
+      "urlZh": "https://kaku.fun/zh/changelog#v0.21.0",
+      "github": "https://github.com/tw93/Kaku/releases/tag/V0.21.0",
+      "items": [
+        {
+          "label": "Official Homebrew Cask",
+          "text": "Kaku is finally in the official Homebrew cask, so `brew install --cask kaku` installs it directly, `kaku update` recognizes it, and installs from the personal tap keep updating too."
+        },
+        {
+          "label": "Session Recovery",
+          "text": "Kaku now saves your windows, tabs, and panes while it runs, so a crash or force quit still brings back the last layout."
+        },
+        {
+          "label": "Context Menu",
+          "text": "Copy appears at the top of the right-click menu when text is selected, so copying with the mouse works even with copy on select turned off."
+        },
+        {
+          "label": "Tab Bar",
+          "text": "Tabs split into several panes now show their index number too."
+        },
+        {
+          "label": "Themes",
+          "text": "New installs start in Kaku Dark while existing setups keep their current theme, and bright cyan in Kaku Light is easier to read."
+        },
+        {
+          "label": "Stability and Security",
+          "text": "A tab that is closing can no longer take every window down, and the TLS library is updated for a security advisory."
+        }
+      ],
+      "itemsZh": [
+        {
+          "label": "官方 Homebrew",
+          "text": "Kaku 终于进了 Homebrew 官方 cask，直接用 `brew install --cask kaku` 就能安装，`kaku update` 也能识别，之前通过个人 tap 安装的照样能继续更新。"
+        },
+        {
+          "label": "会话恢复",
+          "text": "运行时会定期保存窗口、标签和分屏，崩溃或强制退出后也能恢复上次的布局。"
+        },
+        {
+          "label": "右键菜单",
+          "text": "选中文字后右键菜单顶部会出现复制，关掉选中即复制时也能用鼠标复制。"
+        },
+        {
+          "label": "标签栏",
+          "text": "有分屏的标签也会显示序号。"
+        },
+        {
+          "label": "主题",
+          "text": "新安装默认使用 Kaku Dark，已有安装保持原来的主题，Kaku Light 的亮青色也更容易看清。"
+        },
+        {
+          "label": "稳定与安全",
+          "text": "正在关闭的标签不会再导致所有窗口一起退出，并更新 TLS 库修复一个安全公告中的问题。"
+        }
+      ],
+      "download": "https://github.com/tw93/Kaku/releases/download/V0.21.0/Kaku.dmg",
+      "thanks": "Special thanks to @TeamMeng for their contribution to this release."
+    },
+    {
+      "version": "0.20.0",
+      "tag": "V0.20.0",
+      "name": "V0.20.0 Steady",
+      "codename": "Steady",
+      "publishedAt": "2026-09-12T06:58:36Z",
+      "url": "https://kaku.fun/changelog#v0.20.0",
+      "urlZh": "https://kaku.fun/zh/changelog#v0.20.0",
+      "github": "https://github.com/tw93/Kaku/releases/tag/V0.20.0",
+      "items": [
+        {
+          "label": "Window Behavior",
+          "text": "Native macOS dragging and edge tiling work again, closing windows no longer triggers a delayed repaint crash, and new windows skip repeated waits after graphics initialization fails."
+        },
+        {
+          "label": "Shell Integration",
+          "text": "Returning to the prompt clears stray mouse reports after a TUI exits unexpectedly, tmux keeps its prompt and Smart Tab, and fish grep completion expands correctly."
+        },
+        {
+          "label": "AI Model Selection",
+          "text": "Switching providers no longer reuses the previous provider's model list, all returned models are shown, and manually configured models remain available."
+        },
+        {
+          "label": "AI Chat",
+          "text": "Chats include local project type information without probing local projects during remote sessions, and cancellation interrupts retry waits promptly."
+        },
+        {
+          "label": "Context Menu",
+          "text": "Right-click to paste, search, open AI chat, or manage panes, with an option in Settings to show the new-tab button."
+        },
+        {
+          "label": "Theme Settings",
+          "text": "Standalone configurations can use the built-in light and dark themes, Settings saves to the custom configuration used at launch, manual color overrides are shown explicitly, and Fancy tabs use the selected theme."
+        },
+        {
+          "label": "Link Detection",
+          "text": "Unrelated text after a hard newline stays out of link targets while automatically wrapped URLs keep their complete addresses."
+        },
+        {
+          "label": "Version Reporting",
+          "text": "The GUI executable reports its package version without initializing a window."
+        }
+      ],
+      "itemsZh": [
+        {
+          "label": "窗口操作",
+          "text": "恢复 macOS 原生拖动和边缘平铺，修复关闭窗口后可能出现的崩溃，图形初始化失败后新窗口不再重复等待。"
+        },
+        {
+          "label": "Shell 集成",
+          "text": "修复 TUI 异常退出后鼠标移动产生乱码的问题，保留 tmux 中的提示符和智能补全，并修正 fish 的 grep 补全展开。"
+        },
+        {
+          "label": "AI 模型选择",
+          "text": "切换服务后不再沿用旧服务的模型列表，完整展示服务返回的模型，并保留手动配置的模型。"
+        },
+        {
+          "label": "AI 对话",
+          "text": "补充当前项目类型信息，远程会话不读取本机项目，取消请求时不再等待重试倒计时结束。"
+        },
+        {
+          "label": "右键菜单",
+          "text": "支持粘贴、搜索、AI 对话和分屏操作，也可以在设置中开启新建标签页按钮。"
+        },
+        {
+          "label": "主题设置",
+          "text": "独立配置也能使用内置深浅主题，通过自定义配置启动时设置会保存到对应文件，手动配色覆盖主题时会显示说明，Fancy 标签栏也会跟随主题配色。"
+        },
+        {
+          "label": "链接识别",
+          "text": "避免把换行后的无关输出拼进链接，保留自动折行网址的完整地址。"
+        },
+        {
+          "label": "版本查询",
+          "text": "图形程序的版本查询无需初始化窗口即可正确返回。"
+        }
+      ],
+      "download": "https://github.com/tw93/Kaku/releases/download/V0.20.0/Kaku.dmg",
+      "thanks": "Special thanks to @elonnzhang, @trxuan, and @yansigit for their contributions to this release."
+    },
+    {
+      "version": "0.19.0",
+      "tag": "V0.19.0",
+      "name": "V0.19.0 Restored",
+      "codename": "Restored",
+      "publishedAt": "2026-08-24T16:11:29Z",
+      "url": "https://kaku.fun/changelog#v0.19.0",
+      "urlZh": "https://kaku.fun/zh/changelog#v0.19.0",
+      "github": "https://github.com/tw93/Kaku/releases/tag/V0.19.0",
+      "items": [
+        {
+          "label": "Pane Input Broadcast Removed",
+          "text": "It was too easy to trigger by accident and could repeat a risky command in unrelated panes, so existing key assignments now do nothing."
+        },
+        {
+          "label": "Sessions Restore More Completely",
+          "text": "Reopening Kaku brings back your windows, their panes, and each pane's directory, and one pane that fails to save no longer costs you the rest."
+        },
+        {
+          "label": "Closing No Longer Hits the Wrong Pane",
+          "text": "A close confirmation stays tied to the pane it belongs to, and closing the active tab leaves you on the expected one."
+        },
+        {
+          "label": "Display and Integration Fixes",
+          "text": "Light-theme selections stay visible, lazygit works in nested shells, clearing history leaves full-screen programs intact, tab renaming no longer freezes titles, and slow synchronized output stops tearing."
+        }
+      ],
+      "itemsZh": [
+        {
+          "label": "移除分屏输入广播",
+          "text": "这个功能容易误触，会把危险命令重复到无关分屏，原有快捷键保留但不再生效。"
+        },
+        {
+          "label": "会话恢复更完整",
+          "text": "重新打开时窗口、分屏和各自的目录都会还原，个别分屏未能保存也不影响其余。"
+        },
+        {
+          "label": "关闭不再误伤其他分屏",
+          "text": "确认框始终对应打开它的分屏，关闭当前标签页后会停在预期的标签页。"
+        },
+        {
+          "label": "显示与集成修复",
+          "text": "浅色主题选中内容清晰可见，lazygit 支持嵌套 shell，清空历史不打断全屏程序，重命名标签页不卡住标题，慢速同步输出不再撕裂。"
+        }
+      ],
+      "download": "https://github.com/tw93/Kaku/releases/download/V0.19.0/Kaku.dmg",
+      "thanks": "Special thanks to @shlroland and @dufu1991 for their contributions to this release."
+    },
+    {
+      "version": "0.18.0",
+      "tag": "V0.18.0",
+      "name": "V0.18.0 Detached",
+      "codename": "Detached",
+      "publishedAt": "2026-08-08T12:42:33Z",
+      "url": "https://kaku.fun/changelog#v0.18.0",
+      "urlZh": "https://kaku.fun/zh/changelog#v0.18.0",
+      "github": "https://github.com/tw93/Kaku/releases/tag/V0.18.0",
+      "items": [
+        {
+          "label": "Move a Tab to Its Own Window",
+          "text": "Pull the current tab, and every pane inside it, into a new window from the command palette or the Window menu."
+        },
+        {
+          "label": "Windows Stay Below the Menu Bar",
+          "text": "Dragging between displays no longer parks a title bar behind the menu bar where the cursor cannot reach it, on side-by-side and stacked arrangements alike."
+        },
+        {
+          "label": "Updates Ask First",
+          "text": "Restarting from the menu and upgrading through Homebrew both confirm before they act."
+        }
+      ],
+      "itemsZh": [
+        {
+          "label": "把标签页拉成独立窗口",
+          "text": "命令面板或 Window 菜单里可以把当前标签页连同里面的分屏整个移到新窗口。"
+        },
+        {
+          "label": "窗口不再钻进菜单栏",
+          "text": "跨显示器拖动时标题栏不会再停在菜单栏后面导致抓不住，左右并排和上下叠放都一样。"
+        },
+        {
+          "label": "更新前先确认",
+          "text": "从菜单重启和通过 Homebrew 升级都会先征求确认。"
+        }
+      ],
+      "download": "https://github.com/tw93/Kaku/releases/download/V0.18.0/Kaku.dmg"
+    },
+    {
+      "version": "0.17.0",
+      "tag": "V0.17.0",
+      "name": "V0.17.0 Linked",
+      "codename": "Linked",
+      "publishedAt": "2026-08-02T04:40:54Z",
+      "url": "https://kaku.fun/changelog#v0.17.0",
+      "urlZh": "https://kaku.fun/zh/changelog#v0.17.0",
+      "github": "https://github.com/tw93/Kaku/releases/tag/V0.17.0",
+      "items": [
+        {
+          "label": "Responses API and Native Search",
+          "text": "Choose `api_mode = \"responses\"` for Responses-compatible endpoints, and turn on provider-hosted web search without a separate search key."
+        },
+        {
+          "label": "Pick Your Managed Shell",
+          "text": "`kaku init` can install zsh or fish on purpose, and Kaku keeps that choice across XDG config paths instead of only trusting `$SHELL`."
+        },
+        {
+          "label": "Richer Terminal Clicks",
+          "text": "Cmd+Click opens bare domains like `github.com`, file links can launch your editor via `config.file_link_editor`, and Option+Click moves the cursor inside the current input line."
+        },
+        {
+          "label": "Safer AI Tools",
+          "text": "Tool paths, web requests, and code search are harder to abuse; incomplete streams no longer look like successful turns."
+        },
+        {
+          "label": "Stability Fixes",
+          "text": "Launch no longer dies on oversized draw batches, windows stay below the menu bar, top tabs line up with traffic lights, font fallback is safer, and shell state plus drag-select scroll behave more predictably."
+        }
+      ],
+      "itemsZh": [
+        {
+          "label": "Responses API 与原生搜索",
+          "text": "兼容端点可选 `api_mode = \"responses\"`，并开启服务商托管的 web search，不必再配单独搜索 Key。"
+        },
+        {
+          "label": "自选托管 Shell",
+          "text": "`kaku init` 可明确安装 zsh 或 fish，选择会写入状态并在 XDG 路径间保持一致，不再只听 `$SHELL`。"
+        },
+        {
+          "label": "更完整的点击交互",
+          "text": "Cmd+Click 可打开 `github.com` 这类裸域名；文件链接可用 `config.file_link_editor` 指定编辑器；Option+Click 可在当前输入行内移动光标。"
+        },
+        {
+          "label": "更安全的 AI 工具",
+          "text": "路径、网络请求与代码搜索边界更严；流式被截断时不会再被当成成功回合。"
+        },
+        {
+          "label": "稳定性修复",
+          "text": "超大绘制批次不再导致启动崩溃，窗口不会拖进菜单栏后方，顶栏标签与红绿灯对齐，字体回退更安全，Shell 状态与拖选滚动也更稳。"
+        }
+      ],
+      "download": "https://github.com/tw93/Kaku/releases/download/V0.17.0/Kaku.dmg",
+      "thanks": "Special thanks to @ddotz and @F1Justin for their contributions to this release."
+    },
+    {
+      "version": "0.16.0",
+      "tag": "V0.16.0",
+      "name": "V0.16.0 Trusted",
+      "codename": "Trusted",
+      "publishedAt": "2026-07-26T03:35:21Z",
+      "url": "https://kaku.fun/changelog#v0.16.0",
+      "urlZh": "https://kaku.fun/zh/changelog#v0.16.0",
+      "github": "https://github.com/tw93/Kaku/releases/tag/V0.16.0",
+      "items": [
+        {
+          "label": "Inline AI Uses Your Provider",
+          "text": "The `#` prompt and the automatic quick-fix now go through the same transport as Cmd+L, so Codex, Copilot, and API-key setups all just work."
+        },
+        {
+          "label": "Authenticated Controls",
+          "text": "Shell control messages now carry a local capability, so terminal output can no longer borrow your configured credentials to fire assistant requests."
+        },
+        {
+          "label": "Close Tabs From The Navigator",
+          "text": "Press Backspace on a highlighted tab to close it, with the same confirmation you get everywhere else."
+        },
+        {
+          "label": "Display Fixes",
+          "text": "Titlebar spacing follows the display, AI chat picks up a live appearance switch, overlays resize after a pane split, and link underlines survive hover."
+        },
+        {
+          "label": "Fixes",
+          "text": "Starship setup stays inside Kaku instead of taking over your other terminals, white backgrounds stay readable, and menu commands run the bundled CLI."
+        }
+      ],
+      "itemsZh": [
+        {
+          "label": "内联 AI 走你的模型",
+          "text": "`#` 生成和自动修复现在与 Cmd+L 走同一条链路，Codex、Copilot 和 API key 三种配置都能直接用。"
+        },
+        {
+          "label": "控制消息需要认证",
+          "text": "Shell 发给终端的控制消息带上了本地凭据，终端里的输出无法再借用你配置的密钥触发助手请求。"
+        },
+        {
+          "label": "在标签导航里关标签",
+          "text": "选中标签按退格即可关闭，确认提示与别处一致。"
+        },
+        {
+          "label": "显示修复",
+          "text": "标题栏间距随显示器调整，AI 聊天会跟随系统外观切换，分屏后浮层尺寸正确，链接下划线在悬停时不再丢失。"
+        },
+        {
+          "label": "问题修复",
+          "text": "Starship 配置只在 Kaku 内生效，不再接管你的其他终端；白色背景上的文字保持可读；菜单命令改用随包分发的 CLI。"
+        }
+      ],
+      "download": "https://github.com/tw93/Kaku/releases/download/V0.16.0/Kaku.dmg",
+      "thanks": "Special thanks to @zwrong and @mortalYoung for their contributions to this release."
+    },
+    {
+      "version": "0.15.0",
+      "tag": "V0.15.0",
+      "name": "V0.15.0 Connected",
+      "codename": "Connected",
+      "publishedAt": "2026-07-18T12:34:42Z",
+      "url": "https://kaku.fun/changelog#v0.15.0",
+      "urlZh": "https://kaku.fun/zh/changelog#v0.15.0",
+      "github": "https://github.com/tw93/Kaku/releases/tag/V0.15.0",
+      "items": [
+        {
+          "label": "Remote Tabs",
+          "text": "Tabs connected over ssh now show a dedicated icon with the host name, split tabs reveal which pane is remote, and mosh, autossh, and et sessions are recognized too."
+        },
+        {
+          "label": "AI in SSH Sessions",
+          "text": "AI chat now understands when the current directory lives on a remote host, stops running local commands against it, and answers from the terminal context instead."
+        },
+        {
+          "label": "SSH Everywhere",
+          "text": "The fish integration keeps your own ssh function and gains the 1Password fix, env-prefixed ssh aliases work again, and mosh gets the same terminfo fallback as ssh."
+        },
+        {
+          "label": "Session Restore",
+          "text": "Restored ssh panes return to their remote working directory, and when a window cannot come back Kaku says how many were kept and retries them on the next launch."
+        },
+        {
+          "label": "Fixes",
+          "text": "Text selection clears right after Ctrl+L instead of lingering, Cmd+, focuses the existing settings window instead of stacking new ones, and AI shell commands work for fish users again."
+        }
+      ],
+      "itemsZh": [
+        {
+          "label": "远程标签",
+          "text": "通过 ssh 连接的标签会显示专属图标和主机名，分屏里也能看出哪个窗格在远程，mosh、autossh、et 会话同样能识别。"
+        },
+        {
+          "label": "SSH 里的 AI",
+          "text": "AI 聊天现在能识别当前目录在远程主机上，不再把本地命令跑在远程路径里，而是基于终端上下文直接回答。"
+        },
+        {
+          "label": "SSH 一致体验",
+          "text": "fish 集成不再覆盖你自定义的 ssh 函数并支持 1Password 修复，带环境变量前缀的 ssh 别名恢复可用，mosh 也获得与 ssh 相同的 terminfo 回退。"
+        },
+        {
+          "label": "会话恢复",
+          "text": "恢复的 ssh 窗格会回到原来的远程目录，有窗口无法恢复时会说明数量并在下次启动时重试。"
+        },
+        {
+          "label": "问题修复",
+          "text": "Ctrl+L 清屏后选区高亮立即消失，Cmd+, 会聚焦已有设置窗口而不是不断新开，fish 用户的 AI 命令执行恢复正常。"
+        }
+      ],
+      "download": "https://github.com/tw93/Kaku/releases/download/V0.15.0/Kaku.dmg",
+      "thanks": "Special thanks to @shlroland, @mortalYoung, and @darion-yaphet for their contributions to this release."
+    },
+    {
+      "version": "0.14.0",
+      "tag": "V0.14.0",
+      "name": "V0.14.0 Focused",
+      "codename": "Focused",
+      "publishedAt": "2026-07-11T03:06:18Z",
+      "url": "https://kaku.fun/changelog#v0.14.0",
+      "urlZh": "https://kaku.fun/zh/changelog#v0.14.0",
+      "github": "https://github.com/tw93/Kaku/releases/tag/V0.14.0",
+      "items": [
+        {
+          "label": "Pane Navigation",
+          "text": "Tab Navigator now lists every pane inside split tabs and lets you jump directly to the one you need, while narrow tab titles keep the active pane visible."
+        },
+        {
+          "label": "Tab Renaming",
+          "text": "The rename dialog has clearer text and cursor behavior, canceling with Escape or the mouse no longer leaves a phantom selection, and automatic split-pane titles stay intact."
+        },
+        {
+          "label": "Tabs & Selection",
+          "text": "Tab separators are cleaner, selected text is easier to see in dark themes, and double-click selection now respects boundaries between CJK and Latin text."
+        },
+        {
+          "label": "Session Restore",
+          "text": "Closed tabs stay closed after restart, incomplete restores preserve the original recovery data, and SSH sessions can be restored from saved snapshots again."
+        },
+        {
+          "label": "Security & Stability",
+          "text": "Dependency advisories for `anyhow` and `crossbeam-epoch` are resolved, while pane actions and mouse releases handle disappearing UI state more safely."
+        }
+      ],
+      "itemsZh": [
+        {
+          "label": "分屏导航",
+          "text": "Tab Navigator 现在会列出标签内的每个分屏，可以直接跳到需要的分屏；标签很窄时也会优先保留当前分屏标题。"
+        },
+        {
+          "label": "标签重命名",
+          "text": "重命名窗口的文字与光标表现更清楚，按 Esc 或用鼠标取消后不再留下错误选区，自动生成的分屏标题也不会被意外覆盖。"
+        },
+        {
+          "label": "标签与选择",
+          "text": "标签分隔线更简洁，深色主题下的选区更清楚，双击选择也会正确区分中日韩文字与拉丁文字的边界。"
+        },
+        {
+          "label": "会话恢复",
+          "text": "重启后不会再恢复已经关闭的标签，恢复不完整时会保留原始恢复数据，SSH 会话也能再次从快照中恢复。"
+        },
+        {
+          "label": "安全与稳定性",
+          "text": "已解决 `anyhow` 与 `crossbeam-epoch` 的安全公告，分屏操作和鼠标释放在界面状态变化时也会更稳。"
+        }
+      ],
+      "download": "https://github.com/tw93/Kaku/releases/download/V0.14.0/Kaku.dmg"
+    },
+    {
+      "version": "0.13.0",
+      "tag": "V0.13.0",
+      "name": "V0.13.0 Faster",
+      "codename": "Faster",
+      "publishedAt": "2026-07-05T16:13:17Z",
+      "url": "https://kaku.fun/changelog#v0.13.0",
+      "urlZh": "https://kaku.fun/zh/changelog#v0.13.0",
+      "github": "https://github.com/tw93/Kaku/releases/tag/V0.13.0",
+      "items": [
+        {
+          "label": "Startup & Prompt",
+          "text": "Kaku now does less work before the first frame and keeps shell, config, and font caches warm, so new windows and prompts feel faster."
+        },
+        {
+          "label": "Default Prompt",
+          "text": "The bundled prompt now shows Git status and Node version while keeping the same compact terminal feel."
+        },
+        {
+          "label": "Tab Titles",
+          "text": "Tabs stay path-focused by default, with an optional Command Tab Titles setting for showing running tools such as `project·claude`; split panes also keep their titles readable."
+        },
+        {
+          "label": "AI Chat",
+          "text": "Long streaming conversations no longer re-highlight the whole chat on every update, keeping the AI panel smoother during large sessions."
+        },
+        {
+          "label": "Window & Terminal Stability",
+          "text": "Moving between displays, half-intensity text, resizing terminals smaller, and deferred config setup are handled more reliably."
+        }
+      ],
+      "itemsZh": [
+        {
+          "label": "启动与提示符",
+          "text": "Kaku 现在会在首帧前少做一些工作，并缓存 shell、配置和字体相关结果，新窗口和提示符响应会更快。"
+        },
+        {
+          "label": "默认提示符",
+          "text": "内置提示符现在会显示 Git 状态和 Node 版本，同时保留原本紧凑的终端观感。"
+        },
+        {
+          "label": "标签标题",
+          "text": "标签默认继续以路径为主，需要时可以打开 Command Tab Titles 来显示 `project·claude` 这类正在运行的工具，分屏标题也会保持可读。"
+        },
+        {
+          "label": "AI 聊天",
+          "text": "长对话流式输出时不再每次都重新高亮整段聊天，AI 面板在大段会话里会更顺。"
+        },
+        {
+          "label": "窗口与终端稳定性",
+          "text": "跨显示器缩放、半亮文本、终端缩小时的滚动历史，以及延迟配置初始化都处理得更稳。"
+        }
+      ],
+      "download": "https://github.com/tw93/Kaku/releases/download/V0.13.0/Kaku.dmg"
+    },
+    {
+      "version": "0.12.4",
+      "tag": "V0.12.4",
+      "name": "V0.12.4 Safer",
+      "codename": "Safer",
+      "publishedAt": "2026-06-30T04:25:34Z",
+      "url": "https://kaku.fun/changelog#v0.12.4",
+      "urlZh": "https://kaku.fun/zh/changelog#v0.12.4",
+      "github": "https://github.com/tw93/Kaku/releases/tag/V0.12.4",
+      "items": [
+        {
+          "label": "Open Links",
+          "text": "Cmd+Click now opens a hovered link even inside mouse-capturing tools like Claude, Codex, or vim, so it works the same everywhere."
+        },
+        {
+          "label": "Window Tiling",
+          "text": "Windows now honor the macOS native drag-to-edge tiling and snap into the system split layouts."
+        },
+        {
+          "label": "AI File Edits",
+          "text": "The assistant no longer risks running out of memory when it patches a very large file."
+        },
+        {
+          "label": "Dependencies",
+          "text": "Updated the bundled git and file-handling libraries to close three reported safety advisories."
+        }
+      ],
+      "itemsZh": [
+        {
+          "label": "打开链接",
+          "text": "在 Claude、Codex、vim 这类会捕获鼠标的工具里，Cmd+Click 现在也能打开悬停的链接，各处行为一致。"
+        },
+        {
+          "label": "窗口平铺",
+          "text": "窗口现在支持 macOS 原生的拖到屏幕边缘平铺，会贴进系统的分屏布局。"
+        },
+        {
+          "label": "AI 文件编辑",
+          "text": "助手给超大文件打补丁时不再可能耗尽内存。"
+        },
+        {
+          "label": "依赖更新",
+          "text": "更新内置的 git 与文件处理库，修复三个已报告的安全隐患。"
+        }
+      ],
+      "download": "https://github.com/tw93/Kaku/releases/download/V0.12.4/Kaku.dmg"
+    },
+    {
+      "version": "0.12.3",
+      "tag": "V0.12.3",
+      "name": "V0.12.3 Cleaner",
+      "codename": "Cleaner",
+      "publishedAt": "2026-06-21T11:31:12Z",
+      "url": "https://kaku.fun/changelog#v0.12.3",
+      "urlZh": "https://kaku.fun/zh/changelog#v0.12.3",
+      "github": "https://github.com/tw93/Kaku/releases/tag/V0.12.3",
+      "items": [
+        {
+          "label": "System Proxy",
+          "text": "AI requests to local and self-hosted models no longer fail when a system proxy is on; private and loopback addresses now connect directly."
+        },
+        {
+          "label": "Terminal Redraw",
+          "text": "Scrolling a selection list in tools like the skills picker no longer leaves garbled rows behind."
+        },
+        {
+          "label": "Credentials",
+          "text": "API keys and tokens are no longer passed on the command line, so they stay out of process listings."
+        },
+        {
+          "label": "Transparency",
+          "text": "With window transparency enabled, the top strip and rounded corners match the rest of the window instead of showing a darker band or black corners."
+        },
+        {
+          "label": "Path Highlight",
+          "text": "An existing directory in the command line no longer carries a stray underline, including the doubled one that appeared on hover."
+        }
+      ],
+      "itemsZh": [
+        {
+          "label": "系统代理",
+          "text": "开启系统代理时，访问本地和自托管模型的 AI 请求不再失败，私有地址和 loopback 会直连。"
+        },
+        {
+          "label": "终端重绘",
+          "text": "在 skills 选择器这类工具里上下滚动列表，不再残留错乱的行。"
+        },
+        {
+          "label": "凭证",
+          "text": "API key 和 token 不再通过命令行参数传递，不会出现在进程列表里。"
+        },
+        {
+          "label": "透明度",
+          "text": "开启窗口透明后，顶部条和圆角会与窗口其余部分一致，不再出现更深的色带或黑色角块。"
+        },
+        {
+          "label": "路径高亮",
+          "text": "命令行里已存在的目录不再带一条多余的下划线，悬停时也不会再叠出第二条。"
+        }
+      ],
+      "download": "https://github.com/tw93/Kaku/releases/download/V0.12.3/Kaku.dmg"
+    },
+    {
+      "version": "0.12.2",
+      "tag": "V0.12.2",
+      "name": "V0.12.2 Steadier",
+      "codename": "Steadier",
+      "publishedAt": "2026-06-13T00:58:19Z",
+      "url": "https://kaku.fun/changelog#v0.12.2",
+      "urlZh": "https://kaku.fun/zh/changelog#v0.12.2",
+      "github": "https://github.com/tw93/Kaku/releases/tag/V0.12.2",
+      "items": [
+        {
+          "label": "Sleep Wake",
+          "text": "After the Mac sleeps or an external display is unplugged, Kaku no longer freezes on a stale frame; rendering recovers right away while your tasks keep running."
+        },
+        {
+          "label": "External Displays",
+          "text": "Dragging a window on an external display no longer makes it jump at the first move, and Window Center plus `--position` land on the right spot when screens use different scales."
+        },
+        {
+          "label": "Selection",
+          "text": "In mouse-enabled apps such as Claude Code, holding the left button while scrolling no longer paints a selection highlight that cannot be cleared, and a plain click clears any leftover one."
+        },
+        {
+          "label": "Yazi",
+          "text": "Newer Yazi versions refused to start with config files written by earlier Kaku; those files are now repaired automatically."
+        },
+        {
+          "label": "Windows",
+          "text": "A new window opened into a fullscreen Space fills the screen right away, and cold start no longer flashes a second empty window."
+        },
+        {
+          "label": "Updates",
+          "text": "Clicking the update notification now asks for confirmation first, so running tasks are no longer interrupted by a stray click."
+        }
+      ],
+      "itemsZh": [
+        {
+          "label": "休眠唤醒",
+          "text": "合盖休眠或拔掉外接显示器后，Kaku 不再停在旧画面上假死，渲染会立即恢复，正在跑的任务不受影响。"
+        },
+        {
+          "label": "外接屏",
+          "text": "在外接显示器上拖动窗口不再在起手时跳一下，屏幕缩放不同时 Window Center 和 `--position` 也会落在正确位置。"
+        },
+        {
+          "label": "选区",
+          "text": "在 Claude Code 这类启用鼠标的应用里，按住左键滚动不再误画出无法清除的选区高亮，普通单击会清掉残留的高亮。"
+        },
+        {
+          "label": "Yazi",
+          "text": "新版 Yazi 会拒绝旧版 Kaku 写入的配置导致无法启动，现在这些配置文件会被自动修复。"
+        },
+        {
+          "label": "窗口",
+          "text": "在全屏 Space 中新开窗口会立即铺满整屏，冷启动也不再闪现第二个空窗口。"
+        },
+        {
+          "label": "更新",
+          "text": "点击更新通知会先弹出确认，不会再因误点直接关闭所有窗口、打断正在运行的任务。"
+        }
+      ],
+      "download": "https://github.com/tw93/Kaku/releases/download/V0.12.2/Kaku.dmg"
+    },
+    {
+      "version": "0.12.1",
+      "tag": "V0.12.1",
+      "name": "V0.12.1 Smoother",
+      "codename": "Smoother",
+      "publishedAt": "2026-06-08T01:10:35Z",
+      "url": "https://kaku.fun/changelog#v0.12.1",
+      "urlZh": "https://kaku.fun/zh/changelog#v0.12.1",
+      "github": "https://github.com/tw93/Kaku/releases/tag/V0.12.1",
+      "items": [
+        {
+          "label": "Shell Setup",
+          "text": "Upgrading from 0.12 no longer shows `[comment]: command not found` during zsh setup."
+        },
+        {
+          "label": "Prompt Colors",
+          "text": "Starship, tmux, Powerline, and box-drawing separators keep their intended colors instead of turning into bright blocks."
+        },
+        {
+          "label": "SmartPrompt",
+          "text": "Cmd+Q no longer asks for confirmation at an idle shell just because background helpers such as `gitstatusd` are running."
+        },
+        {
+          "label": "Scrolling",
+          "text": "During long AI output, scrolling or resizing no longer jumps to the top of history; Kaku keeps you with the current output."
+        },
+        {
+          "label": "Smart Tab",
+          "text": "New and bundled configs now let Tab accept the grey autosuggestion first, then fall back to completion. Set `smart_tab_mode = 'completion_first'` to keep the old behavior."
+        },
+        {
+          "label": "Nightly Package",
+          "text": "The Nightly package is now a signed and notarized DMG, so testing the latest fixes feels like installing a normal release."
+        }
+      ],
+      "itemsZh": [
+        {
+          "label": "Shell 初始化",
+          "text": "从 0.12 升级时，zsh 设置过程不再出现 `[comment]: command not found` 报错。"
+        },
+        {
+          "label": "提示符颜色",
+          "text": "Starship、tmux、Powerline 和 box-drawing 分隔符会保留原本颜色，不再被提亮成突兀色块。"
+        },
+        {
+          "label": "SmartPrompt",
+          "text": "停在空闲 shell 时，Cmd+Q 不会再因为 `gitstatusd` 这类后台进程弹确认。"
+        },
+        {
+          "label": "滚动行为",
+          "text": "AI 长输出过程中滚动或调整窗口，不会再突然跳到历史最顶端，会继续跟住当前输出。"
+        },
+        {
+          "label": "Smart Tab",
+          "text": "新配置和 bundled 默认现在改为 Tab 优先接受灰色建议，没有建议时再回退到补全；想保留旧行为可设置 `smart_tab_mode = 'completion_first'`。"
+        },
+        {
+          "label": "Nightly 包",
+          "text": "Nightly 预览包现在是签名并公证过的 DMG，安装和验证最新修复时更接近正式版体验。"
+        }
+      ],
+      "download": "https://github.com/tw93/Kaku/releases/download/V0.12.1/Kaku.dmg"
+    },
+    {
+      "version": "0.12.0",
+      "tag": "V0.12.0",
+      "name": "V0.12.0 Sharper ✂️",
+      "codename": "Sharper ✂️",
+      "publishedAt": "2026-06-05T16:06:23Z",
+      "url": "https://kaku.fun/changelog#v0.12.0",
+      "urlZh": "https://kaku.fun/zh/changelog#v0.12.0",
+      "github": "https://github.com/tw93/Kaku/releases/tag/V0.12.0",
+      "items": [
+        {
+          "label": "Session Scrollback",
+          "text": "Reopening restores each pane's scrollback up to 1,500 lines, reflowing when the width changed."
+        },
+        {
+          "label": "Codex Backend",
+          "text": "Kaku Assistant runs on your existing Codex / ChatGPT login, no separate API key needed."
+        },
+        {
+          "label": "AI Chat",
+          "text": "The chat overlay streams answers in real time, suggests your next message with `/suggest`, and reopens reliably every time."
+        },
+        {
+          "label": "AI Shell",
+          "text": "The `#` quick-fix adds injection detection, and tool access blocks credential files like `.env` and SSH keys in any directory."
+        },
+        {
+          "label": "SmartPrompt",
+          "text": "Cmd+Q quits instantly when every pane sits at a shell prompt, and asks first when an agent or editor is running."
+        },
+        {
+          "label": "macOS Window",
+          "text": "Theme flips refresh all windows at once, fullscreen exit is clean, and a title-bar click no longer maximizes."
+        },
+        {
+          "label": "Document Open",
+          "text": "PDFs, images, media, archives, and Office files open in their default app instead of VS Code."
+        },
+        {
+          "label": "Tidy",
+          "text": "`smart_tab_mode` is added, Simplified Chinese localization is removed, the zsh comment highlight is brighter, and new CI gates are in place."
+        }
+      ],
+      "itemsZh": [
+        {
+          "label": "会话历史恢复",
+          "text": "重新打开窗口后，会恢复每个面板最多 1,500 行滚动历史，列宽变化时也会自动重排。"
+        },
+        {
+          "label": "Codex 后端",
+          "text": "Kaku Assistant 现在可以直接复用你已有的 Codex / ChatGPT 登录，不用再单独配置一个 API key。"
+        },
+        {
+          "label": "AI 聊天",
+          "text": "聊天面板的回答实时流式输出，可以用 `/suggest` 预测你接下来想发的内容，每次也都能稳定重新打开。"
+        },
+        {
+          "label": "AI Shell",
+          "text": "`#` 生成命令新增了注入检测，工具访问会在任意目录拦截 `.env`、SSH 私钥等敏感文件。"
+        },
+        {
+          "label": "SmartPrompt",
+          "text": "所有面板都停在 shell 提示符时，Cmd+Q 会直接退出；仍有 agent 或编辑器在运行时，则会先询问一下。"
+        },
+        {
+          "label": "macOS 窗口",
+          "text": "浅深色切换会一次性刷新所有窗口，退出全屏更干净，标题栏单击也不再误触最大化。"
+        },
+        {
+          "label": "文档默认打开",
+          "text": "PDF、图片、音视频、压缩包、Office 文档现在都用系统默认 app 打开，不再被 VS Code 抢走。"
+        },
+        {
+          "label": "轻装",
+          "text": "新增 `smart_tab_mode`，移除简体中文本地化，zsh 注释高亮更清晰，并新增了多道 CI 检查。"
+        }
+      ],
+      "download": "https://github.com/tw93/Kaku/releases/download/V0.12.0/Kaku.dmg",
+      "thanks": "Special thanks to @t0m-car for the non-fancy tab bar fixes."
+    },
+    {
+      "version": "0.11.0",
+      "tag": "V0.11.0",
+      "name": "V0.11.0 Steady 🧭",
+      "codename": "Steady 🧭",
+      "publishedAt": "2026-05-17T08:56:14Z",
+      "url": "https://kaku.fun/changelog#v0.11.0",
+      "urlZh": "https://kaku.fun/zh/changelog#v0.11.0",
+      "github": "https://github.com/tw93/Kaku/releases/tag/V0.11.0",
+      "items": [
+        {
+          "label": "AI Reasoning",
+          "text": "DeepSeek-compatible, GLM, Kimi, and Fireworks reasoning streams now stay hidden while final answers remain clean."
+        },
+        {
+          "label": "Kaku Chat",
+          "text": "`kaku chat` shows a compact thinking state during hidden reasoning and avoids recording empty AI turns."
+        },
+        {
+          "label": "Chinese UI",
+          "text": "Kaku now includes Simplified Chinese localization for the app shell, command palette, settings, and AI chat."
+        },
+        {
+          "label": "Shell Setup",
+          "text": "`kaku init` is safer around read-only config paths, existing jump providers, Cmd+Backspace, Yazi themes, and `#` AI queries."
+        },
+        {
+          "label": "Session Restore",
+          "text": "New restore settings make window snapshots easier to understand and control from config."
+        },
+        {
+          "label": "Window Control",
+          "text": "Cmd+W now closes the last fullscreen tab correctly, and title-bar dragging avoids accidental snap or maximize."
+        },
+        {
+          "label": "Mouse and Tabs",
+          "text": "Top-tab hit testing, integrated title buttons, tab drag animation, and scrollback selection are more stable."
+        },
+        {
+          "label": "Rendering",
+          "text": "Bar cursors, low-DPI toast text, color emoji sizing, and pane background alignment have been tightened."
+        },
+        {
+          "label": "AI Transport",
+          "text": "Streaming, IME composition, empty API keys, proxy handling, and shell query setup are more robust across providers."
+        },
+        {
+          "label": "Maintenance",
+          "text": "Agent guides, config docs, release checks, and contributor metadata are updated for the current maintainer workflow."
+        }
+      ],
+      "itemsZh": [
+        {
+          "label": "AI 推理",
+          "text": "DeepSeek 兼容、GLM、Kimi 和 Fireworks 的推理流会保持隐藏，最终回答更干净。"
+        },
+        {
+          "label": "Kaku Chat",
+          "text": "`kaku chat` 在隐藏推理时显示紧凑 thinking 状态，并避免记录空的 AI 回合。"
+        },
+        {
+          "label": "中文界面",
+          "text": "Kaku 现在内置简体中文，覆盖应用外壳、命令面板、设置和 AI 对话。"
+        },
+        {
+          "label": "Shell 初始化",
+          "text": "`kaku init` 对只读配置路径、已有跳转工具、Cmd+Backspace、Yazi 主题和 `#` AI 查询更稳。"
+        },
+        {
+          "label": "会话恢复",
+          "text": "新的恢复设置让窗口快照更容易理解，也更方便从配置里控制。"
+        },
+        {
+          "label": "窗口控制",
+          "text": "全屏最后一个 tab 下 Cmd+W 会正确关闭页面，标题栏拖动也减少误触发 snap 或最大化。"
+        },
+        {
+          "label": "鼠标与标签页",
+          "text": "顶部标签栏命中、集成标题按钮、标签拖拽动画和 scrollback 选择都更稳定。"
+        },
+        {
+          "label": "渲染细节",
+          "text": "条形光标、低 DPI toast 文本、彩色 emoji 尺寸和 pane 背景对齐都做了收紧。"
+        },
+        {
+          "label": "AI 传输",
+          "text": "流式输出、输入法组合、空 API key、代理处理和 shell 查询初始化在更多 provider 下更稳。"
+        },
+        {
+          "label": "维护工作",
+          "text": "Agent 指南、配置文档、release 检查和 contributor 元数据都同步到当前维护流程。"
+        }
+      ],
+      "download": "https://github.com/tw93/Kaku/releases/download/V0.11.0/Kaku.dmg",
+      "thanks": "Special thanks to @t0m-car for the low-DPI toast clipping fix."
+    },
+    {
+      "version": "0.10.0",
+      "tag": "V0.10.0",
+      "name": "V0.10.0 Chat 🪄",
+      "codename": "Chat 🪄",
+      "publishedAt": "2026-05-10T01:27:16Z",
+      "url": "https://kaku.fun/changelog#v0.10.0",
+      "urlZh": "https://kaku.fun/zh/changelog#v0.10.0",
+      "github": "https://github.com/tw93/Kaku/releases/tag/V0.10.0",
+      "items": [
+        {
+          "label": "AI Chat",
+          "text": "One engine, two surfaces: `Cmd+L` opens the in-terminal panel inside Kaku, while `k` or `kaku chat` drops the same engine into an alternate-screen TUI that works in any terminal or over SSH, with streaming Markdown, syntax highlighting, shell context, project tools, web search, memory, theme detection, safer cancel and approval semantics, and inline `#` queries that land in shell history."
+        },
+        {
+          "label": "AI Configuration and Safety",
+          "text": "Assistant settings now use Simple and Deep models per task with live model loading, proxy-aware requests, OAuth setup, and broader provider responses, while stricter shell approvals, sensitive-path guards covering search and project tools, tighter file write and patch limits, failed-command context, and clearer parse errors keep the engine inside safe lines."
+        },
+        {
+          "label": "Smart Close Protection",
+          "text": "`Cmd+W` and `Cmd+Shift+W` now ask before killing a pane that runs claude, codex, cursor-agent, gemini, vim, cargo, npm, or any non-shell process, while bare shells still close silently."
+        },
+        {
+          "label": "Window Snapshots",
+          "text": "Kaku auto-saves multi-tab and multi-pane layouts, restored via `Cmd+Option+Shift+T`, Shell → Restore Previous Window, or the Command Palette."
+        },
+        {
+          "label": "AppleScript Dictionary",
+          "text": "Kaku ships a full AppleScript dictionary, so windows, tabs, and panes are scriptable from Shortcuts, Hammerspoon, or any automation tool that drives macOS apps."
+        },
+        {
+          "label": "Animated Tab Drag",
+          "text": "Drag a tab and the neighbors slide into place instead of snapping, so reordering reads as one fluid gesture."
+        },
+        {
+          "label": "Softer Dark Theme",
+          "text": "Kaku Dark now uses lower-saturation highlight colors and a slightly dimmed foreground, reducing glare on long sessions while keeping the overall Kaku look."
+        },
+        {
+          "label": "Cold Start and Shell Speed",
+          "text": "Faster startup through Lua bytecode caching, deferred font and config initialization, and cached shell user vars."
+        },
+        {
+          "label": "Background Updates",
+          "text": "Updates download in the background and fail closed on checksum mismatch, with more reliable proxy and MacPorts detection along the way."
+        },
+        {
+          "label": "Bug Fixes",
+          "text": "Fullscreen crashes, display races, resize gaps, cursor reflow, links, selection, light-theme readability, and TUI copy are all addressed."
+        }
+      ],
+      "itemsZh": [
+        {
+          "label": "AI 对话",
+          "text": "同一套引擎，两种入口：`Cmd+L` 在 Kaku 内打开对话面板，执行 `k` 或 `kaku chat` 把同一套引擎放进 alternate-screen TUI，任何终端或 SSH 远端都能用，流式 Markdown、语法高亮、shell 上下文、项目工具、网页搜索、本地记忆样样齐全，主题自动识别、取消和审批语义更稳，`#` 查询自动存入 shell 历史。"
+        },
+        {
+          "label": "AI 配置与安全",
+          "text": "Assistant 设置改为 Simple Model 与 Deep Model，支持在线模型加载、代理感知请求、OAuth 配置以及更多 provider 响应格式，shell 审批更严，敏感路径保护扩展到搜索类工具，文件写入与 patch 上限收紧，失败命令上下文和解析错误一并更稳。"
+        },
+        {
+          "label": "智能关闭保护",
+          "text": "`Cmd+W` 和 `Cmd+Shift+W` 在 pane 里跑着 claude、codex、cursor-agent、gemini、vim、cargo、npm 这类有状态进程时会先弹确认，bare shell 仍然直接关。"
+        },
+        {
+          "label": "窗口快照",
+          "text": "Kaku 自动保存多 tab、多 pane 布局，需要时按 `Cmd+Option+Shift+T`，或从 Shell → Restore Previous Window、命令面板恢复。"
+        },
+        {
+          "label": "AppleScript 字典",
+          "text": "Kaku 内置完整 AppleScript dictionary，窗口、tab、pane 都能被 Shortcuts、Hammerspoon 等自动化工具脚本化驱动。"
+        },
+        {
+          "label": "拖拽标签页动画",
+          "text": "拖动 tab 时相邻 tab 会平滑让位，不再生硬切换，重新排序变成一个连贯的动作。"
+        },
+        {
+          "label": "深色主题更柔和",
+          "text": "Kaku Dark 默认调色板降低了高亮色饱和度，前景文字微微调暗，长时间盯屏更不刺眼，整体还是 Kaku 的风格。"
+        },
+        {
+          "label": "冷启动与 Shell 速度",
+          "text": "通过 Lua 字节码缓存、字体与配置延迟初始化、shell 用户变量缓存，启动更轻。"
+        },
+        {
+          "label": "后台更新",
+          "text": "更新改为后台下载，checksum 不通过则失败关闭，代理与 MacPorts 检测一并更稳。"
+        },
+        {
+          "label": "问题修复",
+          "text": "修复全屏崩溃和卡住、显示器竞态、resize 缝隙、光标 reflow、链接、选择、浅色主题可读性和 TUI 复制。"
+        }
+      ],
+      "download": "https://github.com/tw93/Kaku/releases/download/V0.10.0/Kaku.dmg",
+      "thanks": "Special thanks to @s010s, @SherlockSalvatore, @darion-yaphet, @ddotz, @beautifulrem, @yxspace, and @fanweixiao for their contributions to this release."
+    },
+    {
+      "version": "0.9.0",
+      "tag": "V0.9.0",
+      "name": "V0.9.0 Spark ✨",
+      "codename": "Spark ✨",
+      "publishedAt": "2026-04-04T13:26:30Z",
+      "url": "https://kaku.fun/changelog#v0.9.0",
+      "urlZh": "https://kaku.fun/zh/changelog#v0.9.0",
+      "github": "https://github.com/tw93/Kaku/releases/tag/V0.9.0",
+      "items": [
+        {
+          "label": "Natural Language to Command",
+          "text": "Type `# <description>` at the prompt, press Enter, and Kaku injects the generated command back ready to run. Saved to shell history. Works in zsh and fish."
+        },
+        {
+          "label": "Option+Click Cursor Movement",
+          "text": "Click anywhere on the current line to move the cursor to that position. Wide characters and multi-byte input are handled correctly."
+        },
+        {
+          "label": "Always on Top",
+          "text": "Pin any window above others via the Window menu. Toggle on or off at any time."
+        },
+        {
+          "label": "Traffic Lights Position",
+          "text": "New `traffic_lights` option in Settings to customize the macOS window control button position."
+        },
+        {
+          "label": "Performance",
+          "text": "Tab title Lua callbacks are batched with a single Config serialization pass."
+        },
+        {
+          "label": "Stability Fixes",
+          "text": "Fixed a crash on Option+Click, divide-by-zero in split pane sizing, and unwrap panic in mouse event handling."
+        },
+        {
+          "label": "Shell and Assistant",
+          "text": "Added MiniMax as a built-in provider preset. Fixed zsh-z update display and heredoc quoting edge cases."
+        }
+      ],
+      "itemsZh": [
+        {
+          "label": "自然语言生成命令",
+          "text": "输入 `# <描述>` 后按回车，Kaku 将生成的命令注入回提示符，确认后即可运行，并保存到 shell 历史，支持 zsh 和 fish。"
+        },
+        {
+          "label": "Option+Click 移动光标",
+          "text": "点击当前行任意位置即可将光标移动到该位置，正确处理宽字符和多字节输入。"
+        },
+        {
+          "label": "窗口置顶",
+          "text": "通过 Window 菜单将窗口固定在最前，随时可切换开关。"
+        },
+        {
+          "label": "Traffic Lights 位置",
+          "text": "设置中新增 `traffic_lights` 选项，可自定义 macOS 窗口控制按钮的位置。"
+        },
+        {
+          "label": "性能优化",
+          "text": "Tab 标题 Lua 回调改为批量处理，单次序列化 Config。"
+        },
+        {
+          "label": "稳定性修复",
+          "text": "修复 Option+Click 崩溃、分屏尺寸计算除零、鼠标事件 unwrap panic。"
+        },
+        {
+          "label": "Shell 与 Assistant",
+          "text": "内置新增 MiniMax provider preset；修复 zsh-z 更新显示和 heredoc 引号边界问题。"
+        }
+      ],
+      "download": "https://github.com/tw93/Kaku/releases/download/V0.9.0/Kaku.dmg",
+      "thanks": "Special thanks to @fanweixiao and @LanternCX for their contributions to this release."
+    },
+    {
+      "version": "0.8.0",
+      "tag": "V0.8.0",
+      "name": "V0.8.0 Fish 🐟",
+      "codename": "Fish 🐟",
+      "publishedAt": "2026-03-23T05:08:18Z",
+      "url": "https://kaku.fun/changelog#v0.8.0",
+      "urlZh": "https://kaku.fun/zh/changelog#v0.8.0",
+      "github": "https://github.com/tw93/Kaku/releases/tag/V0.8.0",
+      "items": [
+        {
+          "label": "Fish Shell Support",
+          "text": "Full fish shell integration via `kaku init`, including Starship prompt, Yazi launcher, theme sync, and conf.d entrypoint."
+        },
+        {
+          "label": "Bell Tab Indicator",
+          "text": "Background tabs show a bell prefix when tasks finish, with optional Dock badge and toggleable tab prefix."
+        },
+        {
+          "label": "Remember Last Directory",
+          "text": "Kaku restores the last working directory when opening new tabs or windows. Can be disabled via `kaku config`."
+        },
+        {
+          "label": "Update & Doctor in Tabs",
+          "text": "`kaku update` and `kaku doctor` now open in a dedicated tab instead of blocking the current session."
+        },
+        {
+          "label": "Basename-only Tab Titles",
+          "text": "New `tab_title_basename_only` option to show just the directory name instead of the full path."
+        },
+        {
+          "label": "Scrollback Fix",
+          "text": "Fixed viewport jumping to top during rapid output, snapping to bottom after scrolling up, and viewport jumping when using Claude Code."
+        },
+        {
+          "label": "Bug Fixes & Close Shortcuts",
+          "text": "Fixed window hide, Cmd+Click links, clipboard paste, emoji width, and SSH alias conflicts. Close dialogs now support Enter to confirm and Esc to cancel. Fixed Cmd+Q crash (RefCell double-borrow) and transparent corner arcs on macOS 26."
+        }
+      ],
+      "itemsZh": [
+        {
+          "label": "Fish Shell 完整支持",
+          "text": "`kaku init` 现支持 fish shell 完整引导，含 Starship 提示符、Yazi 启动器、主题同步及 conf.d 入口。"
+        },
+        {
+          "label": "铃声标签指示器",
+          "text": "后台标签任务完成时显示铃声前缀，支持可选 Dock badge 和标签前缀开关。"
+        },
+        {
+          "label": "记住上次目录",
+          "text": "新标签和新窗口打开时自动恢复上次工作目录，可通过 `kaku config` 关闭。"
+        },
+        {
+          "label": "Update/Doctor 在标签中运行",
+          "text": "`kaku update` 和 `kaku doctor` 在独立标签中打开，不阻塞当前会话。"
+        },
+        {
+          "label": "仅显示目录名标签",
+          "text": "新增 `tab_title_basename_only` 选项，只显示目录名而非完整路径。"
+        },
+        {
+          "label": "滚动修复",
+          "text": "修复快速输出时 viewport 跳到顶部、往上滚动后自动跳回底部，以及 Claude Code 使用时 viewport 异常跳动的问题。"
+        },
+        {
+          "label": "Bug 修复",
+          "text": "修复窗口隐藏、Cmd+Click 链接、剪贴板粘贴、emoji 宽度、SSH alias 冲突。关闭确认弹窗现支持回车确认、Esc 取消。修复 macOS 26 上 Cmd+Q 崩溃和透明圆角渲染问题。"
+        }
+      ],
+      "download": "https://github.com/tw93/Kaku/releases/download/V0.8.0/Kaku.dmg",
+      "thanks": "Special thanks to @mystersu, @ddotz, @rookie-ricardo, @s010s, @anzksdk, @cynosurech, and @XinCao for their contributions to this release."
+    },
+    {
+      "version": "0.7.1",
+      "tag": "V0.7.1",
+      "name": "V0.7.1 Flow 🌊",
+      "codename": "Flow 🌊",
+      "publishedAt": "2026-03-13T15:51:52Z",
+      "url": "https://kaku.fun/changelog#v0.7.1",
+      "urlZh": "https://kaku.fun/zh/changelog#v0.7.1",
+      "github": "https://github.com/tw93/Kaku/releases/tag/V0.7.1",
+      "items": [
+        {
+          "label": "Auto Theme & UI Refresh",
+          "text": "Kaku now auto-switches between dark and light modes with macOS, with improved transparency rendering and Yazi theme sync."
+        },
+        {
+          "label": "Safer Close & Interaction",
+          "text": "Added tab and pane close confirmations, refreshed overlay styling, and fixed title bar interaction so double-click zoom no longer interferes with window dragging."
+        },
+        {
+          "label": "Better Settings Workflow",
+          "text": "`kaku config` now provides clearer grouped sections, a pinned footer with contextual key hints, safer config parsing, and more reliable reload behavior."
+        },
+        {
+          "label": "Improved AI Configuration",
+          "text": "`kaku ai` now supports Antigravity model setup, quota tracking, background loading, and more reliable OAuth token refresh."
+        },
+        {
+          "label": "Optional Rounded Scrollbars",
+          "text": "Added custom rounded scrollbars that can be enabled from `kaku config`."
+        },
+        {
+          "label": "Pane Input Broadcast",
+          "text": "Added pane input broadcast modes for synchronized typing across panes, with safeguards to ensure overlay input is never broadcast by mistake."
+        },
+        {
+          "label": "File & Editor Workflow",
+          "text": "Improved file path link opening, added a remote files shortcut for SSH sessions, and better respects the `$EDITOR` environment for config editing flows."
+        },
+        {
+          "label": "Bug Fixes & Stability",
+          "text": "Fixed AeroSpace/yabai resize flicker, hardened managed shell and tmux integration, scoped Smart Tab to Kaku sessions by default, and improved Starship RPROMPT fallback behavior."
+        }
+      ],
+      "itemsZh": [
+        {
+          "label": "自动主题与界面优化",
+          "text": "Kaku 现在会跟随 macOS 自动切换深色和浅色模式，并优化了透明度渲染和 Yazi 主题同步体验。"
+        },
+        {
+          "label": "更安全的关闭与交互",
+          "text": "新增标签页和窗格关闭确认，重做了关闭浮层样式，并修复标题栏交互问题，双击缩放后也不会影响窗口拖拽。"
+        },
+        {
+          "label": "更好的设置工作流",
+          "text": "`kaku config` 现在提供更清晰的分组结构、固定底部快捷键提示、更稳健的配置解析和更可靠的配置重载。"
+        },
+        {
+          "label": "AI 配置增强",
+          "text": "`kaku ai` 现在支持 Antigravity 模型配置、额度追踪、后台加载和更可靠的 OAuth token 刷新。"
+        },
+        {
+          "label": "可选开启的圆角滚动条",
+          "text": "新增自制圆角滚动条，并可通过 `kaku config` 开启。"
+        },
+        {
+          "label": "窗格输入广播",
+          "text": "新增窗格输入广播模式，可在多个窗格间同步输入，同时避免将浮层输入误广播到其他窗格。"
+        },
+        {
+          "label": "文件与编辑器工作流优化",
+          "text": "改进文件路径链接打开，SSH 会话增加远程文件快捷入口，并在配置编辑流程中更好地尊重 `$EDITOR` 环境变量。"
+        },
+        {
+          "label": "Bug 修复与稳定性提升",
+          "text": "修复 AeroSpace/yabai 调整窗口大小时的闪烁问题，加固托管 shell 和 tmux 集成，Smart Tab 默认仅限 Kaku 会话，并改进 Starship RPROMPT 回退行为。"
+        }
+      ],
+      "download": "https://github.com/tw93/Kaku/releases/download/V0.7.1/Kaku.dmg",
+      "thanks": "Special thanks to @frankekn, @crossly, @iwen-conf, and @zxh326 for their contributions to this release."
+    },
+    {
+      "version": "0.6.0",
+      "tag": "V0.6.0",
+      "name": "V0.6.0 Clarity ☀️",
+      "codename": "Clarity ☀️",
+      "publishedAt": "2026-03-08T12:18:16Z",
+      "url": "https://kaku.fun/changelog#v0.6.0",
+      "urlZh": "https://kaku.fun/zh/changelog#v0.6.0",
+      "github": "https://github.com/tw93/Kaku/releases/tag/V0.6.0",
+      "items": [
+        {
+          "label": "Light Theme Improvements",
+          "text": "Kaku now brings a more polished light theme with dynamic font weight, improved ANSI colors, and Claude Code-specific color overrides, including better quote background rendering."
+        },
+        {
+          "label": "AI Usage Visibility",
+          "text": "The AI settings panel now shows usage summaries and remaining quota more clearly, with added Kimi Code support, Kimi usage tracking, background loading, and more reliable Claude OAuth token refresh persistence. Custom request headers (`custom_headers`) can now also be set in the config file for private or proxied deployments."
+        },
+        {
+          "label": "Interactive Settings TUI",
+          "text": "`kaku config` is now a richer interactive settings editor with save-on-exit behavior, theme-aware updates, and more reliable config syncing."
+        },
+        {
+          "label": "Better Tab Workflow",
+          "text": "Tabs can now be reordered with drag and drop, renamed inline by double-clicking, reopened with `Cmd + Shift + T` after closing, or renamed programmatically via the `kaku set-tab-title` command."
+        },
+        {
+          "label": "Path Hyperlinks",
+          "text": "Terminal output now supports opening file path hyperlinks directly, with better handling for relative paths and decoded file paths."
+        },
+        {
+          "label": "Smarter Shell Integration",
+          "text": "Improved first-run shell setup without Homebrew, fixed zsh source line escaping, repaired Starship right prompt leakage after `Ctrl + C`, removed the forced `TERM=kaku` setting that broke the Delete key over SSH, and made AI shell hooks more reliable when `TERM` falls back to `xterm-256color`."
+        },
+        {
+          "label": "Selection and UI Polish",
+          "text": "Preserved text selection during terminal output, fixed stale window padding overrides, improved fullscreen inset and padding alignment, and unified selection colors across displays."
+        },
+        {
+          "label": "macOS Input and Window Fixes",
+          "text": "Fixed non-Latin IME blocking `Cmd + alnum` shortcuts, fixed `Cmd + Shift + Symbol` key bindings, improved dead key handling, fixed Turkish keyboard tilde input, and improved fullscreen, maximize, display refresh, and global hotkey restore behavior."
+        },
+        {
+          "label": "Terminal, Memory, and Notification Improvements",
+          "text": "Added a Dock badge for unread bell notifications, improved scrollback memory with lazy allocation, capped background image and gradient render cache sizes for more stable long-session memory usage, and further improved update actions, menu command handling, and terminal interaction reliability."
+        },
+        {
+          "label": "Release and Upgrade Hardening",
+          "text": "Hardened the automated release pipeline, centralized config migration metadata, and bumped the config migration version to `14` so existing users receive the required shell integration refresh and prompt helper fix."
+        }
+      ],
+      "itemsZh": [
+        {
+          "label": "浅色主题优化",
+          "text": "Kaku 这次重点打磨了浅色主题，支持动态字重，优化了 ANSI 配色，并补充了针对 Claude Code 的颜色覆盖，包括更自然的引用背景显示效果。"
+        },
+        {
+          "label": "AI 剩余用量显示",
+          "text": "AI 设置面板现在可以更直观地显示 usage 摘要和剩余额度，新增了 Kimi Code 支持、Kimi usage 统计、后台加载，并改进了 Claude OAuth token 刷新后的持久化逻辑。同时支持在配置文件中设置 `custom_headers`，方便私有化或代理部署场景使用。"
+        },
+        {
+          "label": "交互式设置 TUI",
+          "text": "`kaku config` 现在是更完整的交互式设置界面，支持退出即保存、主题感知更新，以及更稳定的配置同步体验。"
+        },
+        {
+          "label": "标签页工作流升级",
+          "text": "现在支持拖拽调整标签顺序、双击内联重命名、通过 `Cmd + Shift + T` 重新打开刚关闭的标签页，以及通过 `kaku set-tab-title` 命令从脚本或外部工具重命名标签页。"
+        },
+        {
+          "label": "路径超链接支持",
+          "text": "终端输出中的文件路径现在可以直接点击打开，同时改进了相对路径和解码后路径的处理。"
+        },
+        {
+          "label": "Shell 集成改进",
+          "text": "优化了无 Homebrew 场景下的首次 shell 初始化，修复 zsh source line 转义问题、Starship 在 `Ctrl + C` 后泄漏右提示符文本的问题，移除了强制 `TERM=kaku` 设置（该设置会导致 SSH 远端 Delete 键失效），并提升了 `TERM` 回退到 `xterm-256color` 时 AI shell hooks 的兼容性。"
+        },
+        {
+          "label": "选区与界面细节优化",
+          "text": "终端输出过程中不再破坏文本选区，修复陈旧 window padding 覆盖问题，优化全屏 inset 与 padding 对齐，并统一了不同显示器下的选区颜色表现。"
+        },
+        {
+          "label": "macOS 输入与窗口修复",
+          "text": "修复了非拉丁输入法阻塞 `Cmd + 字母/数字` 快捷键、`Cmd + Shift + Symbol` 组合键不响应、死键处理异常、土耳其键盘波浪号输入问题，并改进了全屏、最大化、显示器刷新和全局快捷键恢复等行为。"
+        },
+        {
+          "label": "终端、内存与通知体验优化",
+          "text": "新增未读 bell 的 Dock badge，Scrollback 改为懒加载并对背景图和渐变渲染缓存设置大小上限，长时间使用后内存占用更稳定，同时继续打磨更新菜单、命令执行和终端交互链路中的稳定性。"
+        },
+        {
+          "label": "发布与升级链路加固",
+          "text": "补强了自动发布校验，统一了配置迁移元数据，并将配置迁移版本提升到 `14`，确保老用户能正确收到这次 shell 集成刷新和 prompt helper 修复。"
+        }
+      ],
+      "download": "https://github.com/tw93/Kaku/releases/download/V0.6.0/Kaku.dmg",
+      "thanks": "Special thanks to @frankekn, @ddnio, @GavinRiver, and @nguyenphutrong for their contributions to this release. If Kaku helps you, please consider giving it a star and recommending it to your friends."
+    },
+    {
+      "version": "0.5.1",
+      "tag": "V0.5.1",
+      "name": "V0.5.1 Kindness 🌴",
+      "codename": "Kindness 🌴",
+      "publishedAt": "2026-02-28T11:01:28Z",
+      "url": "https://kaku.fun/changelog#v0.5.1",
+      "urlZh": "https://kaku.fun/zh/changelog#v0.5.1",
+      "github": "https://github.com/tw93/Kaku/releases/tag/V0.5.1",
+      "items": [
+        {
+          "text": "Fixed shell alias conflict, `y` launcher no longer clashes with existing aliases like `alias y=yarn`"
+        },
+        {
+          "text": "Fixed SSH remote display, sessions now forward `TERM=xterm-256color` to prevent broken rendering on servers without Kaku's terminfo"
+        },
+        {
+          "text": "Fixed `Cmd + Shift + ,` keybinding not passing through to tmux and other terminal apps"
+        },
+        {
+          "text": "Fixed CLI panic when running `kaku cli split-pane`"
+        },
+        {
+          "text": "Fixed misleading \"error\" toast appearing in AI assistant during analysis"
+        },
+        {
+          "text": "Fixed update notification appearing on startup even when check_for_updates is disabled"
+        }
+      ],
+      "itemsZh": [],
+      "download": "https://github.com/tw93/Kaku/releases/download/V0.5.1/Kaku.dmg"
+    },
+    {
+      "version": "0.5.0",
+      "tag": "V0.5.0",
+      "name": "V0.5.0 Yohaku 🪽",
+      "codename": "Yohaku 🪽",
+      "publishedAt": "2026-02-27T12:25:09Z",
+      "url": "https://kaku.fun/changelog#v0.5.0",
+      "urlZh": "https://kaku.fun/zh/changelog#v0.5.0",
+      "github": "https://github.com/tw93/Kaku/releases/tag/V0.5.0",
+      "items": [
+        {
+          "label": "AI Shell Error Fixer",
+          "text": "When a command fails, Kaku sends it to an AI model and shows a fix suggestion right in the terminal. Press `Cmd + Shift + E` to apply it."
+        },
+        {
+          "label": "Yazi Built In",
+          "text": "Press `Cmd + Shift + Y` or type `y` to open Yazi. Layout and theme config are set up automatically on first run. `cd + Tab` also falls back to zsh-z history when no filesystem match is found."
+        },
+        {
+          "label": "Command Palette",
+          "text": "Press `Cmd + Shift + P` for quick command search with fuzzy matching and native text editing support."
+        },
+        {
+          "label": "Kaku Doctor",
+          "text": "Run `kaku doctor` to check your setup and fix common issues interactively."
+        },
+        {
+          "label": "Global Hotkey",
+          "text": "Press `Ctrl + Opt + Cmd + K` to show or hide Kaku from anywhere. Configurable via `macos_global_hotkey`."
+        },
+        {
+          "label": "Shell Text Editing",
+          "text": "Use `Cmd + A` to select all, `Shift + Arrow` to extend selection, and type to replace, just like a native text editor, right in your shell prompt."
+        },
+        {
+          "label": "Expanded AI Config",
+          "text": "`kaku ai` now covers Kaku Assistant, Factory Droid, and opencode.jsonc all in one place."
+        },
+        {
+          "label": "Bell Indicator",
+          "text": "Tabs show a blinking dot when they receive a bell while you are in another tab."
+        },
+        {
+          "label": "Better Scrolling and Input",
+          "text": "Smoother trackpad scrolling in `less` and `man` with DECSET 1007 alternate scroll support. IME popup positioning is fixed for CJK input methods like Typeless."
+        },
+        {
+          "label": "Native Window Shadow",
+          "text": "Window shadow is restored on macOS after being disabled to work around a GPU usage issue in earlier builds."
+        },
+        {
+          "label": "Faster Startup and Smaller Bundle",
+          "text": "Lua bytecode caching and deferred module loading cut launch time. Fat LTO and single codegen unit reduce binary size."
+        },
+        {
+          "label": "Shell Integration Fix",
+          "text": "Kaku's shell integration now loads in all terminal environments instead of only when `$TERM` is set to `kaku`. Plugins already loaded by your own config are no longer duplicated."
+        }
+      ],
+      "itemsZh": [
+        {
+          "label": "AI Shell 错误修复",
+          "text": "命令失败时，Kaku 自动把命令发给 AI，直接在终端里展示修复建议，按 `Cmd + Shift + E` 一键应用。"
+        },
+        {
+          "label": "内置 Yazi",
+          "text": "按 `Cmd + Shift + Y` 或直接输入 `y` 打开 Yazi，布局和主题首次运行自动配好。`cd + Tab` 在文件系统无匹配时还会回退到 zsh-z 历史目录。"
+        },
+        {
+          "label": "命令面板",
+          "text": "按 `Cmd + Shift + P` 快速搜索命令，支持模糊匹配和原生文本编辑。"
+        },
+        {
+          "label": "Kaku Doctor",
+          "text": "运行 `kaku doctor` 检测配置问题，支持交互式一键修复。"
+        },
+        {
+          "label": "全局快捷键",
+          "text": "默认 `Ctrl + Opt + Cmd + K` 从任意应用唤起或隐藏 Kaku，支持通过 `macos_global_hotkey` 自定义。"
+        },
+        {
+          "label": "Shell 文本编辑",
+          "text": "在命令行中使用 `Cmd + A` 全选、`Shift + 方向键` 扩展选区、直接输入替换选中内容，和原生文本编辑器一样的体验。"
+        },
+        {
+          "label": "AI 配置统一入口",
+          "text": "`kaku ai` 界面现在统一管理 Kaku Assistant、Factory Droid 和 opencode.jsonc。"
+        },
+        {
+          "label": "标签页响铃提示",
+          "text": "切到其他标签时，有结果或通知的标签会显示闪烁圆点。"
+        },
+        {
+          "label": "滚动与输入优化",
+          "text": "`less`、`man` 等场景下触控板滚动更顺滑，支持 DECSET 1007 备用滚动模式。修复了 Typeless 等 CJK 输入法弹窗位置偏移的问题。"
+        },
+        {
+          "label": "窗口阴影恢复",
+          "text": "macOS 原生窗口阴影已恢复，此前因早期版本 GPU 占用问题被临时关闭。"
+        },
+        {
+          "label": "启动提速与包体积大幅优化",
+          "text": "Lua 字节码缓存和延迟加载缩短启动时间，Fat LTO 和单 codegen unit 减小二进制体积。"
+        },
+        {
+          "label": "Shell 集成检测修复",
+          "text": "Shell 集成现在在所有终端环境下都能正常加载，不再依赖 `$TERM` 是否为 kaku。用户自行加载的插件不再被重复加载。"
+        }
+      ],
+      "download": "https://github.com/tw93/Kaku/releases/download/V0.5.0/Kaku.dmg",
+      "thanks": "Special thanks to @jaost, @nguyenphutrong, @mickyyy68, and @guohai for their contributions to this release. If Kaku helps you, please consider giving it a star and recommending it to your friends."
+    },
+    {
+      "version": "0.4.0",
+      "tag": "V0.4.0",
+      "name": "V0.4.0 AIIIIIII 🥂",
+      "codename": "AIIIIIII 🥂",
+      "publishedAt": "2026-02-19T08:14:40Z",
+      "url": "https://kaku.fun/changelog#v0.4.0",
+      "urlZh": "https://kaku.fun/zh/changelog#v0.4.0",
+      "github": "https://github.com/tw93/Kaku/releases/tag/V0.4.0",
+      "items": [
+        {
+          "label": "New `kaku ai` Command",
+          "text": "Added `kaku ai` to manage your current AI coding tool configs in one place, with improved editor interaction, account display, and OAuth re-auth flow."
+        },
+        {
+          "label": "Better Startup and Rendering on macOS",
+          "text": "Kaku now defaults to WebGpu with OpenGL fallback, delivers better rendering quality, and reduces memory usage from about 200MB to about 80MB in typical scenarios."
+        },
+        {
+          "label": "Lazygit Workflow Built In",
+          "text": "Added `Cmd + Shift + G`, in-terminal launch flow, and contextual hints for git repositories."
+        },
+        {
+          "label": "Split UX Enhancements",
+          "text": "Added a current pane marker so you can spot the active pane at a glance. Also added `split_thickness` config and precise split-line intersection alignment."
+        },
+        {
+          "label": "Better Window and Pane Controls",
+          "text": "`Cmd + W` closing logic now works as expected across panes, tabs, and multi-window setups. Added `Cmd + Opt + Arrows` to jump between panes."
+        },
+        {
+          "label": "Shell Setup Improved",
+          "text": "Refined first-run and update shell flow with optional Homebrew CLI tool install and smarter Tab completion behavior."
+        },
+        {
+          "label": "SSH Remote and 1Password Support",
+          "text": "Remote SSH sessions now force `TERM=xterm-256color` to avoid terminfo issues. Shell integration also auto-detects the 1Password SSH agent and adds `IdentitiesOnly=yes` to stop auth failures from too many offered keys."
+        },
+        {
+          "label": "Per-Pane Encoding Support",
+          "text": "Added pane-level encoding switching with support for `UTF-8`, `GBK`, `GB18030`, `Big5`, `EUC-KR`, and `Shift-JIS`."
+        },
+        {
+          "label": "URL Scheme for Pane Activation",
+          "text": "Added `kaku://open-tab?tty=<device>` so external tools like scripts or AI agents can jump straight to a specific terminal pane by TTY name."
+        }
+      ],
+      "itemsZh": [
+        {
+          "label": "新增 `kaku ai` 命令",
+          "text": "提供统一入口管理当前所有 AI Coding 工具配置，优化编辑交互、账号展示和 OAuth 重认证流程。"
+        },
+        {
+          "label": "优化 macOS 启动与渲染体验",
+          "text": "默认使用 WebGpu，失败时自动回退 OpenGL，渲染效果更好；典型场景内存从约 200MB 降到约 80MB。"
+        },
+        {
+          "label": "内置 Lazygit 工作流",
+          "text": "新增 `Cmd + Shift + G` 快捷键、终端内启动流程和 Git 仓库场景提示。"
+        },
+        {
+          "label": "分屏体验增强",
+          "text": "新增当前分屏标记，一眼看出当前分屏；支持 `split_thickness` 配置分割线粗细，优化分割线交叉对齐。"
+        },
+        {
+          "label": "窗口与分屏操作优化",
+          "text": "`Cmd + W` 在分屏、标签页和多窗口场景下关闭逻辑更符合直觉；新增 `Cmd + Opt + Arrows` 快速在分屏间切换。"
+        },
+        {
+          "label": "Shell 安装与更新优化",
+          "text": "重构首次安装和更新流程，支持可选 Homebrew CLI 工具安装，并优化 Tab 补全策略。"
+        },
+        {
+          "label": "SSH 兼容性和 1Password 支持",
+          "text": "远端 SSH 会强制 `TERM=xterm-256color` 避免 terminfo 问题。Shell 集成自动识别 1Password SSH Agent，自动加上 `IdentitiesOnly=yes`，解决密钥太多导致的认证失败。"
+        },
+        {
+          "label": "分屏独立编码支持",
+          "text": "新增每个 Pane 独立切换编码，支持 `UTF-8`、`GBK`、`GB18030`、`Big5`、`EUC-KR`、`Shift-JIS`。"
+        },
+        {
+          "label": "URL Scheme 激活指定终端",
+          "text": "新增 `kaku://open-tab?tty=<device>`，外部工具、脚本或 AI agent 可以直接通过 TTY 名跳转到对应的终端 Pane。"
+        }
+      ],
+      "download": "https://github.com/tw93/Kaku/releases/download/V0.4.0/Kaku.dmg",
+      "notes": [
+        "Thanks to @WongLoki, @liu-kan, @OiAnthony, @XueshiQiao, and @CTHua for the contributions."
+      ]
+    },
+    {
+      "version": "0.3.1",
+      "tag": "V0.3.1",
+      "name": "V0.3.1 New Year 🎋",
+      "codename": "New Year 🎋",
+      "publishedAt": "2026-02-16T10:13:53Z",
+      "url": "https://kaku.fun/changelog#v0.3.1",
+      "urlZh": "https://kaku.fun/zh/changelog#v0.3.1",
+      "github": "https://github.com/tw93/Kaku/releases/tag/V0.3.1",
+      "items": [
+        {
+          "label": "Clear Screen with Cmd+K",
+          "text": "Use `Cmd+K` to clear the screen. `Cmd+R` is still supported for compatibility."
+        },
+        {
+          "label": "Toggle Split Direction",
+          "text": "Press `Cmd+Shift+S` to toggle a split pane between horizontal and vertical layout. Zoom state and minimum size are properly handled."
+        },
+        {
+          "label": "SSH Compatibility Fix",
+          "text": "SSH sessions now use `xterm-256color` as TERM, both for built-in SSH domains and when running `ssh` directly in the terminal. Remote hosts no longer fail due to missing `kaku` terminfo."
+        },
+        {
+          "label": "macOS Dictation Support",
+          "text": "Fixed `selected_range` to return a valid cursor position, enabling macOS dictation and voice input to work correctly."
+        },
+        {
+          "label": "Tab Completion Restored",
+          "text": "Removed Smart Tab behavior. Tab key now shows the completion list as expected. Use Right Arrow to accept autosuggestions."
+        },
+        {
+          "label": "Auto-Create User Config",
+          "text": "`kaku init` now automatically creates `~/.config/kaku/kaku.lua` if it doesn't exist."
+        },
+        {
+          "label": "OpenCode Theme Setup",
+          "text": "`kaku init` can optionally set up a Kaku-matching theme for OpenCode, with user confirmation before writing."
+        },
+        {
+          "label": "Bluetooth Permission",
+          "text": "Added `NSBluetoothAlwaysUsageDescription` to Info.plist for terminal-based BLE development workflows."
+        }
+      ],
+      "itemsZh": [
+        {
+          "label": "Cmd+K 清屏",
+          "text": "使用 `Cmd+K` 清屏，同时保留 `Cmd+R` 兼容。"
+        },
+        {
+          "label": "切换分屏方向",
+          "text": "按 `Cmd+Shift+S` 可在水平和垂直布局之间切换分屏方向，正确处理缩放状态和最小尺寸。"
+        },
+        {
+          "label": "SSH 兼容性修复",
+          "text": "SSH 会话现在统一使用 `xterm-256color` 作为 TERM，包括内置 SSH Domain 和在终端中直接运行 `ssh` 命令两种场景，远端不再因缺少 `kaku` terminfo 而报错。"
+        },
+        {
+          "label": "macOS 听写支持",
+          "text": "修复 `selected_range` 返回合法光标位置，macOS 听写和语音输入现在可以正常工作。"
+        },
+        {
+          "label": "Tab 补全恢复",
+          "text": "移除 Smart Tab 行为，Tab 键恢复为显示补全列表，使用右箭头键接受自动建议。"
+        },
+        {
+          "label": "自动创建用户配置",
+          "text": "`kaku init` 在配置文件不存在时自动创建 `~/.config/kaku/kaku.lua`。"
+        },
+        {
+          "label": "OpenCode 主题配置",
+          "text": "`kaku init` 可选配置与 Kaku 匹配的 OpenCode 主题，写入前会询问用户确认。"
+        },
+        {
+          "label": "蓝牙权限声明",
+          "text": "在 Info.plist 中添加蓝牙权限描述，支持在终端中进行 BLE 开发。"
+        }
+      ],
+      "download": "https://github.com/tw93/Kaku/releases/download/V0.3.1/Kaku.dmg",
+      "notes": [
+        "Thanks to @GavinRiver for the contribution. If you find Kaku helpful, feel free to star the project and share it with",
+        "your friends."
+      ]
+    },
+    {
+      "version": "0.3.0",
+      "tag": "V0.3.0",
+      "name": "V0.3.0 Happy 🥙",
+      "codename": "Happy 🥙",
+      "publishedAt": "2026-02-16T02:27:31Z",
+      "url": "https://kaku.fun/changelog#v0.3.0",
+      "urlZh": "https://kaku.fun/zh/changelog#v0.3.0",
+      "github": "https://github.com/tw93/Kaku/releases/tag/V0.3.0",
+      "items": [
+        {
+          "label": "Smoother Fullscreen",
+          "text": "Transitions are now stable with less flicker. Padding stays correct when you split panes or create tabs in fullscreen. Fullscreen tab bar visibility and split rendering were refined for cleaner layout."
+        },
+        {
+          "label": "Window Restore Stability",
+          "text": "Kaku now persists window size and position during move/resize, with display-aware restore for better multi-monitor behavior."
+        },
+        {
+          "label": "Toast Notifications",
+          "text": "Copy text and see `Copied!` appear at the bottom right. Reload config and get instant confirmation. You now know when things actually work."
+        },
+        {
+          "label": "SSH Host in Tabs",
+          "text": "When connected to a remote server, the tab shows the hostname. No more guessing which tab is which server."
+        },
+        {
+          "label": "Finder Integration",
+          "text": "Right-click any folder in Finder and select `Open in Kaku`. Terminal opens with that folder as your working directory. Service open requests are now queued until GUI is ready for more reliable startup behavior."
+        },
+        {
+          "label": "Default Terminal",
+          "text": "Set Kaku as your system default via menu bar `Kaku` → `Set as Default Terminal`. Shell scripts and terminal file types will open in Kaku instead of Terminal.app."
+        },
+        {
+          "label": "Shell History Peek",
+          "text": "In vim or tmux, scroll up to view your shell history without leaving. Scroll down to return. No need to quit vim to check previous output."
+        },
+        {
+          "label": "Image Paste",
+          "text": "Copy images from other apps and paste directly into terminal apps in Kaku. Images save to temp and the path auto-inserts."
+        },
+        {
+          "label": "Selection Autoscroll",
+          "text": "Drag to select text and move upward beyond the viewport, the view now auto-scrolls so you can select more content above. Fixed a bug where this stopped working during drag capture."
+        },
+        {
+          "label": "Transparent Window Fix",
+          "text": "Fixed edge artifacts when using window background opacity. Gaps now fill properly with background color."
+        },
+        {
+          "label": "Multi-File Dock Drop",
+          "text": "Drag multiple files or folders to the Kaku Dock icon. Each opens in its own tab."
+        },
+        {
+          "label": "Better Font Rendering",
+          "text": "Fixed compressed text on macOS and wide glyphs getting squeezed. Icon fonts like Nerd Fonts now display at proper width, and low-resolution displays now use a smaller default font size for better readability."
+        },
+        {
+          "label": "Bar Cursor",
+          "text": "Changed from block to bar cursor, more common in modern terminals. Supports Vim mode cursor switching between normal and insert modes. Cursor blinking behavior is restored with a tuned default blink rate (`500ms`) and improved inactive-pane cursor rendering."
+        },
+        {
+          "label": "Clearer Split Labels",
+          "text": "Menu now shows `Split Pane Top/Bottom` and `Split Pane Left/Right` instead of confusing `Vertically/Horizontally`."
+        },
+        {
+          "label": "Safer `kaku update`",
+          "text": "Prevents upgrading the wrong Homebrew package and only probes caskroom-managed installs."
+        },
+        {
+          "label": "[color_scheme](cci:1://file:///Users/tw93/www/Kaku/config/src/config.rs:1469:4-1525:5) Override Fix",
+          "text": "User-defined [color_scheme](cci:1://file:///Users/tw93/www/Kaku/config/src/config.rs:1469:4-1525:5) now correctly overrides the bundled `Kaku` theme."
+        },
+        {
+          "label": "Lower GPU Usage",
+          "text": "Disabled window shadow by default to reduce GPU overhead on macOS, and the window looks even cleaner."
+        }
+      ],
+      "itemsZh": [
+        {
+          "label": "全屏体验优化",
+          "text": "切换动画更稳定，减少闪烁，全屏下分屏或新建标签时边距保持正确，同时优化了全屏下 Tab Bar 显示逻辑和分屏分割线渲染。"
+        },
+        {
+          "label": "窗口恢复稳定性",
+          "text": "移动/缩放时会持久化窗口尺寸与位置，并按显示器状态恢复，多屏场景更稳一点。"
+        },
+        {
+          "label": "Toast 通知",
+          "text": "复制文本显示 `Copied!`，重载配置有确认提示，操作结果看明白。"
+        },
+        {
+          "label": "SSH 主机名标签",
+          "text": "连接远程服务器时 Tab 栏显示主机名，多服务器管理不再混淆。"
+        },
+        {
+          "label": "Finder 右键打开",
+          "text": "右键文件夹选择 `Open in Kaku`，直接在该目录打开终端。启动阶段会先排队请求，GUI 就绪后再处理。"
+        },
+        {
+          "label": "设为默认终端",
+          "text": "通过菜单栏 `Kaku` → `Set as Default Terminal` 设为系统默认，shell 脚本及终端相关文件类型将用 Kaku 打开而非 Terminal.app。"
+        },
+        {
+          "label": "Shell 历史滚动",
+          "text": "在 vim 或 tmux 中向上滚动查看 shell 历史，向下返回，无需退出当前应用。"
+        },
+        {
+          "label": "图片粘贴支持",
+          "text": "从其他应用复制图片，粘贴到 Kaku 的终端应用中，自动保存并插入路径。"
+        },
+        {
+          "label": "选中自动滚动",
+          "text": "拖拽选中文本时向上超出视口，视图会自动滚动以便选择上方更多内容。"
+        },
+        {
+          "label": "透明窗口修复",
+          "text": "修复窗口透明时的边缘缝隙，用背景色正确填充。"
+        },
+        {
+          "label": "Dock 批量拖放",
+          "text": "拖拽多个文件到 Dock 图标，每个文件在单独标签页打开。"
+        },
+        {
+          "label": "字体渲染修复",
+          "text": "修复 macOS 字体压缩和宽字符挤压问题，图标字体正常显示，对低分辨率使用更小字体。"
+        },
+        {
+          "label": "竖线光标",
+          "text": "默认改为竖线光标，更符合现代终端习惯，支持 Vim 模式光标切换，恢复闪烁行为，优化了非活动 Pane 的光标问题。"
+        },
+        {
+          "label": "分屏标签清晰化",
+          "text": "菜单改为 `Split Pane Top/Bottom` 和 `Split Pane Left/Right`，表述更清晰。"
+        },
+        {
+          "label": "`kaku update` 更安全",
+          "text": "修复 Homebrew 误升级错误软件的问题，并仅探测 caskroom 管理的安装。"
+        },
+        {
+          "label": "color_scheme 覆盖修复",
+          "text": "用户配置的 color_scheme 现在可以正确覆盖内置 `Kaku` 主题。"
+        },
+        {
+          "label": "降低 GPU 占用",
+          "text": "默认关闭窗口阴影以减少 macOS 下的 GPU 开销，这样窗口显示效果更简洁好看。"
+        }
+      ],
+      "download": "https://github.com/tw93/Kaku/releases/download/V0.3.0/Kaku.dmg",
+      "notes": [
+        "Thanks to @mickyyy68, @Viking602, @GavinRiver, @QuentinHsu for their contributions. If you find Kaku helpful, feel free to star the project and share it with your friends."
+      ]
+    },
+    {
+      "version": "0.2.0",
+      "tag": "V0.2.0",
+      "name": "V0.2.0 Craft 🍺",
+      "codename": "Craft 🍺",
+      "publishedAt": "2026-02-13T03:59:52Z",
+      "url": "https://kaku.fun/changelog#v0.2.0",
+      "urlZh": "https://kaku.fun/zh/changelog#v0.2.0",
+      "github": "https://github.com/tw93/Kaku/releases/tag/V0.2.0",
+      "items": [
+        {
+          "label": "Universal Binary",
+          "text": "One app for both Apple Silicon and Intel Macs. No need to choose between architectures. Optimized Rust build for smaller size and better performance."
+        },
+        {
+          "label": "Apple Notarized",
+          "text": "After 3 years of failed applications, I finally wrote to Cook to complain. Problem solved. Developer ID acquired. 698 RMB well spent. Just so you can open Kaku without security warnings on day one."
+        },
+        {
+          "label": "Fixed Config Loading",
+          "text": "User config at `~/.config/kaku/kaku.lua` now loads correctly instead of being overridden by defaults."
+        },
+        {
+          "label": "Homebrew Support",
+          "text": "Install with `brew install tw93/tap/kakuku` and upgrade with `brew upgrade kakuku`."
+        },
+        {
+          "label": "Fullscreen Time Display",
+          "text": "A subtle clock in the bottom-right corner during fullscreen, even when deep in AI coding flow, keep track of time and get some rest. Your health comes first. Plus smoother fullscreen transitions."
+        },
+        {
+          "label": "Smarter Window Controls",
+          "text": "Double-click title bar or tab area to toggle zoom. Better window restoration, improved title bar drag to prevent text selection scrolling, configurable split pane gap, and cleaner alignment."
+        },
+        {
+          "label": "Unified CLI",
+          "text": "New `kaku` command with `init`, `update`, `reset`, `config` and more for quick setup and maintenance."
+        },
+        {
+          "label": "Enhanced Git Delta",
+          "text": "Better theme alignment, side-by-side diff by default, and cleaner headers for easier code review."
+        },
+        {
+          "label": "Chinese Path Support",
+          "text": "Tab titles now display Chinese characters correctly instead of URL-encoded strings."
+        },
+        {
+          "label": "Persistent Sessions",
+          "text": "`Cmd+W` closes current pane or tab; when only one remains, hides the window instead of quitting."
+        },
+        {
+          "label": "Better UX",
+          "text": "Font zoom and window size persist across restarts. Smarter Tab completion prioritizes filesystem matches."
+        },
+        {
+          "label": "Visual Polish",
+          "text": "Fixed split pane alignment and underline overflow, eliminated tab switching stutter, upgraded to Unicode v14 for better emoji support."
+        },
+        {
+          "label": "Menu Bar",
+          "text": "Improved menu bar with Command Palette, Settings, Check for Updates, and native notifications."
+        },
+        {
+          "label": "Built-in Updater",
+          "text": "Automatic update notifications. Click \"Kaku\" → \"Check for Updates\" in menu bar, or run `kaku update` in terminal."
+        }
+      ],
+      "itemsZh": [
+        {
+          "label": "通用安装包",
+          "text": "支持 Apple Silicon 和 Intel，无需区分架构下载。深度优化 Rust 打包，体积更小、性能更好。"
+        },
+        {
+          "label": "Apple 公证",
+          "text": "3年申请一直没通过，这次直接给库克写信投诉，终于解决了！698元也花出去了，就为了让大伙使用没有安全警告，开箱即用。"
+        },
+        {
+          "label": "修复配置加载",
+          "text": "`~/.config/kaku/kaku.lua` 用户配置现在正确加载，不再被默认配置覆盖。"
+        },
+        {
+          "label": "Homebrew 安装支持",
+          "text": "`brew install tw93/tap/kakuku` 一键安装，`brew upgrade kakuku` 轻松更新。"
+        },
+        {
+          "label": "全屏时间右下角显示时间",
+          "text": "即使你沉浸在 AI 编程的心流中，也要记得关注时间、按时休息，身体永远是第一位的，并优化全屏切换动画。"
+        },
+        {
+          "label": "更智能的窗口控制",
+          "text": "双击标题栏或标签区域快速缩放，改进窗口恢复，优化标题栏拖拽防止误选中文本滚动，分屏间距可配置，对齐更精准。"
+        },
+        {
+          "label": "统一命令行工具",
+          "text": "新增 `kaku` 命令，支持 `init`、`update`、`reset`、`config` 等快捷操作。"
+        },
+        {
+          "label": "Git Delta 优化",
+          "text": "主题更统一，默认并排显示 diff，头部信息更简洁，代码审查体验更佳。"
+        },
+        {
+          "label": "中文路径支持",
+          "text": "Tab 标签页标题正确显示中文路径，不再出现 URL 编码。"
+        },
+        {
+          "label": "会话保持",
+          "text": "`Cmd+W` 关闭当前分屏或标签页，仅剩一个时隐藏窗口而非退出，保留终端会话。"
+        },
+        {
+          "label": "体验优化",
+          "text": "字体缩放和窗口大小自动记忆，重启后依然生效。Tab 智能补全优先匹配文件系统，减少历史干扰。"
+        },
+        {
+          "label": "视觉打磨",
+          "text": "修复分屏对齐偏差及下划线溢出，消除标签切换卡顿，升级 Unicode 至 v14，Emoji 兼容性更好。"
+        },
+        {
+          "label": "菜单栏优化",
+          "text": "集成命令面板、设置、检查更新及系统通知。"
+        },
+        {
+          "label": "内置更新",
+          "text": "自动更新提醒，点击菜单栏 Kaku → Check for Updates，或在终端运行 `kaku update` 一键升级。"
+        }
+      ],
+      "download": "https://github.com/tw93/Kaku/releases/download/V0.2.0/Kaku.dmg",
+      "notes": [
+        "Since the changes in this version are pretty crazy, please let me know if you run into any problems. Thanks to @yikZero, @iwen-conf, @GavinRiver, @dongowu, @yamamel for their contributions. If you find Kaku helpful, feel free to star this project."
+      ]
+    },
+    {
+      "version": "0.1.1",
+      "tag": "V0.1.1",
+      "name": "V0.1.1 Easy to use 🍤",
+      "codename": "Easy to use 🍤",
+      "publishedAt": "2026-02-09T02:37:14Z",
+      "url": "https://kaku.fun/changelog#v0.1.1",
+      "urlZh": "https://kaku.fun/zh/changelog#v0.1.1",
+      "github": "https://github.com/tw93/Kaku/releases/tag/V0.1.1",
+      "items": [
+        {
+          "label": "Crisp Font Rendering",
+          "text": "Optimized macOS font rasterization settings (enabled Light Hinting) for clearer, sharper text, especially on Retina displays."
+        },
+        {
+          "label": "Kaku Theme",
+          "text": "Introducing the signature Kaku Theme, a high-contrast, AI-optimized dark theme designed for long coding sessions with Claude/Codex."
+        },
+        {
+          "label": "Enhanced Onboarding",
+          "text": "The first-run wizard now offers to apply the Kaku Theme automatically, giving you a perfect environment instantly."
+        },
+        {
+          "label": "Zero Config Polish",
+          "text": "Improved default settings and streamlined the initial setup process for an even smoother out-of-the-box experience."
+        },
+        {
+          "label": "Debug Overlay",
+          "text": "Added a new debug overlay for easier troubleshooting of shell integration and configuration issues."
+        },
+        {
+          "label": "Shell Integration",
+          "text": "Launched a robust `setup_zsh.sh` script with common aliases and git shortcuts to supercharge your terminal workflow."
+        },
+        {
+          "label": "Tab Bar Improvements",
+          "text": "Custom tab bar now supports path-based titles and visual indicators; fixed runtime errors with `get_current_working_dir`."
+        },
+        {
+          "label": "Under the Hood",
+          "text": "Automated version synchronization and various internal improvements for stability. Addressed macOS permission prompts for a smoother experience. Renamed internal project references to `kaku` for consistent branding."
+        }
+      ],
+      "itemsZh": [],
+      "download": "https://github.com/tw93/Kaku/releases/download/V0.1.1/Kaku.dmg",
+      "notes": [
+        "If macOS blocks the app, go to System Settings → Privacy & Security → click Open Anyway."
+      ]
+    },
+    {
+      "version": "0.1.0",
+      "tag": "V0.1.0",
+      "name": "V0.1.0 Freshmen 🧝‍♀️",
+      "codename": "Freshmen 🧝‍♀️",
+      "publishedAt": "2026-02-08T15:56:01Z",
+      "url": "https://kaku.fun/changelog#v0.1.0",
+      "urlZh": "https://kaku.fun/zh/changelog#v0.1.0",
+      "github": "https://github.com/tw93/Kaku/releases/tag/V0.1.0",
+      "items": [
+        {
+          "text": "First Release: Kaku is now live! A fast, out-of-the-box terminal built for AI coding, deeply customized for macOS with GPU acceleration."
+        },
+        {
+          "text": "Built-in Shell Suite: Comes with pre-configured Starship prompt, z smart directory jumper, Syntax Highlighting, Autosuggestions."
+        },
+        {
+          "text": "Smart Onboarding: Features an intelligent first-run wizard that detects your environment, safely backs up existing configs."
+        },
+        {
+          "text": "Native Experience: Optimized for macOS with smooth animations, intuitive shortcuts, split pane management, and focus mode."
+        },
+        {
+          "text": "Universal Binary: Fully optimized support for both Apple Silicon and Intel Macs in a single lightweight DMG."
+        }
+      ],
+      "itemsZh": [],
+      "download": "https://github.com/tw93/Kaku/releases/download/V0.1.0/Kaku.dmg",
+      "notes": [
+        "If macOS blocks the app, go to System Settings → Privacy & Security → click \"Open Anyway\"."
+      ]
+    }
+  ]
+}

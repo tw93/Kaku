@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>更新日志 · Kaku</title>
+  <meta name="description" content="Kaku 正式版更新，从新到旧。Nightly 仍在 GitHub，可以用 RSS 订阅。">
+  <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-kaku-32.png"><link rel="icon" type="image/png" sizes="192x192" href="/img/favicon-kaku-192.png"><link rel="apple-touch-icon" href="/img/favicon-kaku-180.png">
+  <link rel="alternate" hreflang="zh-CN" href="https://kaku.fun/zh/changelog">
+  <link rel="canonical" href="https://kaku.fun/zh/changelog"><link rel="alternate" type="application/rss+xml" title="Kaku releases" href="https://kaku.fun/feed.xml">
+  <link rel="alternate" type="text/markdown" href="https://kaku.fun/zh/changelog.md">
+  <link rel="alternate" hreflang="en" href="https://kaku.fun/changelog">
+  <link rel="alternate" hreflang="x-default" href="https://kaku.fun/changelog">
+  <link rel="stylesheet" href="/styles.css">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Kaku",
+          "item": "https://kaku.fun/zh/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "更新日志",
+          "item": "https://kaku.fun/zh/changelog"
+        }
+      ]
+    },
+    {
+      "@type": "TechArticle",
+      "@id": "https://kaku.fun/zh/changelog#article",
+      "headline": "更新日志",
+      "name": "更新日志",
+      "description": "Kaku 正式版更新，从新到旧。Nightly 仍在 GitHub，可以用 RSS 订阅。",
+      "url": "https://kaku.fun/zh/changelog",
+      "inLanguage": "zh-CN",
+      "isPartOf": {
+        "@id": "https://kaku.fun/#website"
+      },
+      "about": {
+        "@id": "https://kaku.fun/#software"
+      },
+      "publisher": {
+        "@id": "https://kaku.fun/#organization"
+      },
+      "author": {
+        "@type": "Person",
+        "name": "Tw93",
+        "url": "https://tw93.fun"
+      },
+      "encoding": {
+        "@type": "MediaObject",
+        "encodingFormat": "text/markdown",
+        "contentUrl": "https://kaku.fun/zh/changelog.md"
+      }
+    }
+  ]
+}
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">跳到正文</a>
+  <nav class="site-nav" aria-label="主导航"><div class="wide nav-inner"><a class="brand" href="/zh/"><strong>Kaku</strong></a><span class="eyebrow-sep">·</span><a class="version-link" href="https://github.com/tw93/Kaku/releases" target="_blank" rel="noopener noreferrer">v0.22.0</a><div class="nav-links"><a href="/zh/docs/">文档</a></div><div class="nav-actions"><a class="nav-pill" aria-current="page" href="/zh/changelog" hreflang="zh-CN">中</a><a class="nav-pill" href="/changelog" hreflang="en">EN</a><a class="nav-icon" href="https://github.com/tw93/Kaku" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a><a class="nav-icon" href="https://x.com/HiTw93" target="_blank" rel="noopener noreferrer" aria-label="X"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a></div></div></nav>
+  <main id="main-content"><section class="section"><div class="wide release-doc">
+<h1>更新日志</h1>
+<p class="release-sub">Kaku 正式版更新，从新到旧。Nightly 仍在 GitHub，可以用 <a href="/feed.xml">RSS</a> 订阅。</p>
+<h2 id="v0.22.0">V0.22.0 Handy <span class="release-date">2026-10-05</span></h2>
+<ol>
+<li><b>标签栏</b>：远程桌面下用手指也更容易点中标签，标签栏末尾多了 + 按钮，右键标签可以新建、打开标签导航或关闭标签。</li>
+<li><b>输入卡顿</b>：Kaku 在后台保存会话时，显示过内联图片的分屏不会再让输入卡住。</li>
+<li><b>程序标题</b>：设置 <code>config.tab_title_use_pane_title = true</code> 后，标签会显示 Claude Code 这类程序设置的标题，手动重命名过的标签保留你起的名字。</li>
+<li><b>Kitty 键盘</b>：开启 <code>enable_kitty_keyboard</code> 后，Herdr 和 Neovim 里的 Esc 和向前删除恢复正常，交换 Backspace 与 Delete 的设置也会生效。</li>
+<li><b>输入法</b>：设置 <code>config.ime_preedit_rendering = 'BuiltinInsert'</code> 后，输入法正在组合的文字会插入显示，不再盖住后面的字。</li>
+<li><b>Powerlevel10k</b>：Kaku 不再在第一个提示符前输出内容，Powerlevel10k 的 instant prompt 不会再报警告。</li>
+<li><b>命令行</b>：<code>kaku start</code> 会在已经运行的 Kaku 里打开，不再另起一个，加上 <code>--new-tab</code> 会在当前窗口新建标签。</li>
+<li><b>分屏</b>：上下分屏的分隔线现在落在两侧背景的交界处，开启非活动分屏变暗后，分隔线融入背景，变暗也会铺满到窗口边缘。</li>
+<li><b>诊断</b>：<code>kaku doctor</code> 会生成一份脱敏的诊断包，提 bug 时可以直接附上。</li>
+</ol>
+<p class="release-more"><a href="https://github.com/tw93/Kaku/releases/tag/V0.22.0">GitHub</a> · <a href="https://github.com/tw93/Kaku/releases/download/V0.22.0/Kaku.dmg">DMG</a></p>
+<hr>
+<h2 id="v0.21.0">V0.21.0 Ink <span class="release-date">2026-09-26</span></h2>
+<ol>
+<li><b>官方 Homebrew</b>：Kaku 终于进了 Homebrew 官方 cask，直接用 <code>brew install --cask kaku</code> 就能安装，<code>kaku update</code> 也能识别，之前通过个人 tap 安装的照样能继续更新。</li>
+<li><b>会话恢复</b>：运行时会定期保存窗口、标签和分屏，崩溃或强制退出后也能恢复上次的布局。</li>
+<li><b>右键菜单</b>：选中文字后右键菜单顶部会出现复制，关掉选中即复制时也能用鼠标复制。</li>
+<li><b>标签栏</b>：有分屏的标签也会显示序号。</li>
+<li><b>主题</b>：新安装默认使用 Kaku Dark，已有安装保持原来的主题，Kaku Light 的亮青色也更容易看清。</li>
+<li><b>稳定与安全</b>：正在关闭的标签不会再导致所有窗口一起退出，并更新 TLS 库修复一个安全公告中的问题。</li>
+</ol>
+<p class="release-more"><a href="https://github.com/tw93/Kaku/releases/tag/V0.21.0">GitHub</a> · <a href="https://github.com/tw93/Kaku/releases/download/V0.21.0/Kaku.dmg">DMG</a></p>
+<p class="release-more">Special thanks to @TeamMeng for their contribution to this release.</p>
+<hr>
+<h2 id="v0.20.0">V0.20.0 Steady <span class="release-date">2026-09-12</span></h2>
+<ol>
+<li><b>窗口操作</b>：恢复 macOS 原生拖动和边缘平铺，修复关闭窗口后可能出现的崩溃，图形初始化失败后新窗口不再重复等待。</li>
+<li><b>Shell 集成</b>：修复 TUI 异常退出后鼠标移动产生乱码的问题，保留 tmux 中的提示符和智能补全，并修正 fish 的 grep 补全展开。</li>
+<li><b>AI 模型选择</b>：切换服务后不再沿用旧服务的模型列表，完整展示服务返回的模型，并保留手动配置的模型。</li>
+<li><b>AI 对话</b>：补充当前项目类型信息，远程会话不读取本机项目，取消请求时不再等待重试倒计时结束。</li>
+<li><b>右键菜单</b>：支持粘贴、搜索、AI 对话和分屏操作，也可以在设置中开启新建标签页按钮。</li>
+<li><b>主题设置</b>：独立配置也能使用内置深浅主题，通过自定义配置启动时设置会保存到对应文件，手动配色覆盖主题时会显示说明，Fancy 标签栏也会跟随主题配色。</li>
+<li><b>链接识别</b>：避免把换行后的无关输出拼进链接，保留自动折行网址的完整地址。</li>
+<li><b>版本查询</b>：图形程序的版本查询无需初始化窗口即可正确返回。</li>
+</ol>
+<p class="release-more"><a href="https://github.com/tw93/Kaku/releases/tag/V0.20.0">GitHub</a> · <a href="https://github.com/tw93/Kaku/releases/download/V0.20.0/Kaku.dmg">DMG</a></p>
+<p class="release-more">Special thanks to @elonnzhang, @trxuan, and @yansigit for their contributions to this release.</p>
+<hr>
+<h2 id="v0.19.0">V0.19.0 Restored <span class="release-date">2026-08-24</span></h2>
+<ol>
+<li><b>移除分屏输入广播</b>：这个功能容易误触，会把危险命令重复到无关分屏，原有快捷键保留但不再生效。</li>
+<li><b>会话恢复更完整</b>：重新打开时窗口、分屏和各自的目录都会还原，个别分屏未能保存也不影响其余。</li>
+<li><b>关闭不再误伤其他分屏</b>：确认框始终对应打开它的分屏，关闭当前标签页后会停在预期的标签页。</li>
+<li><b>显示与集成修复</b>：浅色主题选中内容清晰可见，lazygit 支持嵌套 shell，清空历史不打断全屏程序，重命名标签页不卡住标题，慢速同步输出不再撕裂。</li>
+</ol>
+<p class="release-more"><a href="https://github.com/tw93/Kaku/releases/tag/V0.19.0">GitHub</a> · <a href="https://github.com/tw93/Kaku/releases/download/V0.19.0/Kaku.dmg">DMG</a></p>
+<p class="release-more">Special thanks to @shlroland and @dufu1991 for their contributions to this release.</p>
+<hr>
+<h2 id="v0.18.0">V0.18.0 Detached <span class="release-date">2026-08-08</span></h2>
+<ol>
+<li><b>把标签页拉成独立窗口</b>：命令面板或 Window 菜单里可以把当前标签页连同里面的分屏整个移到新窗口。</li>
+<li><b>窗口不再钻进菜单栏</b>：跨显示器拖动时标题栏不会再停在菜单栏后面导致抓不住，左右并排和上下叠放都一样。</li>
+<li><b>更新前先确认</b>：从菜单重启和通过 Homebrew 升级都会先征求确认。</li>
+</ol>
+<p class="release-more"><a href="https://github.com/tw93/Kaku/releases/tag/V0.18.0">GitHub</a> · <a href="https://github.com/tw93/Kaku/releases/download/V0.18.0/Kaku.dmg">DMG</a></p>
+<hr>
+<h2 id="v0.17.0">V0.17.0 Linked <span class="release-date">2026-08-02</span></h2>
+<ol>
+<li><b>Responses API 与原生搜索</b>：兼容端点可选 <code>api_mode = "responses"</code>，并开启服务商托管的 web search，不必再配单独搜索 Key。</li>
+<li><b>自选托管 Shell</b>：<code>kaku init</code> 可明确安装 zsh 或 fish，选择会写入状态并在 XDG 路径间保持一致，不再只听 <code>$SHELL</code>。</li>
+<li><b>更完整的点击交互</b>：Cmd+Click 可打开 <code>github.com</code> 这类裸域名；文件链接可用 <code>config.file_link_editor</code> 指定编辑器；Option+Click 可在当前输入行内移动光标。</li>
+<li><b>更安全的 AI 工具</b>：路径、网络请求与代码搜索边界更严；流式被截断时不会再被当成成功回合。</li>
+<li><b>稳定性修复</b>：超大绘制批次不再导致启动崩溃，窗口不会拖进菜单栏后方，顶栏标签与红绿灯对齐，字体回退更安全，Shell 状态与拖选滚动也更稳。</li>
+</ol>
+<p class="release-more"><a href="https://github.com/tw93/Kaku/releases/tag/V0.17.0">GitHub</a> · <a href="https://github.com/tw93/Kaku/releases/download/V0.17.0/Kaku.dmg">DMG</a></p>
+<p class="release-more">Special thanks to @ddotz and @F1Justin for their contributions to this release.</p>
+<hr>
+<h2 id="v0.16.0">V0.16.0 Trusted <span class="release-date">2026-07-26</span></h2>
+<ol>
+<li><b>内联 AI 走你的模型</b>：<code>#</code> 生成和自动修复现在与 Cmd+L 走同一条链路，Codex、Copilot 和 API key 三种配置都能直接用。</li>
+<li><b>控制消息需要认证</b>：Shell 发给终端的控制消息带上了本地凭据，终端里的输出无法再借用你配置的密钥触发助手请求。</li>
+<li><b>在标签导航里关标签</b>：选中标签按退格即可关闭，确认提示与别处一致。</li>
+<li><b>显示修复</b>：标题栏间距随显示器调整，AI 聊天会跟随系统外观切换，分屏后浮层尺寸正确，链接下划线在悬停时不再丢失。</li>
+<li><b>问题修复</b>：Starship 配置只在 Kaku 内生效，不再接管你的其他终端；白色背景上的文字保持可读；菜单命令改用随包分发的 CLI。</li>
+</ol>
+<p class="release-more"><a href="https://github.com/tw93/Kaku/releases/tag/V0.16.0">GitHub</a> · <a href="https://github.com/tw93/Kaku/releases/download/V0.16.0/Kaku.dmg">DMG</a></p>
+<p class="release-more">Special thanks to @zwrong and @mortalYoung for their contributions to this release.</p>
+<hr>
+<h2 id="v0.15.0">V0.15.0 Connected <span class="release-date">2026-07-18</span></h2>
+<ol>
+<li><b>远程标签</b>：通过 ssh 连接的标签会显示专属图标和主机名，分屏里也能看出哪个窗格在远程，mosh、autossh、et 会话同样能识别。</li>
+<li><b>SSH 里的 AI</b>：AI 聊天现在能识别当前目录在远程主机上，不再把本地命令跑在远程路径里，而是基于终端上下文直接回答。</li>
+<li><b>SSH 一致体验</b>：fish 集成不再覆盖你自定义的 ssh 函数并支持 1Password 修复，带环境变量前缀的 ssh 别名恢复可用，mosh 也获得与 ssh 相同的 terminfo 回退。</li>
+<li><b>会话恢复</b>：恢复的 ssh 窗格会回到原来的远程目录，有窗口无法恢复时会说明数量并在下次启动时重试。</li>
+<li><b>问题修复</b>：Ctrl+L 清屏后选区高亮立即消失，Cmd+, 会聚焦已有设置窗口而不是不断新开，fish 用户的 AI 命令执行恢复正常。</li>
+</ol>
+<p class="release-more"><a href="https://github.com/tw93/Kaku/releases/tag/V0.15.0">GitHub</a> · <a href="https://github.com/tw93/Kaku/releases/download/V0.15.0/Kaku.dmg">DMG</a></p>
+<p class="release-more">Special thanks to @shlroland, @mortalYoung, and @darion-yaphet for their contributions to this release.</p>
+<hr>
+<h2 id="v0.14.0">V0.14.0 Focused <span class="release-date">2026-07-11</span></h2>
+<ol>
+<li><b>分屏导航</b>：Tab Navigator 现在会列出标签内的每个分屏，可以直接跳到需要的分屏；标签很窄时也会优先保留当前分屏标题。</li>
+<li><b>标签重命名</b>：重命名窗口的文字与光标表现更清楚，按 Esc 或用鼠标取消后不再留下错误选区，自动生成的分屏标题也不会被意外覆盖。</li>
+<li><b>标签与选择</b>：标签分隔线更简洁，深色主题下的选区更清楚，双击选择也会正确区分中日韩文字与拉丁文字的边界。</li>
+<li><b>会话恢复</b>：重启后不会再恢复已经关闭的标签，恢复不完整时会保留原始恢复数据，SSH 会话也能再次从快照中恢复。</li>
+<li><b>安全与稳定性</b>：已解决 <code>anyhow</code> 与 <code>crossbeam-epoch</code> 的安全公告，分屏操作和鼠标释放在界面状态变化时也会更稳。</li>
+</ol>
+<p class="release-more"><a href="https://github.com/tw93/Kaku/releases/tag/V0.14.0">GitHub</a> · <a href="https://github.com/tw93/Kaku/releases/download/V0.14.0/Kaku.dmg">DMG</a></p>
+<hr>
+<h2 id="v0.13.0">V0.13.0 Faster <span class="release-date">2026-07-05</span></h2>
+<ol>
+<li><b>启动与提示符</b>：Kaku 现在会在首帧前少做一些工作，并缓存 shell、配置和字体相关结果，新窗口和提示符响应会更快。</li>
+<li><b>默认提示符</b>：内置提示符现在会显示 Git 状态和 Node 版本，同时保留原本紧凑的终端观感。</li>
+<li><b>标签标题</b>：标签默认继续以路径为主，需要时可以打开 Command Tab Titles 来显示 <code>project·claude</code> 这类正在运行的工具，分屏标题也会保持可读。</li>
+<li><b>AI 聊天</b>：长对话流式输出时不再每次都重新高亮整段聊天，AI 面板在大段会话里会更顺。</li>
+<li><b>窗口与终端稳定性</b>：跨显示器缩放、半亮文本、终端缩小时的滚动历史，以及延迟配置初始化都处理得更稳。</li>
+</ol>
+<p class="release-more"><a href="https://github.com/tw93/Kaku/releases/tag/V0.13.0">GitHub</a> · <a href="https://github.com/tw93/Kaku/releases/download/V0.13.0/Kaku.dmg">DMG</a></p>
+<hr>
+<h2 id="v0.12.4">V0.12.4 Safer <span class="release-date">2026-06-30</span></h2>
+<ol>
+<li><b>打开链接</b>：在 Claude、Codex、vim 这类会捕获鼠标的工具里，Cmd+Click 现在也能打开悬停的链接，各处行为一致。</li>
+<li><b>窗口平铺</b>：窗口现在支持 macOS 原生的拖到屏幕边缘平铺，会贴进系统的分屏布局。</li>
+<li><b>AI 文件编辑</b>：助手给超大文件打补丁时不再可能耗尽内存。</li>
+<li><b>依赖更新</b>：更新内置的 git 与文件处理库，修复三个已报告的安全隐患。</li>
+</ol>
+<p class="release-more"><a href="https://github.com/tw93/Kaku/releases/tag/V0.12.4">GitHub</a> · <a href="https://github.com/tw93/Kaku/releases/download/V0.12.4/Kaku.dmg">DMG</a></p>
+<hr>
+<h2 id="v0.12.3">V0.12.3 Cleaner <span class="release-date">2026-06-21</span></h2>
+<ol>
+<li><b>系统代理</b>：开启系统代理时，访问本地和自托管模型的 AI 请求不再失败，私有地址和 loopback 会直连。</li>
+<li><b>终端重绘</b>：在 skills 选择器这类工具里上下滚动列表，不再残留错乱的行。</li>
+<li><b>凭证</b>：API key 和 token 不再通过命令行参数传递，不会出现在进程列表里。</li>
+<li><b>透明度</b>：开启窗口透明后，顶部条和圆角会与窗口其余部分一致，不再出现更深的色带或黑色角块。</li>
+<li><b>路径高亮</b>：命令行里已存在的目录不再带一条多余的下划线，悬停时也不会再叠出第二条。</li>
+</ol>
+<p class="release-more"><a href="https://github.com/tw93/Kaku/releases/tag/V0.12.3">GitHub</a> · <a href="https://github.com/tw93/Kaku/releases/download/V0.12.3/Kaku.dmg">DMG</a></p>
+<hr>
+<h2 id="v0.12.2">V0.12.2 Steadier <span class="release-date">2026-06-13</span></h2>
+<ol>
+<li><b>休眠唤醒</b>：合盖休眠或拔掉外接显示器后，Kaku 不再停在旧画面上假死，渲染会立即恢复，正在跑的任务不受影响。</li>
+<li><b>外接屏</b>：在外接显示器上拖动窗口不再在起手时跳一下，屏幕缩放不同时 Window Center 和 <code>--position</code> 也会落在正确位置。</li>
+<li><b>选区</b>：在 Claude Code 这类启用鼠标的应用里，按住左键滚动不再误画出无法清除的选区高亮，普通单击会清掉残留的高亮。</li>
+<li><b>Yazi</b>：新版 Yazi 会拒绝旧版 Kaku 写入的配置导致无法启动，现在这些配置文件会被自动修复。</li>
+<li><b>窗口</b>：在全屏 Space 中新开窗口会立即铺满整屏，冷启动也不再闪现第二个空窗口。</li>
+<li><b>更新</b>：点击更新通知会先弹出确认，不会再因误点直接关闭所有窗口、打断正在运行的任务。</li>
+</ol>
+<p class="release-more"><a href="https://github.com/tw93/Kaku/releases/tag/V0.12.2">GitHub</a> · <a href="https://github.com/tw93/Kaku/releases/download/V0.12.2/Kaku.dmg">DMG</a></p>
+<hr>
+<h2 id="v0.12.1">V0.12.1 Smoother <span class="release-date">2026-06-08</span></h2>
+<ol>
+<li><b>Shell 初始化</b>：从 0.12 升级时，zsh 设置过程不再出现 <code>[comment]: command not found</code> 报错。</li>
+<li><b>提示符颜色</b>：Starship、tmux、Powerline 和 box-drawing 分隔符会保留原本颜色，不再被提亮成突兀色块。</li>
+<li><b>SmartPrompt</b>：停在空闲 shell 时，Cmd+Q 不会再因为 <code>gitstatusd</code> 这类后台进程弹确认。</li>
+<li><b>滚动行为</b>：AI 长输出过程中滚动或调整窗口，不会再突然跳到历史最顶端，会继续跟住当前输出。</li>
+<li><b>Smart Tab</b>：新配置和 bundled 默认现在改为 Tab 优先接受灰色建议，没有建议时再回退到补全；想保留旧行为可设置 <code>smart_tab_mode = 'completion_first'</code>。</li>
+<li><b>Nightly 包</b>：Nightly 预览包现在是签名并公证过的 DMG，安装和验证最新修复时更接近正式版体验。</li>
+</ol>
+<p class="release-more"><a href="https://github.com/tw93/Kaku/releases/tag/V0.12.1">GitHub</a> · <a href="https://github.com/tw93/Kaku/releases/download/V0.12.1/Kaku.dmg">DMG</a></p>
+<hr>
+<h2 id="v0.12.0">V0.12.0 Sharper ✂️ <span class="release-date">2026-06-05</span></h2>
+<ol>
+<li><b>会话历史恢复</b>：重新打开窗口后，会恢复每个面板最多 1,500 行滚动历史，列宽变化时也会自动重排。</li>
+<li><b>Codex 后端</b>：Kaku Assistant 现在可以直接复用你已有的 Codex / ChatGPT 登录，不用再单独配置一个 API key。</li>
+<li><b>AI 聊天</b>：聊天面板的回答实时流式输出，可以用 <code>/suggest</code> 预测你接下来想发的内容，每次也都能稳定重新打开。</li>
+<li><b>AI Shell</b>：<code>#</code> 生成命令新增了注入检测，工具访问会在任意目录拦截 <code>.env</code>、SSH 私钥等敏感文件。</li>
+<li><b>SmartPrompt</b>：所有面板都停在 shell 提示符时，Cmd+Q 会直接退出；仍有 agent 或编辑器在运行时，则会先询问一下。</li>
+<li><b>macOS 窗口</b>：浅深色切换会一次性刷新所有窗口，退出全屏更干净，标题栏单击也不再误触最大化。</li>
+<li><b>文档默认打开</b>：PDF、图片、音视频、压缩包、Office 文档现在都用系统默认 app 打开，不再被 VS Code 抢走。</li>
+<li><b>轻装</b>：新增 <code>smart_tab_mode</code>，移除简体中文本地化，zsh 注释高亮更清晰，并新增了多道 CI 检查。</li>
+</ol>
+<p class="release-more"><a href="https://github.com/tw93/Kaku/releases/tag/V0.12.0">GitHub</a> · <a href="https://github.com/tw93/Kaku/releases/download/V0.12.0/Kaku.dmg">DMG</a></p>
+<p class="release-more">Special thanks to @t0m-car for the non-fancy tab bar fixes.</p>
+<hr>
+<h2 id="v0.11.0">V0.11.0 Steady 🧭 <span class="release-date">2026-05-17</span></h2>
+<ol>
+<li><b>AI 推理</b>：DeepSeek 兼容、GLM、Kimi 和 Fireworks 的推理流会保持隐藏，最终回答更干净。</li>
+<li><b>Kaku Chat</b>：<code>kaku chat</code> 在隐藏推理时显示紧凑 thinking 状态，并避免记录空的 AI 回合。</li>
+<li><b>中文界面</b>：Kaku 现在内置简体中文，覆盖应用外壳、命令面板、设置和 AI 对话。</li>
+<li><b>Shell 初始化</b>：<code>kaku init</code> 对只读配置路径、已有跳转工具、Cmd+Backspace、Yazi 主题和 <code>#</code> AI 查询更稳。</li>
+<li><b>会话恢复</b>：新的恢复设置让窗口快照更容易理解，也更方便从配置里控制。</li>
+<li><b>窗口控制</b>：全屏最后一个 tab 下 Cmd+W 会正确关闭页面，标题栏拖动也减少误触发 snap 或最大化。</li>
+<li><b>鼠标与标签页</b>：顶部标签栏命中、集成标题按钮、标签拖拽动画和 scrollback 选择都更稳定。</li>
+<li><b>渲染细节</b>：条形光标、低 DPI toast 文本、彩色 emoji 尺寸和 pane 背景对齐都做了收紧。</li>
+<li><b>AI 传输</b>：流式输出、输入法组合、空 API key、代理处理和 shell 查询初始化在更多 provider 下更稳。</li>
+<li><b>维护工作</b>：Agent 指南、配置文档、release 检查和 contributor 元数据都同步到当前维护流程。</li>
+</ol>
+<p class="release-more"><a href="https://github.com/tw93/Kaku/releases/tag/V0.11.0">GitHub</a> · <a href="https://github.com/tw93/Kaku/releases/download/V0.11.0/Kaku.dmg">DMG</a></p>
+<p class="release-more">Special thanks to @t0m-car for the low-DPI toast clipping fix.</p>
+<hr>
+<h2 id="v0.10.0">V0.10.0 Chat 🪄 <span class="release-date">2026-05-10</span></h2>
+<ol>
+<li><b>AI 对话</b>：同一套引擎，两种入口：<code>Cmd+L</code> 在 Kaku 内打开对话面板，执行 <code>k</code> 或 <code>kaku chat</code> 把同一套引擎放进 alternate-screen TUI，任何终端或 SSH 远端都能用，流式 Markdown、语法高亮、shell 上下文、项目工具、网页搜索、本地记忆样样齐全，主题自动识别、取消和审批语义更稳，<code>#</code> 查询自动存入 shell 历史。</li>
+<li><b>AI 配置与安全</b>：Assistant 设置改为 Simple Model 与 Deep Model，支持在线模型加载、代理感知请求、OAuth 配置以及更多 provider 响应格式，shell 审批更严，敏感路径保护扩展到搜索类工具，文件写入与 patch 上限收紧，失败命令上下文和解析错误一并更稳。</li>
+<li><b>智能关闭保护</b>：<code>Cmd+W</code> 和 <code>Cmd+Shift+W</code> 在 pane 里跑着 claude、codex、cursor-agent、gemini、vim、cargo、npm 这类有状态进程时会先弹确认，bare shell 仍然直接关。</li>
+<li><b>窗口快照</b>：Kaku 自动保存多 tab、多 pane 布局，需要时按 <code>Cmd+Option+Shift+T</code>，或从 Shell → Restore Previous Window、命令面板恢复。</li>
+<li><b>AppleScript 字典</b>：Kaku 内置完整 AppleScript dictionary，窗口、tab、pane 都能被 Shortcuts、Hammerspoon 等自动化工具脚本化驱动。</li>
+<li><b>拖拽标签页动画</b>：拖动 tab 时相邻 tab 会平滑让位，不再生硬切换，重新排序变成一个连贯的动作。</li>
+<li><b>深色主题更柔和</b>：Kaku Dark 默认调色板降低了高亮色饱和度，前景文字微微调暗，长时间盯屏更不刺眼，整体还是 Kaku 的风格。</li>
+<li><b>冷启动与 Shell 速度</b>：通过 Lua 字节码缓存、字体与配置延迟初始化、shell 用户变量缓存，启动更轻。</li>
+<li><b>后台更新</b>：更新改为后台下载，checksum 不通过则失败关闭，代理与 MacPorts 检测一并更稳。</li>
+<li><b>问题修复</b>：修复全屏崩溃和卡住、显示器竞态、resize 缝隙、光标 reflow、链接、选择、浅色主题可读性和 TUI 复制。</li>
+</ol>
+<p class="release-more"><a href="https://github.com/tw93/Kaku/releases/tag/V0.10.0">GitHub</a> · <a href="https://github.com/tw93/Kaku/releases/download/V0.10.0/Kaku.dmg">DMG</a></p>
+<p class="release-more">Special thanks to @s010s, @SherlockSalvatore, @darion-yaphet, @ddotz, @beautifulrem, @yxspace, and @fanweixiao for their contributions to this release.</p>
+<hr>
+<h2 id="v0.9.0">V0.9.0 Spark ✨ <span class="release-date">2026-04-04</span></h2>
+<ol>
+<li><b>自然语言生成命令</b>：输入 <code># &lt;描述&gt;</code> 后按回车，Kaku 将生成的命令注入回提示符，确认后即可运行，并保存到 shell 历史，支持 zsh 和 fish。</li>
+<li><b>Option+Click 移动光标</b>：点击当前行任意位置即可将光标移动到该位置，正确处理宽字符和多字节输入。</li>
+<li><b>窗口置顶</b>：通过 Window 菜单将窗口固定在最前，随时可切换开关。</li>
+<li><b>Traffic Lights 位置</b>：设置中新增 <code>traffic_lights</code> 选项，可自定义 macOS 窗口控制按钮的位置。</li>
+<li><b>性能优化</b>：Tab 标题 Lua 回调改为批量处理，单次序列化 Config。</li>
+<li><b>稳定性修复</b>：修复 Option+Click 崩溃、分屏尺寸计算除零、鼠标事件 unwrap panic。</li>
+<li><b>Shell 与 Assistant</b>：内置新增 MiniMax provider preset；修复 zsh-z 更新显示和 heredoc 引号边界问题。</li>
+</ol>
+<p class="release-more"><a href="https://github.com/tw93/Kaku/releases/tag/V0.9.0">GitHub</a> · <a href="https://github.com/tw93/Kaku/releases/download/V0.9.0/Kaku.dmg">DMG</a></p>
+<p class="release-more">Special thanks to @fanweixiao and @LanternCX for their contributions to this release.</p>
+<hr>
+<h2 id="v0.8.0">V0.8.0 Fish 🐟 <span class="release-date">2026-03-23</span></h2>
+<ol>
+<li><b>Fish Shell 完整支持</b>：<code>kaku init</code> 现支持 fish shell 完整引导，含 Starship 提示符、Yazi 启动器、主题同步及 conf.d 入口。</li>
+<li><b>铃声标签指示器</b>：后台标签任务完成时显示铃声前缀，支持可选 Dock badge 和标签前缀开关。</li>
+<li><b>记住上次目录</b>：新标签和新窗口打开时自动恢复上次工作目录，可通过 <code>kaku config</code> 关闭。</li>
+<li><b>Update/Doctor 在标签中运行</b>：<code>kaku update</code> 和 <code>kaku doctor</code> 在独立标签中打开，不阻塞当前会话。</li>
+<li><b>仅显示目录名标签</b>：新增 <code>tab_title_basename_only</code> 选项，只显示目录名而非完整路径。</li>
+<li><b>滚动修复</b>：修复快速输出时 viewport 跳到顶部、往上滚动后自动跳回底部，以及 Claude Code 使用时 viewport 异常跳动的问题。</li>
+<li><b>Bug 修复</b>：修复窗口隐藏、Cmd+Click 链接、剪贴板粘贴、emoji 宽度、SSH alias 冲突。关闭确认弹窗现支持回车确认、Esc 取消。修复 macOS 26 上 Cmd+Q 崩溃和透明圆角渲染问题。</li>
+</ol>
+<p class="release-more"><a href="https://github.com/tw93/Kaku/releases/tag/V0.8.0">GitHub</a> · <a href="https://github.com/tw93/Kaku/releases/download/V0.8.0/Kaku.dmg">DMG</a></p>
+<p class="release-more">Special thanks to @mystersu, @ddotz, @rookie-ricardo, @s010s, @anzksdk, @cynosurech, and @XinCao for their contributions to this release.</p>
+<hr>
+<h2 id="v0.7.1">V0.7.1 Flow 🌊 <span class="release-date">2026-03-13</span></h2>
+<ol>
+<li><b>自动主题与界面优化</b>：Kaku 现在会跟随 macOS 自动切换深色和浅色模式，并优化了透明度渲染和 Yazi 主题同步体验。</li>
+<li><b>更安全的关闭与交互</b>：新增标签页和窗格关闭确认，重做了关闭浮层样式，并修复标题栏交互问题，双击缩放后也不会影响窗口拖拽。</li>
+<li><b>更好的设置工作流</b>：<code>kaku config</code> 现在提供更清晰的分组结构、固定底部快捷键提示、更稳健的配置解析和更可靠的配置重载。</li>
+<li><b>AI 配置增强</b>：<code>kaku ai</code> 现在支持 Antigravity 模型配置、额度追踪、后台加载和更可靠的 OAuth token 刷新。</li>
+<li><b>可选开启的圆角滚动条</b>：新增自制圆角滚动条，并可通过 <code>kaku config</code> 开启。</li>
+<li><b>窗格输入广播</b>：新增窗格输入广播模式，可在多个窗格间同步输入，同时避免将浮层输入误广播到其他窗格。</li>
+<li><b>文件与编辑器工作流优化</b>：改进文件路径链接打开，SSH 会话增加远程文件快捷入口，并在配置编辑流程中更好地尊重 <code>$EDITOR</code> 环境变量。</li>
+<li><b>Bug 修复与稳定性提升</b>：修复 AeroSpace/yabai 调整窗口大小时的闪烁问题，加固托管 shell 和 tmux 集成，Smart Tab 默认仅限 Kaku 会话，并改进 Starship RPROMPT 回退行为。</li>
+</ol>
+<p class="release-more"><a href="https://github.com/tw93/Kaku/releases/tag/V0.7.1">GitHub</a> · <a href="https://github.com/tw93/Kaku/releases/download/V0.7.1/Kaku.dmg">DMG</a></p>
+<p class="release-more">Special thanks to @frankekn, @crossly, @iwen-conf, and @zxh326 for their contributions to this release.</p>
+<hr>
+<h2 id="v0.6.0">V0.6.0 Clarity ☀️ <span class="release-date">2026-03-08</span></h2>
+<ol>
+<li><b>浅色主题优化</b>：Kaku 这次重点打磨了浅色主题，支持动态字重，优化了 ANSI 配色，并补充了针对 Claude Code 的颜色覆盖，包括更自然的引用背景显示效果。</li>
+<li><b>AI 剩余用量显示</b>：AI 设置面板现在可以更直观地显示 usage 摘要和剩余额度，新增了 Kimi Code 支持、Kimi usage 统计、后台加载，并改进了 Claude OAuth token 刷新后的持久化逻辑。同时支持在配置文件中设置 <code>custom_headers</code>，方便私有化或代理部署场景使用。</li>
+<li><b>交互式设置 TUI</b>：<code>kaku config</code> 现在是更完整的交互式设置界面，支持退出即保存、主题感知更新，以及更稳定的配置同步体验。</li>
+<li><b>标签页工作流升级</b>：现在支持拖拽调整标签顺序、双击内联重命名、通过 <code>Cmd + Shift + T</code> 重新打开刚关闭的标签页，以及通过 <code>kaku set-tab-title</code> 命令从脚本或外部工具重命名标签页。</li>
+<li><b>路径超链接支持</b>：终端输出中的文件路径现在可以直接点击打开，同时改进了相对路径和解码后路径的处理。</li>
+<li><b>Shell 集成改进</b>：优化了无 Homebrew 场景下的首次 shell 初始化，修复 zsh source line 转义问题、Starship 在 <code>Ctrl + C</code> 后泄漏右提示符文本的问题，移除了强制 <code>TERM=kaku</code> 设置（该设置会导致 SSH 远端 Delete 键失效），并提升了 <code>TERM</code> 回退到 <code>xterm-256color</code> 时 AI shell hooks 的兼容性。</li>
+<li><b>选区与界面细节优化</b>：终端输出过程中不再破坏文本选区，修复陈旧 window padding 覆盖问题，优化全屏 inset 与 padding 对齐，并统一了不同显示器下的选区颜色表现。</li>
+<li><b>macOS 输入与窗口修复</b>：修复了非拉丁输入法阻塞 <code>Cmd + 字母/数字</code> 快捷键、<code>Cmd + Shift + Symbol</code> 组合键不响应、死键处理异常、土耳其键盘波浪号输入问题，并改进了全屏、最大化、显示器刷新和全局快捷键恢复等行为。</li>
+<li><b>终端、内存与通知体验优化</b>：新增未读 bell 的 Dock badge，Scrollback 改为懒加载并对背景图和渐变渲染缓存设置大小上限，长时间使用后内存占用更稳定，同时继续打磨更新菜单、命令执行和终端交互链路中的稳定性。</li>
+<li><b>发布与升级链路加固</b>：补强了自动发布校验，统一了配置迁移元数据，并将配置迁移版本提升到 <code>14</code>，确保老用户能正确收到这次 shell 集成刷新和 prompt helper 修复。</li>
+</ol>
+<p class="release-more"><a href="https://github.com/tw93/Kaku/releases/tag/V0.6.0">GitHub</a> · <a href="https://github.com/tw93/Kaku/releases/download/V0.6.0/Kaku.dmg">DMG</a></p>
+<p class="release-more">Special thanks to @frankekn, @ddnio, @GavinRiver, and @nguyenphutrong for their contributions to this release. If Kaku helps you, please consider giving it a star and recommending it to your friends.</p>
+<hr>
+<h2 id="v0.5.1">V0.5.1 Kindness 🌴 <span class="release-date">2026-02-28</span></h2>
+<ol>
+<li>Fixed shell alias conflict, <code>y</code> launcher no longer clashes with existing aliases like <code>alias y=yarn</code></li>
+<li>Fixed SSH remote display, sessions now forward <code>TERM=xterm-256color</code> to prevent broken rendering on servers without Kaku's terminfo</li>
+<li>Fixed <code>Cmd + Shift + ,</code> keybinding not passing through to tmux and other terminal apps</li>
+<li>Fixed CLI panic when running <code>kaku cli split-pane</code></li>
+<li>Fixed misleading "error" toast appearing in AI assistant during analysis</li>
+<li>Fixed update notification appearing on startup even when check_for_updates is disabled</li>
+</ol>
+<p class="release-more"><a href="https://github.com/tw93/Kaku/releases/tag/V0.5.1">GitHub</a> · <a href="https://github.com/tw93/Kaku/releases/download/V0.5.1/Kaku.dmg">DMG</a></p>
+<hr>
+<h2 id="v0.5.0">V0.5.0 Yohaku 🪽 <span class="release-date">2026-02-27</span></h2>
+<ol>
+<li><b>AI Shell 错误修复</b>：命令失败时，Kaku 自动把命令发给 AI，直接在终端里展示修复建议，按 <code>Cmd + Shift + E</code> 一键应用。</li>
+<li><b>内置 Yazi</b>：按 <code>Cmd + Shift + Y</code> 或直接输入 <code>y</code> 打开 Yazi，布局和主题首次运行自动配好。<code>cd + Tab</code> 在文件系统无匹配时还会回退到 zsh-z 历史目录。</li>
+<li><b>命令面板</b>：按 <code>Cmd + Shift + P</code> 快速搜索命令，支持模糊匹配和原生文本编辑。</li>
+<li><b>Kaku Doctor</b>：运行 <code>kaku doctor</code> 检测配置问题，支持交互式一键修复。</li>
+<li><b>全局快捷键</b>：默认 <code>Ctrl + Opt + Cmd + K</code> 从任意应用唤起或隐藏 Kaku，支持通过 <code>macos_global_hotkey</code> 自定义。</li>
+<li><b>Shell 文本编辑</b>：在命令行中使用 <code>Cmd + A</code> 全选、<code>Shift + 方向键</code> 扩展选区、直接输入替换选中内容，和原生文本编辑器一样的体验。</li>
+<li><b>AI 配置统一入口</b>：<code>kaku ai</code> 界面现在统一管理 Kaku Assistant、Factory Droid 和 opencode.jsonc。</li>
+<li><b>标签页响铃提示</b>：切到其他标签时，有结果或通知的标签会显示闪烁圆点。</li>
+<li><b>滚动与输入优化</b>：<code>less</code>、<code>man</code> 等场景下触控板滚动更顺滑，支持 DECSET 1007 备用滚动模式。修复了 Typeless 等 CJK 输入法弹窗位置偏移的问题。</li>
+<li><b>窗口阴影恢复</b>：macOS 原生窗口阴影已恢复，此前因早期版本 GPU 占用问题被临时关闭。</li>
+<li><b>启动提速与包体积大幅优化</b>：Lua 字节码缓存和延迟加载缩短启动时间，Fat LTO 和单 codegen unit 减小二进制体积。</li>
+<li><b>Shell 集成检测修复</b>：Shell 集成现在在所有终端环境下都能正常加载，不再依赖 <code>$TERM</code> 是否为 kaku。用户自行加载的插件不再被重复加载。</li>
+</ol>
+<p class="release-more"><a href="https://github.com/tw93/Kaku/releases/tag/V0.5.0">GitHub</a> · <a href="https://github.com/tw93/Kaku/releases/download/V0.5.0/Kaku.dmg">DMG</a></p>
+<p class="release-more">Special thanks to @jaost, @nguyenphutrong, @mickyyy68, and @guohai for their contributions to this release. If Kaku helps you, please consider giving it a star and recommending it to your friends.</p>
+<hr>
+<h2 id="v0.4.0">V0.4.0 AIIIIIII 🥂 <span class="release-date">2026-02-19</span></h2>
+<ol>
+<li><b>新增 <code>kaku ai</code> 命令</b>：提供统一入口管理当前所有 AI Coding 工具配置，优化编辑交互、账号展示和 OAuth 重认证流程。</li>
+<li><b>优化 macOS 启动与渲染体验</b>：默认使用 WebGpu，失败时自动回退 OpenGL，渲染效果更好；典型场景内存从约 200MB 降到约 80MB。</li>
+<li><b>内置 Lazygit 工作流</b>：新增 <code>Cmd + Shift + G</code> 快捷键、终端内启动流程和 Git 仓库场景提示。</li>
+<li><b>分屏体验增强</b>：新增当前分屏标记，一眼看出当前分屏；支持 <code>split_thickness</code> 配置分割线粗细，优化分割线交叉对齐。</li>
+<li><b>窗口与分屏操作优化</b>：<code>Cmd + W</code> 在分屏、标签页和多窗口场景下关闭逻辑更符合直觉；新增 <code>Cmd + Opt + Arrows</code> 快速在分屏间切换。</li>
+<li><b>Shell 安装与更新优化</b>：重构首次安装和更新流程，支持可选 Homebrew CLI 工具安装，并优化 Tab 补全策略。</li>
+<li><b>SSH 兼容性和 1Password 支持</b>：远端 SSH 会强制 <code>TERM=xterm-256color</code> 避免 terminfo 问题。Shell 集成自动识别 1Password SSH Agent，自动加上 <code>IdentitiesOnly=yes</code>，解决密钥太多导致的认证失败。</li>
+<li><b>分屏独立编码支持</b>：新增每个 Pane 独立切换编码，支持 <code>UTF-8</code>、<code>GBK</code>、<code>GB18030</code>、<code>Big5</code>、<code>EUC-KR</code>、<code>Shift-JIS</code>。</li>
+<li><b>URL Scheme 激活指定终端</b>：新增 <code>kaku://open-tab?tty=&lt;device&gt;</code>，外部工具、脚本或 AI agent 可以直接通过 TTY 名跳转到对应的终端 Pane。</li>
+</ol>
+<p class="release-more"><a href="https://github.com/tw93/Kaku/releases/tag/V0.4.0">GitHub</a> · <a href="https://github.com/tw93/Kaku/releases/download/V0.4.0/Kaku.dmg">DMG</a></p>
+<p class="release-more">Thanks to @WongLoki, @liu-kan, @OiAnthony, @XueshiQiao, and @CTHua for the contributions.</p>
+<hr>
+<h2 id="v0.3.1">V0.3.1 New Year 🎋 <span class="release-date">2026-02-16</span></h2>
+<ol>
+<li><b>Cmd+K 清屏</b>：使用 <code>Cmd+K</code> 清屏，同时保留 <code>Cmd+R</code> 兼容。</li>
+<li><b>切换分屏方向</b>：按 <code>Cmd+Shift+S</code> 可在水平和垂直布局之间切换分屏方向，正确处理缩放状态和最小尺寸。</li>
+<li><b>SSH 兼容性修复</b>：SSH 会话现在统一使用 <code>xterm-256color</code> 作为 TERM，包括内置 SSH Domain 和在终端中直接运行 <code>ssh</code> 命令两种场景，远端不再因缺少 <code>kaku</code> terminfo 而报错。</li>
+<li><b>macOS 听写支持</b>：修复 <code>selected_range</code> 返回合法光标位置，macOS 听写和语音输入现在可以正常工作。</li>
+<li><b>Tab 补全恢复</b>：移除 Smart Tab 行为，Tab 键恢复为显示补全列表，使用右箭头键接受自动建议。</li>
+<li><b>自动创建用户配置</b>：<code>kaku init</code> 在配置文件不存在时自动创建 <code>~/.config/kaku/kaku.lua</code>。</li>
+<li><b>OpenCode 主题配置</b>：<code>kaku init</code> 可选配置与 Kaku 匹配的 OpenCode 主题，写入前会询问用户确认。</li>
+<li><b>蓝牙权限声明</b>：在 Info.plist 中添加蓝牙权限描述，支持在终端中进行 BLE 开发。</li>
+</ol>
+<p class="release-more"><a href="https://github.com/tw93/Kaku/releases/tag/V0.3.1">GitHub</a> · <a href="https://github.com/tw93/Kaku/releases/download/V0.3.1/Kaku.dmg">DMG</a></p>
+<p class="release-more">Thanks to @GavinRiver for the contribution. If you find Kaku helpful, feel free to star the project and share it with your friends.</p>
+<hr>
+<h2 id="v0.3.0">V0.3.0 Happy 🥙 <span class="release-date">2026-02-16</span></h2>
+<ol>
+<li><b>全屏体验优化</b>：切换动画更稳定，减少闪烁，全屏下分屏或新建标签时边距保持正确，同时优化了全屏下 Tab Bar 显示逻辑和分屏分割线渲染。</li>
+<li><b>窗口恢复稳定性</b>：移动/缩放时会持久化窗口尺寸与位置，并按显示器状态恢复，多屏场景更稳一点。</li>
+<li><b>Toast 通知</b>：复制文本显示 <code>Copied!</code>，重载配置有确认提示，操作结果看明白。</li>
+<li><b>SSH 主机名标签</b>：连接远程服务器时 Tab 栏显示主机名，多服务器管理不再混淆。</li>
+<li><b>Finder 右键打开</b>：右键文件夹选择 <code>Open in Kaku</code>，直接在该目录打开终端。启动阶段会先排队请求，GUI 就绪后再处理。</li>
+<li><b>设为默认终端</b>：通过菜单栏 <code>Kaku</code> → <code>Set as Default Terminal</code> 设为系统默认，shell 脚本及终端相关文件类型将用 Kaku 打开而非 Terminal.app。</li>
+<li><b>Shell 历史滚动</b>：在 vim 或 tmux 中向上滚动查看 shell 历史，向下返回，无需退出当前应用。</li>
+<li><b>图片粘贴支持</b>：从其他应用复制图片，粘贴到 Kaku 的终端应用中，自动保存并插入路径。</li>
+<li><b>选中自动滚动</b>：拖拽选中文本时向上超出视口，视图会自动滚动以便选择上方更多内容。</li>
+<li><b>透明窗口修复</b>：修复窗口透明时的边缘缝隙，用背景色正确填充。</li>
+<li><b>Dock 批量拖放</b>：拖拽多个文件到 Dock 图标，每个文件在单独标签页打开。</li>
+<li><b>字体渲染修复</b>：修复 macOS 字体压缩和宽字符挤压问题，图标字体正常显示，对低分辨率使用更小字体。</li>
+<li><b>竖线光标</b>：默认改为竖线光标，更符合现代终端习惯，支持 Vim 模式光标切换，恢复闪烁行为，优化了非活动 Pane 的光标问题。</li>
+<li><b>分屏标签清晰化</b>：菜单改为 <code>Split Pane Top/Bottom</code> 和 <code>Split Pane Left/Right</code>，表述更清晰。</li>
+<li><b><code>kaku update</code> 更安全</b>：修复 Homebrew 误升级错误软件的问题，并仅探测 caskroom 管理的安装。</li>
+<li><b>color_scheme 覆盖修复</b>：用户配置的 color_scheme 现在可以正确覆盖内置 <code>Kaku</code> 主题。</li>
+<li><b>降低 GPU 占用</b>：默认关闭窗口阴影以减少 macOS 下的 GPU 开销，这样窗口显示效果更简洁好看。</li>
+</ol>
+<p class="release-more"><a href="https://github.com/tw93/Kaku/releases/tag/V0.3.0">GitHub</a> · <a href="https://github.com/tw93/Kaku/releases/download/V0.3.0/Kaku.dmg">DMG</a></p>
+<p class="release-more">Thanks to @mickyyy68, @Viking602, @GavinRiver, @QuentinHsu for their contributions. If you find Kaku helpful, feel free to star the project and share it with your friends.</p>
+<hr>
+<h2 id="v0.2.0">V0.2.0 Craft 🍺 <span class="release-date">2026-02-13</span></h2>
+<ol>
+<li><b>通用安装包</b>：支持 Apple Silicon 和 Intel，无需区分架构下载。深度优化 Rust 打包，体积更小、性能更好。</li>
+<li><b>Apple 公证</b>：3年申请一直没通过，这次直接给库克写信投诉，终于解决了！698元也花出去了，就为了让大伙使用没有安全警告，开箱即用。</li>
+<li><b>修复配置加载</b>：<code>~/.config/kaku/kaku.lua</code> 用户配置现在正确加载，不再被默认配置覆盖。</li>
+<li><b>Homebrew 安装支持</b>：<code>brew install tw93/tap/kakuku</code> 一键安装，<code>brew upgrade kakuku</code> 轻松更新。</li>
+<li><b>全屏时间右下角显示时间</b>：即使你沉浸在 AI 编程的心流中，也要记得关注时间、按时休息，身体永远是第一位的，并优化全屏切换动画。</li>
+<li><b>更智能的窗口控制</b>：双击标题栏或标签区域快速缩放，改进窗口恢复，优化标题栏拖拽防止误选中文本滚动，分屏间距可配置，对齐更精准。</li>
+<li><b>统一命令行工具</b>：新增 <code>kaku</code> 命令，支持 <code>init</code>、<code>update</code>、<code>reset</code>、<code>config</code> 等快捷操作。</li>
+<li><b>Git Delta 优化</b>：主题更统一，默认并排显示 diff，头部信息更简洁，代码审查体验更佳。</li>
+<li><b>中文路径支持</b>：Tab 标签页标题正确显示中文路径，不再出现 URL 编码。</li>
+<li><b>会话保持</b>：<code>Cmd+W</code> 关闭当前分屏或标签页，仅剩一个时隐藏窗口而非退出，保留终端会话。</li>
+<li><b>体验优化</b>：字体缩放和窗口大小自动记忆，重启后依然生效。Tab 智能补全优先匹配文件系统，减少历史干扰。</li>
+<li><b>视觉打磨</b>：修复分屏对齐偏差及下划线溢出，消除标签切换卡顿，升级 Unicode 至 v14，Emoji 兼容性更好。</li>
+<li><b>菜单栏优化</b>：集成命令面板、设置、检查更新及系统通知。</li>
+<li><b>内置更新</b>：自动更新提醒，点击菜单栏 Kaku → Check for Updates，或在终端运行 <code>kaku update</code> 一键升级。</li>
+</ol>
+<p class="release-more"><a href="https://github.com/tw93/Kaku/releases/tag/V0.2.0">GitHub</a> · <a href="https://github.com/tw93/Kaku/releases/download/V0.2.0/Kaku.dmg">DMG</a></p>
+<p class="release-more">Since the changes in this version are pretty crazy, please let me know if you run into any problems. Thanks to @yikZero, @iwen-conf, @GavinRiver, @dongowu, @yamamel for their contributions. If you find Kaku helpful, feel free to star this project.</p>
+<hr>
+<h2 id="v0.1.1">V0.1.1 Easy to use 🍤 <span class="release-date">2026-02-09</span></h2>
+<ol>
+<li><b>Crisp Font Rendering</b>: Optimized macOS font rasterization settings (enabled Light Hinting) for clearer, sharper text, especially on Retina displays.</li>
+<li><b>Kaku Theme</b>: Introducing the signature Kaku Theme, a high-contrast, AI-optimized dark theme designed for long coding sessions with Claude/Codex.</li>
+<li><b>Enhanced Onboarding</b>: The first-run wizard now offers to apply the Kaku Theme automatically, giving you a perfect environment instantly.</li>
+<li><b>Zero Config Polish</b>: Improved default settings and streamlined the initial setup process for an even smoother out-of-the-box experience.</li>
+<li><b>Debug Overlay</b>: Added a new debug overlay for easier troubleshooting of shell integration and configuration issues.</li>
+<li><b>Shell Integration</b>: Launched a robust <code>setup_zsh.sh</code> script with common aliases and git shortcuts to supercharge your terminal workflow.</li>
+<li><b>Tab Bar Improvements</b>: Custom tab bar now supports path-based titles and visual indicators; fixed runtime errors with <code>get_current_working_dir</code>.</li>
+<li><b>Under the Hood</b>: Automated version synchronization and various internal improvements for stability. Addressed macOS permission prompts for a smoother experience. Renamed internal project references to <code>kaku</code> for consistent branding.</li>
+</ol>
+<p class="release-more"><a href="https://github.com/tw93/Kaku/releases/tag/V0.1.1">GitHub</a> · <a href="https://github.com/tw93/Kaku/releases/download/V0.1.1/Kaku.dmg">DMG</a></p>
+<p class="release-more">If macOS blocks the app, go to System Settings → Privacy &amp; Security → click Open Anyway.</p>
+<hr>
+<h2 id="v0.1.0">V0.1.0 Freshmen 🧝‍♀️ <span class="release-date">2026-02-08</span></h2>
+<ol>
+<li>First Release: Kaku is now live! A fast, out-of-the-box terminal built for AI coding, deeply customized for macOS with GPU acceleration.</li>
+<li>Built-in Shell Suite: Comes with pre-configured Starship prompt, z smart directory jumper, Syntax Highlighting, Autosuggestions.</li>
+<li>Smart Onboarding: Features an intelligent first-run wizard that detects your environment, safely backs up existing configs.</li>
+<li>Native Experience: Optimized for macOS with smooth animations, intuitive shortcuts, split pane management, and focus mode.</li>
+<li>Universal Binary: Fully optimized support for both Apple Silicon and Intel Macs in a single lightweight DMG.</li>
+</ol>
+<p class="release-more"><a href="https://github.com/tw93/Kaku/releases/tag/V0.1.0">GitHub</a> · <a href="https://github.com/tw93/Kaku/releases/download/V0.1.0/Kaku.dmg">DMG</a></p>
+<p class="release-more">If macOS blocks the app, go to System Settings → Privacy &amp; Security → click "Open Anyway".</p>
+</div></section></main>
+  <footer class="site-footer"><div class="wide footer-inner"><div class="footer-mark"><img src="/img/kaku-mark.png" width="64" height="64" alt="Kaku" loading="lazy"><div><p class="wm-name">Kaku · 書</p><p class="wm-sub">开箱即用、默认好用、AI 友好的 Mac 终端。</p></div></div><div class="footer-colophon"><p class="footer-links"><a href="/zh/about">关于</a> · <a href="/zh/compare">对比</a> · <a href="/zh/contact">联系</a> · <a href="/zh/privacy">隐私</a> · <a href="/zh/roadmap">Roadmap</a> · <a href="/zh/changelog">Changelog</a> · <a href="/zh/docs/">文档</a> · <a href="https://github.com/tw93/Kaku">GitHub</a> · <a href="https://github.com/tw93/Kaku/issues">Issues</a> · <a href="https://twitter.com/HiTw93">X</a></p><p class="footer-ethos">少和终端较劲 · Built on WezTerm · MIT · © 2026</p></div></div></footer>
+</body>
+</html>

@@ -27,6 +27,7 @@
 - [对比](https://kaku.fun/zh/compare.md)：Kaku 对比 iTerm2、Warp、Ghostty、WezTerm 和系统终端
 - [贡献](https://kaku.fun/zh/docs/contributing.md)：构建和 PR 流程
 - [路线图](https://kaku.fun/zh/roadmap.md)：当前版本和接下来的计划
+- [更新日志](https://kaku.fun/zh/changelog.md)：正式版更新，从新到旧，不含 Nightly
 - [关于](https://kaku.fun/zh/about.md) · [联系](https://kaku.fun/zh/contact.md) · [隐私](https://kaku.fun/zh/privacy.md)
 
 ## 其他

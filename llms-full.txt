@@ -77,5 +77,8 @@ Kaku is built by Tw93 (https://tw93.fun, https://github.com/tw93, https://x.com/
 - Homepage: https://kaku.fun
 - Documentation: https://kaku.fun/docs/
 - Roadmap: https://kaku.fun/roadmap
+- Changelog: https://kaku.fun/changelog
+- Release feed: https://kaku.fun/feed.xml
+- Release data: https://kaku.fun/feeds/releases.json
 - GitHub: https://github.com/tw93/Kaku
 - Latest release: https://github.com/tw93/Kaku/releases/latest

@@ -889,6 +889,7 @@ button, input { font: inherit; }
   letter-spacing: -0.3px;
 }
 .release-doc h2:first-of-type { margin-top: 0; }
+.release-doc h2 .release-date,
 .release-doc h2 .rel-date {
   margin-left: 12px;
   color: var(--ink-muted);
