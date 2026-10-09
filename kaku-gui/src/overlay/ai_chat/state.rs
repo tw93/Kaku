@@ -890,11 +890,11 @@ impl App {
         if onboarding_pending {
             messages.push(Message::text(
                 Role::Assistant,
-                "Hi! I'm Kaku AI. Three quick things to help me help you:\n\n\
+                "Hi! I'm Kaku AI. Three quick details if you'd like to tailor replies:\n\n\
                  1. What should I call you?\n\
-                 2. What reply style do you prefer? (e.g. concise, detailed, technical, casual)\n\
-                 3. What do you typically work on? (languages, tools, current projects)\n\n\
-                 Answer in one message, or just ask your question. You can tell me later.",
+                 2. What reply style do you prefer? (e.g. concise, technical)\n\
+                 3. What do you typically work on? (languages, tools, projects)\n\n\
+                 Answer in one message, or ask your question directly. You can update this anytime.",
                 true,
                 false,
             ));

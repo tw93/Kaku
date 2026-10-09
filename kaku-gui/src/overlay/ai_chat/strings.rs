@@ -32,5 +32,5 @@ pub(crate) fn task_complete_notification_title() -> String {
 
 /// Body shown by the task-complete system notification.
 pub(crate) fn task_complete_notification_body() -> String {
-    "The AI has finished responding.".to_string()
+    "Response ready.".to_string()
 }
