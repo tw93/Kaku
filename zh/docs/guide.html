@@ -81,12 +81,12 @@
       <div class="wide docs-layout">
         <aside class="docs-sidebar">
           <a class="docs-home" href="/zh/docs/">文档</a>
-          <nav class="docs-menu" aria-label="Documentation pages"><a href="/zh/docs/"><span>安装</span></a><a href="/zh/docs/guide" aria-current="page"><span>上手指南</span></a><a href="/zh/docs/features"><span>功能与 AI</span></a><a href="/zh/docs/cli"><span>CLI 参考</span></a><a href="/zh/docs/configuration"><span>配置</span></a><a href="/zh/docs/keybindings"><span>快捷键</span></a><a href="/zh/docs/faq"><span>FAQ</span></a><a href="/zh/docs/contributing"><span>贡献</span></a></nav>
+          <nav class="docs-menu" aria-label="Documentation pages"><a href="/zh/docs/"><span>安装</span></a><a href="/zh/docs/guide" aria-current="page"><span>上手指南</span></a><a href="/zh/docs/features"><span>功能特性</span></a><a href="/zh/docs/cli"><span>命令参考</span></a><a href="/zh/docs/configuration"><span>配置</span></a><a href="/zh/docs/keybindings"><span>快捷键</span></a><a href="/zh/docs/faq"><span>常见问答</span></a><a href="/zh/docs/contributing"><span>贡献</span></a></nav>
           <div class="section-toc"><p>本页内容</p><a class="depth-2" href="#guide-first-launch">第一次打开</a><a class="depth-2" href="#guide-tabs-panes">标签与分屏</a><a class="depth-2" href="#guide-shell">开箱即用的 Shell</a><a class="depth-2" href="#guide-assistant">AI 助手</a><a class="depth-2" href="#guide-tools">内置工具</a><a class="depth-2" href="#guide-settings">设置与体检</a></div>
         </aside>
         <article class="doc-content">
           <blockquote>
-            <p>完整的选项分别在<a href="/zh/docs/features">功能与 AI</a>、<a href="/zh/docs/keybindings">快捷键</a>和<a href="/zh/docs/configuration">配置</a>这几页。</p>
+            <p>完整的选项分别在<a href="/zh/docs/features">功能特性</a>、<a href="/zh/docs/keybindings">快捷键</a>和<a href="/zh/docs/configuration">配置</a>这几页。</p>
           </blockquote>
           <figure class="shot"><img src="/shots/kaku-dark.webp" width="1920" height="1192" loading="lazy" alt="Kaku 终端，显示标签栏、分屏和 shell 提示符"><figcaption>标签在底部，分屏左右并排。</figcaption></figure>
 
@@ -140,7 +140,7 @@
             <li><strong>自然语言生成命令。</strong>输入 <code>#</code> 加一句话（例如 <code># 找到并杀掉占用 3000 端口的进程</code>），回车后 Kaku 会将其转换为真正的命令回填在提示符处，供你确认后再运行。</li>
             <li><strong>打开聊天面板。</strong>按 <code>Cmd + L</code> 打开聊天，回答是流式输出的，代码有高亮，还能读到当前终端的内容，在任意 shell 里用 <code>k "..."</code> 或 <code>kaku chat</code> 打开的也是同一段对话。</li>
           </ol>
-          <p>AI 服务由你自己配置，Kaku 不提供也不中转，完整设置见<a href="/zh/docs/features">功能与 AI</a>。</p>
+          <p>AI 服务由你自己配置，Kaku 不提供也不中转，完整设置见<a href="/zh/docs/features">功能特性</a>。</p>
 
           <h2 id="guide-tools"><a class="anchor" href="#guide-tools" aria-label="链接到「内置工具」">#</a>内置工具</h2>
           <p>Lazygit 和 Yazi 都在当前面板打开，退出后回到 shell，远程文件则会新开一个标签。</p>
@@ -154,7 +154,7 @@
           <tr><td align="left">远程文件</td><td align="left"><code>Cmd + Shift + R</code></td><td align="left">把当前 SSH 主机的文件挂载到本地，用 Yazi 打开。</td></tr>
           </tbody>
           </table>
-          <p>缺 Lazygit 或 Yazi 时运行 <code>kaku init</code>，它会问你要不要装，远程文件还需要 sshfs，这部分和主题、行为细节都在<a href="/zh/docs/features">功能与 AI</a>里。</p>
+          <p>缺 Lazygit 或 Yazi 时运行 <code>kaku init</code>，它会问你要不要装，远程文件还需要 sshfs，这部分和主题、行为细节都在<a href="/zh/docs/features">功能特性</a>里。</p>
 
           <h2 id="guide-settings"><a class="anchor" href="#guide-settings" aria-label="链接到「设置与体检」">#</a>设置与体检</h2>
           <ul>
@@ -162,7 +162,7 @@
             <li><strong>Lua 配置。</strong>自定义快捷键和其他 Lua 覆盖写在 <code>~/.config/kaku/kaku.lua</code>，在设置 TUI 里按 <code>e</code> 就能用编辑器打开它，见<a href="/zh/docs/configuration">配置</a>。</li>
             <li><strong>检查环境。</strong>感觉哪里不对就运行 <code>kaku doctor</code>，它会检查 Kaku 程序、PATH 和 shell 集成。</li>
           </ul>
-          <nav class="doc-pager" aria-label="Pagination"><a href="/zh/docs/"><span>上一页</span><strong>安装</strong></a><a href="/zh/docs/features"><span>下一页</span><strong>功能与 AI</strong></a></nav>
+          <nav class="doc-pager" aria-label="Pagination"><a href="/zh/docs/"><span>上一页</span><strong>安装</strong></a><a href="/zh/docs/features"><span>下一页</span><strong>功能特性</strong></a></nav>
         </article>
       </div>
     </section>

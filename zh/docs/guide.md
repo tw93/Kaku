@@ -2,7 +2,7 @@
 
 Kaku 日常怎么用，从第一个窗口一直讲到 AI 助手。
 
-> 完整的选项分别在[功能与 AI](https://kaku.fun/zh/docs/features)、[快捷键](https://kaku.fun/zh/docs/keybindings)和[配置](https://kaku.fun/zh/docs/configuration)这几页。
+> 完整的选项分别在[功能特性](https://kaku.fun/zh/docs/features)、[快捷键](https://kaku.fun/zh/docs/keybindings)和[配置](https://kaku.fun/zh/docs/configuration)这几页。
 
 ![Kaku 终端，显示标签栏、分屏和 shell 提示符](https://kaku.fun/shots/kaku-dark.webp)标签在底部，分屏左右并排。
 
@@ -60,7 +60,7 @@ Kaku 首次启动时会把 zsh 或 fish 配好，不用自己去改配置文件�
 2. **自然语言生成命令。**输入 `#` 加一句话（例如 `# 找到并杀掉占用 3000 端口的进程`），回车后 Kaku 会将其转换为真正的命令回填在提示符处，供你确认后再运行。
 3. **打开聊天面板。**按 `Cmd + L` 打开聊天，回答是流式输出的，代码有高亮，还能读到当前终端的内容，在任意 shell 里用 `k "..."` 或 `kaku chat` 打开的也是同一段对话。
 
-AI 服务由你自己配置，Kaku 不提供也不中转，完整设置见[功能与 AI](https://kaku.fun/zh/docs/features)。
+AI 服务由你自己配置，Kaku 不提供也不中转，完整设置见[功能特性](https://kaku.fun/zh/docs/features)。
 
 ## 内置工具
 
@@ -72,7 +72,7 @@ Lazygit 和 Yazi 都在当前面板打开，退出后回到 shell，远程文件
 | Yazi | `Cmd + Shift + Y` | 文件管理器，退出时停在你选中的目录。 |
 | 远程文件 | `Cmd + Shift + R` | 把当前 SSH 主机的文件挂载到本地，用 Yazi 打开。 |
 
-缺 Lazygit 或 Yazi 时运行 `kaku init`，它会问你要不要装，远程文件还需要 sshfs，这部分和主题、行为细节都在[功能与 AI](https://kaku.fun/zh/docs/features)里。
+缺 Lazygit 或 Yazi 时运行 `kaku init`，它会问你要不要装，远程文件还需要 sshfs，这部分和主题、行为细节都在[功能特性](https://kaku.fun/zh/docs/features)里。
 
 ## 设置与体检
 
