@@ -61,11 +61,11 @@ kaku doctor                    # 检查 App 包、PATH、shell 集成
 
 - [安装](https://kaku.fun/zh/docs/index.md)：DMG、Homebrew、安装后检查、排障
 - [指南](https://kaku.fun/zh/docs/guide.md)：从首次启动到日常使用的白话走查
-- [功能](https://kaku.fun/zh/docs/features.md)：助手、AI 聊天、默认值、性能、shell 套件、Lua 配置
-- [CLI 参考](https://kaku.fun/zh/docs/cli.md)：每一个 `kaku` 子命令
+- [功能特性](https://kaku.fun/zh/docs/features.md)：助手、AI 聊天、默认值、性能、shell 套件、Lua 配置
+- [命令参考](https://kaku.fun/zh/docs/cli.md)：每一个 `kaku` 子命令
 - [配置](https://kaku.fun/zh/docs/configuration.md)：字体、透明度、Smart Tab、快捷键、Lua 覆盖
 - [快捷键](https://kaku.fun/zh/docs/keybindings.md)：标签页、分屏、窗口和工具快捷键
-- [FAQ](https://kaku.fun/zh/docs/faq.md)：安装、对比、平台支持、许可
+- [常见问答](https://kaku.fun/zh/docs/faq.md)：安装、对比、平台支持、许可
 - [对比](https://kaku.fun/zh/compare.md)：Kaku 对比 iTerm2、Warp、Ghostty、WezTerm 和系统终端
 - [贡献](https://kaku.fun/zh/docs/contributing.md)：构建和 PR 流程
 - [路线图](https://kaku.fun/zh/roadmap.md)：当前版本和接下来的计划

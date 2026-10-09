@@ -98,7 +98,7 @@ config.font_size = 16
 config.line_height = 1.28  -- default
 ```
 
-默认行距适度放宽，文本阅读更为舒适；QR code、`neofetch` 图标及 TUI 图表等字符图形会随之成比例拉伸。若希望图形更接近正方形，可调整为 `1.0` 至 `1.1`，详情见 [FAQ](https://kaku.fun/zh/docs/faq#faq-qr-codes-and-terminal-graphics-look-vertically-stretched)。
+默认行距适度放宽，文本阅读更为舒适；QR code、`neofetch` 图标及 TUI 图表等字符图形会随之成比例拉伸。若希望图形更接近正方形，可调整为 `1.0` 至 `1.1`，详情见 [常见问答](https://kaku.fun/zh/docs/faq#faq-qr-codes-and-terminal-graphics-look-vertically-stretched)。
 
 **窗口透明度**
 

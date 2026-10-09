@@ -16,7 +16,7 @@ Kaku 是开源项目，除了安全报告，其他问题都在公开渠道里交
 
 ## 提问与想法
 
-用法和配置上的疑问，或者还算不上 bug 的想法，发到 [GitHub Discussions](https://github.com/tw93/Kaku/discussions)，不少答案其实已经写在 [FAQ](https://kaku.fun/zh/docs/faq) 和[配置](https://kaku.fun/zh/docs/configuration)页里，可以先翻一下。
+用法和配置上的疑问，或者还算不上 bug 的想法，发到 [GitHub Discussions](https://github.com/tw93/Kaku/discussions)，不少答案其实已经写在 [常见问答](https://kaku.fun/zh/docs/faq) 和[配置](https://kaku.fun/zh/docs/configuration)页里，可以先翻一下。
 
 ## 安全报告
 
