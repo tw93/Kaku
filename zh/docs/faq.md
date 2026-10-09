@@ -1,4 +1,4 @@
-# FAQ
+# 常见问答
 
 大家最常问的问题，从安装、配置到字体、滚动和 AI。
 
@@ -98,7 +98,7 @@ kaku cli split-pane -- bash -c "echo hello"
 kaku cli --help
 ```
 
-全部命令见 [CLI 参考](https://kaku.fun/zh/docs/cli)。
+全部命令见 [命令参考](https://kaku.fun/zh/docs/cli)。
 
 ## 怎么显示滚动条？
 
