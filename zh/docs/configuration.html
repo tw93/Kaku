@@ -123,12 +123,12 @@ config.window_background_opacity = <span class="tok-n">0.95</span>
           </blockquote>
           <p>设置界面（<code>kaku config</code>）改的也是这个文件里的常用设置和 Lua 覆盖，如果启动 Kaku 时用了 <code>--config-file</code>，设置改的就是那个文件。</p>
           <h2 id="configuration-appearance"><a class="anchor" href="#configuration-appearance" aria-label="链接到「外观」">#</a>外观</h2><p><strong>主题</strong></p>
-          <p>新安装默认用 Kaku Dark，因为首次生成的 <code>kaku.lua</code> 里写了 <code>config.color_scheme = &quot;Kaku Dark&quot;</code>，配置里没有这一行的，包括 V0.21.0 之前生成的配置，仍然跟随 macOS 外观在 Kaku Dark 和 Kaku Light 之间切换，想跟随系统就在 <code>kaku config</code> 里选 Auto。要固定用一套主题：</p>
+          <p>新安装默认使用 Kaku Dark 主题（首次生成的 <code>kaku.lua</code> 包含 <code>config.color_scheme = &quot;Kaku Dark&quot;</code>）。若配置中未指定该项（包括 V0.21.0 之前生成的配置），则仍会跟随 macOS 系统外观在 Dark 与 Light 间切换。若需跟随系统，可在 <code>kaku config</code> 中选择 Auto。若需固定单一主题：</p>
           <pre><code class="language-lua">config.color_scheme = <span class="tok-s">"Kaku Dark"</span>   <span class="tok-c">-- always dark</span>
 config.color_scheme = <span class="tok-s">"Kaku Light"</span>  <span class="tok-c">-- always light</span></code></pre>
           <p>不加载内置默认值的独立配置也能用这两个主题名。如果你的配置里写了 <code>config.colors</code> 或 <code>config.window_frame</code>，这些颜色会盖过主题，<code>kaku config</code> 的 Theme 一栏也会标出是哪一项在覆盖。</p>
           <p><strong>颜色覆盖</strong></p>
-          <p>有些应用会自己输出十六进制颜色，和主题搭不上，可以把这些颜色换掉。<code>color_overrides</code> 管渲染出来的背景，调色板里的 ANSI 背景和真彩色背景都算，<code>foreground_color_overrides</code> 只管真彩色文字：</p>
+          <p>部分命令行程序会直接输出特定十六进制颜色，可能与主题风格不协调。可通过颜色覆盖规则予以替换：<code>color_overrides</code> 映射背景色（包含调色板 ANSI 背景与 24 位真彩色背景），<code>foreground_color_overrides</code> 仅映射真彩色文字：</p>
           <pre><code class="language-lua">config.color_overrides = {
   [<span class="tok-s">'#6E6E6E'</span>] = <span class="tok-s">'#3A3942'</span>,
 }
@@ -142,11 +142,11 @@ config.foreground_color_overrides = {
           <p>连字默认关闭，要重新打开：</p>
           <pre><code class="language-lua">config.harfbuzz_features = {}</code></pre>
           <p><strong>字号</strong></p>
-          <p>Kaku 会按显示器自动选字号，低分屏 15pt，高分屏 17pt，想自己定就写：</p>
+          <p>Kaku 会根据显示器分辨率自动适配字号（普通屏 15pt，Retina 高分屏 17pt）。如需手动指定：</p>
           <pre><code class="language-lua">config.font_size = <span class="tok-n">16</span></code></pre>
           <p><strong>行高</strong></p>
           <pre><code class="language-lua">config.line_height = <span class="tok-n">1.28</span>  <span class="tok-c">-- default</span></code></pre>
-          <p>默认行距偏松，读文字舒服一些，代价是 QR code、<code>neofetch</code> 图标、TUI 图表这类用字符拼出来的图形会跟着行高拉长，想让它们接近正方形可以设成 <code>1.0</code> 到 <code>1.1</code>，细节见 <a href="/zh/docs/faq#faq-qr-codes-and-terminal-graphics-look-vertically-stretched">FAQ</a>。</p>
+          <p>默认行距适度放宽，文本阅读更为舒适；QR code、<code>neofetch</code> 图标及 TUI 图表等字符图形会随之成比例拉伸。若希望图形更接近正方形，可调整为 <code>1.0</code> 至 <code>1.1</code>，详情见 <a href="/zh/docs/faq#faq-qr-codes-and-terminal-graphics-look-vertically-stretched">FAQ</a>。</p>
           <p><strong>窗口透明度</strong></p>
           <pre><code class="language-lua">config.window_background_opacity = <span class="tok-n">0.92</span>
 config.macos_window_background_blur = <span class="tok-n">20</span>  <span class="tok-c">-- optional blur (0–100)</span></code></pre>
@@ -155,7 +155,7 @@ config.macos_window_background_blur = <span class="tok-n">20</span>  <span class
           <pre><code class="language-lua">config.window_decorations = <span class="tok-s">"RESIZE"</span></code></pre>
           <p><strong>内边距</strong></p>
           <pre><code class="language-lua">config.window_padding = { left = <span class="tok-s">'24px'</span>, right = <span class="tok-s">'24px'</span>, top = <span class="tok-s">'40px'</span>, bottom = <span class="tok-s">'20px'</span> }</code></pre>
-          <p>单位支持 <code>px</code>、<code>pt</code>、<code>cell</code> 和 <code>%</code>。<code>px</code> 是物理像素，不跟着 DPI 缩放，同一个数在高分屏上看着会更小，想随 DPI 缩放就用 <code>pt</code>，比如 <code>top = '15pt'</code>，想按终端字符格的大小算就用 <code>cell</code>。</p>
+          <p>单位支持 <code>px</code>、<code>pt</code>、<code>cell</code> 和 <code>%</code>。其中 <code>px</code> 为物理像素，不随 DPI 缩放；若希望随系统缩放，请使用 <code>pt</code>（如 <code>top = '15pt'</code>）；若需按字符网格单元计算，可使用 <code>cell</code>。</p>
           <h2 id="configuration-terminal-behavior"><a class="anchor" href="#configuration-terminal-behavior" aria-label="链接到「终端行为」">#</a>终端行为</h2><p><strong>光标</strong></p>
           <pre><code class="language-lua">config.default_cursor_style = <span class="tok-s">"BlinkingBar"</span>
 config.cursor_thickness = <span class="tok-s">"2px"</span>
@@ -172,20 +172,20 @@ config.cursor_blink_rate = <span class="tok-n">500</span></code></pre>
           <p>复制一段带缩进的多行文本时，比如代码，把每行共有的行首空白去掉，粘贴出来就从第 0 列开始：</p>
           <pre><code class="language-lua">config.copy_strip_leading_whitespace = <span class="tok-b">true</span>  <span class="tok-c">-- default: false</span></code></pre>
           <p><strong>恢复上次会话</strong></p>
-          <p>Kaku 启动时会重新打开上次的标签和分屏，这个功能默认开启，开关窗口、标签或分屏后一分钟内也会保存一次，崩溃或强制退出后也能恢复上次的布局，设为 <code>false</code> 就既不保存也不恢复会话：</p>
+          <p>Kaku 默认在启动时自动恢复上次打开的标签页与分屏。在窗口、标签或分屏发生变化后 1 分钟内会自动保存；即使遭遇崩溃或强制退出，也能恢复前次布局。若设为 <code>false</code>，则既不保存也不恢复会话：</p>
           <pre><code class="language-lua">config.restore_previous_session = <span class="tok-b">false</span>  <span class="tok-c">-- default: true</span></code></pre>
-          <p>通过 ssh 域打开的分屏会回到原来的远程目录，不会落到本地的同名路径上。某个窗口恢复不了时，比如主机连不上，Kaku 会发通知告诉你有几个窗口没恢复，已保存的会话留着，下次启动再试一次。</p>
+          <p>通过 SSH 域打开的分屏会准确恢复至对应的远程目录，不会误退至本地同名路径。若因主机无法连接等原因导致部分窗口恢复失败，Kaku 会发送通知提示未恢复的窗口数量，并保留已存会话以便下次启动时再次尝试。</p>
           <p><strong>工作目录继承</strong></p>
           <pre><code class="language-lua">config.window_inherit_working_directory = <span class="tok-b">true</span>   <span class="tok-c">-- new windows</span>
 config.tab_inherit_working_directory = <span class="tok-b">true</span>       <span class="tok-c">-- new tabs</span>
 config.split_pane_inherit_working_directory = <span class="tok-b">true</span> <span class="tok-c">-- new splits</span></code></pre>
           <p><strong>标签栏</strong></p>
-          <p>只有一个标签时标签栏会隐藏，自动生成的标签标题默认显示当前目录，你可以调整标签栏位置、缩短路径，让它显示 Claude Code 等程序设置的动态标题，或者在路径旁边显示正在跑的命令：</p>
+          <p>单标签时标签栏默认隐藏。自动生成的标签标题默认显示当前目录名；你也可以调整标签栏位置、仅显示目录末段，或让它同步 Claude Code 等程序上报的动态标题，亦可在路径旁显示当前正在运行的前台命令：</p>
           <pre><code class="language-lua">config.tab_bar_at_bottom = <span class="tok-b">false</span>                   <span class="tok-c">-- move to top</span>
 config.tab_title_show_basename_only = <span class="tok-b">true</span>         <span class="tok-c">-- show "dirname" instead of "parent/dirname"</span>
 config.tab_title_show_foreground_process = <span class="tok-b">true</span>    <span class="tok-c">-- show "dirname·codex" while commands run</span>
 config.tab_title_use_pane_title = <span class="tok-b">true</span>             <span class="tok-c">-- show titles set by apps like Claude Code</span></code></pre>
-          <p>开启 <code>config.tab_title_use_pane_title = true</code> 后，标签会显示 Claude Code 这类命令行应用上报的标题，手动双击重命名过的标签依然保留你的自定义名字。</p>
+          <p>开启 <code>config.tab_title_use_pane_title = true</code> 后，标签将优先显示 Claude Code 等命令行应用上报的动态标题；手动双击重命名过的标签仍会保留自定义名称。</p>
           <p>后台标签响铃（BEL）时，标题上会出现一个小圆点，要关掉：</p>
           <pre><code class="language-lua">config.bell_tab_indicator = <span class="tok-b">false</span></code></pre>
           <p>新建标签按钮默认显示，右键标签可以新建、打开标签导航或关闭标签。不需要新建按钮的话，可以在 <code>kaku config</code> 里关掉 New Tab Button，或者写 <code>config.show_new_tab_button_in_tab_bar = false</code>。</p>
@@ -218,13 +218,13 @@ config.send_composed_key_when_right_alt_is_pressed = <span class="tok-b">true</s
           <p>开启后，Neovim 和 Herdr 里的 Esc 与向前删除键可正常识别，交换 Backspace 与 Delete 的设置也会生效：</p>
           <pre><code class="language-lua">config.enable_kitty_keyboard = <span class="tok-b">true</span></code></pre>
           <p><strong>关闭确认</strong></p>
-          <p>关闭还有任务在跑的窗口、标签或分屏前，Kaku 可以先问一句。每一项都可以设为 <code>NeverPrompt</code>、<code>SmartPrompt</code> 或 <code>AlwaysPrompt</code>，内置配置三项都是 <code>SmartPrompt</code>：</p>
+          <p>在关闭仍有任务运行的窗口、标签或分屏时，Kaku 支持弹窗确认。每项均可配置为 <code>NeverPrompt</code>、<code>SmartPrompt</code> 或 <code>AlwaysPrompt</code>，内置默认均为 <code>SmartPrompt</code>：</p>
           <pre><code class="language-lua">config.window_close_confirmation = <span class="tok-s">"SmartPrompt"</span>  <span class="tok-c">-- bundled default</span>
 config.tab_close_confirmation = <span class="tok-s">"SmartPrompt"</span>     <span class="tok-c">-- bundled default</span>
 config.pane_close_confirmation = <span class="tok-s">"SmartPrompt"</span>    <span class="tok-c">-- bundled default</span></code></pre>
-          <p>设成 <code>SmartPrompt</code> 时，受影响的分屏都停在空的 shell 提示符上就直接关，还有 claude、codex、vim 这类 agent 或编辑器在跑就先问。<code>Cmd + Q</code>、<code>Cmd + W</code>、<code>Cmd + Shift + W</code> 都按这些设置来。</p>
+          <p>设为 <code>SmartPrompt</code> 时，若相关分屏均处于空闲的 shell 提示符状态，则直接关闭；若有 Claude Code、Codex、Vim 等交互程序或编辑器在运行，则会弹出确认对话框。快捷键 <code>Cmd + Q</code>、<code>Cmd + W</code>、<code>Cmd + Shift + W</code> 均遵循该规则。</p>
           <h2 id="configuration-updates"><a class="anchor" href="#configuration-updates" aria-label="链接到「更新」">#</a>更新</h2>
-          <p>Kaku 默认会在后台检查 GitHub 上的新版本，有新版就先下载好，但不会自己装，因为装更新会关掉所有窗口、停掉正在跑的任务，所以通知会先问你。</p>
+          <p>Kaku 默认在后台检查 GitHub 新版本并预先完成下载。为避免重启时关闭窗口与中断前台任务，应用不会静默安装，而是通过通知询问是否重启更新。</p>
           <p>要关掉后台检查：</p>
           <pre><code class="language-lua">config.check_for_updates = <span class="tok-b">false</span></code></pre>
           <p>调整检查频率，默认 <code>10800</code>，也就是每 3 小时一次：</p>

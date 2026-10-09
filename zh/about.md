@@ -4,15 +4,15 @@
 
 ## Kaku 是什么
 
-Kaku 是基于 [WezTerm](https://wezterm.org) 的 Mac 终端，JetBrains Mono、跟随系统的深浅色主题、标签和分屏快捷键都预设好了，Shell 补全、语法高亮和目录跳转也已经配好，Lazygit、Yazi 这些工具按需安装，想再细调就用 Lua。
+Kaku 是基于 [WezTerm](https://wezterm.org) 深度定制的 Mac 终端。JetBrains Mono、跟随系统的深浅色主题、标签与分屏快捷键均已预设；Shell 补全、语法高亮和目录跳转开箱即用；Lazygit、Yazi 按需一键安装，想进一步定制还可以写 Lua。
 
-名字取自日语的 書く（kaku），意思是书写，它和 [Waza](https://github.com/tw93/Waza)（技）、[Kami](https://github.com/tw93/Kami)（紙）出自同一个作者，Kaku 写代码，Waza 练习惯，Kami 做文档。
+名字取自日语的「書く」（kaku，书写）。它和 [Waza](https://github.com/tw93/Waza)（技）、[Kami](https://github.com/tw93/Kami)（紙）同出一系：Kaku 写代码，Waza 练习惯，Kami 做文档。
 
 ## 谁在做
 
-Kaku 由独立开发者 Tw93 开发，他也做了 [Pake](https://github.com/tw93/Pake) 和 [Mole](https://github.com/tw93/Mole)，开发全程在 GitHub 上公开，issue、PR、发布和路线图都能看到，源码 MIT 开源，有问题去 [GitHub Issues](https://github.com/tw93/Kaku/issues) 提，想支持开发可以走 [GitHub Sponsors](https://github.com/sponsors/tw93)。
+Kaku 由独立开发者 Tw93 开发，他也是 [Pake](https://github.com/tw93/Pake) 和 [Mole](https://github.com/tw93/Mole) 的作者。开发全程在 GitHub 公开进行，issue、PR、发布与路线图完全透明。源码采用 MIT 协议开源，遇到问题欢迎提 issue，也可以通过 [GitHub Sponsors](https://github.com/sponsors/tw93) 支持后续开发。
 
-## 使用 Kaku
+## 原则与边界
 
 - **无需 Kaku 账号。**没有注册、没有登录、没有云端中转，装上就能用。
 - **不做埋点。**Kaku 不采集使用数据，App 会发起的网络请求全部列在[隐私](https://kaku.fun/zh/privacy)页面。
@@ -22,7 +22,7 @@ Kaku 由独立开发者 Tw93 开发，他也做了 [Pake](https://github.com/tw9
 
 ## 从哪开始看
 
-可以从[文档](https://kaku.fun/zh/docs/)开始，从 iTerm2、Warp、Ghostty 或 WezTerm 换过来的话先看[终端对比](https://kaku.fun/zh/compare)，想知道接下来在做什么看[路线图](https://kaku.fun/zh/roadmap)，其他事情见[联系](https://kaku.fun/zh/contact)页面。
+你可以从[文档](https://kaku.fun/zh/docs/)开始上手；若从 iTerm2、Warp、Ghostty 或 WezTerm 迁移，建议先浏览[终端对比](https://kaku.fun/zh/compare)；关注后续开发进展可查看[路线图](https://kaku.fun/zh/roadmap)；其他交流事宜参见[联系](https://kaku.fun/zh/contact)页面。
 
 ---
 

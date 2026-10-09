@@ -12,11 +12,11 @@
 
 ## 有 Windows 或 Linux 版本吗？
 
-暂时没有，Kaku 现在只做 macOS，等 Mac 上的体验打磨好了，Windows 和 Linux 可能会再跟上。
+暂时没有。Kaku 目前专注于 macOS 体验的打磨，Windows 和 Linux 暂无具体时间表。
 
 ## Kaku 和 iTerm2、Warp、Ghostty、WezTerm 有什么区别？
 
-Kaku 是基于 WezTerm 的 Mac 终端，字体、主题、标签页、分屏和 shell 工具装好就配齐了，另有一个可选的 AI 助手，用的是你自己配置的 AI 服务。iTerm2 和 WezTerm 这些得自己一点点拼，Warp 是 AI 优先的终端，Agent 跑在 Warp 的服务器上，Ghostty 是很快的 GPU 终端，只是预设少一些。哪些情况其实不用换，[对比页](https://kaku.fun/zh/compare)里写得更细。
+Kaku 是基于 WezTerm 的 macOS 终端，字体、主题、标签、分屏与 shell 套件开箱即用，并内建可选的 AI 助手（直连你自己的服务）。iTerm2 和 WezTerm 通常需要繁琐的手动配置；Warp 是云端 Agent 托管型终端；Ghostty 则是纯粹轻快、预设较少的 GPU 终端。详细差异与选型建议可参考[对比页](https://kaku.fun/zh/compare)。
 
 ## 怎么开半透明窗口？
 
@@ -71,7 +71,7 @@ enabled = false
 
 ## 怎么用自定义的 LLM 服务？
 
-运行 `kaku ai`，Auth Type 保持 API key，手动填上 OpenAI 兼容的 Base URL、API key、Simple Model 和 Deep Model，Base URL 填 API 根地址，比如 `https://api.openai.com/v1`，API Mode 按服务选 `chat_completions` 或 `responses`，用 Responses 的服务如果自带联网搜索，把 Native Web Search 打开就行，不用再单独配搜索服务和它的 API key。
+运行 `kaku ai`，Auth Type 保持 API key，填入兼容 OpenAI 协议的 Base URL、API key 以及 Simple Model 和 Deep Model。Base URL 填写 API 根地址（如 `https://api.openai.com/v1`）。API Mode 根据服务端支持选 `chat_completions` 或 `responses`。若所选模型支持原生联网搜索，开启 Native Web Search 即可，无需单独配置搜索服务。
 
 ## 怎么恢复默认配置？
 
@@ -79,7 +79,7 @@ enabled = false
 kaku reset
 ```
 
-它会清掉 Kaku 管理的 shell 和 tmux 集成、git delta 默认配置、部分 Kaku 状态，以及 `~/.config/kaku/kaku.lua` 里由 Kaku 管理的主题块，你在这些块之外自己写的 Lua 会原样保留，之后想把 shell 集成装回来，再跑一次 `kaku init` 就行。
+该命令会清理 Kaku 管理的 shell 与 tmux 集成、git delta 默认配置、部分状态文件，以及 `~/.config/kaku/kaku.lua` 中由 Kaku 维护的主题块。你在这些块之外自定义的 Lua 配置会原样保留。后续若需重新安装 shell 集成，重新执行 `kaku init` 即可。
 
 ## `kaku` 命令找不到了，怎么恢复？
 
@@ -124,7 +124,7 @@ config.alternate_screen_wheel_scrolls_terminal = true
 config.font = wezterm.font('Your Font Name')
 ```
 
-Kaku 跟着主题调字重只对默认的 JetBrains Mono 字体栈生效，换成你自己的字体后，Kaku 就不再替你改字重了。
+Kaku 仅会对默认的 JetBrains Mono 字体栈随主题动态微调字重；使用自定义字体时，该行为自动停用。
 
 ## `window_padding` 改了没效果。
 
@@ -136,7 +136,7 @@ config.window_padding = { left = '24px', right = '24px', top = '40px', bottom = 
 
 ## QR code 和终端图形看起来被纵向拉高。
 
-Kaku 默认 `line_height = 1.28`，是为了让文字读起来不挤，QR code、`neofetch` 图标、TUI 柱状图这类用字符拼出来的图形会跟着行高一起拉伸，所以比没有额外行距的终端高出约 28%。这是排版上的取舍，不是渲染 bug，块字符必须填满整个 cell，TUI 边框和进度条才不会断开。
+Kaku 默认采用 `line_height = 1.28`，让终端文本阅读更加舒适。QR code、`neofetch` 图标、TUI 柱状图等字符图形会随行高成比例拉伸，高度会比无额外行距的终端高出约 28%。这是兼顾文本排版与块字符无缝连接（避免 TUI 边框断裂）的折中设计，并非渲染 Bug。
 
 想让图形接近正方形，可以在 `~/.config/kaku/kaku.lua` 里把行高调低：
 
@@ -148,7 +148,7 @@ config.line_height = 1.1  -- 或用 1.0 对齐无额外行距的终端
 
 ## Claude Code 输出过程中屏幕会跳到顶部。
 
-这是触控板滚动和 Claude Code 流式输出碰在一起的已知问题，中途不小心滚到顶的话，按一下向下方向键或往下滚就能回到当前输出，跳顶本身在最近几个版本里已经修了。
+这是此前触控板滚动与 Claude Code 流式输出并发时的偶现表现。若在流式输出中不慎滚到顶部，按下方向键或继续下滚即可回到当前最新输出。该问题在近期版本中已修复。
 
 ## SSH 会话里按 Cmd+Shift+Y 打开的是本地路径。
 
@@ -156,11 +156,11 @@ config.line_height = 1.1  -- 或用 1.0 对齐无额外行距的终端
 
 ## ssh 连着的时候，AI 聊天不读文件。
 
-这是故意的。工具跑在你的 Mac 上，当前目录却在远程主机上，在本地读文件或跑命令只会悄悄落到一个同名的本地路径上，所以在远程分屏里，聊天面板只根据终端里的内容回答，并给出让你在主机上执行的命令，`@cwd` 也因为同样的原因用不了。想让工具处理远程文件，先用 `Cmd + Shift + R` 挂载。
+这是有意设计的安全边界。助手工具运行在你的 Mac 本地，而终端当前目录位于远程主机，直接在本地读写文件或执行命令容易误伤同名本地路径。因此在远程窗格中，AI 仅基于终端屏幕输出回答，并生成供你在远程主机执行的命令；`@cwd` 同样不可用。若需要 AI 读取或编辑远程文件，请先通过 `Cmd + Shift + R` 挂载远程目录。
 
 ## Kaku 的提示符跑到了别的终端里，或者在别的终端里没了。
 
-每个 zsh 和 fish 都会加载 Kaku 的 shell 集成，但 Starship 提示符和 Smart Tab 只在 Kaku 里启动，从 Kaku 里开的 tmux 会话也算在内，其他终端还是用你原来的提示符。
+zsh 与 fish 环境均会加载 Kaku 的 shell 集成，但 Starship 提示符与 Smart Tab 仅在 Kaku（及从 Kaku 启动的 tmux 会话）中生效，其他终端环境仍保留你的原有提示符。
 
 想在所有终端都用 Kaku 的 Starship 提示符，在 `.zshrc` 里 Kaku 那一行之前加上这句，fish 就在 `config.fish` 里写 `set -gx KAKU_PROMPT_EVERYWHERE 1`：
 
@@ -172,7 +172,7 @@ Smart Tab 始终只在 Kaku 里生效，想关掉就设 `KAKU_SMART_TAB_DISABLE=
 
 ## `y` 这个 shell 包装退出时不同步当前目录。
 
-`y` 来自 Kaku 的 fish/zsh shell 集成，集成加载上了它才会在退出时同步目录，可以用 `kaku doctor` 检查，直接跑 `yazi` 不会同步目录。
+`y` 函数由 Kaku 的 shell 集成提供，成功加载后方可在退出时同步工作目录（可通过 `kaku doctor` 检查集成状态）。直接执行 `yazi` 原生命令不会同步目录。
 
 ## 怎么用 Homebrew 安装或升级 Kaku？
 

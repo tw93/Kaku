@@ -80,7 +80,7 @@
         </aside>
         <article class="doc-content">
           <blockquote>
-            <p>大多数人装 DMG 就行，想用命令行安装或脚本化更新再选 Homebrew，要自己编译 Kaku 可以看<a href="/zh/docs/contributing">贡献文档</a>。</p>
+            <p>推荐直接下载 DMG 安装；若习惯命令行管理或脚本化部署，可选用 Homebrew。需要从源码编译请参考<a href="/zh/docs/contributing">贡献文档</a>。</p>
           </blockquote>
           <h2 id="install-dmg"><a class="anchor" href="#install-dmg" aria-label="链接到「下载 DMG」">#</a>下载 DMG</h2>
                     <p>从 GitHub Releases 下载最新的 DMG，打开后把 Kaku 拖进 Applications，再从应用列表启动。</p>
@@ -102,8 +102,8 @@ brew install --cask kaku</code></pre>
                     <h2 id="install-troubleshooting"><a class="anchor" href="#install-troubleshooting" aria-label="链接到「排查」">#</a>排查</h2>
                     <ul>
                       <li>确认应用在 <code>/Applications/Kaku.app</code>，不要直接从 DMG 里运行。</li>
-                      <li>Homebrew 装不上时先跑 <code>brew update</code>，再重新 <code>brew install --cask kaku</code>，用 Homebrew 装的 Kaku 如果 <code>kaku update</code> 报 checksum 错误，改用 <code>brew upgrade --cask kaku</code>。</li>
-                      <li>第一次配置 shell 时运行 <code>kaku init</code>，它会配好 zsh/fish 集成，在交互式 shell 里还会问你要不要用 Homebrew 装上缺失的 Starship、Delta、Lazygit、Yazi 这些可选工具。</li>
+                      <li>若 Homebrew 安装失败，可先执行 <code>brew update</code> 后重试。对于通过 Homebrew 安装的 Kaku，若运行 <code>kaku update</code> 提示 checksum 校验错误，请改用 <code>brew upgrade --cask kaku</code> 更新。</li>
+                      <li>初次配置环境请运行 <code>kaku init</code>，会自动配置 zsh/fish 集成；在交互式终端中还会询问是否通过 Homebrew 安装缺失的 Starship、Delta、Lazygit、Yazi 等可选工具。</li>
                       <li>AI 功能用不了时，打开 <code>kaku ai</code> 检查一下 Auth Type、Base URL、Simple Model、Deep Model 和 API key。</li>
                       <li>提交 issue 时带上安装方式、macOS 版本、Kaku 版本和复现步骤。</li>
                     </ul>

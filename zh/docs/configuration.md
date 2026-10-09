@@ -47,7 +47,7 @@ return config
 
 **主题**
 
-新安装默认用 Kaku Dark，因为首次生成的 `kaku.lua` 里写了 `config.color_scheme = "Kaku Dark"`，配置里没有这一行的，包括 V0.21.0 之前生成的配置，仍然跟随 macOS 外观在 Kaku Dark 和 Kaku Light 之间切换，想跟随系统就在 `kaku config` 里选 Auto。要固定用一套主题：
+新安装默认使用 Kaku Dark 主题（首次生成的 `kaku.lua` 包含 `config.color_scheme = "Kaku Dark"`）。若配置中未指定该项（包括 V0.21.0 之前生成的配置），则仍会跟随 macOS 系统外观在 Dark 与 Light 间切换。若需跟随系统，可在 `kaku config` 中选择 Auto。若需固定单一主题：
 
 ```lua
 config.color_scheme = "Kaku Dark"   -- always dark
@@ -58,7 +58,7 @@ config.color_scheme = "Kaku Light"  -- always light
 
 **颜色覆盖**
 
-有些应用会自己输出十六进制颜色，和主题搭不上，可以把这些颜色换掉。`color_overrides` 管渲染出来的背景，调色板里的 ANSI 背景和真彩色背景都算，`foreground_color_overrides` 只管真彩色文字：
+部分命令行程序会直接输出特定十六进制颜色，可能与主题风格不协调。可通过颜色覆盖规则予以替换：`color_overrides` 映射背景色（包含调色板 ANSI 背景与 24 位真彩色背景），`foreground_color_overrides` 仅映射真彩色文字：
 
 ```lua
 config.color_overrides = {
@@ -86,7 +86,7 @@ config.harfbuzz_features = {}
 
 **字号**
 
-Kaku 会按显示器自动选字号，低分屏 15pt，高分屏 17pt，想自己定就写：
+Kaku 会根据显示器分辨率自动适配字号（普通屏 15pt，Retina 高分屏 17pt）。如需手动指定：
 
 ```lua
 config.font_size = 16
@@ -98,7 +98,7 @@ config.font_size = 16
 config.line_height = 1.28  -- default
 ```
 
-默认行距偏松，读文字舒服一些，代价是 QR code、`neofetch` 图标、TUI 图表这类用字符拼出来的图形会跟着行高拉长，想让它们接近正方形可以设成 `1.0` 到 `1.1`，细节见 [FAQ](https://kaku.fun/zh/docs/faq#faq-qr-codes-and-terminal-graphics-look-vertically-stretched)。
+默认行距适度放宽，文本阅读更为舒适；QR code、`neofetch` 图标及 TUI 图表等字符图形会随之成比例拉伸。若希望图形更接近正方形，可调整为 `1.0` 至 `1.1`，详情见 [FAQ](https://kaku.fun/zh/docs/faq#faq-qr-codes-and-terminal-graphics-look-vertically-stretched)。
 
 **窗口透明度**
 
@@ -121,7 +121,7 @@ config.window_decorations = "RESIZE"
 config.window_padding = { left = '24px', right = '24px', top = '40px', bottom = '20px' }
 ```
 
-单位支持 `px`、`pt`、`cell` 和 `%`。`px` 是物理像素，不跟着 DPI 缩放，同一个数在高分屏上看着会更小，想随 DPI 缩放就用 `pt`，比如 `top = '15pt'`，想按终端字符格的大小算就用 `cell`。
+单位支持 `px`、`pt`、`cell` 和 `%`。其中 `px` 为物理像素，不随 DPI 缩放；若希望随系统缩放，请使用 `pt`（如 `top = '15pt'`）；若需按字符网格单元计算，可使用 `cell`。
 
 ## 终端行为
 
@@ -165,13 +165,13 @@ config.copy_strip_leading_whitespace = true  -- default: false
 
 **恢复上次会话**
 
-Kaku 启动时会重新打开上次的标签和分屏，这个功能默认开启，开关窗口、标签或分屏后一分钟内也会保存一次，崩溃或强制退出后也能恢复上次的布局，设为 `false` 就既不保存也不恢复会话：
+Kaku 默认在启动时自动恢复上次打开的标签页与分屏。在窗口、标签或分屏发生变化后 1 分钟内会自动保存；即使遭遇崩溃或强制退出，也能恢复前次布局。若设为 `false`，则既不保存也不恢复会话：
 
 ```lua
 config.restore_previous_session = false  -- default: true
 ```
 
-通过 ssh 域打开的分屏会回到原来的远程目录，不会落到本地的同名路径上。某个窗口恢复不了时，比如主机连不上，Kaku 会发通知告诉你有几个窗口没恢复，已保存的会话留着，下次启动再试一次。
+通过 SSH 域打开的分屏会准确恢复至对应的远程目录，不会误退至本地同名路径。若因主机无法连接等原因导致部分窗口恢复失败，Kaku 会发送通知提示未恢复的窗口数量，并保留已存会话以便下次启动时再次尝试。
 
 **工作目录继承**
 
@@ -183,7 +183,7 @@ config.split_pane_inherit_working_directory = true -- new splits
 
 **标签栏**
 
-只有一个标签时标签栏会隐藏，自动生成的标签标题默认显示当前目录，你可以调整标签栏位置、缩短路径，让它显示 Claude Code 等程序设置的动态标题，或者在路径旁边显示正在跑的命令：
+单标签时标签栏默认隐藏。自动生成的标签标题默认显示当前目录名；你也可以调整标签栏位置、仅显示目录末段，或让它同步 Claude Code 等程序上报的动态标题，亦可在路径旁显示当前正在运行的前台命令：
 
 ```lua
 config.tab_bar_at_bottom = false                   -- move to top
@@ -192,7 +192,7 @@ config.tab_title_show_foreground_process = true    -- show "dirname·codex" whil
 config.tab_title_use_pane_title = true             -- show titles set by apps like Claude Code
 ```
 
-开启 `config.tab_title_use_pane_title = true` 后，标签会显示 Claude Code 这类命令行应用上报的标题，手动双击重命名过的标签依然保留你的自定义名字。
+开启 `config.tab_title_use_pane_title = true` 后，标签将优先显示 Claude Code 等命令行应用上报的动态标题；手动双击重命名过的标签仍会保留自定义名称。
 
 后台标签响铃（BEL）时，标题上会出现一个小圆点，要关掉：
 
@@ -255,7 +255,7 @@ config.enable_kitty_keyboard = true
 
 **关闭确认**
 
-关闭还有任务在跑的窗口、标签或分屏前，Kaku 可以先问一句。每一项都可以设为 `NeverPrompt`、`SmartPrompt` 或 `AlwaysPrompt`，内置配置三项都是 `SmartPrompt`：
+在关闭仍有任务运行的窗口、标签或分屏时，Kaku 支持弹窗确认。每项均可配置为 `NeverPrompt`、`SmartPrompt` 或 `AlwaysPrompt`，内置默认均为 `SmartPrompt`：
 
 ```lua
 config.window_close_confirmation = "SmartPrompt"  -- bundled default
@@ -263,11 +263,11 @@ config.tab_close_confirmation = "SmartPrompt"     -- bundled default
 config.pane_close_confirmation = "SmartPrompt"    -- bundled default
 ```
 
-设成 `SmartPrompt` 时，受影响的分屏都停在空的 shell 提示符上就直接关，还有 claude、codex、vim 这类 agent 或编辑器在跑就先问。`Cmd + Q`、`Cmd + W`、`Cmd + Shift + W` 都按这些设置来。
+设为 `SmartPrompt` 时，若相关分屏均处于空闲的 shell 提示符状态，则直接关闭；若有 Claude Code、Codex、Vim 等交互程序或编辑器在运行，则会弹出确认对话框。快捷键 `Cmd + Q`、`Cmd + W`、`Cmd + Shift + W` 均遵循该规则。
 
 ## 更新
 
-Kaku 默认会在后台检查 GitHub 上的新版本，有新版就先下载好，但不会自己装，因为装更新会关掉所有窗口、停掉正在跑的任务，所以通知会先问你。
+Kaku 默认在后台检查 GitHub 新版本并预先完成下载。为避免重启时关闭窗口与中断前台任务，应用不会静默安装，而是通过通知询问是否重启更新。
 
 要关掉后台检查：
 

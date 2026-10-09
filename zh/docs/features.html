@@ -87,7 +87,7 @@
         <article class="doc-content">
           <h2 id="features-mouse"><a class="anchor" href="#features-mouse" aria-label="链接到「鼠标操作」">#</a>鼠标操作</h2><p>在分屏内右键，可以复制选中的文字、粘贴、搜索、打开 AI 对话或命令面板、往任意方向拆分，或者关掉点中的分屏；关闭前按设置弹出确认，接管鼠标的 TUI 程序右键仍归该程序处理。右键标签则可以新建标签、打开标签导航或关闭标签，标签栏末尾的 + 按钮也能快速新建标签。</p>
           <p><code>Cmd + 点击</code>打开网址和文件路径，网址在终端边缘自动折行也能拿到完整地址，硬换行之后的无关输出不会被拼进链接。</p>
-          <h2 id="features-kaku-assistant"><a class="anchor" href="#features-kaku-assistant" aria-label="链接到「Kaku Assistant」">#</a>Kaku Assistant</h2><p>Kaku Assistant 能给失败的命令出修复建议，把一句描述变成命令，也能围绕终端输出和项目文件聊天。</p>
+          <h2 id="features-kaku-assistant"><a class="anchor" href="#features-kaku-assistant" aria-label="链接到「Kaku Assistant」">#</a>Kaku Assistant</h2><p>Kaku Assistant 能在命令报错时提供修复建议，将自然语言转换为可执行命令，也能结合当前终端输出和项目文件展开对话。</p>
           <p><strong>配置</strong></p>
           <p>运行 <code>kaku ai</code> 打开 AI 设置，开启 Kaku Assistant 后填好下面几项：</p>
           <table class="config-fields">
@@ -121,23 +121,23 @@
           <p>接自定义的 OpenAI 兼容服务时，Auth Type 保持 API key，填上它的 Base URL，模型名自己手动写。</p>
           <p>用 API key 连接时还要选 <strong>API Mode</strong>，<code>chat_completions</code> 或 <code>responses</code>，Responses 模式下服务商支持的话还能开 <strong>Native Web Search</strong>。</p>
           <p>用 Codex 鉴权时，Kaku 直接读现有的 Codex 连接设置，<strong>Follow Codex</strong> 跟着这个连接用同一个模型，也可以在 Kaku 里单独指定 Simple Model 和 Deep Model。</p>
-          <h2 id="features-ai-chat-panel"><a class="anchor" href="#features-ai-chat-panel" aria-label="链接到「AI Chat 面板」">#</a>AI Chat 面板</h2><p>按 <code>Cmd + L</code> 打开 AI Chat 面板，回答以 Markdown 流式输出，代码块带高亮，可以带上终端上下文，经你同意后还能调用项目文件、shell 命令、网页搜索和记忆这几类工具，它也会根据当前目录里的 <code>Cargo.toml</code>、<code>package.json</code> 这类文件把项目类型告诉模型。</p>
+          <h2 id="features-ai-chat-panel"><a class="anchor" href="#features-ai-chat-panel" aria-label="链接到「AI Chat 面板」">#</a>AI Chat 面板</h2><p>按 <code>Cmd + L</code> 可呼出 AI Chat 面板。回答以 Markdown 流式呈现，代码块支持语法高亮，并可附带终端上下文；经确认后还可调用项目文件、shell 命令、网页搜索及记忆工具。面板还会自动检测当前目录的 <code>Cargo.toml</code> 或 <code>package.json</code> 等特征文件，向模型提供项目类型背景。</p>
           <p>Simple Model 和 Deep Model 不同时，按 <code>Shift + Tab</code> 在两者之间切换，两者相同时，<code>/model</code> 会列出当前服务商返回的全部模型，你配置的模型始终留在列表里。输入 <code>/suggest</code> 可以让 Kaku 猜你下一句想发什么。</p>
           <p>在 shell 里用 <code>k</code> 或 <code>kaku chat</code>，接着用的是同一份对话记录：</p>
           <pre><code class="language-bash">k <span class="tok-s">"summarize the current project"</span>
 kaku chat</code></pre>
           <p>shell 里的版本比面板简单，只输出纯文本，支持 <code>/new</code>、<code>/resume</code>、<code>/clear</code>、<code>/status</code>、<code>/memory</code> 和 <code>/exit</code>。</p>
           <p><strong>命令失败修复</strong></p>
-          <p>命令以非零状态退出时，Kaku Assistant 会自动把这条命令、退出码、工作目录和 git 分支发给模型，在行内给出修复建议，按 <code>Cmd + Shift + E</code> 粘回终端，<code>rm -rf</code>、<code>git reset --hard</code> 这类危险命令只粘贴，不会自动执行。</p>
+          <p>命令以非零状态退出时，Kaku Assistant 会将失败命令、退出码、工作目录和当前 git 分支发送给模型，并在终端行内给出修复建议。按 <code>Cmd + Shift + E</code> 即可贴回命令行；像 <code>rm -rf</code>、<code>git reset --hard</code> 等高危操作仅填入待确认，绝不自动执行。</p>
           <p><code>Ctrl+C</code> 退出、help 参数、单独调用包管理器、git pull 冲突，以及前台不是 shell 的进程，都不会触发。</p>
-          <p><strong>把一句人话变成命令</strong></p>
-          <p>在提示符里输入 <code># &lt;描述&gt;</code> 回车，Kaku 会在 shell 执行之前把这行拦下来，连同当前目录和 git 分支发给模型，再把生成的命令放回提示符，你看一眼没问题再运行。</p>
+          <p><strong>自然语言生成命令</strong></p>
+          <p>在提示符后输入 <code># &lt;描述&gt;</code> 并回车，Kaku 会在 shell 执行前拦截该指令，连同当前目录与 git 分支一并提交给模型，并将生成的命令回填至提示符，供你核对后执行。</p>
           <pre><code># list all files modified in the last 7 days
 # find and kill the process on port 3000
 # compress the src folder excluding node_modules
 </code></pre>
           <p><code>#</code> 生成和自动修复跟 <code>Cmd + L</code> 走同一个服务商和同一份凭据，所以 Codex 或 Copilot 登录在这里也能用，不只是 API key。</p>
-          <p><code>#</code> 前缀在 zsh 和 fish 里都能用，请求回来之前你的原始描述一直留在屏幕上，模型给不出安全的命令时会改成解释原因，危险命令会放进提示符但标出来等你确认，不会自动执行。</p>
+          <p><code>#</code> 前缀在 zsh 和 fish 中均受支持。在请求返回前，输入的原始描述会保持显示；若模型无法生成安全的命令，将给出解释说明；危险指令仅回填至提示符供确认，绝不会自动执行。</p>
           <p><strong>assistant.toml 字段</strong></p>
           <p>配置文件在 <code>~/.config/kaku/assistant.toml</code>：</p>
           <table class="config-fields">
@@ -221,7 +221,7 @@ kaku chat</code></pre>
           <p><strong>主题同步</strong>：Kaku 会自动更新 <code>~/.config/yazi/theme.toml</code>，跟着当前配色用 Kaku Dark 或 Kaku Light，yazi 这边不用自己配主题。</p>
           <p>用 <code>brew install yazi</code> 或 <code>kaku init</code> 安装 yazi。</p>
           <h2 id="features-remote-sessions"><a class="anchor" href="#features-remote-sessions" aria-label="链接到「远程会话」">#</a>远程会话</h2><p>分屏连到别的机器时，标签上显示 ssh 图标和主机名，不再是本地路径，远程标签一眼就能认出来，分屏标签里只有远程那一侧会显示主机名，哪边是本地也很清楚。<code>ssh</code>、<code>mosh</code>、<code>autossh</code>、<code>et</code> 会话都能识别。</p>
-          <p>在远程分屏里，AI 聊天会关掉本地的文件和 shell 工具，因为当前目录在另一台主机上，在本机跑只会碰到同名的本地路径，也不会去识别本机的项目类型。面板这时根据屏幕上的内容回答，给出让你在远程主机上执行的命令，<code>@cwd</code> 在这里不可用，会直接说明，不会附上错的目录。</p>
+          <p>在远程分屏中，AI 聊天会自动停用本地文件与 shell 工具。由于当前工作目录位于远端主机，在本地执行可能会误触同名本地路径。此时面板仅依据终端屏幕内容作答，并给出可在远端主机运行的命令建议；该场景下 <code>@cwd</code> 不可用，系统会明确提示，避免附带错误的本地上下文。</p>
           <p>内置的 zsh、fish、bash 集成都会包装 <code>ssh</code>，远程主机没有 <code>kaku</code> terminfo 时回退到 <code>xterm-256color</code>，<code>mosh</code> 也一样，你自己定义了 <code>ssh</code> 函数的话，Kaku 不会动它。</p>
           <h2 id="features-remote-files"><a class="anchor" href="#features-remote-files" aria-label="链接到「远端文件」">#</a>远端文件</h2><p>按 <code>Cmd + Shift + R</code> 用 <code>sshfs</code> 把当前 SSH 会话的远端文件系统挂到本地，并在 yazi 里打开。</p>
           <p>Kaku 从当前分屏自动识别 SSH 目标，挂载在 <code>~/Library/Caches/dev.kaku/sshfs/&lt;host&gt;</code>。</p>

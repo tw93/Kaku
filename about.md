@@ -12,7 +12,7 @@ The name comes from 書く (*kaku*), the Japanese verb for writing. It is one of
 
 Kaku is built by Tw93, an independent developer who also created [Pake](https://github.com/tw93/Pake) and [Mole](https://github.com/tw93/Mole). Everything happens in public on GitHub, including issues, pull requests, releases, and the roadmap, and the source is MIT licensed. For help, open a [GitHub issue](https://github.com/tw93/Kaku/issues). If you want to support the work, there is [GitHub Sponsors](https://github.com/sponsors/tw93).
 
-## Using Kaku
+## Principles and boundaries
 
 - **No Kaku account.** There is no sign-up, no login, and no cloud relay. Install the app and it works.
 - **No usage analytics.** Kaku collects nothing, and every network request the app makes is listed in [Privacy](https://kaku.fun/privacy).

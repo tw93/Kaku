@@ -9,9 +9,9 @@ Kaku 想做的是装好就能用的 Mac 终端，这页写它和几款常见终�
 ## Kaku 的优势
 
 - **打开就能用。**JetBrains Mono、macOS 字体渲染、跟随系统的深浅色、选中即复制，还有 Mac 风格的标签和分屏快捷键，都已经配好。
-- **标签和分屏重开还在。**Cmd + T 开标签，Cmd + D 分屏，Cmd + Shift + O 打开 Tab Navigator 找分屏，关掉再打开 Kaku，窗口、分屏和目录都还在，右键还能复制、粘贴、搜索、开 AI 对话，或者从点中的分屏再拆一个。
+- **标签和分屏重开还在。**Cmd + T 开标签，Cmd + D 分屏，Cmd + Shift + O 打开 Tab Navigator 查找分屏。关掉再打开 Kaku，窗口、分屏和目录都会恢复；右键还能快速复制、粘贴、搜索、发起 AI 对话，或直接拆分当前分屏。
 - **自带一套 shell 工具。**补全、语法高亮和 `z` 跳目录在 Kaku 里直接能用，Cmd + Shift + G 开 Lazygit，Cmd + Shift + Y 开 Yazi，Cmd + Shift + R 挂载当前 SSH 主机的文件。
-- **AI 可选，用你自己的服务。**命令报错时给出修复，`#` 加一句话生成命令，Cmd + L 和 `kaku chat` 打开的是同一份对话，建议只会放到命令行给你看，不会自动执行，Kaku 也没有账号和自己的模型。
+- **AI 可选，用你自己的服务。**命令报错时给出修复建议，输入 `#` 加一句话生成命令，Cmd + L 与 `kaku chat` 共享同一份对话记录。所有建议只填入命令行供你确认，绝不自动执行；Kaku 本身无需账号，也不提供或中转模型。
 - **出了问题能自查。**`kaku doctor` 会检查 app、PATH 和 shell 集成，`kaku config` 和 `kaku ai` 都是直接在终端里操作的设置界面。
 - **不碰你的数据。**MIT 开源，没有使用统计，App 会发出的网络请求都列在[隐私页](https://kaku.fun/zh/privacy)。
 
@@ -33,7 +33,7 @@ Kaku 想做的是装好就能用的 Mac 终端，这页写它和几款常见终�
 
 ## Kaku 和 iTerm2
 
-iTerm2 是 Mac 上用得最久的终端替代，很多人留下是因为配置、快捷键和手感早就调顺了，Kaku 适合不想再从头搭一遍的人，字体主题开箱就有，标签分屏、会话恢复、右键菜单、可点击路径和一键打开的 Lazygit、Yazi 都在，PATH 或 shell 集成出问题时，`kaku doctor` 会直接告诉你。
+iTerm2 是 Mac 上历史悠久的经典终端，很多人留下来是因为配置、快捷键和使用习惯早已磨合顺手。Kaku 适合不想从头折腾配置的人：字体和主题开箱调好，标签分屏、会话恢复、右键菜单、可点击路径，以及 Lazygit、Yazi 快捷调用都已备齐；当 PATH 或 shell 集成异常时，`kaku doctor` 会直接帮你排查诊断。
 
 iTerm2 自己也一直在更新，3.5 加了 AI 对话，要单独装插件、填自己的 API key，2026 年 9 月的 3.7 又加了标签分组和 Claude Code 集成。
 
@@ -43,13 +43,13 @@ iTerm2 自己也一直在更新，3.5 加了 AI 对话，要单独装插件、�
 
 ## Kaku 和 Warp
 
-Warp 现在管自己叫 agentic development environment，Agent 就是产品本身，客户端 2026 年起按 AGPL 开源了，但 Agent 跑在 Warp 的服务器上，已经买了的 Claude 或 Codex 订阅用不上，付费档 20 美元一个月起。Kaku 是 MIT 开源，没有账号，也不提供或中转 AI 服务，运行 `kaku ai` 填上你自己的服务就行，报错修复、`#` 生成命令、Cmd + L 打开对话这些都有，但不会自动执行任何东西，Cmd + Shift + E 只是把建议放到命令行，不配 AI 也不影响其他功能。
+Warp 目前定位为 Agent 驱动的开发环境，Agent 是其核心产品。客户端虽已按 AGPL 开源，但 Agent 运行在 Warp 云端服务器上，无法直接复用已有的 Claude 或 Codex 独立订阅，付费方案 20 美元/月起。Kaku 则是纯粹的本地终端：MIT 开源、无需账号，也不提供或中转任何 AI 服务。运行 `kaku ai` 配置自己的服务即可使用报错修复、`#` 自然语言生成命令与 Cmd + L 对话；所有建议仅填入命令行供你确认，绝不自动执行；不配 AI 也完全不影响纯终端使用。
 
 想要终端里一整套托管的 AI 产品，选 Warp，想要开源、AI 可选而且只走你自己配置的 Mac 终端，选 Kaku。
 
 ## Kaku 和 Ghostty
 
-Ghostty 是很快的 GPU 终端，MIT 开源，标签和分屏用的是 macOS 原生控件，还有从菜单栏落下来的 Quick Terminal，也能恢复窗口，如果 shell 工具、字体和工作流你都已经配好了，它很合适，Kaku 同样用 GPU 渲染，区别在于已经接好的那一层，JetBrains Mono、自动主题、补全和 `z`、Lazygit、Yazi、远程文件，还有可选的助手。
+Ghostty 是一款非常轻快的 GPU 加速终端，MIT 开源，采用 macOS 原生控件呈现标签与分屏，并提供从菜单栏呼出的 Quick Terminal 和窗口恢复。如果你已经调优好自己的 shell 工具、字体和工作流，Ghostty 是极佳的选择。Kaku 同样采用 GPU 渲染，核心差异在于省去了从零装配的成本：JetBrains Mono、跟随系统的深浅色主题、智能补全与 `z` 跳转、Lazygit / Yazi 整合、远程文件挂载以及按需开启的 AI 助手均已开箱就绪。
 
 ![在 Kaku 里运行的 Lazygit 提交记录](https://kaku.fun/shots/compare-lazygit.webp)Cmd + Shift + G 在当前仓库打开 Lazygit
 
@@ -57,7 +57,7 @@ Ghostty 是很快的 GPU 终端，MIT 开源，标签和分屏用的是 macOS �
 
 ## Kaku 和 WezTerm
 
-Kaku 从 WezTerm 衍生而来，保留了它的 Lua 配置和渲染引擎，再把 WezTerm 留给你自己做的 Mac 这一层补上，包括默认值、shell 集成、Tab Navigator、窗口快照、`kaku` 命令和可选助手，已有的 WezTerm 配置大多能直接用，个别上游选项行为不同，见[配置说明](https://kaku.fun/zh/docs/configuration)。上游最近一个稳定版还是 2024 年 2 月发的，之后的改动都只进 nightly。
+Kaku 衍生自 WezTerm，完整保留了其成熟的 Lua 配置体系与渲染引擎，同时补齐了原生 macOS 体验所缺失的环节：更符合 Mac 习惯的默认值、完善的 shell 集成、Tab Navigator、窗口快照、`kaku` 命令行套件以及可选的 AI 助手。已有的 WezTerm 配置大多可以直接沿用（个别选项差异可参考[配置说明](https://kaku.fun/zh/docs/configuration)）。此外，上游自 2024 年 2 月后暂未发布新的正式稳定版，改动仅进入 nightly。
 
 ![kaku config 设置界面，包含主题、字体和窗口选项](https://kaku.fun/shots/compare-config.webp)`kaku config` 改常用设置，不用打开 Lua 文件
 
@@ -65,7 +65,7 @@ Kaku 从 WezTerm 衍生而来，保留了它的 Lua 配置和渲染引擎，再�
 
 ## Kaku 和系统终端
 
-系统自带的终端不用装，偶尔敲几条命令够用了，Kaku 面向天天待在终端里的人，分屏、会话恢复、可点击路径、右键菜单、一套 shell 工具，以及接你自己服务的可选助手。
+系统自带的终端无需安装，偶尔执行简单命令足够好用。Kaku 则面向天天待在命令行里的重度用户：原生分屏、会话恢复、可点击路径、右键菜单、开箱即用的 shell 套件，以及随手可用且直连个人配置的 AI 助手。
 
 ## 什么时候不要用 Kaku
 

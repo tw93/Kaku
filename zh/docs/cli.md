@@ -2,7 +2,7 @@
 
 kaku 命令能做的事，从 AI 设置到诊断和更新。
 
-直接运行 `kaku`，可以从几个常用命令里挑一个。`kaku start` 会在已经运行的 Kaku 里打开，加上 `--new-tab` 可以在当前窗口新建标签。
+直接运行 `kaku` 可查看常用命令菜单。`kaku start` 会激活已在运行的 Kaku 实例，附加 `--new-tab` 参数可在当前窗口新建标签页。
 
 ## kaku ai
 
@@ -52,7 +52,7 @@ kaku update
 
 ## kaku reset
 
-移除 Kaku 管理的 shell 和 tmux 集成、git delta 默认配置和部分状态，以及 `~/.config/kaku/kaku.lua` 里托管的主题块，托管块之外你自己写的 Lua 会保留。这个命令要谨慎用，之后想恢复 shell 集成再跑一次 `kaku init`。
+移除 Kaku 管理的 shell 与 tmux 集成、git delta 默认配置、部分状态文件，以及 `~/.config/kaku/kaku.lua` 中托管的主题块。托管块之外的自定义 Lua 配置将被保留。此命令请谨慎使用；后续若需恢复集成，再次运行 `kaku init` 即可。
 
 ```bash
 kaku reset
@@ -60,7 +60,7 @@ kaku reset
 
 ## kaku init
 
-为 zsh、fish 或两者配置或刷新 shell 集成，会生成 `~/.config/kaku/zsh/kaku.zsh`，按需生成 `~/.config/kaku/fish/kaku.fish`，在交互式 shell 里还会问你要不要用 Homebrew 装上缺失的 Starship、Delta、Lazygit、Yazi 这些可选工具。
+为 zsh 或 fish 安装并刷新 shell 集成，生成 `~/.config/kaku/zsh/kaku.zsh` 及可选的 `~/.config/kaku/fish/kaku.fish`。在交互式终端中还会询问是否通过 Homebrew 安装缺失的 Starship、Delta、Lazygit、Yazi 等可选工具。
 
 ```bash
 kaku init

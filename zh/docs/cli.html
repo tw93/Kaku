@@ -85,7 +85,7 @@
           <div class="section-toc"><p>本页目录</p><a class="depth-2" href="#cli-kaku-ai">kaku ai</a><a class="depth-2" href="#cli-kaku-chat">kaku chat</a><a class="depth-2" href="#cli-kaku-config">kaku config</a><a class="depth-2" href="#cli-kaku-doctor">kaku doctor</a><a class="depth-2" href="#cli-kaku-update">kaku update</a><a class="depth-2" href="#cli-kaku-reset">kaku reset</a><a class="depth-2" href="#cli-kaku-init">kaku init</a><a class="depth-2" href="#cli-kaku-cli">kaku cli</a></div>
         </aside>
         <article class="doc-content">
-          <p>直接运行 <code>kaku</code>，可以从几个常用命令里挑一个。<code>kaku start</code> 会在已经运行的 Kaku 里打开，加上 <code>--new-tab</code> 可以在当前窗口新建标签。</p>
+          <p>直接运行 <code>kaku</code> 可查看常用命令菜单。<code>kaku start</code> 会激活已在运行的 Kaku 实例，附加 <code>--new-tab</code> 参数可在当前窗口新建标签页。</p>
           <h2 id="cli-kaku-ai"><a class="anchor" href="#cli-kaku-ai" aria-label="链接到「kaku ai」">#</a>kaku ai</h2><p>打开 AI 设置面板，配置 Kaku Assistant 和 Claude Code、Codex、Gemini CLI、Copilot CLI、Kimi Code 这些外部编码工具。</p>
           <pre><code class="language-bash">kaku ai</code></pre>
           <h2 id="cli-kaku-chat"><a class="anchor" href="#cli-kaku-chat" aria-label="链接到「kaku chat」">#</a>kaku chat</h2><p>在任意 shell 里启动 Kaku 的 AI 对话，它就是内置 <code>k</code> 命令的别名，<code>k</code> 不在 PATH 上时也能用。</p>
@@ -101,9 +101,9 @@ kaku doctor --fix</code></pre>
           <h2 id="cli-kaku-update"><a class="anchor" href="#cli-kaku-update" aria-label="链接到「kaku update」">#</a>kaku update</h2><p>下载并安装最新的 Kaku 版本。</p>
           <pre><code class="language-bash">kaku update</code></pre>
           <p>运行 <code>kaku --version</code> 可以查看已安装的版本，想查图形程序的版本又不想开窗口，可以运行 <code>/Applications/Kaku.app/Contents/MacOS/kaku-gui --version</code>。</p>
-          <h2 id="cli-kaku-reset"><a class="anchor" href="#cli-kaku-reset" aria-label="链接到「kaku reset」">#</a>kaku reset</h2><p>移除 Kaku 管理的 shell 和 tmux 集成、git delta 默认配置和部分状态，以及 <code>~/.config/kaku/kaku.lua</code> 里托管的主题块，托管块之外你自己写的 Lua 会保留。这个命令要谨慎用，之后想恢复 shell 集成再跑一次 <code>kaku init</code>。</p>
+          <h2 id="cli-kaku-reset"><a class="anchor" href="#cli-kaku-reset" aria-label="链接到「kaku reset」">#</a>kaku reset</h2><p>移除 Kaku 管理的 shell 与 tmux 集成、git delta 默认配置、部分状态文件，以及 <code>~/.config/kaku/kaku.lua</code> 中托管的主题块。托管块之外的自定义 Lua 配置将被保留。此命令请谨慎使用；后续若需恢复集成，再次运行 <code>kaku init</code> 即可。</p>
           <pre><code class="language-bash">kaku reset</code></pre>
-          <h2 id="cli-kaku-init"><a class="anchor" href="#cli-kaku-init" aria-label="链接到「kaku init」">#</a>kaku init</h2><p>为 zsh、fish 或两者配置或刷新 shell 集成，会生成 <code>~/.config/kaku/zsh/kaku.zsh</code>，按需生成 <code>~/.config/kaku/fish/kaku.fish</code>，在交互式 shell 里还会问你要不要用 Homebrew 装上缺失的 Starship、Delta、Lazygit、Yazi 这些可选工具。</p>
+          <h2 id="cli-kaku-init"><a class="anchor" href="#cli-kaku-init" aria-label="链接到「kaku init」">#</a>kaku init</h2><p>为 zsh 或 fish 安装并刷新 shell 集成，生成 <code>~/.config/kaku/zsh/kaku.zsh</code> 及可选的 <code>~/.config/kaku/fish/kaku.fish</code>。在交互式终端中还会询问是否通过 Homebrew 安装缺失的 Starship、Delta、Lazygit、Yazi 等可选工具。</p>
           <pre><code class="language-bash">kaku init</code></pre>
           <p>shell 里突然找不到 <code>kaku</code> 命令时，用下面的命令刷新集成，不会弹出可选工具的安装提示：</p>
           <pre><code class="language-bash">/Applications/Kaku.app/Contents/MacOS/kaku init --update-only

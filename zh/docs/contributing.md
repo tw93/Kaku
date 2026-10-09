@@ -81,7 +81,7 @@ RUST_LOG=debug make dev
 4. 提交并推送。
 5. 开 PR，目标分支选 `main`。
 
-代码改动会触发格式、编译和测试检查，universal 构建另外跑，只在构建流程有改动、定时任务或手动触发时运行，只改 Markdown 的提交两者都不会触发。
+代码改动将触发 CI 的格式化、编译与测试检查。Universal 架构构建流程独立运行，仅在构建工作流变更、每日定时或手动调度时触发；仅修改文档的提交不会触发构建检查。
 
 [查看现有 Pull Requests](https://github.com/tw93/Kaku/pulls)
 

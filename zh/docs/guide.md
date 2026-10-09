@@ -33,7 +33,7 @@ Kaku 日常怎么用，从第一个窗口一直讲到 AI 助手。
 
 在 Tab Navigator 里对选中的标签按 `Backspace` 可以关掉它，确认提示和别处一样，不过只在筛选框为空时才会关，打错的字照样能删。
 
-ssh 到别的机器后，标签上显示的是主机名而不是本地路径，远程标签一眼就能认出来，远程主机上还有哪些不同见[远程会话](https://kaku.fun/zh/docs/features#features-remote-sessions)。
+SSH 连接到远程机器后，标签会自动显示主机名而非本地路径，便于一眼区分。更多远程会话特性见[远程会话](https://kaku.fun/zh/docs/features#features-remote-sessions)。
 
 重新打开 Kaku 时，窗口、分屏和每个分屏的工作目录都会恢复，就算某个分屏没存下来，其余的也照常回来。
 
@@ -52,12 +52,12 @@ Kaku 首次启动时会把 zsh 或 fish 配好，不用自己去改配置文件�
 
 ## AI 助手
 
-助手默认是关的，开启前 Kaku 不会发任何 AI 请求，开启后命令失败时可能会自动给出修复建议，生成命令和聊天还是只在你主动用的时候才发起。
+助手默认处于关闭状态。开启前 Kaku 不会发出任何 AI 请求；开启后，命令执行失败时会自动给出修复建议，而命令生成与 AI 聊天则仅在主动触发时发起。
 
-开启只需运行一次 `kaku ai`，打开 Kaku Assistant，选好 Auth Type（`codex` 复用 Codex 登录，`api_key` 用来连 OpenAI 兼容端点），再设好 Simple Model 和 Deep Model，之后有三种用法。
+开启只需运行一次 `kaku ai`，启用 Kaku Assistant，选择 Auth Type（`codex` 复用 Codex 登录凭据，`api_key` 连接 OpenAI 兼容端点），并配置好 Simple Model 与 Deep Model 即可，之后有三种用法：
 
 1. **修复失败的命令。**命令报错退出后，Kaku 会在提示符下方给出一条修复建议，按 `Cmd + Shift + E` 粘进来，`rm -rf` 这类危险命令只会粘出来给你看，不会自己执行。
-2. **一句话变命令。**输入 `#` 加一句话，比如 `# 找到并杀掉占用 3000 端口的进程`，回车后 Kaku 会把它变成真正的命令放在提示符上，你确认过再运行。
+2. **自然语言生成命令。**输入 `#` 加一句话（例如 `# 找到并杀掉占用 3000 端口的进程`），回车后 Kaku 会将其转换为真正的命令回填在提示符处，供你确认后再运行。
 3. **打开聊天面板。**按 `Cmd + L` 打开聊天，回答是流式输出的，代码有高亮，还能读到当前终端的内容，在任意 shell 里用 `k "..."` 或 `kaku chat` 打开的也是同一段对话。
 
 AI 服务由你自己配置，Kaku 不提供也不中转，完整设置见[功能与 AI](https://kaku.fun/zh/docs/features)。
