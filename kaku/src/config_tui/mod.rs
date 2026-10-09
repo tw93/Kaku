@@ -344,7 +344,7 @@ impl App {
             },
             ConfigField {
                 section: "Window",
-                key: "Short Tab Titles",
+                key: "Compact Tab Titles",
                 lua_key: "tab_title_show_basename_only",
                 value: String::new(),
                 default: "Off".into(),
@@ -353,7 +353,7 @@ impl App {
             },
             ConfigField {
                 section: "Window",
-                key: "Command Tab Titles",
+                key: "Process Tab Titles",
                 lua_key: "tab_title_show_foreground_process",
                 value: String::new(),
                 default: "Off".into(),
@@ -380,7 +380,7 @@ impl App {
             },
             ConfigField {
                 section: "Window",
-                key: "Traffic Lights",
+                key: "Window Buttons",
                 lua_key: "__wdeco_traffic_lights__",
                 value: String::new(),
                 default: "On".into(),
@@ -389,7 +389,7 @@ impl App {
             },
             ConfigField {
                 section: "Window",
-                key: "Shadow",
+                key: "Window Shadow",
                 lua_key: "__wdeco_shadow__",
                 value: String::new(),
                 default: "On".into(),
@@ -443,7 +443,7 @@ impl App {
             },
             ConfigField {
                 section: "Behavior",
-                key: "Bell Tab Prefix",
+                key: "Tab Alert Dot",
                 lua_key: "bell_tab_indicator",
                 value: String::new(),
                 default: "On".into(),
@@ -452,7 +452,7 @@ impl App {
             },
             ConfigField {
                 section: "Behavior",
-                key: "Bell Dock Badge",
+                key: "Dock Alert Badge",
                 lua_key: "bell_dock_badge",
                 value: String::new(),
                 default: "Off".into(),

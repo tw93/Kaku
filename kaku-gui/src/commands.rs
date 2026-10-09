@@ -1323,7 +1323,7 @@ pub fn derive_command_from_key_assignment(action: &KeyAssignment) -> Option<Comm
             icon: None,
         },
         QuickSelect => CommandDef {
-            brief: "QuickSelect".into(),
+            brief: "Quick Select".into(),
             doc: "Quick selection mode".into(),
             keys: vec![(Modifiers::CTRL.union(Modifiers::SHIFT), "Space".into())],
             args: &[ArgType::ActivePane],

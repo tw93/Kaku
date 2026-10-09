@@ -123,42 +123,48 @@ enum SubCommand {
     #[command(short_flag_alias = 'e', hide = true)]
     BlockingStart(StartCommand),
 
-    #[command(name = "ai", about = "Manage AI settings")]
+    #[command(name = "ai", about = "Configure AI models, endpoints, and developer tools")]
     Ai(ai_config::AiConfigCommand),
 
     #[command(
         name = "chat",
-        about = "Start the AI chat in this terminal (alias for `k`)"
+        about = "Start interactive AI chat in this terminal (alias for `k`)"
     )]
     Chat(chat::ChatCommand),
 
-    #[command(name = "config", about = "Configure Kaku settings")]
+    #[command(
+        name = "config",
+        about = "Open interactive terminal settings and preferences"
+    )]
     Config(config_cmd::ConfigCommand),
 
-    #[command(name = "init", about = "Initialize Kaku shell integration")]
+    #[command(
+        name = "init",
+        about = "Install shell integrations and recommended CLI tools"
+    )]
     Init(init::InitCommand),
 
     #[command(
         name = "doctor",
-        about = "Check Kaku shell integration, environment, and runtime health"
+        about = "Inspect environment health and export diagnostic reports"
     )]
     Doctor(doctor::DoctorCommand),
 
     #[command(
         name = "update",
-        about = "Download and install the latest Kaku release automatically"
+        about = "Check for updates and install the latest release"
     )]
     Update(update::UpdateCommand),
 
     #[command(
         name = "reset",
-        about = "Reset Kaku shell integration and managed defaults"
+        about = "Restore shell integration and configurations to defaults"
     )]
     Reset(reset::ResetCommand),
 
     #[command(
         name = "cli",
-        about = "Interact with experimental mux server",
+        about = "Control tabs, panes, and windows from scripts",
         hide = true
     )]
     Cli(cli::CliCommand),

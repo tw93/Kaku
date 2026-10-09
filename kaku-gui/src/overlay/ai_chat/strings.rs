@@ -21,13 +21,13 @@ pub(crate) fn header_assistant() -> String {
 /// Title shown by the system notification when an approval is required
 /// and the Kaku window is unfocused.
 pub(crate) fn approval_notification_title() -> String {
-    "Kaku AI needs confirmation".to_string()
+    "Kaku AI Needs Confirmation".to_string()
 }
 
 /// Title shown by the system notification when a chat task finishes
 /// while the Kaku window is unfocused.
 pub(crate) fn task_complete_notification_title() -> String {
-    "Kaku AI task complete".to_string()
+    "Kaku AI Task Complete".to_string()
 }
 
 /// Body shown by the task-complete system notification.
