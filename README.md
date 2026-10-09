@@ -1,7 +1,7 @@
 <div align="center">
   <img src="https://gw.alipayobjects.com/zos/k/6h/dwarf.svg" width="120" />
   <h1>Kaku</h1>
-  <p><em>An AI-friendly Mac terminal with sensible defaults, ready out of the box.</em></p>
+  <p><em>A blazing-fast Mac terminal with sensible defaults, built for coding with AI.</em></p>
   <p>
     <a href="https://kaku.fun">Website</a> ·
     <a href="https://kaku.fun/docs/">Docs</a> ·
