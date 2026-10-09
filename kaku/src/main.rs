@@ -123,7 +123,10 @@ enum SubCommand {
     #[command(short_flag_alias = 'e', hide = true)]
     BlockingStart(StartCommand),
 
-    #[command(name = "ai", about = "Configure AI models, endpoints, and developer tools")]
+    #[command(
+        name = "ai",
+        about = "Configure AI models, endpoints, and developer tools"
+    )]
     Ai(ai_config::AiConfigCommand),
 
     #[command(
