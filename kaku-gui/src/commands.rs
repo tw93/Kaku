@@ -1331,7 +1331,7 @@ pub fn derive_command_from_key_assignment(action: &KeyAssignment) -> Option<Comm
             icon: None,
         },
         QuickSelectArgs(_) => CommandDef {
-            brief: "Enter QuickSelect mode".into(),
+            brief: "Enter Quick Select mode".into(),
             doc: "Activates the quick selection UI for the current pane".into(),
             keys: vec![],
             args: &[ArgType::ActivePane],
