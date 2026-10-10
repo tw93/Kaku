@@ -12,23 +12,18 @@ kaku ai
 
 ## kaku chat
 
-Start Kaku's standalone AI chat from any shell. This is a discoverable alias for
-the bundled `k` helper, so it works even when `k` is not on your PATH.
+Start Kaku's standalone AI chat from any shell. This is a discoverable alias for the bundled `k` helper, so it works even when `k` is not on your PATH.
 
 ```bash
 kaku chat                 # open interactive chat
 kaku chat "explain this"  # one-shot prompt
 ```
 
-The chat uses `~/.config/kaku/assistant.toml`, shares the same conversation and
-memory files as the `Cmd + L` overlay, and supports `/new`, `/resume`, `/clear`,
-`/status`, `/memory`, and `/exit` in interactive mode.
+The chat uses `~/.config/kaku/assistant.toml`, shares the same conversation and memory files as the `Cmd + L` overlay, and supports `/new`, `/resume`, `/clear`, `/status`, `/memory`, and `/exit` in interactive mode.
 
 ## kaku config
 
-Open the Kaku configuration TUI for common settings and Lua overrides. It
-creates `~/.config/kaku/kaku.lua` if it is missing. Inside Kaku, `Cmd + ,`
-opens the same screen.
+Open the Kaku configuration TUI for common settings and Lua overrides. It creates `~/.config/kaku/kaku.lua` if it is missing. Inside Kaku, `Cmd + ,` opens the same screen.
 
 ```bash
 kaku config
@@ -56,12 +51,7 @@ kaku update
 
 ## kaku reset
 
-Remove Kaku-managed shell and tmux integration, Kaku-managed git delta defaults,
-selected Kaku state, and managed theme blocks in `~/.config/kaku/kaku.lua`.
-It also deletes Kaku AI memory (`soul/` and `ai_chat_memory.md`), the AI chat
-onboarding flag, and the `backups/` folder in `~/.config/kaku`.
-User-authored Lua outside managed blocks is preserved. Use with caution and run
-`kaku init` again if you want shell integration back.
+Remove Kaku-managed shell and tmux integration, Kaku-managed git delta defaults, selected Kaku state, and managed theme blocks in `~/.config/kaku/kaku.lua`. It also deletes Kaku AI memory (`soul/` and `ai_chat_memory.md`), the AI chat onboarding flag, and the `backups/` folder in `~/.config/kaku`. User-authored Lua outside managed blocks is preserved. Use with caution and run `kaku init` again if you want shell integration back.
 
 ```bash
 kaku reset
@@ -70,10 +60,7 @@ kaku reset --shell fish # use fish for restart and restore guidance
 
 ## kaku init
 
-Set up Kaku's shell integration for zsh or fish. When both shells are installed,
-an interactive run asks which one to configure. Use `--shell` to make the choice
-explicit in scripts or when `$SHELL` does not match your daily shell. Also
-installs optional CLI tools (Starship, Delta, Lazygit, Yazi) via Homebrew.
+Set up Kaku's shell integration for zsh or fish. When both shells are installed, an interactive run asks which one to configure. Use `--shell` to make the choice explicit in scripts or when `$SHELL` does not match your daily shell. Also installs optional CLI tools (Starship, Delta, Lazygit, Yazi) via Homebrew.
 
 ```bash
 kaku init

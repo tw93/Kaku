@@ -23,7 +23,7 @@
 
 ## Why
 
-Kaku (書く, かく) means "to write" in Japanese. It is a macOS terminal based on WezTerm, with fonts, themes, shell integration, and Mac shortcuts already configured, while preserving full Lua customization. The product site is [kaku.fun](https://kaku.fun).
+Kaku (書く, かく) means "to write" in Japanese. It is a macOS terminal based on WezTerm, with fonts, themes, shell integration, and Mac shortcuts already configured, while preserving full Lua customization.
 
 As the coding foundation of the trilogy, Kaku works alongside engineering habit-driven [Waza](https://github.com/tw93/Waza) (技) and document delivery-focused [Kami](https://github.com/tw93/Kami) (紙) to make writing code, building habits, and shipping documents a seamless flow.
 
@@ -35,17 +35,17 @@ Download the [Kaku DMG](https://github.com/tw93/Kaku/releases/latest), open it, 
 brew install --cask kaku
 ```
 
-Open Kaku to set up shell integration. Missing optional tools can be installed through `kaku init`. Check your installed version with `kaku --version`.
+Open Kaku to set up shell integration, install missing optional tools with `kaku init`, and check your installed version with `kaku --version`.
 
 ## Features
 
-- **Ready to use**: JetBrains Mono, automatic dark and light themes, copy on select, and familiar Mac shortcuts.
-- **Tabs and panes**: Split your workspace, find a pane with Tab Navigator, and restore windows, panes, and working directories when you reopen Kaku.
-- **Right-click menu**: Paste, search, open AI chat, split or close the clicked pane, and open or close tabs without remembering shortcuts.
-- **Clickable links**: `Cmd + Click` opens URLs and file paths; URLs automatically wrapped by the terminal keep their full address.
-- **AI-friendly**: Use your coding tools alongside an optional assistant for command suggestions and chat. Configure your own AI service with `kaku ai`.
-- **Shell tools**: Built-in zsh completion, syntax highlighting, and directory jumping, with shortcuts for optional Lazygit and Yazi installations.
-- **Lua configuration**: Customize fonts, themes, shortcuts, and terminal behavior using WezTerm's Lua configuration system.
+- **Ready to use**: JetBrains Mono, automatic dark and light themes, copy on select, and familiar Mac shortcuts
+- **Tabs and panes**: Split your workspace, jump between tabs with Tab Navigator, and restore windows, panes, and working directories when you reopen Kaku
+- **Right-click menu**: Paste, search, open AI chat, split or close the clicked pane, and open or close tabs without remembering shortcuts
+- **Clickable links**: `Cmd + Click` opens URLs and file paths, and URLs automatically wrapped by the terminal keep their full address
+- **AI-friendly**: Use your coding tools alongside an optional assistant for command suggestions and chat
+- **Shell tools**: Built-in zsh completion, syntax highlighting, and directory jumping, with shortcuts for optional Lazygit and Yazi installations
+- **Lua configuration**: Customize fonts, themes, shortcuts, and terminal behavior using WezTerm's Lua configuration system
 
 ## Usage Guide
 
@@ -65,38 +65,27 @@ Open Kaku to set up shell integration. Missing optional tools can be installed t
 | Open Lazygit | `Cmd + Shift + G` |
 | Yazi File Manager | `Cmd + Shift + Y` or `y` |
 | Clear Screen | `Cmd + K` |
-| Open Context Menu | Right-click in a pane |
-| Open URL or File Path | `Cmd + Click` |
-
-Full keybinding reference: [docs/keybindings.md](docs/keybindings.md)
 
 ## Kaku AI
 
 Configure your own AI service with `kaku ai` to use the built-in assistant. Kaku does not provide or relay the AI service.
 
-- **Command suggestions**: When a command fails, the configured assistant can suggest a fix. Press `Cmd + Shift + E` to paste it at the prompt for review.
-- **Natural language to command**: Type `# <description>` at the prompt and press Enter. The assistant places the generated command at the prompt for you to review and run.
-- **Chat**: Press `Cmd + L` to discuss terminal output or work with project files and tools. Use `kaku chat` from another shell to access the same conversation store.
-- **AI Tools Config**: Manage settings for Claude Code, Codex, Gemini CLI, Copilot CLI, Kimi Code, and more.
+- **Command suggestions**: When a command fails, the configured assistant can suggest a fix, and `Cmd + Shift + E` pastes it at the prompt for review
+- **Natural language to command**: Type `# <description>` at the prompt and press Enter, and the assistant places the generated command at the prompt for you to review and run
+- **Chat**: Press `Cmd + L` to discuss terminal output or work with project files and tools, or run `kaku chat` from another shell to access the same conversation store
+- **AI Tools Config**: Manage settings for Claude Code, Codex, Gemini CLI, Copilot CLI, Kimi Code, and more
 
 For authentication, models, API Mode, and tool settings, see the [AI assistant docs](docs/features.md).
 
 ## FAQ
 
-**Is there a Windows or Linux version?** Not currently. Kaku is macOS-only for now.
-
-**How is Kaku different from iTerm2, Warp, Ghostty, or WezTerm?** See [kaku.fun/compare](https://kaku.fun/compare).
-
-**Can I use transparent windows?** Yes, set `config.window_background_opacity` in `~/.config/kaku/kaku.lua`.
-
-**The `kaku` command is missing.** Run `/Applications/Kaku.app/Contents/MacOS/kaku init --update-only && exec zsh -l`, then `kaku doctor`.
-
-Full FAQ: [docs/faq.md](docs/faq.md)
+- **Is there a Windows or Linux version?** Not currently, Kaku is macOS-only
+- **How is Kaku different from iTerm2, Warp, Ghostty, or WezTerm?** See [kaku.fun/compare](https://kaku.fun/compare)
+- **Can I use transparent windows?** Yes, set `config.window_background_opacity` in `~/.config/kaku/kaku.lua`
+- **The `kaku` command is missing.** Run `/Applications/Kaku.app/Contents/MacOS/kaku init --update-only && exec zsh -l`, then `kaku doctor`
 
 ## Docs
 
-- [Website](https://kaku.fun) - product site, install, and English / Chinese docs
-- [Compare](https://kaku.fun/compare) - Kaku vs iTerm2, Warp, Ghostty, WezTerm, and Terminal.app
 - [Keybindings](docs/keybindings.md) - full shortcut reference
 - [Features](docs/features.md) - AI assistant, lazygit, yazi, remote files, shell suite
 - [Configuration](docs/configuration.md) - themes, fonts, custom keybindings, Lua API
@@ -121,9 +110,9 @@ Big thanks to all contributors who helped build Kaku. Go follow them! ❤️
 
 ## Support
 
-- The most direct way to support me is getting [Mole for Mac](https://mole.fit), my paid Mac cleanup app.
-- If Kaku helped you, give it a star, [share it](https://twitter.com/intent/tweet?url=https://github.com/tw93/Kaku&text=Kaku%20-%20An%20AI-friendly%20Mac%20terminal.), or open an issue or PR.
-- I have two cats, TangYuan and Coke. If you think Kaku delights your life, you can feed them <a href="https://cats.tw93.fun?name=Kaku" target="_blank">canned food 🥩</a>.
+- The most direct way to support me is getting [Mole for Mac](https://mole.fit), my paid Mac cleanup app
+- If Kaku helped you, give it a star, [share it](https://twitter.com/intent/tweet?url=https://github.com/tw93/Kaku&text=Kaku%20-%20An%20AI-friendly%20Mac%20terminal.), or open an issue or PR
+- I have two cats, TangYuan and Coke, and if you think Kaku delights your life, you can feed them <a href="https://cats.tw93.fun?name=Kaku" target="_blank">canned food 🥩</a>
 
 <details>
 <summary>These lovely people already did 🐱</summary>

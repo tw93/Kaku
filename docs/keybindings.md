@@ -1,6 +1,6 @@
 # Keybindings
 
-All keybindings use macOS-native modifier keys. `Opt` = Option/Alt, `Ctrl` = Control.
+`Opt` = Option/Alt, `Ctrl` = Control.
 
 ## Window
 
@@ -8,7 +8,6 @@ All keybindings use macOS-native modifier keys. `Opt` = Option/Alt, `Ctrl` = Con
 | :--- | :--- |
 | New window | `Cmd + N` |
 | Close pane / tab / hide | `Cmd + W` |
-| Close current tab | `Cmd + Shift + W` |
 | Hide application | `Cmd + H` |
 | Minimize window | `Cmd + M` |
 | Toggle fullscreen | `Cmd + Ctrl + F` |
@@ -74,8 +73,6 @@ All keybindings use macOS-native modifier keys. `Opt` = Option/Alt, `Ctrl` = Con
 | Open yazi file manager | `Cmd + Shift + Y` |
 | Browse remote files (SSH) | `Cmd + Shift + R` |
 | Open Doctor panel | `Ctrl + Shift + L` |
-
-> The Command Palette is the quickest way to find built-in commands when you do not remember a shortcut.
 
 ## Mouse
 

@@ -2,7 +2,7 @@
 
 ## Is there a Windows or Linux version?
 
-Not currently. Kaku is macOS-only while the macOS experience is being polished. Windows and Linux may come later.
+Not currently, Kaku is macOS-only. Windows and Linux may come later.
 
 ## How is Kaku different from iTerm2, Warp, Ghostty, or WezTerm?
 
@@ -10,13 +10,11 @@ Kaku is a WezTerm-based Mac terminal with fonts, themes, tabs, panes, and shell 
 
 ## Can I use a transparent window?
 
-Yes. Add to `~/.config/kaku/kaku.lua`:
+Yes. Add these lines below `-- User overrides:` in `~/.config/kaku/kaku.lua`, which already loads the bundled defaults into `config` and returns it:
 
 ```lua
-local config = require("kaku").config
 config.window_background_opacity = 0.92
 config.macos_window_background_blur = 20  -- optional blur, 0–100
-return config
 ```
 
 ## How do I turn off copy on select?
@@ -27,17 +25,7 @@ config.copy_on_select = false
 
 ## How do I customize keybindings?
 
-Append to `config.keys`, do not replace it:
-
-```lua
-config.keys[#config.keys + 1] = {
-  key = "RightArrow",
-  mods = "CMD|SHIFT",
-  action = wezterm.action.ActivatePaneDirection("Right"),
-}
-```
-
-See [keybindings.md](keybindings.md) and [configuration.md](configuration.md) for more examples.
+Append to `config.keys`, do not replace it, as shown in [keybindings.md](keybindings.md#custom-keybindings). [configuration.md](configuration.md#custom-keybindings) has more examples.
 
 ## Can I control working directory inheritance?
 
@@ -61,24 +49,11 @@ enabled = false
 
 ## How do I use a custom LLM provider?
 
-Run `kaku ai`, keep Auth Type set to API key, and enter your Base URL, API Key,
-Simple Model, and Deep Model manually. Choose **API Mode** `chat_completions`
-for `/v1/chat/completions`, or `responses` for `/v1/responses`. If the Responses
-provider supports hosted search, set **Native Web Search** to On; no separate
-search provider or search API key is required.
+Run `kaku ai`, keep Auth Type set to `api_key`, and enter your Base URL, API Key, Simple Model, and Deep Model manually. Choose **API Mode** `chat_completions` for `/v1/chat/completions`, or `responses` for `/v1/responses`. If the Responses provider supports hosted search, set **Native Web Search** to On; no separate search provider or search API key is required.
 
 ## How do I restore default config?
 
-```bash
-kaku reset
-```
-
-This removes Kaku-managed shell and tmux integration, Kaku-managed git delta
-defaults, selected Kaku state, and managed theme blocks in
-`~/.config/kaku/kaku.lua`. It also deletes Kaku AI memory (`soul/` and
-`ai_chat_memory.md`), the AI chat onboarding flag, and the `backups/` folder in
-`~/.config/kaku`. User-authored Lua outside managed blocks is preserved. Run
-`kaku init` again if you want shell integration back.
+Run `kaku reset`. It removes Kaku-managed integration and state, including Kaku AI memory and the `backups/` folder, while user-authored Lua outside managed blocks is preserved; see [cli.md](cli.md#kaku-reset) for the full list. Run `kaku init` again if you want shell integration back.
 
 ## The `kaku` command is missing. How do I recover it?
 
@@ -135,7 +110,7 @@ config.window_padding = { left = '24px', right = '24px', top = '40px', bottom = 
 
 ## The screen jumps to the top while Claude Code is generating output.
 
-This is a known interaction between trackpad scroll and Claude Code's streaming output. If you accidentally scroll to the top mid-stream, pressing the down arrow or scrolling back down returns you to the current output. A fix for the jump behavior has been tracked and shipped in recent releases.
+Since V0.12.1 the viewport no longer jumps to the top during streaming output. If you scroll up mid-stream, pressing the down arrow or scrolling back down returns you to the current output.
 
 ## Cmd+Shift+Y sends a local path when inside an SSH session.
 

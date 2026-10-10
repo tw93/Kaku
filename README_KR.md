@@ -23,7 +23,7 @@
 
 ## 소개
 
-Kaku(書く, 카쿠)는 일본어로 '쓰다'를 뜻합니다. WezTerm 기반의 macOS 터미널로, 엄선된 폰트, 테마, 셸 통합, 익숙한 Mac 단축키가 기본 설정되어 있으며 Lua 커스터마이징 기능도 온전히 제공합니다. 공식 사이트는 [kaku.fun](https://kaku.fun)입니다.
+Kaku(書く, 카쿠)는 일본어로 '쓰다'를 뜻합니다. WezTerm 기반의 macOS 터미널로, 폰트, 테마, 셸 통합, 익숙한 Mac 단축키가 기본 설정되어 있으며 Lua 커스터마이징 기능도 온전히 제공합니다.
 
 3부작 중 코딩을 담당하는 기본 터미널로서, 개발자 습관을 다듬는 [Waza](https://github.com/tw93/Waza) (技), 문서를 전달하는 [Kami](https://github.com/tw93/Kami) (紙)와 함께 코드 작성부터 습관 형성, 문서 납품까지 막힘없이 이어지도록 지원합니다.
 
@@ -35,15 +35,15 @@ Kaku(書く, 카쿠)는 일본어로 '쓰다'를 뜻합니다. WezTerm 기반의
 brew install --cask kaku
 ```
 
-Kaku를 실행하여 셸 통합을 완료합니다. 필요한 부가 도구는 `kaku init`으로 설치할 수 있습니다. 설치된 버전은 `kaku --version`으로 확인합니다.
+Kaku를 실행하여 셸 통합을 완료합니다. 필요한 부가 도구는 `kaku init`으로 설치하고, 설치된 버전은 `kaku --version`으로 확인합니다.
 
 ## 주요 기능
 
 - **즉시 사용 가능**: JetBrains Mono 폰트, 라이트/다크 테마 자동 전환, 선택 즉시 복사, 익숙한 Mac 단축키
-- **탭 및 화면 분할**: 자유로운 작업 공간 분할, Tab Navigator를 통한 빠른 탐색, Kaku를 다시 열 때 창, 분할 화면, 작업 경로 자동 복원
+- **탭 및 화면 분할**: 자유로운 작업 공간 분할, Tab Navigator를 통한 빠른 탭 전환, Kaku를 다시 열 때 창, 분할 화면, 작업 경로 자동 복원
 - **우클릭 메뉴**: 붙여넣기, 검색, AI 대화 호출, 분할 화면 닫기 및 탭 관리를 단축키 암기 없이 손쉽게 실행
 - **클릭 가능한 링크**: `Cmd + 클릭`으로 URL 및 파일 경로 열기 지원, 터미널 줄바꿈이 일어난 긴 링크도 완전하게 인식
-- **AI 친화적**: 평소 쓰는 코딩 도구와 함께 명령어 제안 및 대화를 위한 선택형 어시스턴트 사용 가능, `kaku ai`를 통해 사용 중인 AI 서비스 연동 가능
+- **AI 친화적**: 평소 쓰는 코딩 도구와 함께 명령어 제안 및 대화를 위한 선택형 어시스턴트 사용 가능
 - **셸 도구 모음**: zsh 자동 완성, 구문 강조, 디렉터리 빠른 이동 내장, 선택 설치한 Lazygit 및 Yazi용 단축키 지원
 - **Lua 설정**: WezTerm의 Lua 설정 시스템을 활용하여 폰트, 테마, 단축키, 동작 방식을 자유롭게 구성
 
@@ -65,10 +65,6 @@ Kaku를 실행하여 셸 통합을 완료합니다. 필요한 부가 도구는 `
 | Lazygit 열기 | `Cmd + Shift + G` |
 | Yazi 파일 탐색기 | `Cmd + Shift + Y` 또는 `y` |
 | 화면 지우기 | `Cmd + K` |
-| 우클릭 메뉴 열기 | 분할창 내 마우스 우클릭 |
-| 링크/파일 경로 열기 | `Cmd + 클릭` |
-
-전체 단축키 목록: [docs/keybindings.md](docs/keybindings.md)
 
 ## Kaku AI
 
@@ -83,20 +79,13 @@ Kaku를 실행하여 셸 통합을 완료합니다. 필요한 부가 도구는 `
 
 ## 자주 묻는 질문 (FAQ)
 
-**Windows 또는 Linux 버전이 있나요?** 현재는 없습니다. Kaku는 macOS 전용입니다.
-
-**iTerm2, Warp, Ghostty, WezTerm과의 차이점은 무엇인가요?** [kaku.fun/compare](https://kaku.fun/compare)를 확인하세요.
-
-**반투명 창을 사용할 수 있나요?** 가능합니다. `~/.config/kaku/kaku.lua`에서 `config.window_background_opacity`를 설정하세요.
-
-**`kaku` 명령어를 찾을 수 없습니다.** `/Applications/Kaku.app/Contents/MacOS/kaku init --update-only && exec zsh -l`을 실행한 뒤 `kaku doctor`로 점검하세요.
-
-전체 FAQ: [docs/faq.md](docs/faq.md)
+- **Windows 또는 Linux 버전이 있나요?** 현재는 없습니다, Kaku는 macOS 전용입니다
+- **iTerm2, Warp, Ghostty, WezTerm과의 차이점은 무엇인가요?** [kaku.fun/compare](https://kaku.fun/compare)를 확인하세요
+- **반투명 창을 사용할 수 있나요?** 가능합니다. `~/.config/kaku/kaku.lua`에서 `config.window_background_opacity`를 설정하세요
+- **`kaku` 명령어를 찾을 수 없습니다.** `/Applications/Kaku.app/Contents/MacOS/kaku init --update-only && exec zsh -l`을 실행한 뒤 `kaku doctor`로 점검하세요
 
 ## 문서
 
-- [공식 웹사이트](https://kaku.fun) - 제품 사이트, 설치 가이드, 영문/중문 문서
-- [비교표](https://kaku.fun/compare) - Kaku와 iTerm2, Warp, Ghostty, WezTerm, 기본 터미널 비교
 - [단축키](docs/keybindings.md) - 전체 단축키 레퍼런스
 - [기능 소개](docs/features.md) - AI 어시스턴트, Lazygit, Yazi, 원격 파일, 셸 도구
 - [환경설정](docs/configuration.md) - 테마, 폰트, 커스텀 단축키, Lua API
@@ -105,11 +94,11 @@ Kaku를 실행하여 셸 통합을 완료합니다. 필요한 부가 도구는 `
 
 ## 개발 배경
 
-업무와 개인 프로젝트를 불문하고 저는 명령줄 환경에 크게 의존합니다. 제가 만든 [Mole](https://github.com/tw93/mole)과 [Pake](https://github.com/tw93/pake) 역시 이러한 철학을 담고 있습니다.
+업무와 개인 프로젝트 모두에서 저는 명령줄에 크게 의존합니다. 제가 만든 [Mole](https://github.com/tw93/mole)과 [Pake](https://github.com/tw93/pake) 같은 도구에도 그 점이 드러납니다.
 
-오랫동안 Alacritty를 사용하며 그 가벼움과 단순함을 깊이 신뢰해 왔습니다. 작업 방식이 AI 지원 코딩으로 전환되면서 탭과 분할 화면의 사용성이 더욱 중요해졌습니다. Kitty, Ghostty, Warp, iTerm2 등도 깊이 살펴보았으나, 성능과 기본 설정의 완성도, 그리고 주도적인 제어 권한 사이에서 최상의 균형을 갖춘 개발 환경을 만들고자 했습니다.
+오랫동안 Alacritty를 쓰면서 속도와 단순함을 중요하게 여기게 되었습니다. 작업 방식이 AI 지원 코딩으로 옮겨 가면서 탭과 분할 화면을 더 편하게 다루고 싶어졌습니다. Kitty, Ghostty, Warp, iTerm2도 써 보았고 각자 강점이 있었지만, 성능, 기본 설정, 제어 사이에서 제 기준에 맞는 균형을 갖춘 환경을 여전히 원했습니다.
 
-WezTerm은 대단히 견고하고 강력한 확장성을 갖추고 있으며, 그 엔진과 생태계에 깊이 감사하고 있습니다. Kaku는 바로 이러한 이상적인 환경을 완성하기 위해 탄생했습니다. 빠르고, 깔끔하며, 즉시 실무에 투입할 수 있습니다.
+WezTerm은 견고하고 손보기 좋으며, 그 엔진과 생태계에 감사하고 있습니다. 그래서 빠르고, 깔끔하며, 바로 일할 수 있는 환경으로 Kaku를 만들었습니다.
 
 ## 기여자
 
@@ -123,7 +112,7 @@ Kaku 개발에 기여해 주신 모든 분들께 감사드립니다. 이분들�
 
 - 개발자를 지원하는 가장 직접적인 방법은 유료 Mac 정리 앱인 [Mole for Mac](https://mole.fit)을 이용해 주시는 것입니다
 - Kaku가 유용했다면 Star를 누르거나, [공유](https://twitter.com/intent/tweet?url=https://github.com/tw93/Kaku&text=Kaku%20-%20An%20AI-friendly%20Mac%20terminal.)하거나, 이슈 및 PR을 남겨주세요
-- 탕위안(TangYuan)과 콜라(Coke)라는 두 마리의 고양이를 키우고 있습니다. Kaku가 즐거움을 주었다면 <a href="https://cats.tw93.fun?name=Kaku" target="_blank">캔 간식 🥩</a>을 후원해 주세요
+- 탕위안(TangYuan)과 콜라(Coke)라는 두 마리의 고양이를 키우고 있는데, Kaku가 즐거움을 주었다면 <a href="https://cats.tw93.fun?name=Kaku" target="_blank">캔 간식 🥩</a>을 후원해 주세요
 
 <details>
 <summary>후원해 주신 분들 🐱</summary>

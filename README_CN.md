@@ -23,27 +23,27 @@
 
 ## 缘起
 
-Kaku（書く，かく）在日文中意为“写”，是一款基于 WezTerm 的 macOS 终端，预装了优质字体、主题、Shell 集成与常用 Mac 快捷键，同时保留完整的 Lua 自定义能力，官网为 [kaku.fun](https://kaku.fun)。
+Kaku（書く，かく）在日文中意为“写”，是一款基于 WezTerm 的 macOS 终端，预装了字体、主题、Shell 集成与常用 Mac 快捷键，同时保留完整的 Lua 自定义能力。
 
 作为三部曲中专注于编码的基础终端，Kaku 与规范工程习惯的 [Waza](https://github.com/tw93/Waza) (技)、负责交付文档的 [Kami](https://github.com/tw93/Kami) (紙) 相互配合，让写代码、磨习惯和出文档一气呵成。
 
 ## 快速上手
 
-下载 [Kaku DMG](https://github.com/tw93/Kaku/releases/latest)，打开并将 Kaku 拖入“应用程序”目录。也可以使用 Homebrew 安装：
+下载 [Kaku DMG](https://github.com/tw93/Kaku/releases/latest)，打开并将 Kaku 拖入“应用程序”目录，也可以使用 Homebrew 安装：
 
 ```bash
 brew install --cask kaku
 ```
 
-打开 Kaku 完成 Shell 集成设置。缺少的可选工具可以用 `kaku init` 安装。通过 `kaku --version` 查看当前安装版本。
+打开 Kaku 完成 Shell 集成设置，缺少的可选工具可以用 `kaku init` 安装，通过 `kaku --version` 查看当前安装版本。
 
 ## 特性
 
 - **开箱即用**：预置 JetBrains Mono 字体，自动切换浅色与深色主题，选中即复制，熟悉的 Mac 原生快捷键
-- **标签与分屏**：自由拆分工作区，通过 Tab Navigator 快速定位分屏，重新打开 Kaku 时恢复窗口、分屏和工作目录
+- **标签与分屏**：自由拆分工作区，通过 Tab Navigator 快速切换标签页，重新打开 Kaku 时恢复窗口、分屏和工作目录
 - **右键菜单**：粘贴、搜索、唤起 AI 对话，拆分或关闭当前分屏，开关标签页无需死记快捷键
 - **可点击链接**：`Cmd + 点击` 直接打开链接和文件路径，终端自动换行的长链接也能完整识别
-- **AI 友好**：你的编程工具照常用，另有可选的助手提供命令建议和对话，通过 `kaku ai` 配置你自己的 AI 服务
+- **AI 友好**：你的编程工具照常用，另有可选的助手提供命令建议和对话
 - **Shell 工具链**：内置 zsh 自动补全、语法高亮和目录快速跳转，并为可选的 Lazygit 和 Yazi 提供快捷键支持
 - **Lua 配置**：基于 WezTerm 的 Lua 配置系统，自由定制字体、主题、快捷键与终端行为
 
@@ -65,38 +65,27 @@ brew install --cask kaku
 | 打开 Lazygit | `Cmd + Shift + G` |
 | Yazi 文件管理器 | `Cmd + Shift + Y` 或 `y` |
 | 清屏 | `Cmd + K` |
-| 打开右键菜单 | 在分屏中右键点击 |
-| 打开链接或文件路径 | `Cmd + 点击` |
-
-完整快捷键参考：[docs/keybindings.md](docs/keybindings.md)
 
 ## Kaku AI
 
-使用 `kaku ai` 配置你自己的 AI 服务即可开启内置助手。Kaku 本身不提供也不中转任何 AI 服务。
+使用 `kaku ai` 配置你自己的 AI 服务即可开启内置助手，Kaku 本身不提供也不中转任何 AI 服务。
 
 - **命令建议**：当命令执行出错时，助手可提供修复建议，按 `Cmd + Shift + E` 将建议粘贴至提示符处供你确认
 - **自然语言转命令**：在提示符处输入 `# <描述>` 并回车，助手会将生成的命令填入终端供你确认并执行
-- **AI 对话**：按 `Cmd + L` 讨论终端输出或配合项目文件与工具操作。在其他终端中运行 `kaku chat` 可访问相同的会话记录
+- **AI 对话**：按 `Cmd + L` 讨论终端输出或配合项目文件与工具操作，在其他终端中运行 `kaku chat` 可访问相同的会话记录
 - **AI 工具配置**：集中管理 Claude Code、Codex、Gemini CLI、Copilot CLI、Kimi Code 等工具的设置
 
 认证、模型、API 模式和工具设置见 [AI 助手文档](docs/features.md)。
 
 ## 常见问题
 
-**是否有 Windows 或 Linux 版本？** 目前没有，Kaku 目前仅支持 macOS。
-
-**Kaku 与 iTerm2、Warp、Ghostty、WezTerm 有什么区别？** 详见 [kaku.fun/compare](https://kaku.fun/compare)。
-
-**是否可以使用透明窗口？** 可以，在 `~/.config/kaku/kaku.lua` 中设置 `config.window_background_opacity` 即可。
-
-**找不到 `kaku` 命令？** 运行 `/Applications/Kaku.app/Contents/MacOS/kaku init --update-only && exec zsh -l`，然后执行 `kaku doctor` 检查。
-
-完整 FAQ：[docs/faq.md](docs/faq.md)
+- **是否有 Windows 或 Linux 版本？** 目前没有，Kaku 只支持 macOS
+- **Kaku 与 iTerm2、Warp、Ghostty、WezTerm 有什么区别？** 详见 [kaku.fun/compare](https://kaku.fun/compare)
+- **是否可以使用透明窗口？** 可以，在 `~/.config/kaku/kaku.lua` 中设置 `config.window_background_opacity` 即可
+- **找不到 `kaku` 命令？** 运行 `/Applications/Kaku.app/Contents/MacOS/kaku init --update-only && exec zsh -l`，然后执行 `kaku doctor` 检查
 
 ## 文档
 
-- [官网](https://kaku.fun) - 产品网站、安装指引以及中英文文档
-- [对比](https://kaku.fun/compare) - Kaku 与 iTerm2、Warp、Ghostty、WezTerm 和系统终端的对比
 - [快捷键](docs/keybindings.md) - 完整快捷键参考
 - [功能特性](docs/features.md) - AI 助手、lazygit、yazi、远程文件、Shell 工具集
 - [配置指南](docs/configuration.md) - 主题、字体、自定义快捷键、Lua API
@@ -123,7 +112,7 @@ WezTerm 很稳，也很好折腾，我很感谢它的引擎和生态，于是在
 
 - 最直接的支持方式是购买我制作的 Mac 付费清理工具 [Mole for Mac](https://mole.fit)
 - 如果 Kaku 对你有帮助，欢迎给它一个 Star、[分享推荐](https://twitter.com/intent/tweet?url=https://github.com/tw93/Kaku&text=Kaku%20-%20An%20AI-friendly%20Mac%20terminal.)，或提交 Issue 与 PR
-- 我养了两只猫：汤圆和可乐。如果 Kaku 让你感觉好用，欢迎投喂它们一顿 <a href="https://cats.tw93.fun?name=Kaku" target="_blank">罐头 🥩</a>
+- 我养了两只猫，汤圆和可乐，如果 Kaku 让你觉得好用，欢迎投喂她们一顿 <a href="https://cats.tw93.fun?name=Kaku" target="_blank">罐头 🥩</a>
 
 <details>
 <summary>这些可爱的小伙伴已经投喂过了 🐱</summary>
