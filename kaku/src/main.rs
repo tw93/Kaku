@@ -125,7 +125,7 @@ enum SubCommand {
 
     #[command(
         name = "ai",
-        about = "Configure AI models, endpoints, and developer tools"
+        about = "Configure AI models, endpoints, and coding tools"
     )]
     Ai(ai_config::AiConfigCommand),
 
@@ -143,13 +143,13 @@ enum SubCommand {
 
     #[command(
         name = "init",
-        about = "Install shell integrations and recommended CLI tools"
+        about = "Set up shell integration and install optional CLI tools"
     )]
     Init(init::InitCommand),
 
     #[command(
         name = "doctor",
-        about = "Inspect environment health and export diagnostic reports"
+        about = "Check shell integration and environment, and write a diagnostic bundle"
     )]
     Doctor(doctor::DoctorCommand),
 
@@ -161,7 +161,7 @@ enum SubCommand {
 
     #[command(
         name = "reset",
-        about = "Restore shell integration and configurations to defaults"
+        about = "Remove Kaku shell and tmux integration and reset Kaku-managed defaults"
     )]
     Reset(reset::ResetCommand),
 
