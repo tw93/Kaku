@@ -434,7 +434,7 @@ fn select_main_menu_command() -> anyhow::Result<Option<SubCommand>> {
         ),
         (
             "doctor",
-            "Check shell integration and environment, and write a diagnostic bundle",
+            "Check shell integration and write a diagnostic bundle",
             MenuChoice::Doctor,
         ),
         (
@@ -444,7 +444,7 @@ fn select_main_menu_command() -> anyhow::Result<Option<SubCommand>> {
         ),
         (
             "reset",
-            "Remove Kaku shell and tmux integration and reset Kaku-managed defaults",
+            "Remove shell and tmux integration, reset managed defaults",
             MenuChoice::Reset,
         ),
     ];
