@@ -473,7 +473,7 @@ fn select_main_menu_command() -> anyhow::Result<Option<SubCommand>> {
             "{green} | . \\ (_| ||   < | |_| |{reset}  {purple_bold}https://github.com/tw93/Kaku{reset}\r\n"
         ));
         out.push_str(&format!(
-            "{green} |_|\\_\\__,_||_|\\_\\ \\__,_|{reset}  {green}A fast, out-of-the-box terminal built for AI coding.{reset}\r\n"
+            "{green} |_|\\_\\__,_||_|\\_\\ \\__,_|{reset}  {green}An AI-friendly Mac terminal, ready out of the box.{reset}\r\n"
         ));
         out.push_str("\r\n");
         for (idx, (name, desc, _)) in MENU_ITEMS.iter().enumerate() {
