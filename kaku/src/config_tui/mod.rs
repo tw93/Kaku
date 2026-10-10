@@ -353,7 +353,7 @@ impl App {
             },
             ConfigField {
                 section: "Window",
-                key: "Process Tab Titles",
+                key: "Command Tab Titles",
                 lua_key: "tab_title_show_foreground_process",
                 value: String::new(),
                 default: "Off".into(),
@@ -380,7 +380,7 @@ impl App {
             },
             ConfigField {
                 section: "Window",
-                key: "Window Buttons",
+                key: "Traffic Lights",
                 lua_key: "__wdeco_traffic_lights__",
                 value: String::new(),
                 default: "On".into(),
@@ -443,7 +443,7 @@ impl App {
             },
             ConfigField {
                 section: "Behavior",
-                key: "Tab Alert Dot",
+                key: "Bell Tab Dot",
                 lua_key: "bell_tab_indicator",
                 value: String::new(),
                 default: "On".into(),
@@ -452,7 +452,7 @@ impl App {
             },
             ConfigField {
                 section: "Behavior",
-                key: "Dock Alert Badge",
+                key: "Bell Dock Badge",
                 lua_key: "bell_dock_badge",
                 value: String::new(),
                 default: "Off".into(),
