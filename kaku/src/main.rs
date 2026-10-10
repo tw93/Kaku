@@ -417,16 +417,24 @@ fn select_main_menu_command() -> anyhow::Result<Option<SubCommand>> {
 
     const MENU_ITEMS: [(&str, &str, MenuChoice); 7] = [
         ("chat", "Start AI chat in this terminal", MenuChoice::Chat),
-        ("ai", "Manage AI tools and Kaku Assistant", MenuChoice::Ai),
+        (
+            "ai",
+            "Configure AI models, endpoints, and coding tools",
+            MenuChoice::Ai,
+        ),
         (
             "config",
             "Manage terminal and assistant settings",
             MenuChoice::Config,
         ),
-        ("init", "Initialize shell integration", MenuChoice::Init),
+        (
+            "init",
+            "Set up shell integration and install optional CLI tools",
+            MenuChoice::Init,
+        ),
         (
             "doctor",
-            "Run diagnostics for shell and runtime health",
+            "Check shell integration and environment, and write a diagnostic bundle",
             MenuChoice::Doctor,
         ),
         (
@@ -436,7 +444,7 @@ fn select_main_menu_command() -> anyhow::Result<Option<SubCommand>> {
         ),
         (
             "reset",
-            "Remove Kaku shell integration and managed defaults",
+            "Remove Kaku shell and tmux integration and reset Kaku-managed defaults",
             MenuChoice::Reset,
         ),
     ];
