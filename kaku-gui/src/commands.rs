@@ -1,5 +1,5 @@
 use crate::inputmap::InputMap;
-use config::keyassignment::{ClipboardCopyDestination, ClipboardPasteSource, PaneEncoding, *};
+use config::keyassignment::{ClipboardCopyDestination, ClipboardPasteSource, *};
 use config::window::WindowLevel;
 use config::{ConfigHandle, DeferredKeyCode};
 use mux::domain::DomainState;
@@ -225,7 +225,6 @@ impl CommandDef {
             CopyTo(ClipboardCopyDestination::Clipboard),
             PasteFrom(ClipboardPasteSource::Clipboard),
             Search(Pattern::CurrentSelectionOrEmptyString),
-            QuickSelect,
             ClearScrollback(ScrollbackEraseMode::ScrollbackOnly),
             // View menu
             ResetFontSize,
@@ -240,7 +239,6 @@ impl CommandDef {
             MaximizeWindow,
             Hide,
             ToggleAlwaysOnTop,
-            ToggleAlwaysOnBottom,
             ActivateWindowRelative(-1),
             ActivateWindowRelative(1),
             ActivateTabRelative(-1),
@@ -582,17 +580,6 @@ impl CommandDef {
                     });
                 }
             }
-            result.push(ExpandedCommand {
-                brief: "Create new Workspace".into(),
-                doc: "".into(),
-                keys: vec![],
-                action: KeyAssignment::SwitchToWorkspace {
-                    name: None,
-                    spawn: None,
-                },
-                menubar: &["Window"],
-                icon: None,
-            });
         }
 
         // And sweep to pick up stuff from their key assignments
@@ -1384,12 +1371,7 @@ pub fn derive_command_from_key_assignment(action: &KeyAssignment) -> Option<Comm
         }) => CommandDef {
             brief: "Move Pane to New Tab".into(),
             doc: "Move the current pane to a new tab".into(),
-            keys: vec![(
-                Modifiers::SUPER
-                    .union(Modifiers::ALT)
-                    .union(Modifiers::SHIFT),
-                "t".into(),
-            )],
+            keys: vec![],
             args: &[ArgType::ActivePane],
             menubar: &["Window"],
             icon: None,
@@ -2602,7 +2584,7 @@ pub fn derive_command_from_key_assignment(action: &KeyAssignment) -> Option<Comm
 /// included in the default key assignments and command palette.
 fn compute_default_actions() -> Vec<KeyAssignment> {
     // These are ordered by their position within the various menus
-    let mut actions = vec![
+    vec![
         // ----------------- Kaku
         #[cfg(target_os = "macos")]
         HideApplication,
@@ -2628,8 +2610,6 @@ fn compute_default_actions() -> Vec<KeyAssignment> {
         CloseCurrentPane { confirm: true },
         ReopenLastClosedTab,
         RestorePreviousWindow,
-        DetachDomain(SpawnTabDomain::CurrentPaneDomain),
-        ResetTerminal,
         // ----------------- Edit
         #[cfg(not(target_os = "macos"))]
         PasteFrom(ClipboardPasteSource::PrimarySelection),
@@ -2645,10 +2625,6 @@ fn compute_default_actions() -> Vec<KeyAssignment> {
         SendStringIfNotAltScreen("\x1f".to_string()),
         ClearScrollback(ScrollbackEraseMode::ScrollbackOnly),
         ClearScrollback(ScrollbackEraseMode::ScrollbackAndViewport),
-        QuickSelect,
-        CharSelect(CharSelectArguments::default()),
-        ActivateCopyMode,
-        ClearKeyTableStack,
         ActivateCommandPalette,
         // ----------------- View
         DecreaseFontSize,
@@ -2668,16 +2644,6 @@ fn compute_default_actions() -> Vec<KeyAssignment> {
         Search(Pattern::CurrentSelectionOrEmptyString),
         PaneSelect(PaneSelectArguments {
             alphabet: String::new(),
-            mode: PaneSelectMode::SwapWithActive,
-            show_pane_ids: false,
-        }),
-        PaneSelect(PaneSelectArguments {
-            alphabet: String::new(),
-            mode: PaneSelectMode::SwapWithActiveKeepFocus,
-            show_pane_ids: false,
-        }),
-        PaneSelect(PaneSelectArguments {
-            alphabet: String::new(),
             mode: PaneSelectMode::MoveToNewTab,
             show_pane_ids: false,
         }),
@@ -2686,8 +2652,6 @@ fn compute_default_actions() -> Vec<KeyAssignment> {
             mode: PaneSelectMode::MoveToNewWindow,
             show_pane_ids: false,
         }),
-        RotatePanes(RotationDirection::Clockwise),
-        RotatePanes(RotationDirection::CounterClockwise),
         TogglePaneSplitDirection,
         ActivateTab(0),
         ActivateTab(1),
@@ -2722,15 +2686,7 @@ fn compute_default_actions() -> Vec<KeyAssignment> {
         ShowDebugOverlay,
         // ----------------- Misc
         OpenLinkAtMouseCursor,
-    ];
-
-    actions.extend(
-        PaneEncoding::ordered_list()
-            .into_iter()
-            .map(KeyAssignment::SetPaneEncoding),
-    );
-
-    actions
+    ]
 }
 
 #[cfg(test)]
@@ -2825,6 +2781,52 @@ mod tests {
         assert!(!CommandDef::actions_for_palette_only(&config)
             .iter()
             .any(|cmd| cmd.action == select_pane));
+    }
+
+    #[test]
+    fn rarely_used_wezterm_actions_are_not_exposed_by_default() {
+        // These either open an input-grabbing modal (QuickSelect, CharSelect,
+        // Copy Mode, the swap pane picker) or have no use in Kaku. User
+        // configs can still bind every one of them.
+        let config = ConfigHandle::default_config();
+        let is_removed = |action: &KeyAssignment| {
+            matches!(
+                action,
+                KeyAssignment::QuickSelect
+                    | KeyAssignment::CharSelect(_)
+                    | KeyAssignment::ActivateCopyMode
+                    | KeyAssignment::ClearKeyTableStack
+                    | KeyAssignment::ResetTerminal
+                    | KeyAssignment::RotatePanes(_)
+                    | KeyAssignment::SetPaneEncoding(_)
+                    | KeyAssignment::DetachDomain(_)
+                    | KeyAssignment::ToggleAlwaysOnBottom
+                    | KeyAssignment::SwitchToWorkspace { name: None, .. }
+                    | KeyAssignment::PaneSelect(PaneSelectArguments {
+                        mode: PaneSelectMode::SwapWithActive
+                            | PaneSelectMode::SwapWithActiveKeepFocus,
+                        ..
+                    })
+            )
+        };
+
+        assert!(!CommandDef::default_key_assignments(&config)
+            .iter()
+            .any(|(_, _, action)| is_removed(action)));
+        assert!(!CommandDef::actions_for_palette_only(&config)
+            .iter()
+            .any(|cmd| is_removed(&cmd.action)));
+        assert!(!CommandDef::actions_for_palette_and_menubar(&config)
+            .iter()
+            .any(|cmd| is_removed(&cmd.action) && !cmd.menubar.is_empty()));
+
+        // Always on Top stays: Window menu, palette and Cmd+Shift+Up.
+        assert!(CommandDef::default_key_assignments(&config)
+            .iter()
+            .any(|(_, _, action)| *action == KeyAssignment::ToggleAlwaysOnTop));
+        assert!(CommandDef::actions_for_palette_only(&config)
+            .iter()
+            .any(|cmd| cmd.action == KeyAssignment::ToggleAlwaysOnTop));
     }
 
     #[test]
