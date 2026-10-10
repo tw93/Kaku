@@ -101,6 +101,18 @@ table.insert(config.keys, {
   mods = 'CMD|SHIFT',
   action = wezterm.action.EmitEvent('kaku-ai-chat'),
 })
+
+-- Example: copy and paste with Ctrl+Shift+C / Ctrl+Shift+V as on Linux:
+table.insert(config.keys, {
+  key = 'c',
+  mods = 'CTRL|SHIFT',
+  action = wezterm.action.CopyTo('Clipboard'),
+})
+table.insert(config.keys, {
+  key = 'v',
+  mods = 'CTRL|SHIFT',
+  action = wezterm.action.PasteFrom('Clipboard'),
+})
 ```
 
 For the full list of available actions, see [WezTerm KeyAssignment reference](https://wezfurlong.org/wezterm/config/lua/keyassignment/).

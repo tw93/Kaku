@@ -124,11 +124,13 @@ impl CommandDef {
 
             keys.push((mods, key.clone()));
 
-            if mods == Modifiers::SUPER {
-                // We want each SUPER/CMD version of the keys to also have
-                // CTRL+SHIFT version(s) for environments where SUPER/CMD
-                // is reserved for the window manager.
-                // This bit synthesizes those.
+            // We want each SUPER/CMD version of the keys to also have
+            // CTRL+SHIFT version(s) for environments where SUPER/CMD
+            // is reserved for the window manager.
+            // This bit synthesizes those. macOS never reserves Cmd, and the
+            // copies took Ctrl chords that shells and TUIs own: Ctrl+_ is
+            // readline/zsh undo, and Ctrl+Shift+L shadowed Kaku Doctor.
+            if mods == Modifiers::SUPER && !cfg!(target_os = "macos") {
                 keys.push((Modifiers::CTRL | Modifiers::SHIFT, key.clone()));
                 if ukey != key {
                     keys.push((Modifiers::CTRL | Modifiers::SHIFT, ukey.clone()));
@@ -1395,10 +1397,7 @@ pub fn derive_command_from_key_assignment(action: &KeyAssignment) -> Option<Comm
         DecreaseFontSize => CommandDef {
             brief: "Decrease Font Size".into(),
             doc: "Make text smaller".into(),
-            keys: vec![
-                (Modifiers::SUPER, "-".into()),
-                (Modifiers::CTRL, "-".into()),
-            ],
+            keys: vec![(Modifiers::SUPER, "-".into())],
             args: &[ArgType::ActiveWindow],
             menubar: &["View"],
             icon: None,
@@ -1406,10 +1405,7 @@ pub fn derive_command_from_key_assignment(action: &KeyAssignment) -> Option<Comm
         IncreaseFontSize => CommandDef {
             brief: "Increase Font Size".into(),
             doc: "Make text larger".into(),
-            keys: vec![
-                (Modifiers::SUPER, "=".into()),
-                (Modifiers::CTRL, "=".into()),
-            ],
+            keys: vec![(Modifiers::SUPER, "=".into())],
             args: &[ArgType::ActiveWindow],
             menubar: &["View"],
             icon: None,
@@ -1417,10 +1413,7 @@ pub fn derive_command_from_key_assignment(action: &KeyAssignment) -> Option<Comm
         ResetFontSize => CommandDef {
             brief: "Reset Font Size".into(),
             doc: "Reset to configured font size".into(),
-            keys: vec![
-                (Modifiers::SUPER, "0".into()),
-                (Modifiers::CTRL, "0".into()),
-            ],
+            keys: vec![(Modifiers::SUPER, "0".into())],
             args: &[ArgType::ActiveWindow],
             menubar: &["View"],
             icon: None,
@@ -2694,7 +2687,7 @@ mod tests {
     use super::{derive_command_from_key_assignment, CommandDef};
     use config::keyassignment::{KeyAssignment, PaneSelectArguments, PaneSelectMode};
     use config::ConfigHandle;
-    use window::Modifiers;
+    use window::{KeyCode, Modifiers};
 
     #[test]
     fn deprecated_input_broadcast_actions_are_not_exposed() {
@@ -2827,6 +2820,35 @@ mod tests {
         assert!(CommandDef::actions_for_palette_only(&config)
             .iter()
             .any(|cmd| cmd.action == KeyAssignment::ToggleAlwaysOnTop));
+    }
+
+    #[test]
+    fn ctrl_chords_stay_with_the_shell_on_macos() {
+        // Kaku binds its shortcuts on Cmd. The WezTerm-era Ctrl copies took
+        // chords that shells and TUIs own (Ctrl+_ is readline/zsh undo,
+        // Ctrl+Shift+Q quit the app) and Cmd+L's copy shadowed Ctrl+Shift+L.
+        let config = ConfigHandle::default_config();
+        let map = crate::inputmap::InputMap::new(&config);
+        for ((key, mods), entry) in map.keys.default.iter() {
+            if !mods.contains(Modifiers::CTRL) || mods.contains(Modifiers::SUPER) {
+                continue;
+            }
+            assert!(
+                matches!(
+                    entry.action,
+                    KeyAssignment::ActivateTabRelative(_)
+                        | KeyAssignment::MoveTabRelative(_)
+                        | KeyAssignment::ShowDebugOverlay
+                ),
+                "{mods:?} {key:?} must not be a default binding, it maps to {:?}",
+                entry.action
+            );
+        }
+        assert!(map.keys.default.iter().any(|((key, mods), entry)| {
+            *mods == Modifiers::CTRL | Modifiers::SHIFT
+                && *key == KeyCode::Char('l')
+                && entry.action == KeyAssignment::ShowDebugOverlay
+        }));
     }
 
     #[test]
