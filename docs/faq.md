@@ -2,7 +2,7 @@
 
 ## Is there a Windows or Linux version?
 
-Not currently, Kaku is macOS-only. Windows and Linux may come later.
+Not currently, Kaku is macOS-only.
 
 ## How is Kaku different from iTerm2, Warp, Ghostty, or WezTerm?
 
