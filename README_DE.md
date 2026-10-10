@@ -23,9 +23,9 @@
 
 ## Warum Kaku
 
-Kaku (書く, かく) bedeutet auf Japanisch „schreiben“. Es ist ein auf WezTerm basierendes macOS-Terminal, das mit durchdachten Schriftarten, Themes, Shell-Integration und vertrauten Mac-Tastenkürzeln vorkonfiguriert ist. Bei individuellem Anpassungsbedarf bleibt die vollständige Lua-Konfiguration verfügbar. Die Produkt-Website ist [kaku.fun](https://kaku.fun).
+Kaku (書く, かく) bedeutet auf Japanisch „schreiben“. Es ist ein auf WezTerm basierendes macOS-Terminal, das mit durchdachten Schriftarten, Themes, Shell-Integration und vertrauten Mac-Tastenkürzeln vorkonfiguriert ist, während die vollständige Lua-Konfiguration erhalten bleibt. Die Produkt-Website ist [kaku.fun](https://kaku.fun).
 
-Teil einer Trilogie: [Kaku](https://github.com/tw93/Kaku) (書く) schreibt Code, [Waza](https://github.com/tw93/Waza) (技) festigt Gewohnheiten, [Kami](https://github.com/tw93/Kami) (紙) liefert Dokumente. Als Familie gedacht: Kaku ist der Vater, Waza die große Schwester, Kami die kleine Schwester.
+Als Coding-Fundament der Trilogie arbeitet Kaku mit dem auf Engineering-Gewohnheiten ausgerichteten [Waza](https://github.com/tw93/Waza) (技) und dem auf Dokumentenbereitstellung fokussierten [Kami](https://github.com/tw93/Kami) (紙) zusammen, um den Ablauf von der Entwicklung bis zur Auslieferung nahtlos zu gestalten.
 
 ## Schnellstart
 
@@ -133,4 +133,4 @@ Vielen Dank an alle Mitwirkenden, die Kaku mitgestaltet haben. Folgt ihnen gern!
 
 ## Lizenz
 
-MIT License, freie Nutzung und Beteiligung an Open Source erwünscht. Namensnennungen für WezTerm und die mitgelieferten Schriftarten finden sich in [NOTICE.md](NOTICE.md).
+MIT License. Please feel free to use and contribute to the development. Namensnennungen für WezTerm und die mitgelieferten Schriftarten finden sich in [NOTICE.md](NOTICE.md).

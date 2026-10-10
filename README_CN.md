@@ -23,9 +23,9 @@
 
 ## 缘起
 
-Kaku（書く，かく）在日文中意为“写”。它是一款基于 WezTerm 的 macOS 终端，预装了优质字体、主题、Shell 集成与常用的 Mac 快捷键。如果你想自定义，Lua 配置依然完全可用。产品官网是 [kaku.fun](https://kaku.fun)。
+Kaku（書く，かく）在日文中意为“写”，是一款基于 WezTerm 的 macOS 终端，预装了优质字体、主题、Shell 集成与常用 Mac 快捷键，同时保留完整的 Lua 自定义能力，官网为 [kaku.fun](https://kaku.fun)。
 
-三部曲之一：[Kaku](https://github.com/tw93/Kaku)（書く）编写代码，[Waza](https://github.com/tw93/Waza)（技）磨炼习惯，[Kami](https://github.com/tw93/Kami)（紙）交付文档。可以把它们看作一家人：Kaku 是父亲，Waza 是姐姐，Kami 是妹妹。
+作为三部曲中专注于编码的基础终端，Kaku 与规范工程习惯的 [Waza](https://github.com/tw93/Waza) (技)、负责交付文档的 [Kami](https://github.com/tw93/Kami) (紙) 相互配合，让写代码、磨习惯和出文档一气呵成。
 
 ## 快速上手
 
@@ -133,4 +133,4 @@ WezTerm 很稳，也很好折腾，我很感谢它的引擎和生态，于是在
 
 ## 协议
 
-Kaku 基于 MIT 协议开源，欢迎自由使用和参与贡献。WezTerm 及内置字体的版权声明见 [NOTICE.md](NOTICE.md)。
+MIT License. Please feel free to use and contribute to the development. WezTerm 及内置字体的版权声明见 [NOTICE.md](NOTICE.md)。

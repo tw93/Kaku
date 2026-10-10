@@ -23,9 +23,9 @@
 
 ## Why
 
-Kaku (書く, かく) means “to write” in Japanese. It is a macOS terminal based on WezTerm, with fonts, themes, shell integration, and Mac shortcuts already configured. Lua settings remain available when you want to customize it. The product site is [kaku.fun](https://kaku.fun).
+Kaku (書く, かく) means "to write" in Japanese. It is a macOS terminal based on WezTerm, with fonts, themes, shell integration, and Mac shortcuts already configured, while preserving full Lua customization. The product site is [kaku.fun](https://kaku.fun).
 
-Part of a trilogy: [Kaku](https://github.com/tw93/Kaku) (書く) writes code, [Waza](https://github.com/tw93/Waza) (技) drills habits, [Kami](https://github.com/tw93/Kami) (紙) ships documents. Think of them as a family: Kaku is the dad, Waza the big sister, Kami the little sister.
+As the coding foundation of the trilogy, Kaku works alongside engineering habit-driven [Waza](https://github.com/tw93/Waza) (技) and document delivery-focused [Kami](https://github.com/tw93/Kami) (紙) to make writing code, building habits, and shipping documents a seamless flow.
 
 ## Quick Start
 
@@ -133,5 +133,4 @@ Big thanks to all contributors who helped build Kaku. Go follow them! ❤️
 
 ## License
 
-MIT License, feel free to enjoy and participate in open source. Attribution for
-WezTerm and the bundled fonts is in [NOTICE.md](NOTICE.md).
+MIT License. Please feel free to use and contribute to the development. Attribution for WezTerm and the bundled fonts is in [NOTICE.md](NOTICE.md).

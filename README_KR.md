@@ -23,9 +23,9 @@
 
 ## 소개
 
-Kaku(書く, 카쿠)는 일본어로 '쓰다'를 뜻합니다. WezTerm 기반의 macOS 터미널로, 엄선된 폰트, 테마, 셸 통합, 익숙한 Mac 단축키가 기본 설정되어 있습니다. 사용자 커스텀을 위한 Lua 설정 역시 그대로 지원합니다. 공식 사이트는 [kaku.fun](https://kaku.fun)입니다.
+Kaku(書く, 카쿠)는 일본어로 '쓰다'를 뜻합니다. WezTerm 기반의 macOS 터미널로, 엄선된 폰트, 테마, 셸 통합, 익숙한 Mac 단축키가 기본 설정되어 있으며 Lua 커스터마이징 기능도 온전히 제공합니다. 공식 사이트는 [kaku.fun](https://kaku.fun)입니다.
 
-3부작 프로젝트: [Kaku](https://github.com/tw93/Kaku) (書く)는 코드를 작성하고, [Waza](https://github.com/tw93/Waza) (技)는 습관을 연마하며, [Kami](https://github.com/tw93/Kami) (紙)는 문서를 전달합니다. 한 가족으로 비유하자면 Kaku는 아빠, Waza는 언니, Kami는 여동생입니다.
+3부작 중 코딩을 담당하는 기본 터미널로서, 개발자 습관을 다듬는 [Waza](https://github.com/tw93/Waza) (技), 문서를 전달하는 [Kami](https://github.com/tw93/Kami) (紙)와 함께 코드 작성부터 습관 형성, 문서 납품까지 막힘없이 이어지도록 지원합니다.
 
 ## 빠른 시작
 
@@ -133,4 +133,4 @@ Kaku 개발에 기여해 주신 모든 분들께 감사드립니다. 이분들�
 
 ## 라이선스
 
-MIT License, 자유롭게 오픈소스를 즐기고 참여하세요. WezTerm 및 포함된 폰트에 대한 저작권 고지는 [NOTICE.md](NOTICE.md)에 명시되어 있습니다.
+MIT License. Please feel free to use and contribute to the development. WezTerm 및 포함된 폰트에 대한 저작권 고지는 [NOTICE.md](NOTICE.md)에 명시되어 있습니다.

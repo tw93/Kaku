@@ -23,9 +23,9 @@
 
 ## Pourquoi Kaku
 
-Kaku (書く, かく) signifie « écrire » en japonais. C'est un terminal macOS basé sur WezTerm, livré avec des polices de qualité, des thèmes soignés, l'intégration du shell et des raccourcis Mac familiers déjà configurés. Les réglages Lua restent pleinement disponibles pour personnaliser votre environnement. Le site officiel est [kaku.fun](https://kaku.fun).
+Kaku (書く, かく) signifie « écrire » en japonais. C'est un terminal macOS basé sur WezTerm, livré avec des polices de qualité, des thèmes soignés, l'intégration du shell et des raccourcis Mac familiers déjà configurés, tout en conservant une personnalisation Lua complète. Le site officiel est [kaku.fun](https://kaku.fun).
 
-Fait partie d'une trilogie : [Kaku](https://github.com/tw93/Kaku) (書く) écrit le code, [Waza](https://github.com/tw93/Waza) (技) forge les habitudes, [Kami](https://github.com/tw93/Kami) (紙) livre les documents. Pensez-y comme à une famille : Kaku est le père, Waza la grande sœur, Kami la petite sœur.
+En tant que socle de programmation de la trilogie, Kaku s'associe à [Waza](https://github.com/tw93/Waza) (技) dédié aux bonnes pratiques et à [Kami](https://github.com/tw93/Kami) (紙) dédié à la livraison de documents pour assurer une expérience fluide du code jusqu'au rendu final.
 
 ## Démarrage rapide
 
@@ -133,4 +133,4 @@ Un grand merci à toutes les personnes qui contribuent à Kaku. N'hésitez pas �
 
 ## Licence
 
-MIT License, profitez pleinement de l'open source et participez-y librement. Les crédits pour WezTerm et les polices incluses sont détaillés dans [NOTICE.md](NOTICE.md).
+MIT License. Please feel free to use and contribute to the development. Les crédits pour WezTerm et les polices incluses sont détaillés dans [NOTICE.md](NOTICE.md).

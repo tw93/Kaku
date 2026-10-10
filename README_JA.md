@@ -23,9 +23,9 @@
 
 ## 由来
 
-Kaku（書く、かく）は日本語で「書く」という意味です。WezTerm をベースにした macOS ターミナルで、厳選されたフォント、テーマ、シェル統合、および馴染みのある Mac ショートカットがあらかじめ設定されています。さらにカスタマイズしたい場合は Lua 設定もそのまま利用できます。公式サイトは [kaku.fun](https://kaku.fun) です。
+Kaku（書く、かく）は日本語で「書く」という意味です。WezTerm をベースにした macOS ターミナルで、厳選されたフォント、テーマ、シェル統合、および馴染みのある Mac ショートカットがあらかじめ設定されており、Lua によるカスタマイズ性もそのまま保持しています。公式サイトは [kaku.fun](https://kaku.fun) です。
 
-三部作のひとつ：[Kaku](https://github.com/tw93/Kaku)（書く）でコードを書き、[Waza](https://github.com/tw93/Waza)（技）で習慣を磨き、[Kami](https://github.com/tw93/Kami)（紙）で文書を届ける。家族に例えるなら、Kaku は父親、Waza は姉、Kami は妹のような存在です。
+三部作のコーディングを担う基礎ターミナルとして、エンジニア習慣を鍛える [Waza](https://github.com/tw93/Waza)（技）、ドキュメントを納品する [Kami](https://github.com/tw93/Kami)（紙）と連携し、コード作成から習慣化、文書納品までを一気通貫で支えます。
 
 ## クイックスタート
 
@@ -133,4 +133,4 @@ Kaku の構築に貢献してくれたすべての皆様に感謝します。ぜ
 
 ## ライセンス
 
-MIT License。オープンソースをぜひお楽しみください。WezTerm および同梱フォントの帰属表示は [NOTICE.md](NOTICE.md) に記載されています。
+MIT License. Please feel free to use and contribute to the development. WezTerm および同梱フォントの帰属表示は [NOTICE.md](NOTICE.md) に記載されています。
