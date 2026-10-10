@@ -11,6 +11,7 @@
 | Hide application | `Cmd + H` |
 | Minimize window | `Cmd + M` |
 | Toggle fullscreen | `Cmd + Ctrl + F` |
+| Toggle always on top | `Cmd + Shift + Up` |
 | Quit | `Cmd + Q` |
 | Toggle global window | `Cmd + Opt + Ctrl + K` |
 
