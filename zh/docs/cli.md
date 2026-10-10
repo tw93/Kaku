@@ -52,7 +52,7 @@ kaku update
 
 ## kaku reset
 
-移除 Kaku 管理的 shell 与 tmux 集成、git delta 默认配置、部分状态文件，以及 `~/.config/kaku/kaku.lua` 中托管的主题块。托管块之外的自定义 Lua 配置将被保留。此命令请谨慎使用；后续若需恢复集成，再次运行 `kaku init` 即可。
+移除 Kaku 管理的 shell 与 tmux 集成、git delta 默认配置、部分状态文件，以及 `~/.config/kaku/kaku.lua` 中托管的主题块。同时会删除 `~/.config/kaku` 里的 Kaku AI 记忆（`soul/` 和 `ai_chat_memory.md`）、AI 对话的引导标记和 `backups/` 目录。托管块之外的自定义 Lua 配置将被保留。此命令请谨慎使用；后续若需恢复集成，再次运行 `kaku init` 即可。
 
 ```bash
 kaku reset

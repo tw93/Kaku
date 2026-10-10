@@ -79,7 +79,7 @@ enabled = false
 kaku reset
 ```
 
-该命令会清理 Kaku 管理的 shell 与 tmux 集成、git delta 默认配置、部分状态文件，以及 `~/.config/kaku/kaku.lua` 中由 Kaku 维护的主题块。你在这些块之外自定义的 Lua 配置会原样保留。后续若需重新安装 shell 集成，重新执行 `kaku init` 即可。
+该命令会清理 Kaku 管理的 shell 与 tmux 集成、git delta 默认配置、部分状态文件，以及 `~/.config/kaku/kaku.lua` 中由 Kaku 维护的主题块。同时会删除 `~/.config/kaku` 里的 Kaku AI 记忆（`soul/` 和 `ai_chat_memory.md`）、AI 对话的引导标记和 `backups/` 目录。你在这些块之外自定义的 Lua 配置会原样保留。后续若需重新安装 shell 集成，重新执行 `kaku init` 即可。
 
 ## `kaku` 命令找不到了，怎么恢复？
 

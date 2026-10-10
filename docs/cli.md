@@ -52,7 +52,7 @@ kaku update
 
 ## kaku reset
 
-Removes the shell and tmux integration, git delta defaults, and some of the state that Kaku manages, plus the managed theme blocks in `~/.config/kaku/kaku.lua`. Lua you wrote outside those blocks is kept. Use it with care, and run `kaku init` again to get the shell integration back.
+Removes the shell and tmux integration, git delta defaults, and some of the state that Kaku manages, plus the managed theme blocks in `~/.config/kaku/kaku.lua`. It also deletes Kaku AI memory (`soul/` and `ai_chat_memory.md`), the AI chat onboarding flag, and the `backups/` folder in `~/.config/kaku`. Lua you wrote outside those blocks is kept. Use it with care, and run `kaku init` again to get the shell integration back.
 
 ```bash
 kaku reset

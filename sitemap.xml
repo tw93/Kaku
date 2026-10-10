@@ -8,14 +8,14 @@
   <url><loc>https://kaku.fun/zh/docs/guide</loc><lastmod>2026-10-09</lastmod><priority>0.9</priority></url>
   <url><loc>https://kaku.fun/docs/features</loc><lastmod>2026-10-09</lastmod><priority>0.8</priority></url>
   <url><loc>https://kaku.fun/zh/docs/features</loc><lastmod>2026-10-09</lastmod><priority>0.8</priority></url>
-  <url><loc>https://kaku.fun/docs/cli</loc><lastmod>2026-10-09</lastmod><priority>0.7</priority></url>
-  <url><loc>https://kaku.fun/zh/docs/cli</loc><lastmod>2026-10-09</lastmod><priority>0.7</priority></url>
+  <url><loc>https://kaku.fun/docs/cli</loc><lastmod>2026-10-10</lastmod><priority>0.7</priority></url>
+  <url><loc>https://kaku.fun/zh/docs/cli</loc><lastmod>2026-10-10</lastmod><priority>0.7</priority></url>
   <url><loc>https://kaku.fun/docs/configuration</loc><lastmod>2026-10-09</lastmod><priority>0.8</priority></url>
   <url><loc>https://kaku.fun/zh/docs/configuration</loc><lastmod>2026-10-09</lastmod><priority>0.8</priority></url>
   <url><loc>https://kaku.fun/docs/keybindings</loc><lastmod>2026-10-09</lastmod><priority>0.7</priority></url>
   <url><loc>https://kaku.fun/zh/docs/keybindings</loc><lastmod>2026-10-09</lastmod><priority>0.7</priority></url>
-  <url><loc>https://kaku.fun/docs/faq</loc><lastmod>2026-10-09</lastmod><priority>0.7</priority></url>
-  <url><loc>https://kaku.fun/zh/docs/faq</loc><lastmod>2026-10-09</lastmod><priority>0.7</priority></url>
+  <url><loc>https://kaku.fun/docs/faq</loc><lastmod>2026-10-10</lastmod><priority>0.7</priority></url>
+  <url><loc>https://kaku.fun/zh/docs/faq</loc><lastmod>2026-10-10</lastmod><priority>0.7</priority></url>
   <url><loc>https://kaku.fun/docs/contributing</loc><lastmod>2026-10-09</lastmod><priority>0.5</priority></url>
   <url><loc>https://kaku.fun/zh/docs/contributing</loc><lastmod>2026-10-09</lastmod><priority>0.5</priority></url>
   <url><loc>https://kaku.fun/compare</loc><lastmod>2026-10-09</lastmod><priority>0.8</priority></url>
@@ -28,6 +28,6 @@
   <url><loc>https://kaku.fun/zh/about</loc><lastmod>2026-10-09</lastmod><priority>0.6</priority></url>
   <url><loc>https://kaku.fun/contact</loc><lastmod>2026-10-09</lastmod><priority>0.5</priority></url>
   <url><loc>https://kaku.fun/zh/contact</loc><lastmod>2026-10-09</lastmod><priority>0.5</priority></url>
-  <url><loc>https://kaku.fun/privacy</loc><lastmod>2026-10-09</lastmod><priority>0.5</priority></url>
-  <url><loc>https://kaku.fun/zh/privacy</loc><lastmod>2026-10-09</lastmod><priority>0.5</priority></url>
+  <url><loc>https://kaku.fun/privacy</loc><lastmod>2026-10-10</lastmod><priority>0.5</priority></url>
+  <url><loc>https://kaku.fun/zh/privacy</loc><lastmod>2026-10-10</lastmod><priority>0.5</priority></url>
 </urlset>

@@ -48,7 +48,7 @@ Or download the DMG from <https://github.com/tw93/Kaku/releases/latest>, drag Ka
 | `kaku config` | Configuration TUI for font, opacity, Smart Tab, shortcuts, Lua overrides |
 | `kaku init` | Set up or refresh zsh/fish shell integration |
 | `kaku update` | Check for and install the latest release |
-| `kaku reset` | Remove Kaku-managed integration and state, preserving user-authored Lua |
+| `kaku reset` | Remove Kaku-managed integration and state, including AI memory, preserving user-authored Lua |
 | `kaku cli split-pane` | Drive the multiplexer from scripts and external tools |
 
 Full reference: <https://kaku.fun/docs/cli.md>.

@@ -19,7 +19,7 @@ Kaku 是跑在你 Mac 本地的应用，不用注册，也没有使用统计和�
 
 Kaku 把设置和 AI 数据放在 `~/.config/kaku/` 下，包括 `kaku.lua`（你的 Lua 配置）、`assistant.toml`（助手设置，含你填的 API key）、shell 集成文件、保存下来的会话布局、`Cmd + L` 和 `kaku chat` 用到的对话与记忆文件，以及用登录代替 API key 时缓存的服务商 token。日志、缓存、下载好的更新和粘贴进终端的图片放在 `~/Library/Application Support/kaku/`、`~/Library/Caches/kaku/`、`~/.cache/kaku/` 和 `~/.local/share/kaku/`。这些都是归你用户账户所有的普通文件，Kaku 不会把它们同步到项目服务器，只有作为 AI 上下文用到的对话和记忆内容会发给你配置的服务商。
 
-`kaku reset` 会移除 Kaku 管理的 shell 和 tmux 集成、它写入的 git delta 默认配置、部分 Kaku 状态和托管的主题块，托管块以外你自己写的 Lua 会原样保留。想彻底清干净，删掉上面这几个目录和 `/Applications/Kaku.app` 就行。
+`kaku reset` 会移除 Kaku 管理的 shell 和 tmux 集成、它写入的 git delta 默认配置、部分 Kaku 状态和托管的主题块，也会删掉 `~/.config/kaku` 里的 AI 记忆（`soul/` 和 `ai_chat_memory.md`）、AI 对话的引导标记和 `backups/` 目录，托管块以外你自己写的 Lua 会原样保留。想彻底清干净，删掉上面这几个目录和 `/Applications/Kaku.app` 就行。
 
 ## 关于本站
 

@@ -55,7 +55,7 @@
     },
     {
       "name": "update-or-reset-kaku",
-      "description": "Upgrade Kaku in place with `kaku update`, or undo Kaku's changes to the shell with `kaku reset`, which removes Kaku-managed shell and tmux integration, git delta defaults, selected state, and managed theme blocks while preserving user-authored Lua.",
+      "description": "Upgrade Kaku in place with `kaku update`, or undo Kaku's changes to the shell with `kaku reset`, which removes Kaku-managed shell and tmux integration, git delta defaults, selected state, managed theme blocks, Kaku AI memory (`soul/` and `ai_chat_memory.md`), the AI chat onboarding flag, and `backups/` in `~/.config/kaku`, while preserving user-authored Lua.",
       "command": "kaku update",
       "documentation": "https://kaku.fun/docs/cli.md"
     }

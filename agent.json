@@ -67,7 +67,7 @@
     {"command": "kaku config", "description": "Settings TUI for font, opacity, Smart Tab, close confirmation, shortcuts, Lua overrides."},
     {"command": "kaku init", "description": "Install or refresh zsh/fish shell integration."},
     {"command": "kaku update", "description": "Check for and install the latest release."},
-    {"command": "kaku reset", "description": "Remove Kaku-managed integration and state, preserving user-authored Lua."},
+    {"command": "kaku reset", "description": "Remove Kaku-managed integration and state, including AI memory, preserving user-authored Lua."},
     {"command": "kaku cli split-pane", "description": "Drive the multiplexer from scripts. Run `kaku cli --help` for all subcommands."}
   ],
   "configuration": {

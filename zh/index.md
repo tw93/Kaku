@@ -48,7 +48,7 @@ kaku doctor                    # 检查 App 包、PATH、shell 集成
 | `kaku config` | 配置 TUI：字体、透明度、Smart Tab、快捷键、Lua 覆盖 |
 | `kaku init` | 安装或刷新 zsh/fish 的 shell 集成 |
 | `kaku update` | 检查并安装最新版本 |
-| `kaku reset` | 移除 Kaku 托管的集成与状态，保留用户自己写的 Lua |
+| `kaku reset` | 移除 Kaku 托管的集成与状态（含 AI 记忆），保留用户自己写的 Lua |
 | `kaku cli split-pane` | 从脚本和外部工具驱动多路复用器 |
 
 完整参考：<https://kaku.fun/zh/docs/cli.md>。

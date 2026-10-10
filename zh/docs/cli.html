@@ -101,7 +101,7 @@ kaku doctor --fix</code></pre>
           <h2 id="cli-kaku-update"><a class="anchor" href="#cli-kaku-update" aria-label="链接到「kaku update」">#</a>kaku update</h2><p>下载并安装最新的 Kaku 版本。</p>
           <pre><code class="language-bash">kaku update</code></pre>
           <p>运行 <code>kaku --version</code> 可以查看已安装的版本，想查图形程序的版本又不想开窗口，可以运行 <code>/Applications/Kaku.app/Contents/MacOS/kaku-gui --version</code>。</p>
-          <h2 id="cli-kaku-reset"><a class="anchor" href="#cli-kaku-reset" aria-label="链接到「kaku reset」">#</a>kaku reset</h2><p>移除 Kaku 管理的 shell 与 tmux 集成、git delta 默认配置、部分状态文件，以及 <code>~/.config/kaku/kaku.lua</code> 中托管的主题块。托管块之外的自定义 Lua 配置将被保留。此命令请谨慎使用；后续若需恢复集成，再次运行 <code>kaku init</code> 即可。</p>
+          <h2 id="cli-kaku-reset"><a class="anchor" href="#cli-kaku-reset" aria-label="链接到「kaku reset」">#</a>kaku reset</h2><p>移除 Kaku 管理的 shell 与 tmux 集成、git delta 默认配置、部分状态文件，以及 <code>~/.config/kaku/kaku.lua</code> 中托管的主题块。同时会删除 <code>~/.config/kaku</code> 里的 Kaku AI 记忆（<code>soul/</code> 和 <code>ai_chat_memory.md</code>）、AI 对话的引导标记和 <code>backups/</code> 目录。托管块之外的自定义 Lua 配置将被保留。此命令请谨慎使用；后续若需恢复集成，再次运行 <code>kaku init</code> 即可。</p>
           <pre><code class="language-bash">kaku reset</code></pre>
           <h2 id="cli-kaku-init"><a class="anchor" href="#cli-kaku-init" aria-label="链接到「kaku init」">#</a>kaku init</h2><p>为 zsh 或 fish 安装并刷新 shell 集成，生成 <code>~/.config/kaku/zsh/kaku.zsh</code> 及可选的 <code>~/.config/kaku/fish/kaku.fish</code>。在交互式终端中还会询问是否通过 Homebrew 安装缺失的 Starship、Delta、Lazygit、Yazi 等可选工具。</p>
           <pre><code class="language-bash">kaku init</code></pre>

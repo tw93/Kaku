@@ -19,7 +19,7 @@ Kaku runs locally on your Mac. There is no sign-up and no usage or crash reporti
 
 Kaku keeps your settings and AI data in `~/.config/kaku/`. That includes `kaku.lua` (your Lua configuration), `assistant.toml` (assistant settings, including any API key you entered), shell integration files, the saved session layout, the conversation and memory files behind `Cmd + L` and `kaku chat`, and a cached provider token if you signed in instead of using an API key. Logs, caches, downloaded updates, and images you paste into the terminal go to `~/Library/Application Support/kaku/`, `~/Library/Caches/kaku/`, `~/.cache/kaku/`, and `~/.local/share/kaku/`. These are ordinary files owned by your user account, and Kaku never syncs them to a project server. Only conversation and memory content used as AI context goes to your configured provider.
 
-`kaku reset` removes Kaku-managed shell and tmux integration, the git delta defaults Kaku set, selected Kaku state, and managed theme blocks. Lua you wrote outside those blocks stays. To remove everything, delete the directories above and `/Applications/Kaku.app`.
+`kaku reset` removes Kaku-managed shell and tmux integration, the git delta defaults Kaku set, selected Kaku state, and managed theme blocks. It also deletes Kaku AI memory (`soul/` and `ai_chat_memory.md`), the AI chat onboarding flag, and the `backups/` folder in `~/.config/kaku`. Lua you wrote outside those blocks stays. To remove everything, delete the directories above and `/Applications/Kaku.app`.
 
 ## This website
 

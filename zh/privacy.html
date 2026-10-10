@@ -87,7 +87,7 @@
           </ul>
           <h2 id="privacy-local-data">本机存了什么</h2>
           <p>Kaku 把设置和 AI 数据放在 <code>~/.config/kaku/</code> 下，包括 <code>kaku.lua</code>（你的 Lua 配置）、<code>assistant.toml</code>（助手设置，含你填的 API key）、shell 集成文件、保存下来的会话布局、<code>Cmd + L</code> 和 <code>kaku chat</code> 用到的对话与记忆文件，以及用登录代替 API key 时缓存的服务商 token。日志、缓存、下载好的更新和粘贴进终端的图片放在 <code>~/Library/Application Support/kaku/</code>、<code>~/Library/Caches/kaku/</code>、<code>~/.cache/kaku/</code> 和 <code>~/.local/share/kaku/</code>。这些都是归你用户账户所有的普通文件，Kaku 不会把它们同步到项目服务器，只有作为 AI 上下文用到的对话和记忆内容会发给你配置的服务商。</p>
-          <p><code>kaku reset</code> 会移除 Kaku 管理的 shell 和 tmux 集成、它写入的 git delta 默认配置、部分 Kaku 状态和托管的主题块，托管块以外你自己写的 Lua 会原样保留。想彻底清干净，删掉上面这几个目录和 <code>/Applications/Kaku.app</code> 就行。</p>
+          <p><code>kaku reset</code> 会移除 Kaku 管理的 shell 和 tmux 集成、它写入的 git delta 默认配置、部分 Kaku 状态和托管的主题块，也会删掉 <code>~/.config/kaku</code> 里的 AI 记忆（<code>soul/</code> 和 <code>ai_chat_memory.md</code>）、AI 对话的引导标记和 <code>backups/</code> 目录，托管块以外你自己写的 Lua 会原样保留。想彻底清干净，删掉上面这几个目录和 <code>/Applications/Kaku.app</code> 就行。</p>
           <h2 id="privacy-website">关于本站</h2>
           <p>kaku.fun 是静态站点，不设 cookie，不跑统计和追踪脚本，不嵌第三方组件，也没有登录，字体、脚本和图片都从本域名加载，不走第三方 CDN。站点托管在 Vercel，Vercel 作为基础设施会照常保留访问日志（IP、User-Agent、请求路径）用于运维。点出去的 GitHub、X 等外链，适用对方自己的政策。</p>
           <h2 id="privacy-changes">疑问与变更</h2>

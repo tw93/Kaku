@@ -79,7 +79,7 @@ Run `kaku ai`, keep Auth Type set to API key, and enter the OpenAI-compatible Ba
 kaku reset
 ```
 
-This removes the shell and tmux integration and git delta defaults that Kaku manages, selected Kaku state, and the managed theme blocks in `~/.config/kaku/kaku.lua`. Lua you wrote outside those blocks is kept. Run `kaku init` again to get shell integration back.
+This removes the shell and tmux integration and git delta defaults that Kaku manages, selected Kaku state, and the managed theme blocks in `~/.config/kaku/kaku.lua`. It also deletes Kaku AI memory (`soul/` and `ai_chat_memory.md`), the AI chat onboarding flag, and the `backups/` folder in `~/.config/kaku`. Lua you wrote outside those blocks is kept. Run `kaku init` again to get shell integration back.
 
 ## The `kaku` command is missing. How do I recover it?
 
