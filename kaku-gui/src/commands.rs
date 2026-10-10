@@ -784,10 +784,6 @@ impl CommandDef {
                     MoveTabRelative(-1) => 40,
                     MoveTabRelative(1) => 41,
                     PaneSelect(PaneSelectArguments {
-                        mode: PaneSelectMode::Activate,
-                        ..
-                    }) => 50,
-                    PaneSelect(PaneSelectArguments {
                         mode: PaneSelectMode::MoveToNewTab,
                         ..
                     }) => 51,
@@ -1355,9 +1351,9 @@ pub fn derive_command_from_key_assignment(action: &KeyAssignment) -> Option<Comm
         }) => CommandDef {
             brief: "Select Pane".into(),
             doc: "Select a pane interactively".into(),
-            keys: vec![(Modifiers::SUPER.union(Modifiers::ALT), "p".into())],
+            keys: vec![],
             args: &[ArgType::ActivePane],
-            menubar: &["Window"],
+            menubar: &[],
             icon: None,
         },
         PaneSelect(PaneSelectArguments {
@@ -1387,7 +1383,7 @@ pub fn derive_command_from_key_assignment(action: &KeyAssignment) -> Option<Comm
             ..
         }) => CommandDef {
             brief: "Move Pane to New Tab".into(),
-            doc: "Move selected pane to a new tab".into(),
+            doc: "Move the current pane to a new tab".into(),
             keys: vec![(
                 Modifiers::SUPER
                     .union(Modifiers::ALT)
@@ -1403,7 +1399,7 @@ pub fn derive_command_from_key_assignment(action: &KeyAssignment) -> Option<Comm
             ..
         }) => CommandDef {
             brief: "Move Pane to New Window".into(),
-            doc: "Move selected pane to a new window".into(),
+            doc: "Move the current pane to a new window".into(),
             keys: vec![(
                 Modifiers::SUPER
                     .union(Modifiers::ALT)
@@ -2672,11 +2668,6 @@ fn compute_default_actions() -> Vec<KeyAssignment> {
         Search(Pattern::CurrentSelectionOrEmptyString),
         PaneSelect(PaneSelectArguments {
             alphabet: String::new(),
-            mode: PaneSelectMode::Activate,
-            show_pane_ids: false,
-        }),
-        PaneSelect(PaneSelectArguments {
-            alphabet: String::new(),
             mode: PaneSelectMode::SwapWithActive,
             show_pane_ids: false,
         }),
@@ -2745,7 +2736,7 @@ fn compute_default_actions() -> Vec<KeyAssignment> {
 #[cfg(test)]
 mod tests {
     use super::{derive_command_from_key_assignment, CommandDef};
-    use config::keyassignment::KeyAssignment;
+    use config::keyassignment::{KeyAssignment, PaneSelectArguments, PaneSelectMode};
     use config::ConfigHandle;
     use window::Modifiers;
 
@@ -2805,6 +2796,35 @@ mod tests {
                 what
             );
         }
+    }
+
+    #[test]
+    fn select_pane_is_not_exposed_by_default() {
+        // Cmd+Opt+P used to open a modal that labels each split with a letter
+        // and swallows clicks and scrolling until Esc, which users hit by
+        // accident and could not get out of. User configs can still bind it.
+        let config = ConfigHandle::default_config();
+        let select_pane = KeyAssignment::PaneSelect(PaneSelectArguments {
+            alphabet: String::new(),
+            mode: PaneSelectMode::Activate,
+            show_pane_ids: false,
+        });
+
+        let cmd = derive_command_from_key_assignment(&select_pane).expect("command");
+        assert!(cmd.keys.is_empty());
+        assert!(cmd.menubar.is_empty());
+        assert!(!CommandDef::default_key_assignments(&config).iter().any(
+            |(_, _, action)| matches!(
+                action,
+                KeyAssignment::PaneSelect(PaneSelectArguments {
+                    mode: PaneSelectMode::Activate,
+                    ..
+                })
+            )
+        ));
+        assert!(!CommandDef::actions_for_palette_only(&config)
+            .iter()
+            .any(|cmd| cmd.action == select_pane));
     }
 
     #[test]

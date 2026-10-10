@@ -33,9 +33,9 @@ use ::wezterm_term::input::{ClickPosition, MouseButton as TMB};
 use ::window::*;
 use anyhow::{anyhow, ensure, Context};
 use config::keyassignment::{
-    Confirmation, KeyAssignment, LauncherActionArgs, PaneDirection, PaneEncoding, Pattern,
-    PromptInputLine, QuickSelectArguments, RotationDirection, ScrollbackEraseMode, SpawnCommand,
-    SplitSize,
+    Confirmation, KeyAssignment, LauncherActionArgs, PaneDirection, PaneEncoding, PaneSelectMode,
+    Pattern, PromptInputLine, QuickSelectArguments, RotationDirection, ScrollbackEraseMode,
+    SpawnCommand, SplitSize,
 };
 use config::window::WindowLevel;
 use config::{
@@ -3945,6 +3945,48 @@ impl TermWindow {
         Ok(())
     }
 
+    /// Move the focused pane out of its split, into a new tab or window.
+    ///
+    /// This used to open the letter-labelled pane picker first, which users
+    /// found confusing; the pane they mean is the one they are in.
+    fn move_active_pane_out(
+        &mut self,
+        pane: &Arc<dyn Pane>,
+        new_window: bool,
+    ) -> anyhow::Result<()> {
+        let mux = Mux::get();
+        let tab = mux
+            .get_active_tab_for_window(self.mux_window_id)
+            .ok_or_else(|| anyhow!("no active tab"))?;
+
+        // A lone pane already is the whole tab: moving it to a new tab would
+        // only reorder tabs, and a new window is exactly MoveTabToNewWindow.
+        if tab.count_panes_blocking() < 2 {
+            if new_window {
+                self.move_tab_to_new_window()?;
+            }
+            return Ok(());
+        }
+
+        let pane_id = pane.pane_id();
+        let window_id = if new_window {
+            None
+        } else {
+            Some(self.mux_window_id)
+        };
+        promise::spawn::spawn(async move {
+            if let Err(err) = mux.move_pane_to_new_tab(pane_id, window_id, None).await {
+                log::error!("failed to move_pane_to_new_tab: {err:#}");
+                return;
+            }
+            if !new_window {
+                mux.focus_pane_and_containing_tab(pane_id).ok();
+            }
+        })
+        .detach();
+        Ok(())
+    }
+
     /// Move the active tab into a window of its own, panes and all.
     ///
     /// `PaneSelect(MoveToNewWindow)` only relocates a single pane, so a split
@@ -5216,10 +5258,14 @@ impl TermWindow {
                     }),
                 );
             }
-            PaneSelect(args) => {
-                let modal = crate::termwindow::paneselect::PaneSelector::new(self, args);
-                self.set_modal(Rc::new(modal));
-            }
+            PaneSelect(args) => match args.mode {
+                PaneSelectMode::MoveToNewTab => self.move_active_pane_out(pane, false)?,
+                PaneSelectMode::MoveToNewWindow => self.move_active_pane_out(pane, true)?,
+                _ => {
+                    let modal = crate::termwindow::paneselect::PaneSelector::new(self, args);
+                    self.set_modal(Rc::new(modal));
+                }
+            },
             CharSelect(args) => {
                 let modal = crate::termwindow::charselect::CharSelector::new(self, args);
                 self.set_modal(Rc::new(modal));
@@ -6520,6 +6566,26 @@ mod tests {
         let body = source.split("fn colors(").nth(1).unwrap();
         let body = body.split("let active =").next().unwrap();
         assert!(body.contains(".resolved_palette\n            .tab_bar\n            .clone()"));
+    }
+
+    #[test]
+    fn move_pane_commands_skip_the_letter_picker() {
+        // Move Pane to New Tab/Window act on the focused pane directly; only
+        // the remaining PaneSelect modes may open the PaneSelector modal.
+        let source = include_str!("mod.rs").split("#[cfg(test)]").next().unwrap();
+        let arm = source
+            .split("PaneSelect(args) => match args.mode {")
+            .nth(1)
+            .unwrap();
+        let arm = arm.split("CharSelect(args) =>").next().unwrap();
+        let modal = arm.find("PaneSelector::new(self, args)").unwrap();
+        let to_tab = arm
+            .find("PaneSelectMode::MoveToNewTab => self.move_active_pane_out(pane, false)?,")
+            .unwrap();
+        let to_window = arm
+            .find("PaneSelectMode::MoveToNewWindow => self.move_active_pane_out(pane, true)?,")
+            .unwrap();
+        assert!(to_tab < modal && to_window < modal);
     }
 
     #[test]
