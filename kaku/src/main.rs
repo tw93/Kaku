@@ -161,7 +161,7 @@ enum SubCommand {
 
     #[command(
         name = "reset",
-        about = "Remove Kaku shell and tmux integration and reset Kaku-managed defaults"
+        about = "Remove Kaku shell and tmux integration, reset managed defaults, delete AI memory"
     )]
     Reset(reset::ResetCommand),
 

@@ -75,8 +75,10 @@ kaku reset
 
 This removes Kaku-managed shell and tmux integration, Kaku-managed git delta
 defaults, selected Kaku state, and managed theme blocks in
-`~/.config/kaku/kaku.lua`. User-authored Lua outside managed blocks is
-preserved. Run `kaku init` again if you want shell integration back.
+`~/.config/kaku/kaku.lua`. It also deletes Kaku AI memory (`soul/` and
+`ai_chat_memory.md`), the AI chat onboarding flag, and the `backups/` folder in
+`~/.config/kaku`. User-authored Lua outside managed blocks is preserved. Run
+`kaku init` again if you want shell integration back.
 
 ## The `kaku` command is missing. How do I recover it?
 
