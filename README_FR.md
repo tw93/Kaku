@@ -74,8 +74,8 @@ Référence complète des raccourcis : [docs/keybindings.md](docs/keybindings.md
 
 Configurez votre propre fournisseur d'IA avec `kaku ai` pour activer l'assistant intégré. Kaku ne fournit ni ne relaie aucun service d'IA.
 
-- **Suggestions de commandes** : lorsqu'une commande échoue, l'assistant propose un correctif. Appuyez sur `Cmd + Shift + E` pour l'insérer sur la ligne de commande et la vérifier.
-- **Langage naturel vers commande** : saisissez `# <description>` sur la ligne de commande et appuyez sur Entrée pour générer la commande correspondante, placée sur la ligne de commande pour que vous la vérifiiez avant de l'exécuter.
+- **Suggestions de commandes** : lorsqu'une commande échoue, l'assistant propose un correctif. Appuyez sur `Cmd + Shift + E` pour l'insérer sur la ligne de commande et le vérifier.
+- **Langage naturel vers commande** : saisissez `# <description>` sur la ligne de commande et appuyez sur Entrée pour générer la commande correspondante, que vous pouvez vérifier avant de l'exécuter.
 - **Chat** : appuyez sur `Cmd + L` pour échanger sur les sorties du terminal ou interagir avec vos fichiers de projet. Utilisez `kaku chat` depuis un autre terminal pour retrouver la même conversation.
 - **Configuration des outils d'IA** : gérez les paramètres pour Claude Code, Codex, Gemini CLI, Copilot CLI, Kimi Code et d'autres outils.
 
