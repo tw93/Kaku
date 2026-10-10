@@ -496,7 +496,10 @@ impl CommandDef {
             });
         }
 
-        // Generate some stuff based on the mux state
+        // Generate some stuff based on the mux state. Items that change with
+        // domain attach or workspace state stay out of the menubar: it is only
+        // rebuilt on config reload, so they would show up after an appearance
+        // switch and then go stale. The palette still lists them.
         if let Some(mux) = Mux::try_get() {
             let mut domains = mux.iter_domains();
             domains.sort_by(|a, b| {
@@ -526,7 +529,7 @@ impl CommandDef {
                                 domain: SpawnTabDomain::DomainName(name.to_string()),
                                 ..SpawnCommand::default()
                             }),
-                            menubar: &["Shell"],
+                            menubar: if name == "local" { &["Shell"] } else { &[] },
                             icon: None,
                         });
                     } else {
@@ -535,7 +538,7 @@ impl CommandDef {
                             doc: "".into(),
                             keys: vec![],
                             action: KeyAssignment::AttachDomain(name.to_string()),
-                            menubar: &["Shell"],
+                            menubar: &[],
                             icon: None,
                         });
                     }
@@ -557,7 +560,7 @@ impl CommandDef {
                         action: KeyAssignment::DetachDomain(SpawnTabDomain::DomainName(
                             name.to_string(),
                         )),
-                        menubar: &["Shell"],
+                        menubar: &[],
                         icon: None,
                     });
                 }
@@ -574,7 +577,7 @@ impl CommandDef {
                             name: Some(workspace.clone()),
                             spawn: None,
                         },
-                        menubar: &["Window"],
+                        menubar: &[],
                         icon: None,
                     });
                 }
@@ -662,8 +665,11 @@ impl CommandDef {
     }
 
     /// Rebuild the macOS menubar from the current config and key bindings.
-    /// Uses a mark-sweep approach: tag existing items, update or create new
-    /// ones, then remove stale items at the end.
+    /// Called synchronously at startup and again on the main thread after a
+    /// config reload. Every item Kaku adds carries `KAKU_MENU_ITEM_TAG`; a
+    /// rebuild removes those and inserts the new set at the top of each
+    /// menu, so the fixed Kaku menu items, separators and rank order come out
+    /// as on the first build.
     #[cfg(target_os = "macos")]
     pub fn recreate_menubar(config: &ConfigHandle) {
         use window::os::macos::menu::*;
@@ -673,31 +679,33 @@ impl CommandDef {
 
         let inputmap = InputMap::new(config);
 
-        let mut candidates_for_removal = vec![];
         #[allow(unexpected_cfgs)] // <https://github.com/SSheldon/rust-objc/issues/125>
         let kaku_perform_key_assignment_sel = sel!(kakuPerformKeyAssignment:);
 
-        /// Mark menu items as candidates for removal
-        fn mark_candidates(menu: &Menu, candidates: &mut Vec<MenuItem>, action: SEL) {
-            for item in menu.items() {
-                if let Some(submenu) = item.get_sub_menu() {
-                    mark_candidates(&submenu, candidates, action);
-                }
-                if item.get_action() == Some(action) {
-                    item.set_tag(0);
-                    candidates.push(item);
-                }
-            }
+        const KAKU_MENU_ITEM_TAG: cocoa::foundation::NSInteger = 0x4b61_6b75;
+
+        /// Insert an item Kaku owns at `index`, ahead of anything AppKit
+        /// injected into the same menu.
+        fn insert_owned(menu: &Menu, item: &MenuItem, index: &mut usize) {
+            item.set_tag(KAKU_MENU_ITEM_TAG);
+            menu.insert_item(item, *index);
+            *index += 1;
         }
 
         let main_menu = match Menu::get_main_menu() {
             Some(existing) => {
-                mark_candidates(
-                    &existing,
-                    &mut candidates_for_removal,
-                    kaku_perform_key_assignment_sel,
-                );
-
+                // Keep the top-level menus themselves: AppKit adds AutoFill,
+                // Start Dictation and Emoji & Symbols to Edit only at launch,
+                // so a fresh Edit menu would lose them for good.
+                for top in existing.items() {
+                    if let Some(menu) = top.get_sub_menu() {
+                        for item in menu.items() {
+                            if item.get_tag() == KAKU_MENU_ITEM_TAG {
+                                menu.remove_item(&item);
+                            }
+                        }
+                    }
+                }
                 existing
             }
             None => {
@@ -847,6 +855,7 @@ impl CommandDef {
             });
 
             let mut prev_group: Option<usize> = None;
+            let mut next_index = 0;
             for cmd in menu_commands {
                 let rank = command_rank_for_menu(title, &cmd.action);
                 let group = separator_group_for_menu(title, rank);
@@ -862,7 +871,14 @@ impl CommandDef {
                     // have no value here.
                     if cmd.menubar[0] == "Kaku" {
                         menu.assign_as_app_menu();
+                    }
+                });
 
+                // The fixed Kaku menu items head the menu on every build,
+                // including a rebuild that reuses the existing menu.
+                if next_index == 0 {
+                    let menu = &submenu;
+                    if cmd.menubar[0] == "Kaku" {
                         let about_item = MenuItem::new_with(
                             &format!("Kaku V{}", config::wezterm_version()),
                             Some(kaku_perform_key_assignment_sel),
@@ -871,9 +887,9 @@ impl CommandDef {
                         about_item.set_represented_item(RepresentedItem::KeyAssignment(
                             KeyAssignment::EmitEvent("run-kaku-cli".to_string()),
                         ));
-                        menu.add_item(&about_item);
+                        insert_owned(menu, &about_item, &mut next_index);
 
-                        menu.add_item(&MenuItem::new_separator());
+                        insert_owned(menu, &MenuItem::new_separator(), &mut next_index);
 
                         #[allow(unexpected_cfgs)]
                         // <https://github.com/SSheldon/rust-objc/issues/125>
@@ -890,7 +906,7 @@ impl CommandDef {
                         if !app_delegate.is_null() {
                             settings_item.set_target(app_delegate);
                         }
-                        menu.add_item(&settings_item);
+                        insert_owned(menu, &settings_item, &mut next_index);
 
                         let check_update = MenuItem::new_with(
                             "Check for Updates...",
@@ -900,7 +916,7 @@ impl CommandDef {
                         check_update.set_represented_item(RepresentedItem::KeyAssignment(
                             KeyAssignment::EmitEvent("run-kaku-update".to_string()),
                         ));
-                        menu.add_item(&check_update);
+                        insert_owned(menu, &check_update, &mut next_index);
 
                         // Show "Restart to Update" when a staged update is ready.
                         if let Some(info) = crate::update::staged_update_available() {
@@ -913,7 +929,7 @@ impl CommandDef {
                             restart_item.set_represented_item(RepresentedItem::KeyAssignment(
                                 KeyAssignment::EmitEvent("restart-to-update".to_string()),
                             ));
-                            menu.add_item(&restart_item);
+                            insert_owned(menu, &restart_item, &mut next_index);
                         }
 
                         let set_default_terminal_item = MenuItem::new_with(
@@ -929,25 +945,25 @@ impl CommandDef {
                         if let Some(conn) = Connection::get() {
                             set_default_terminal_item.set_state(conn.is_default_terminal());
                         }
-                        menu.add_item(&set_default_terminal_item);
+                        insert_owned(menu, &set_default_terminal_item, &mut next_index);
 
-                        menu.add_item(&MenuItem::new_separator());
+                        insert_owned(menu, &MenuItem::new_separator(), &mut next_index);
 
                         let services_menu = Menu::new_with_title("Services");
                         services_menu.assign_as_services_menu();
                         let services_item = MenuItem::new_with("Services", None, "");
-                        menu.add_item(&services_item);
+                        insert_owned(menu, &services_item, &mut next_index);
                         services_item.set_sub_menu(&services_menu);
 
-                        menu.add_item(&MenuItem::new_separator());
+                        insert_owned(menu, &MenuItem::new_separator(), &mut next_index);
                     }
-                });
+                }
 
                 // Insert a separator when the logical group changes
                 if cmd.menubar.len() == 1 {
                     if let Some(pg) = prev_group {
                         if pg != group {
-                            submenu.add_item(&MenuItem::new_separator());
+                            insert_owned(&submenu, &MenuItem::new_separator(), &mut next_index);
                         }
                     }
                     prev_group = Some(group);
@@ -955,7 +971,11 @@ impl CommandDef {
 
                 // Fill out any submenu hierarchy
                 for sub_title in cmd.menubar.iter().skip(1) {
-                    submenu = submenu.get_or_create_sub_menu(sub_title, |_menu| {});
+                    let parent = submenu;
+                    submenu = parent.get_or_create_sub_menu(sub_title, |_menu| {});
+                    if let Some(container) = parent.item_with_title(sub_title) {
+                        container.set_tag(KAKU_MENU_ITEM_TAG);
+                    }
                 }
 
                 let mut candidate = inputmap.locate_app_wide_key_assignment(&cmd.action);
@@ -999,23 +1019,16 @@ impl CommandDef {
                     .map(|(key, _)| key_code_to_equivalent(key))
                     .unwrap_or_else(String::new);
 
-                let represented_item = RepresentedItem::KeyAssignment(cmd.action.clone());
-                let item = match submenu.get_item_with_represented_item(&represented_item) {
-                    Some(existing) => {
-                        existing.set_title(&cmd.brief);
-                        existing.set_key_equivalent(&short_cut);
-                        existing
-                    }
-                    None => {
-                        let item = MenuItem::new_with(
-                            &cmd.brief,
-                            Some(kaku_perform_key_assignment_sel),
-                            &short_cut,
-                        );
-                        submenu.add_item(&item);
-                        item
-                    }
-                };
+                let item = MenuItem::new_with(
+                    &cmd.brief,
+                    Some(kaku_perform_key_assignment_sel),
+                    &short_cut,
+                );
+                if cmd.menubar.len() == 1 {
+                    insert_owned(&submenu, &item, &mut next_index);
+                } else {
+                    submenu.add_item(&item);
+                }
 
                 if !short_cut.is_empty() {
                     let mods: Modifiers = candidate[0].1;
@@ -1041,17 +1054,7 @@ impl CommandDef {
                     item.set_key_equiv_modifier_mask(equiv_mods);
                 }
 
-                item.set_represented_item(represented_item);
-                // Update the tag to indicate that this item should
-                // not be removed by the sweep below
-                item.set_tag(1);
-            }
-        }
-
-        // Now sweep away any items that were not updated
-        for item in candidates_for_removal {
-            if item.get_tag() == 0 {
-                item.get_menu().map(|menu| menu.remove_item(&item));
+                item.set_represented_item(RepresentedItem::KeyAssignment(cmd.action.clone()));
             }
         }
     }
@@ -2768,6 +2771,40 @@ mod tests {
                 KeyAssignment::ToggleCurrentTabPanesInputBroadcast
                     | KeyAssignment::ToggleAllPanesInputBroadcast
             )));
+    }
+
+    #[test]
+    fn mux_state_commands_stay_out_of_the_menubar() {
+        // The menubar is only rebuilt on config reload (#570), so commands
+        // that follow domain attach or workspace state must stay palette-only.
+        let source = include_str!("commands.rs")
+            .split("#[cfg(test)]")
+            .next()
+            .expect("commands production source");
+        for (what, form) in [
+            (
+                "Attach Domain",
+                "action: KeyAssignment::AttachDomain(name.to_string()),\n                            menubar: &[],",
+            ),
+            (
+                "Detach Domain",
+                "name.to_string(),\n                        )),\n                        menubar: &[],",
+            ),
+            (
+                "New Tab (Domain X)",
+                "menubar: if name == \"local\" { &[\"Shell\"] } else { &[] },",
+            ),
+            (
+                "Switch to workspace",
+                "name: Some(workspace.clone()),\n                            spawn: None,\n                        },\n                        menubar: &[],",
+            ),
+        ] {
+            assert!(
+                source.contains(form),
+                "{} must not be added to the menubar",
+                what
+            );
+        }
     }
 
     #[test]

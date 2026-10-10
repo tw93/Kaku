@@ -73,7 +73,7 @@ macOS 26 上 NSMenu 的 keyEquivalent modifier 匹配并不严格相等。给 me
 - 崩溃签名：主线程 `objc_release > AutoreleasePoolPage::releaseUntil > objc_autoreleasePoolPop > -[NSApplication run]`，紧跟在一次原生菜单动作之后。看到它先审 `StrongPtr::new` 包的是不是非 alloc/new/copy 来的对象，再怀疑 AppKit。
 - 拿不准某个 API 返回 +0 还是 +1，用 `clang -fno-objc-arc` 写个十行的 MRC 程序在 `@autoreleasepool` 里打印 `retainCount`，实测，不靠记忆。
 - 新增在事件处理中构建的 `NSMenu`（右键菜单等），必须在 `make app` 的包里真的右键点一次菜单项再下结论，单元测试看不到 autorelease pool 的时序。
-- `frontend.rs` 里“macOS 上配置重载不重建菜单栏”的 TODO 可能是同一个多释放，而不是 AppKit 限制，未验证；要放开重建前先在修复后的代码上重测。
+- 配置重载后菜单栏在 macOS 上也会重建（#570）：`frontend.rs` 的 reload 回调在 `spawn_into_main_thread` 任务里调 `recreate_menubar`，不在可能持有 config 锁的回调里直接调。原先挡住它的 TODO 疑似就是上面这个分隔线多释放，修复后放开。外观切换也会触发 `config::reload()`，所以这条重建路径在每次深浅色切换时都会走。`recreate_menubar` 给 Kaku 加的每一项打 `KAKU_MENU_ITEM_TAG`，重建时只删带这个 tag 的项、保留顶层菜单对象，再从每个菜单的开头按 rank 插入新项。不要改成 `remove_all_items` 清空主菜单或换新的 NSMenu：AppKit 只在启动时往 Edit 菜单注入 AutoFill、Start Dictation、Emoji & Symbols，菜单对象一换这些项就再也回不来，再调一次 `setMainMenu:` 也不行（MRC 小程序实测）。也不要换回旧的 mark-sweep：它只扫 `kakuPerformKeyAssignment:` 项，Kaku 菜单的固定项只在子菜单新建时创建、分隔线每次都追加，复用旧菜单会丢固定项、分隔线越积越多、新项排到末尾。`config_reload_rebuilds_menubar_on_macos_in_place` 守这几点。随 mux 状态变化的命令（Attach/Detach Domain、非 local 的 New Tab (Domain X)、Switch to workspace）只进命令面板不进菜单栏：菜单栏只在配置重载时重建，启动时 domain 还没注册，放进去会在一次深浅色切换后突然多出 `~/.ssh/config` 每个 Host 两条 Attach 项，之后又随 attach 状态过时，`mux_state_commands_stay_out_of_the_menubar` 守这一点。
 
 ## 调试方式
 

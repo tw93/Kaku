@@ -1390,19 +1390,11 @@ pub fn try_new() -> Result<Rc<GuiFrontEnd>, Error> {
                 if let Some(conn) = Connection::get() {
                     conn.sync_global_hotkey();
                 }
+                // Rebuild on the main thread, outside the config lock, so
+                // launch_menu and key binding edits reach the menubar (#570).
+                crate::commands::CommandDef::recreate_menubar(&config::configuration());
             })
             .detach();
-            // TODO(macos): AppKit does not allow safe async menubar reconstruction
-            // from a config-reload callback; the initial menubar is built synchronously
-            // in try_new(). Re-enable on macOS once a safe main-thread dispatch path
-            // is available.
-            #[cfg(not(target_os = "macos"))]
-            {
-                promise::spawn::spawn_into_main_thread(async {
-                    crate::commands::CommandDef::recreate_menubar(&config::configuration());
-                })
-                .detach();
-            }
             true
         }
     });
@@ -1452,6 +1444,69 @@ mod tests {
                 name
             );
         }
+    }
+
+    #[test]
+    fn config_reload_rebuilds_menubar_on_macos_in_place() {
+        // Production source only, so the assertions cannot match themselves.
+        let frontend = include_str!("frontend.rs")
+            .split("#[cfg(test)]")
+            .next()
+            .expect("frontend production source");
+        let reload = frontend
+            .split("config::subscribe_to_config_reload({")
+            .nth(1)
+            .and_then(|body| body.split("\n            true\n").next())
+            .expect("config reload callback");
+        let spawned = reload
+            .split("promise::spawn::spawn_into_main_thread(async {")
+            .nth(1)
+            .and_then(|body| body.split("            })\n            .detach();").next())
+            .expect("main-thread task in the reload callback");
+        // The rebuild runs inside the main-thread task (not in the callback,
+        // which may hold the config lock) and on macOS too (#570).
+        assert!(
+            spawned.contains(
+                "\n                crate::commands::CommandDef::recreate_menubar(&config::configuration());\n"
+            ),
+            "config reload must rebuild the menubar from the main-thread task"
+        );
+        assert!(
+            !reload.contains("#[cfg(not(target_os = \"macos\"))]"),
+            "config reload must not skip the menubar rebuild on macOS"
+        );
+
+        // A rebuild must reproduce the first build without dropping what
+        // AppKit injected at launch (AutoFill, Start Dictation, Emoji &
+        // Symbols in Edit): remove only the items Kaku tagged, keep the
+        // existing menus, re-add the fixed Kaku menu items every time and
+        // insert ahead of the injected items rather than append after them.
+        let commands = include_str!("commands.rs");
+        let rebuild = commands
+            .split("pub fn recreate_menubar(config: &ConfigHandle) {")
+            .nth(1)
+            .and_then(|body| body.split("\n    }\n}\n").next())
+            .expect("macOS recreate_menubar body");
+        assert!(
+            rebuild.contains(
+                "if item.get_tag() == KAKU_MENU_ITEM_TAG {\n                                menu.remove_item(&item);\n"
+            ),
+            "a rebuild must remove only the menu items Kaku added"
+        );
+        assert!(
+            !rebuild.contains(".remove_all_items();"),
+            "emptying the main menu loses the Edit items AppKit adds only at launch"
+        );
+        assert!(
+            rebuild.contains(
+                "\n                if next_index == 0 {\n                    let menu = &submenu;\n"
+            ) && rebuild.contains("insert_owned(menu, &about_item, &mut next_index);"),
+            "the fixed Kaku menu items must be re-added on every build, not only when the menu is new"
+        );
+        assert!(
+            rebuild.contains("insert_owned(&submenu, &item, &mut next_index);"),
+            "command items must be inserted in rank order ahead of AppKit items"
+        );
     }
 
     #[test]

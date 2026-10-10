@@ -98,6 +98,12 @@ impl Menu {
         }
     }
 
+    pub fn insert_item(&self, item: &MenuItem, index: usize) {
+        unsafe {
+            let () = msg_send![*self.menu, insertItem:*item.item atIndex:index as NSInteger];
+        }
+    }
+
     pub fn item_with_title(&self, title: &str) -> Option<MenuItem> {
         unsafe {
             let item: id = msg_send![*self.menu, itemWithTitle:*nsstring(title)];
