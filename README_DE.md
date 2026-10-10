@@ -1,7 +1,7 @@
 <div align="center">
   <img src="https://gw.alipayobjects.com/zos/k/6h/dwarf.svg" width="120" />
   <h1>Kaku</h1>
-  <p><b>Ein blitzschnelles Mac-Terminal mit sinnvollen Voreinstellungen, entwickelt für das Coden mit KI</b></p>
+  <p><em>Ein KI-freundliches Mac-Terminal mit sinnvollen Voreinstellungen, sofort einsatzbereit.</em></p>
   <p><a href="README.md">English</a> · <a href="README_CN.md">中文</a> · <a href="README_TW.md">繁體</a> · <a href="README_JA.md">日本語</a> · <a href="README_KR.md">한국어</a> · Deutsch · <a href="README_FR.md">Français</a></p>
   <p>
     <a href="https://kaku.fun">Website</a> ·
@@ -39,12 +39,12 @@ brew install --cask kaku
 
 ## Funktionen
 
-- **Sofort einsatzbereit**: JetBrains Mono, automatischer Hell-/Dunkelmodus, Kopieren bei Textauswahl und vertraute Mac-Tastaturkürzel.
-- **Tabs und Fensterteilung**: Arbeitsbereich flexibel teilen, Splits schnell über den Tab Navigator finden und Fenster sowie Verzeichnisse beim Neustart automatisch wiederherstellen.
-- **Kontextmenü per Rechtsklick**: Einfügen, Suchen, KI-Chat öffnen, Splits teilen oder schließen – ganz ohne Kürzel auswendig lernen zu müssen.
+- **Sofort einsatzbereit**: JetBrains Mono, automatischer Hell-/Dunkelmodus, Kopieren bei Textauswahl und vertraute Mac-Tastenkürzel.
+- **Tabs und Fensterteilung**: Arbeitsbereich flexibel teilen, Splits schnell über den Tab Navigator finden und Fenster, Splits und Arbeitsverzeichnisse beim erneuten Öffnen von Kaku automatisch wiederherstellen.
+- **Kontextmenü per Rechtsklick**: Einfügen, Suchen, KI-Chat öffnen, Splits teilen oder schließen – ganz ohne Tastenkürzel auswendig lernen zu müssen.
 - **Klickbare Links**: `Cmd + Klick` öffnet URLs und Dateipfade direkt; auch durch Zeilenumbrüche getrennte Links bleiben vollständig erhalten.
-- **KI-integriert**: Befehlsvorschläge und Chat über einen integrierten Assistenten nutzen. Binde deinen eigenen KI-Dienst mit `kaku ai` an.
-- **Shell-Werkzeuge**: Integrierte zsh-Autovervollständigung, Syntaxhervorhebung und Verzeichnisnavigation, mit Shortcuts für Lazygit und Yazi.
+- **KI-freundlich**: Nutze deine Coding-Tools zusammen mit einem optionalen Assistenten für Befehlsvorschläge und Chat. Binde deinen eigenen KI-Dienst mit `kaku ai` an.
+- **Shell-Werkzeuge**: Integrierte zsh-Autovervollständigung, Syntaxhervorhebung und Verzeichnisnavigation, mit Tastenkürzeln für optional installiertes Lazygit und Yazi.
 - **Lua-Konfiguration**: Passe Schriften, Farbschemata, Tastenkürzel und Terminal-Verhalten flexibel über WezTerms Lua-System an.
 
 ## Bedienung
@@ -68,9 +68,9 @@ brew install --cask kaku
 | Kontextmenü | Rechtsklick im Split |
 | Link/Pfad öffnen | `Cmd + Klick` |
 
-Vollständige Tastaturkürzel-Übersicht: [docs/keybindings.md](docs/keybindings.md)
+Vollständige Tastenkürzel-Übersicht: [docs/keybindings.md](docs/keybindings.md)
 
-## Kaku KI
+## Kaku AI
 
 Richte deinen eigenen KI-Dienst mit `kaku ai` ein, um den integrierten Assistenten zu nutzen. Kaku stellt keinen eigenen KI-Dienst bereit und leitet keine Daten über eigene Server.
 
@@ -97,9 +97,9 @@ Vollständige FAQ: [docs/faq.md](docs/faq.md)
 
 - [Website](https://kaku.fun) - Produktseite, Installation und englische/chinesische Dokumentation
 - [Vergleich](https://kaku.fun/compare) - Kaku im Vergleich zu iTerm2, Warp, Ghostty, WezTerm und Terminal.app
-- [Tastenkürzel](docs/keybindings.md) - Vollständige Shortcut-Referenz
+- [Tastenkürzel](docs/keybindings.md) - Vollständige Tastenkürzel-Referenz
 - [Funktionen](docs/features.md) - KI-Assistent, Lazygit, Yazi, Remote-Dateien, Shell-Suite
-- [Konfiguration](docs/configuration.md) - Farbschemata, Schriften, eigene Shortcuts, Lua-API
+- [Konfiguration](docs/configuration.md) - Farbschemata, Schriften, eigene Tastenkürzel, Lua-API
 - [CLI-Referenz](docs/cli.md) - `kaku ai`, `kaku config`, `kaku doctor` und mehr
 - [FAQ](docs/faq.md) - Häufige Fragen und Fehlerbehebung
 
@@ -107,7 +107,7 @@ Vollständige FAQ: [docs/faq.md](docs/faq.md)
 
 Sowohl beruflich als auch bei eigenen Projekten arbeite ich intensiv im Terminal. Werkzeuge, die ich gebaut habe, wie [Mole](https://github.com/tw93/mole) und [Pake](https://github.com/tw93/pake), spiegeln genau diese Haltung wider.
 
-Ich habe Alacritty jahrelang genutzt und dessen Geschwindigkeit und Schlichtheit schätzen gelernt. Mit dem Aufkommen von KI-unterstützter Entwicklung stiegen meine Ansprüche an ergonomische Tabs und Splits. Ich habe Kitty, Ghostty, Warp und iTerm2 ausgiebig getestet – alle haben ihre Stärken. Dennoch suchte ich eine Umgebung, die Leistung, vorkonfigurierte Qualität und volle Kontrolle perfekt vereint.
+Ich habe Alacritty jahrelang genutzt und dessen Geschwindigkeit und Schlichtheit schätzen gelernt. Als sich mein Arbeitsablauf in Richtung KI-unterstützter Entwicklung verlagerte, stiegen meine Ansprüche an ergonomische Tabs und Splits. Ich habe Kitty, Ghostty, Warp und iTerm2 ausgiebig getestet – alle haben ihre Stärken. Dennoch suchte ich eine Umgebung, die Leistung, vorkonfigurierte Qualität und volle Kontrolle perfekt vereint.
 
 WezTerm ist enorm stabil und flexibel erweiterbar; ich schätze dessen Core und Ökosystem sehr. Genau daraus ist Kaku entstanden: schnell, durchdacht und sofort einsatzbereit.
 
@@ -122,7 +122,7 @@ Vielen Dank an alle Mitwirkenden, die Kaku mitgestaltet haben. Folgt ihnen gern!
 ## Unterstützung
 
 - Die direkteste Unterstützung ist der Kauf von [Mole for Mac](https://mole.fit), meiner Bereinigungs-App für macOS.
-- Wenn dir Kaku gefällt, vergib einen Stern, [teile es](https://twitter.com/intent/tweet?url=https://github.com/tw93/Kaku&text=Kaku%20-%20A%20blazing-fast%20Mac%20terminal%2C%20built%20for%20coding%20with%20AI.) oder eröffne ein Issue oder einen PR.
+- Wenn dir Kaku gefällt, vergib einen Stern, [teile es](https://twitter.com/intent/tweet?url=https://github.com/tw93/Kaku&text=Kaku%20-%20An%20AI-friendly%20Mac%20terminal.) oder eröffne ein Issue oder einen PR.
 - Ich habe zwei Katzen, TangYuan und Coke. Wenn dir Kaku Freude bereitet, kannst du ihnen etwas <a href="https://cats.tw93.fun?name=Kaku" target="_blank">Dosenfutter 🥩</a> spendieren.
 
 <details>

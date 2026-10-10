@@ -1,7 +1,7 @@
 <div align="center">
   <img src="https://gw.alipayobjects.com/zos/k/6h/dwarf.svg" width="120" />
   <h1>Kaku</h1>
-  <p><b>AI 코딩을 위해 설계된 빠르고 즉시 사용 가능한 macOS 터미널</b></p>
+  <p><em>합리적인 기본 설정으로 바로 쓸 수 있는 AI 친화적인 Mac 터미널.</em></p>
   <p><a href="README.md">English</a> · <a href="README_CN.md">中文</a> · <a href="README_TW.md">繁體</a> · <a href="README_JA.md">日本語</a> · 한국어 · <a href="README_DE.md">Deutsch</a> · <a href="README_FR.md">Français</a></p>
   <p>
     <a href="https://kaku.fun">공식 웹사이트</a> ·
@@ -40,11 +40,11 @@ Kaku를 실행하여 셸 통합을 완료합니다. 필요한 부가 도구는 `
 ## 주요 기능
 
 - **즉시 사용 가능**: JetBrains Mono 폰트, 라이트/다크 테마 자동 전환, 선택 즉시 복사, 익숙한 Mac 단축키
-- **탭 및 화면 분할**: 자유로운 작업 공간 분할, Tab Navigator를 통한 빠른 탐색, 재시작 시 창, 분할 화면, 작업 경로 자동 복원
+- **탭 및 화면 분할**: 자유로운 작업 공간 분할, Tab Navigator를 통한 빠른 탐색, Kaku를 다시 열 때 창, 분할 화면, 작업 경로 자동 복원
 - **우클릭 메뉴**: 붙여넣기, 검색, AI 대화 호출, 분할 화면 닫기 및 탭 관리를 단축키 암기 없이 손쉽게 실행
 - **클릭 가능한 링크**: `Cmd + 클릭`으로 URL 및 파일 경로 열기 지원, 터미널 줄바꿈이 일어난 긴 링크도 완전하게 인식
-- **AI 친화적**: 명령어 제안 및 대화를 지원하는 AI 어시스턴트 내장, `kaku ai`를 통해 자체 AI 서비스 연동 가능
-- **셸 도구 모음**: zsh 자동 완성, 구문 강조, 디렉터리 빠른 이동 내장, Lazygit 및 Yazi 단축키 지원
+- **AI 친화적**: 평소 쓰는 코딩 도구와 함께 명령어 제안 및 대화를 위한 선택형 어시스턴트 사용 가능, `kaku ai`를 통해 자체 AI 서비스 연동 가능
+- **셸 도구 모음**: zsh 자동 완성, 구문 강조, 디렉터리 빠른 이동 내장, 선택 설치한 Lazygit 및 Yazi용 단축키 지원
 - **Lua 설정**: WezTerm의 Lua 설정 시스템을 활용하여 폰트, 테마, 단축키, 동작 방식을 자유롭게 구성
 
 ## 사용 가이드
@@ -75,7 +75,7 @@ Kaku를 실행하여 셸 통합을 완료합니다. 필요한 부가 도구는 `
 `kaku ai`로 사용할 AI 서비스를 설정하면 내장 어시스턴트를 활용할 수 있습니다. Kaku 자체는 AI 서비스를 직접 제공하거나 중계하지 않습니다.
 
 - **명령어 제안**: 명령어 실행 실패 시 어시스턴트가 해결책 제안, `Cmd + Shift + E`로 프롬프트에 붙여넣어 확인 후 실행
-- **자연어 명령어 변환**: 프롬프트에 `# <설명>` 입력 후 Enter를 누르면 어시스턴트가 생성된 명령어를 프롬프트에 입력
+- **자연어 명령어 변환**: 프롬프트에 `# <설명>` 입력 후 Enter를 누르면 어시스턴트가 생성된 명령어를 프롬프트에 입력하며, 확인 후 실행할 수 있습니다
 - **AI 대화**: `Cmd + L`로 터미널 출력에 대해 질문하거나 프로젝트 파일 및 도구와 함께 작업, 다른 셸에서 `kaku chat`을 실행해 동일한 대화 기록 접근 가능
 - **AI 도구 설정**: Claude Code, Codex, Gemini CLI, Copilot CLI, Kimi Code 등의 설정을 한곳에서 관리
 
@@ -109,7 +109,7 @@ Kaku를 실행하여 셸 통합을 완료합니다. 필요한 부가 도구는 `
 
 오랫동안 Alacritty를 사용하며 그 가벼움과 단순함을 깊이 신뢰해 왔습니다. 작업 방식이 AI 지원 코딩으로 전환되면서 탭과 분할 화면의 사용성이 더욱 중요해졌습니다. Kitty, Ghostty, Warp, iTerm2 등도 깊이 살펴보았으나, 성능과 기본 설정의 완성도, 그리고 주도적인 제어 권한 사이에서 최상의 균형을 갖춘 개발 환경을 만들고자 했습니다.
 
-WezTerm은 대단히 견고하고 강력한 확장성을 갖추고 있으며, 그 엔진과 생태계에 깊이 감사하고 있습니다. Kaku는 바로 이러한 이상적인 환경을 완성하기 위해 탄생했습니다. 압도적으로 빠르고, 깔끔하며, 즉시 실무에 투입할 수 있습니다.
+WezTerm은 대단히 견고하고 강력한 확장성을 갖추고 있으며, 그 엔진과 생태계에 깊이 감사하고 있습니다. Kaku는 바로 이러한 이상적인 환경을 완성하기 위해 탄생했습니다. 빠르고, 깔끔하며, 즉시 실무에 투입할 수 있습니다.
 
 ## 기여자
 
@@ -122,7 +122,7 @@ Kaku 개발에 기여해 주신 모든 분들께 감사드립니다. 이분들�
 ## 후원
 
 - 개발자를 지원하는 가장 직접적인 방법은 유료 Mac 정리 앱인 [Mole for Mac](https://mole.fit)을 이용해 주시는 것입니다
-- Kaku가 유용했다면 Star를 누르거나, [공유](https://twitter.com/intent/tweet?url=https://github.com/tw93/Kaku&text=Kaku%20-%20A%20blazing-fast%20Mac%20terminal%2C%20built%20for%20coding%20with%20AI.)하거나, 이슈 및 PR을 남겨주세요
+- Kaku가 유용했다면 Star를 누르거나, [공유](https://twitter.com/intent/tweet?url=https://github.com/tw93/Kaku&text=Kaku%20-%20An%20AI-friendly%20Mac%20terminal.)하거나, 이슈 및 PR을 남겨주세요
 - 탕위안(TangYuan)과 콜라(Coke)라는 두 마리의 고양이를 키우고 있습니다. Kaku가 즐거움을 주었다면 <a href="https://cats.tw93.fun?name=Kaku" target="_blank">캔 간식 🥩</a>을 후원해 주세요
 
 <details>

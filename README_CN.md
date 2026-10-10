@@ -1,7 +1,7 @@
 <div align="center">
   <img src="https://gw.alipayobjects.com/zos/k/6h/dwarf.svg" width="120" />
   <h1>Kaku</h1>
-  <p><b>专为 AI 编程打造的高性能 Mac 终端，开箱即用</b></p>
+  <p><em>一个开箱即用、默认好用、AI 友好的 Mac 终端。</em></p>
   <p><a href="README.md">English</a> · 中文 · <a href="README_TW.md">繁體</a> · <a href="README_JA.md">日本語</a> · <a href="README_KR.md">한국어</a> · <a href="README_DE.md">Deutsch</a> · <a href="README_FR.md">Français</a></p>
   <p>
     <a href="https://kaku.fun">官网</a> ·
@@ -25,7 +25,7 @@
 
 Kaku（書く，かく）在日文中意为“写”。它是一款基于 WezTerm 的 macOS 终端，预装了优质字体、主题、Shell 集成与常用的 Mac 快捷键。如果你想自定义，Lua 配置依然完全可用。产品官网是 [kaku.fun](https://kaku.fun)。
 
-三部曲之一：[Kaku](https://github.com/tw93/Kaku) (書く) 编写代码，[Waza](https://github.com/tw93/Waza) (技) 磨炼习惯，[Kami](https://github.com/tw93/Kami) (紙) 交付文档。可以把它们看作一家人：Kaku 是父亲，Waza 是姐姐，Kami 是妹妹。
+三部曲之一：[Kaku](https://github.com/tw93/Kaku)（書く）编写代码，[Waza](https://github.com/tw93/Waza)（技）磨炼习惯，[Kami](https://github.com/tw93/Kami)（紙）交付文档。可以把它们看作一家人：Kaku 是父亲，Waza 是姐姐，Kami 是妹妹。
 
 ## 快速上手
 
@@ -35,15 +35,15 @@ Kaku（書く，かく）在日文中意为“写”。它是一款基于 WezTer
 brew install --cask kaku
 ```
 
-打开 Kaku 完成 Shell 集成设置。缺少的常用工具可通过 `kaku init` 一键安装。通过 `kaku --version` 查看当前安装版本。
+打开 Kaku 完成 Shell 集成设置。缺少的可选工具可以用 `kaku init` 安装。通过 `kaku --version` 查看当前安装版本。
 
 ## 特性
 
 - **开箱即用**：预置 JetBrains Mono 字体，自动切换浅色与深色主题，选中即复制，熟悉的 Mac 原生快捷键
-- **标签与分屏**：自由拆分工作区，通过 Tab 导航器快速定位分屏，重启时自动恢复窗口、分屏和工作目录
+- **标签与分屏**：自由拆分工作区，通过 Tab Navigator 快速定位分屏，重新打开 Kaku 时恢复窗口、分屏和工作目录
 - **右键菜单**：粘贴、搜索、唤起 AI 对话，拆分或关闭当前分屏，开关标签页无需死记快捷键
 - **可点击链接**：`Cmd + 点击` 直接打开链接和文件路径，终端自动换行的长链接也能完整识别
-- **AI 友好**：支持搭配 AI 助手获取命令建议与交互对话，通过 `kaku ai` 配置属于你自己的 AI 服务
+- **AI 友好**：你的编程工具照常用，另有可选的助手提供命令建议和对话，通过 `kaku ai` 配置你自己的 AI 服务
 - **Shell 工具链**：内置 zsh 自动补全、语法高亮和目录快速跳转，并为可选的 Lazygit 和 Yazi 提供快捷键支持
 - **Lua 配置**：基于 WezTerm 的 Lua 配置系统，自由定制字体、主题、快捷键与终端行为
 
@@ -79,7 +79,7 @@ brew install --cask kaku
 - **AI 对话**：按 `Cmd + L` 讨论终端输出或配合项目文件与工具操作。在其他终端中运行 `kaku chat` 可访问相同的会话记录
 - **AI 工具配置**：集中管理 Claude Code、Codex、Gemini CLI、Copilot CLI、Kimi Code 等工具的设置
 
-更多关于认证、模型、API 模式和工具设置，请参阅 [AI 助手文档](docs/features.md)。
+认证、模型、API 模式和工具设置见 [AI 助手文档](docs/features.md)。
 
 ## 常见问题
 
@@ -105,11 +105,11 @@ brew install --cask kaku
 
 ## 背景
 
-无论是工作还是个人项目，我都极其依赖命令行，我做过的许多工具（如 [Mole](https://github.com/tw93/mole) 和 [Pake](https://github.com/tw93/pake)）都体现了这一点。
+无论工作还是自己的项目，我都重度依赖命令行，从我做过的 [Mole](https://github.com/tw93/mole) 和 [Pake](https://github.com/tw93/pake) 这些工具也能看出来。
 
-我用了多年 Alacritty，很看重它的极致速度与纯粹。随着工作流向 AI 辅助编程迁移，我对标签与多屏工作区的人体工学有了更高要求。我也深入尝试过 Kitty、Ghostty、Warp 和 iTerm2，它们各有千秋，但我依然想要一个在性能、默认体验与自主可控之间达到理想平衡的开发环境。
+我用了好几年 Alacritty，很看重它的速度和简单，后来工作流慢慢转向 AI 辅助编程，我对标签和分屏用起来顺不顺手有了更高要求。中间也认真用过 Kitty、Ghostty、Warp 和 iTerm2，它们各有长处，但我还是想要一套在性能、默认配置和可控性之间按自己想法取舍的环境。
 
-WezTerm 极其坚固且具备出色的可扩展性，非常感谢它的底层引擎和社区生态。我打造 Kaku，就是为了拥有这样一个环境：极致轻快、精致顺手、开箱即战。
+WezTerm 很稳，也很好折腾，我很感谢它的引擎和生态，于是在它上面做了 Kaku，想要一个够快、细节顺手、打开就能干活的终端。
 
 ## 贡献者
 
@@ -122,8 +122,8 @@ WezTerm 极其坚固且具备出色的可扩展性，非常感谢它的底层引
 ## 支持
 
 - 最直接的支持方式是购买我制作的 Mac 付费清理工具 [Mole for Mac](https://mole.fit)
-- 如果 Kaku 对你有帮助，欢迎给它一个 Star、[分享推荐](https://twitter.com/intent/tweet?url=https://github.com/tw93/Kaku&text=Kaku%20-%20A%20blazing-fast%20Mac%20terminal%2C%20built%20for%20coding%20with%20AI.)，或提交 Issue 与 PR
-- 我有两只猫：汤圆、可乐，若 Kaku 让你的生活更美好，欢迎<a href="https://cats.tw93.fun?name=Kaku" target="_blank">请她们吃罐头 🥩</a>
+- 如果 Kaku 对你有帮助，欢迎给它一个 Star、[分享推荐](https://twitter.com/intent/tweet?url=https://github.com/tw93/Kaku&text=Kaku%20-%20An%20AI-friendly%20Mac%20terminal.)，或提交 Issue 与 PR
+- 我养了两只猫：汤圆和可乐。如果 Kaku 让你感觉好用，欢迎投喂它们一顿 <a href="https://cats.tw93.fun?name=Kaku" target="_blank">罐头 🥩</a>
 
 <details>
 <summary>这些可爱的小伙伴已经投喂过了 🐱</summary>
@@ -133,4 +133,4 @@ WezTerm 极其坚固且具备出色的可扩展性，非常感谢它的底层引
 
 ## 协议
 
-MIT License，欢迎享受并参与开源。WezTerm 及内置字体的版权声明见 [NOTICE.md](NOTICE.md)。
+Kaku 基于 MIT 协议开源，欢迎自由使用和参与贡献。WezTerm 及内置字体的版权声明见 [NOTICE.md](NOTICE.md)。
