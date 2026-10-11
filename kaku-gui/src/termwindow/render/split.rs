@@ -27,6 +27,14 @@ pub(crate) fn split_drag_row(rows_from_origin: f32, row_center: f32) -> i64 {
     (rows_from_origin - row_center + 0.5).floor() as i64
 }
 
+/// Column a left|right split drag is aiming at. `cols_from_origin` is the
+/// pointer's distance from the grid's left edge in fractional columns and
+/// `grab` is how far from the line's center the drag started, so grabbing
+/// anywhere in the gutter moves the line by the pointer's motion only.
+pub(crate) fn split_drag_col(cols_from_origin: f32, grab: f32) -> i64 {
+    (cols_from_origin - grab - 0.5).round() as i64
+}
+
 fn dims_inactive_panes(hsb: &config::HsbTransform) -> bool {
     hsb.hue != 1.0 || hsb.saturation != 1.0 || hsb.brightness != 1.0
 }
@@ -162,21 +170,27 @@ impl crate::TermWindow {
             )?;
         }
 
-        // UI item for hit testing
+        // UI item for hit testing. It spans the whole gutter rather than the
+        // one-cell line, which is hard to hit on a scaled-down remote screen;
+        // the gutter holds no pane text, so it steals no clicks.
+        let gap = self.config.split_pane_gap as usize;
         let (x, y, width, height) = if is_horizontal {
+            let gutter_cols = 1 + 2 * gap;
             (
-                content_left as usize + (split.left * cell_width as usize),
+                content_left as usize + (split.left.saturating_sub(gap) * cell_width as usize),
                 padding_top as usize + first_row_offset as usize + split.top * cell_height as usize,
-                cell_width as usize,
+                gutter_cols * cell_width as usize,
                 split.size * cell_height as usize,
             )
         } else {
+            let gutter_rows = gap.max(1) as f32;
+            let height = gutter_rows * cell_height;
             (
                 content_left as usize + (split.left * cell_width as usize),
-                // One row tall, centered on the drawn line.
-                (pos_y + row_center - cell_height / 2.0).max(0.0) as usize,
+                // Centered on the drawn line.
+                (pos_y + row_center - height / 2.0).max(0.0) as usize,
                 split.size * cell_width as usize,
-                cell_height as usize,
+                height as usize,
             )
         };
 
@@ -194,7 +208,19 @@ impl crate::TermWindow {
 
 #[cfg(test)]
 mod test {
-    use super::{dims_inactive_panes, split_drag_row, split_row_center_offset};
+    use super::{dims_inactive_panes, split_drag_col, split_drag_row, split_row_center_offset};
+
+    #[test]
+    fn grabbing_a_wide_split_gutter_does_not_jump_the_line() {
+        // A 5-column gutter (split_pane_gap = 2) around a line at column 40.
+        let line_center = 40.5f32;
+        for start in [38.0f32, 39.2, 40.5, 41.7, 42.9] {
+            let grab = start - line_center;
+            assert_eq!(split_drag_col(start, grab), 40, "grab at {start}");
+            assert_eq!(split_drag_col(start + 1.0, grab), 41, "grab at {start}");
+            assert_eq!(split_drag_col(start - 3.0, grab), 37, "grab at {start}");
+        }
+    }
 
     #[test]
     fn grabbing_anywhere_on_a_split_line_does_not_move_it() {
@@ -202,7 +228,7 @@ mod test {
         for gutter in 1..=4usize {
             let center = split_row_center_offset(gutter);
             let line = split_top as f32 + center;
-            // The hit area is one row tall, centered on the drawn line.
+            // Within half a row of the drawn line the row does not change.
             for offset in [-0.49f32, -0.25, 0.0, 0.25, 0.49] {
                 assert_eq!(
                     split_drag_row(line + offset, center),

@@ -1211,6 +1211,7 @@ impl super::TermWindow {
         start_event: MouseEvent,
         x: usize,
         y: i64,
+        grab: f32,
         context: &dyn WindowOps,
     ) {
         let mux = Mux::get();
@@ -1235,6 +1236,7 @@ impl super::TermWindow {
             };
             self.split_drag_state = Some(super::SplitDragState {
                 tab_id: tab.tab_id(),
+                grab,
             });
             tab
         };
@@ -1309,23 +1311,52 @@ impl super::TermWindow {
     ) {
         match item.item_type {
             UIItemType::Split(split) => {
-                // Measure top|bottom drags against the drawn line rather than
-                // the floored grid row; with an even row gutter the line sits on
-                // a row edge (#562).
-                let (_, padding_top) = self.padding_left_top();
-                let origin = self.terminal_first_row_offset() + padding_top;
-                let rows_from_origin =
-                    (event.coords.y as f32 - origin) / self.render_metrics.cell_size.height as f32;
+                // Measure drags against the drawn line rather than the floored
+                // grid cell; with an even row gutter the line sits on a row
+                // edge (#562). The hit area spans the whole gutter, so offset by
+                // where the drag started instead of snapping to the pointer.
+                let (padding_left, padding_top) = self.padding_left_top();
+                let cell_width = self.render_metrics.cell_size.width as f32;
+                let cell_height = self.render_metrics.cell_size.height as f32;
+                let col_origin = padding_left + self.get_os_border().left.get() as f32;
+                let row_origin = self.terminal_first_row_offset() + padding_top;
                 let row_center = crate::termwindow::render::split::split_row_center_offset(
                     self.config.split_pane_gap.max(1) as usize,
                 );
-                let y = if y < 0 {
+                let pos = |coords: &::window::Point| -> f32 {
+                    match split.direction {
+                        SplitDirection::Horizontal => (coords.x as f32 - col_origin) / cell_width,
+                        SplitDirection::Vertical => (coords.y as f32 - row_origin) / cell_height,
+                    }
+                };
+                let grab = match &self.split_drag_state {
+                    Some(state) => state.grab,
+                    // First frame: `split` is still the line as it was pressed.
+                    None => {
+                        let line = match split.direction {
+                            SplitDirection::Horizontal => split.left as f32 + 0.5,
+                            SplitDirection::Vertical => split.top as f32 + row_center,
+                        };
+                        pos(&start_event.coords) - line
+                    }
+                };
+                let x = match split.direction {
+                    SplitDirection::Horizontal => {
+                        crate::termwindow::render::split::split_drag_col(pos(&event.coords), grab)
+                            .max(0) as usize
+                    }
+                    SplitDirection::Vertical => x,
+                };
+                let y = if y < 0 || split.direction == SplitDirection::Horizontal {
                     y
                 } else {
-                    crate::termwindow::render::split::split_drag_row(rows_from_origin, row_center)
-                        .max(0)
+                    crate::termwindow::render::split::split_drag_row(
+                        pos(&event.coords) - grab,
+                        row_center,
+                    )
+                    .max(0)
                 };
-                self.drag_split(item, split, start_event, x, y, context);
+                self.drag_split(item, split, start_event, x, y, grab, context);
             }
             UIItemType::ScrollThumb => {
                 self.drag_scroll_thumb(item, start_event, event, context);

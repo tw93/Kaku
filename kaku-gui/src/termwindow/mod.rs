@@ -960,6 +960,9 @@ enum EventState {
 /// State tracked during a live split-divider drag.
 struct SplitDragState {
     tab_id: TabId,
+    /// Distance in cells from the line's center to where the drag started,
+    /// so a grab anywhere in the gutter does not snap the line to the pointer.
+    grab: f32,
 }
 
 /// State tracked during a live tab drag-reorder gesture.
