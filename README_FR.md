@@ -41,7 +41,7 @@ Lancez Kaku pour finaliser la configuration du shell, installez les outils optio
 
 - **Prêt à l'emploi** : police JetBrains Mono, thèmes clair et sombre automatiques, copie à la sélection et raccourcis Mac familiers
 - **Onglets et volets** : séparez facilement votre espace de travail, passez d'un onglet à l'autre avec le Tab Navigator et restaurez vos fenêtres, volets et répertoires à la réouverture de Kaku
-- **Menu contextuel au clic droit** : coller, rechercher, lancer le chat IA, diviser ou fermer un volet sans avoir à mémoriser de combinaisons
+- **Menu contextuel au clic droit** : coller, rechercher, lancer le chat IA, diviser ou fermer un volet, ouvrir ou fermer des onglets, sans avoir à mémoriser de combinaisons
 - **Liens interactifs** : `Cmd + Clic` ouvre directement les URL et chemins de fichiers ; les liens longs coupés sur plusieurs lignes restent entièrement cliquables
 - **Pensé pour l'IA** : utilisez vos outils de développement avec un assistant optionnel pour suggérer des commandes et dialoguer
 - **Suite d'outils shell** : autocomplétion zsh, coloration syntaxique et navigation rapide intégrées, avec des raccourcis pour Lazygit et Yazi, à installer en option
@@ -87,7 +87,7 @@ Pour l'authentification, les modèles, le mode API et les réglages d'outils, co
 ## Documentation
 
 - [Raccourcis](docs/keybindings.md) - guide complet des touches
-- [Fonctionnalités](docs/features.md) - assistant IA, lazygit, yazi, fichiers distants, shell suite
+- [Fonctionnalités](docs/features.md) - assistant IA, lazygit, yazi, fichiers distants, outils shell
 - [Configuration](docs/configuration.md) - thèmes, typographie, raccourcis personnalisés, API Lua
 - [Référence CLI](docs/cli.md) - commandes `kaku ai`, `kaku config`, `kaku doctor`, etc.
 - [FAQ](docs/faq.md) - questions fréquentes et résolution de problèmes

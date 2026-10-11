@@ -41,7 +41,7 @@ Kaku を起動してシェル統合を完了します。不足しているオプ
 
 - **すぐ使える**：JetBrains Mono フォント、明暗テーマの自動切り替え、選択時の自動コピー、馴染みのある Mac ショートカット
 - **タブとペイン**：ワークスペースを自在に分割、Tab Navigator でタブを素早く切り替え、Kaku を開き直したときにウィンドウ・ペイン・作業ディレクトリを自動復元
-- **右クリックメニュー**：貼り付け、検索、AI チャット呼び出し、ペインの分割や終了など、ショートカットを覚えなくても直感的に操作可能
+- **右クリックメニュー**：貼り付け、検索、AI チャット呼び出し、ペインの分割や終了、タブの開閉など、ショートカットを覚えなくても直感的に操作可能
 - **クリック可能なリンク**：`Cmd + クリック` で URL やファイルパスを直接オープン、改行された長い URL も途切れず認識
 - **AI フレンドリー**：普段のコーディングツールに加えて、コマンド提案や対話ができるオプションのアシスタントも利用可能
 - **シェルツール群**：zsh 補完、シンタックスハイライト、ディレクトリジャンプを標準搭載、オプションでインストールする Lazygit や Yazi 用のショートカットも用意
@@ -79,7 +79,7 @@ Kaku を起動してシェル統合を完了します。不足しているオプ
 
 ## よくある質問
 
-- **Windows や Linux 版はありますか？** 現在はありません、Kaku は macOS 専用です
+- **Windows や Linux 版はありますか？** 現在はありません。Kaku は macOS 専用です
 - **iTerm2、Warp、Ghostty、WezTerm との違いは何ですか？** 詳細は [kaku.fun/compare](https://kaku.fun/compare) をご覧ください
 - **半透明ウィンドウは使えますか？** はい、`~/.config/kaku/kaku.lua` で `config.window_background_opacity` を設定してください
 - **`kaku` コマンドが見つかりません。** `/Applications/Kaku.app/Contents/MacOS/kaku init --update-only && exec zsh -l` を実行後、`kaku doctor` で診断してください
@@ -110,7 +110,7 @@ Kaku の構築に貢献してくれたすべての皆様に感謝します。ぜ
 
 ## サポート
 
-- 開発者を直接支援する方法として、Mac クリーナーアプリ [Mole for Mac](https://mole.fit) の購入をご検討ください
+- 私が作った有料の Mac クリーナー [Mole for Mac](https://mole.fit) を使っていただくのが、いちばん直接的な支援になります
 - Kaku が役に立ったら、Star を付けたり、[共有](https://twitter.com/intent/tweet?url=https://github.com/tw93/Kaku&text=Kaku%20-%20An%20AI-friendly%20Mac%20terminal.)したり、Issue や PR をお寄せください
 - 私にはタンユエン（湯円）とコーラ（可楽）という2匹の猫がいて、Kaku を気に入っていただけたら、<a href="https://cats.tw93.fun?name=Kaku" target="_blank">缶詰 🥩</a> をプレゼントしていただけると嬉しいです
 

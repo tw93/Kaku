@@ -41,7 +41,7 @@ brew install --cask kaku
 
 - **Sofort einsatzbereit**: JetBrains Mono, automatischer Hell-/Dunkelmodus, Kopieren bei Textauswahl und vertraute Mac-Tastenkürzel
 - **Tabs und Fensterteilung**: Arbeitsbereich flexibel teilen, mit dem Tab Navigator schnell zwischen Tabs wechseln und Fenster, Splits und Arbeitsverzeichnisse beim erneuten Öffnen von Kaku automatisch wiederherstellen
-- **Kontextmenü per Rechtsklick**: Einfügen, Suchen, KI-Chat öffnen, Splits teilen oder schließen, ganz ohne Tastenkürzel auswendig lernen zu müssen
+- **Kontextmenü per Rechtsklick**: Einfügen, Suchen, KI-Chat öffnen, Splits teilen oder schließen, Tabs öffnen oder schließen, ganz ohne Tastenkürzel auswendig lernen zu müssen
 - **Klickbare Links**: `Cmd + Klick` öffnet URLs und Dateipfade direkt; auch durch Zeilenumbrüche getrennte Links bleiben vollständig erhalten
 - **KI-freundlich**: Nutze deine Coding-Tools zusammen mit einem optionalen Assistenten für Befehlsvorschläge und Chat
 - **Shell-Werkzeuge**: Integrierte zsh-Autovervollständigung, Syntaxhervorhebung und Verzeichnisnavigation, mit Tastenkürzeln für optional installiertes Lazygit und Yazi
@@ -102,7 +102,7 @@ WezTerm ist robust und sehr anpassbar, und ich bin dankbar für seine Engine und
 
 ## Mitwirkende
 
-Vielen Dank an alle Mitwirkenden, die Kaku mitgestaltet haben. Folgt ihnen gern! ❤️
+Vielen Dank an alle Mitwirkenden, die Kaku mitgestaltet haben. Folge ihnen gern! ❤️
 
 <a href="https://github.com/tw93/Kaku/graphs/contributors">
   <img src="./CONTRIBUTORS.svg?v=2" width="1000" />

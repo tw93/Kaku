@@ -79,7 +79,7 @@ Kaku를 실행하여 셸 통합을 완료합니다. 필요한 부가 도구는 `
 
 ## 자주 묻는 질문 (FAQ)
 
-- **Windows 또는 Linux 버전이 있나요?** 현재는 없습니다, Kaku는 macOS 전용입니다
+- **Windows 또는 Linux 버전이 있나요?** 현재는 없습니다. Kaku는 macOS 전용입니다
 - **iTerm2, Warp, Ghostty, WezTerm과의 차이점은 무엇인가요?** [kaku.fun/compare](https://kaku.fun/compare)를 확인하세요
 - **반투명 창을 사용할 수 있나요?** 가능합니다. `~/.config/kaku/kaku.lua`에서 `config.window_background_opacity`를 설정하세요
 - **`kaku` 명령어를 찾을 수 없습니다.** `/Applications/Kaku.app/Contents/MacOS/kaku init --update-only && exec zsh -l`을 실행한 뒤 `kaku doctor`로 점검하세요
@@ -110,7 +110,7 @@ Kaku 개발에 기여해 주신 모든 분들께 감사드립니다. 이분들�
 
 ## 후원
 
-- 개발자를 지원하는 가장 직접적인 방법은 유료 Mac 정리 앱인 [Mole for Mac](https://mole.fit)을 이용해 주시는 것입니다
+- 제가 만든 유료 Mac 정리 앱 [Mole for Mac](https://mole.fit)을 이용해 주시는 것이 가장 직접적인 후원입니다
 - Kaku가 유용했다면 Star를 누르거나, [공유](https://twitter.com/intent/tweet?url=https://github.com/tw93/Kaku&text=Kaku%20-%20An%20AI-friendly%20Mac%20terminal.)하거나, 이슈 및 PR을 남겨주세요
 - 탕위안(TangYuan)과 콜라(Coke)라는 두 마리의 고양이를 키우고 있는데, Kaku가 즐거움을 주었다면 <a href="https://cats.tw93.fun?name=Kaku" target="_blank">캔 간식 🥩</a>을 후원해 주세요
 

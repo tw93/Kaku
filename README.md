@@ -25,7 +25,7 @@
 
 Kaku (書く, かく) means "to write" in Japanese. It is a macOS terminal based on WezTerm, with fonts, themes, shell integration, and Mac shortcuts already configured, while preserving full Lua customization.
 
-As the coding foundation of the trilogy, Kaku works alongside engineering habit-driven [Waza](https://github.com/tw93/Waza) (技) and document delivery-focused [Kami](https://github.com/tw93/Kami) (紙) to make writing code, building habits, and shipping documents a seamless flow.
+As the coding foundation of the trilogy, Kaku works alongside [Waza](https://github.com/tw93/Waza) (技), built around engineering habits, and [Kami](https://github.com/tw93/Kami) (紙), built for shipping documents, so writing code, building habits, and shipping documents flow from one to the next.
 
 ## Quick Start
 
@@ -112,7 +112,7 @@ Big thanks to all contributors who helped build Kaku. Go follow them! ❤️
 
 - The most direct way to support me is getting [Mole for Mac](https://mole.fit), my paid Mac cleanup app
 - If Kaku helped you, give it a star, [share it](https://twitter.com/intent/tweet?url=https://github.com/tw93/Kaku&text=Kaku%20-%20An%20AI-friendly%20Mac%20terminal.), or open an issue or PR
-- I have two cats, TangYuan and Coke, and if you think Kaku delights your life, you can feed them <a href="https://cats.tw93.fun?name=Kaku" target="_blank">canned food 🥩</a>
+- I have two cats, TangYuan and Coke, and if Kaku has been helpful to you, feel free to treat them to <a href="https://cats.tw93.fun?name=Kaku" target="_blank">canned food 🥩</a>
 
 <details>
 <summary>These lovely people already did 🐱</summary>
