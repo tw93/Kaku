@@ -1859,3 +1859,48 @@ fn osc_zero_and_two_set_window_title_with_both_terminators() {
         }
     }
 }
+
+#[derive(Clone, Default)]
+struct RecordingAlerts(Arc<Mutex<Vec<Alert>>>);
+
+impl AlertHandler for RecordingAlerts {
+    fn alert(&mut self, alert: Alert) {
+        self.0.lock().unwrap().push(alert);
+    }
+}
+
+#[test]
+fn notification_bodies_keep_semicolons() {
+    // Agents put `;` in messages; OSC 9 used to drop the whole notification
+    // and OSC 777 cut the body at the first one.
+    let mut term = TestTerm::new(3, 20, 0);
+    let alerts = RecordingAlerts::default();
+    term.set_notification_handler(Box::new(alerts.clone()));
+
+    term.print("\x1b]9;Build done; 3 warnings\x07");
+    term.print("\x1b]777;notify;Claude Code;Done; 2 files changed\x07");
+
+    let toasts: Vec<Alert> = alerts
+        .0
+        .lock()
+        .unwrap()
+        .iter()
+        .filter(|alert| matches!(alert, Alert::ToastNotification { .. }))
+        .cloned()
+        .collect();
+    assert_eq!(
+        toasts,
+        vec![
+            Alert::ToastNotification {
+                title: None,
+                body: "Build done; 3 warnings".to_string(),
+                focus: true,
+            },
+            Alert::ToastNotification {
+                title: Some("Claude Code".to_string()),
+                body: "Done; 2 files changed".to_string(),
+                focus: true,
+            },
+        ]
+    );
+}

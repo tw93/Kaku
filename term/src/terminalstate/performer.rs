@@ -1015,8 +1015,10 @@ impl<'a> Performer<'a> {
             OperatingSystemCommand::RxvtExtension(params) => {
                 if let Some("notify") = params.first().map(String::as_str) {
                     let title = params.get(1);
-                    let body = params.get(2);
-                    let (title, body) = match (title.cloned(), body.cloned()) {
+                    // The body is the rest of the sequence; `;` inside it was
+                    // split off as extra params and silently cut.
+                    let body = (params.len() > 2).then(|| params[2..].join(";"));
+                    let (title, body) = match (title.cloned(), body) {
                         (Some(title), None) => (None, title),
                         (Some(title), Some(body)) => (Some(title), body),
                         _ => {

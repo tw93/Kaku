@@ -346,7 +346,19 @@ impl OperatingSystemCommand {
                         _ => {}
                     }
                 }
-                single_string!(SystemNotification)
+                if osc.len() < 2 {
+                    bail!("wrong param count");
+                }
+                // `9;<number>;...` is a ConEmu command (9;9 reports the cwd),
+                // not a message.
+                if osc.len() > 2 && !osc[1].is_empty() && osc[1].iter().all(u8::is_ascii_digit) {
+                    bail!("unsupported ConEmu OSC 9 command");
+                }
+                // Everything after `9;` is the message, semicolons included.
+                let body = osc[1..].join(&b';');
+                Ok(OperatingSystemCommand::SystemNotification(
+                    String::from_utf8(body)?,
+                ))
             }
             SetCurrentWorkingDirectory => single_string!(CurrentWorkingDirectory),
             ITermProprietary => {
@@ -1700,6 +1712,29 @@ mod test {
                 "the tea is ready".into()
             ]),
         )
+    }
+
+    #[test]
+    fn notification_body_keeps_semicolons() {
+        // iTerm2 treats everything after `9;` as the message. Splitting on `;`
+        // used to make these "wrong param count" and drop the notification.
+        assert_eq!(
+            parse(
+                &["9", "Build done", " 3 warnings"],
+                "\x1b]9;Build done; 3 warnings\x1b\\"
+            ),
+            OperatingSystemCommand::SystemNotification("Build done; 3 warnings".into())
+        );
+        // ConEmu's numbered OSC 9 commands (9;9 is the working directory) are
+        // not notifications.
+        assert!(matches!(
+            OperatingSystemCommand::parse(&[b"9", b"9", b"/Users/me"]),
+            OperatingSystemCommand::Unspecified(_)
+        ));
+        assert!(matches!(
+            OperatingSystemCommand::parse(&[b"9", b"4", b"7"]),
+            OperatingSystemCommand::Unspecified(_)
+        ));
     }
 
     #[test]
