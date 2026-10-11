@@ -40,7 +40,7 @@ use config::keyassignment::{
 use config::window::WindowLevel;
 use config::{
     configuration, AudibleBell, ConfigHandle, Dimension, DimensionContext, FrontEndSelection,
-    GeometryOrigin, GuiPosition, TermConfig, WindowCloseConfirmation,
+    GeometryOrigin, GuiPosition, NotificationHandling, TermConfig, WindowCloseConfirmation,
 };
 use lfucache::*;
 use mlua::{FromLua, LuaSerdeExt, UserData, UserDataFields};
@@ -340,6 +340,26 @@ fn summarize_bell_tokens(tokens: &[&str]) -> Option<String> {
     }
 
     None
+}
+
+/// Whether an OSC 9 / OSC 777 notification from a pane in this window should
+/// become a system notification. A notification you would be looking at as
+/// it arrives is noise, so the default only shows while the window is in the
+/// background; the Suppress* modes widen that to unseen panes and tabs.
+fn should_show_toast(
+    handling: NotificationHandling,
+    window_has_focus: bool,
+    in_active_tab: bool,
+    is_inactive_pane: bool,
+) -> bool {
+    match handling {
+        NotificationHandling::NeverShow => false,
+        NotificationHandling::AlwaysShow | NotificationHandling::SuppressFromFocusedWindow => {
+            !window_has_focus
+        }
+        NotificationHandling::SuppressFromFocusedTab => !window_has_focus || !in_active_tab,
+        NotificationHandling::SuppressFromFocusedPane => !window_has_focus || is_inactive_pane,
+    }
 }
 
 fn bell_notification_message(
@@ -2504,7 +2524,17 @@ impl TermWindow {
                         self.pane_state(pane_id).has_unread_notification = true;
                     }
 
-                    if !window_has_focus {
+                    // The only place OSC 9 / OSC 777 notifications become system
+                    // notifications; the frontend used to post a second copy.
+                    let in_active_tab = Mux::get()
+                        .get_active_tab_for_window(self.mux_window_id)
+                        .map_or(false, |tab| tab.contains_pane(pane_id));
+                    if should_show_toast(
+                        self.config.notification_handling,
+                        window_has_focus,
+                        in_active_tab,
+                        is_inactive,
+                    ) {
                         ToastNotification {
                             title: title.unwrap_or_else(|| "Kaku".to_string()),
                             message: body,
@@ -6855,6 +6885,43 @@ mod tests {
             Some(&MouseCapture::UI),
             captured_pane
         ));
+    }
+
+    #[test]
+    fn osc_toasts_follow_notification_handling() {
+        use super::should_show_toast;
+        use config::NotificationHandling::*;
+
+        // (window focused, pane in active tab, pane inactive)
+        let background = (false, true, false);
+        let focused_active = (true, true, false);
+        let focused_other_pane = (true, true, true);
+        let focused_other_tab = (true, false, true);
+        let show = |h, (f, t, i)| should_show_toast(h, f, t, i);
+
+        for h in [
+            AlwaysShow,
+            SuppressFromFocusedWindow,
+            SuppressFromFocusedTab,
+            SuppressFromFocusedPane,
+        ] {
+            assert!(
+                show(h, background),
+                "{:?} shows while Kaku is in the background",
+                h
+            );
+            assert!(
+                !show(h, focused_active),
+                "{:?} stays quiet for the pane in view",
+                h
+            );
+        }
+        assert!(!show(NeverShow, background));
+        assert!(!show(AlwaysShow, focused_other_pane));
+        assert!(!show(AlwaysShow, focused_other_tab));
+        assert!(show(SuppressFromFocusedPane, focused_other_pane));
+        assert!(!show(SuppressFromFocusedTab, focused_other_pane));
+        assert!(show(SuppressFromFocusedTab, focused_other_tab));
     }
 
     #[test]

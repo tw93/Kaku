@@ -5,7 +5,7 @@ use crate::{startup_trace, TermWindow};
 use ::window::*;
 use anyhow::{Context, Error};
 use config::keyassignment::{KeyAssignment, SpawnCommand, SpawnTabDomain};
-use config::{ConfigSubscription, NotificationHandling};
+use config::ConfigSubscription;
 use mux::client::ClientId;
 use mux::pane::PaneId;
 use mux::tab::TabId;
@@ -19,7 +19,6 @@ use std::rc::Rc;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, LazyLock, Mutex};
 use wezterm_term::{Alert, ClipboardSelection};
-use wezterm_toast_notification::*;
 
 pub const SET_DEFAULT_TERMINAL_EVENT: &str = "set-default-terminal";
 
@@ -653,48 +652,11 @@ impl GuiFrontEnd {
                     crate::session_restore::mark_dirty();
                 }
                 MuxNotification::Alert {
-                    pane_id,
-                    alert:
-                        Alert::ToastNotification {
-                            title,
-                            body,
-                            focus: _,
-                        },
-                } => {
-                    let mux = Mux::get();
-
-                    if let Some((_domain, window_id, tab_id)) = mux.resolve_pane_id(pane_id) {
-                        let config = config::configuration();
-
-                        if let Some((_fdomain, f_window, f_tab, f_pane)) =
-                            mux.resolve_focused_pane(&client_id)
-                        {
-                            let show = match config.notification_handling {
-                                NotificationHandling::NeverShow => false,
-                                NotificationHandling::AlwaysShow => true,
-                                NotificationHandling::SuppressFromFocusedPane => f_pane != pane_id,
-                                NotificationHandling::SuppressFromFocusedTab => f_tab != tab_id,
-                                NotificationHandling::SuppressFromFocusedWindow => {
-                                    f_window != window_id
-                                }
-                            };
-
-                            if show {
-                                let message = if title.is_none() { "" } else { &body };
-                                let title = title.as_ref().unwrap_or(&body);
-                                // FIXME: if notification.focus is true, we should do
-                                // something here to arrange to focus pane_id when the
-                                // notification is clicked
-                                persistent_toast_notification(title, message);
-                            }
-                        }
-                    }
-                }
-                MuxNotification::Alert {
                     pane_id: _,
-                    alert: Alert::Bell | Alert::Progress(_),
+                    alert: Alert::Bell | Alert::Progress(_) | Alert::ToastNotification { .. },
                 } => {
-                    // Handled via TermWindowNotif; NOP it here.
+                    // Handled via TermWindowNotif; NOP it here. Posting the toast here
+                    // too showed every OSC 9 / OSC 777 notification twice.
                 }
                 MuxNotification::Alert {
                     pane_id: _,
@@ -1539,6 +1501,20 @@ mod tests {
         let program = "/Applications/Kaku Nightly.app/Contents/MacOS/kaku";
         let quoted = shell_quote_program(program);
         assert_eq!(shlex::split(&quoted), Some(vec![program.to_string()]));
+    }
+
+    #[test]
+    fn osc_notifications_post_one_system_notification() {
+        // TermWindow owns OSC 9 / OSC 777 toasts. The frontend subscriber used
+        // to post its own copy, so every notification showed up twice.
+        let frontend = include_str!("frontend.rs")
+            .split("#[cfg(test)]")
+            .next()
+            .expect("frontend production source");
+        assert!(frontend.contains(
+            "alert: Alert::Bell | Alert::Progress(_) | Alert::ToastNotification { .. },"
+        ));
+        assert!(!frontend.contains("persistent_toast_notification(title, message);"));
     }
 
     /// User-facing update events must not call `restart_to_update` directly.
