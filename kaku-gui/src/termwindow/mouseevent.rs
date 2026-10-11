@@ -766,6 +766,18 @@ impl super::TermWindow {
 
     pub fn mouse_event_impl(&mut self, event: MouseEvent, context: &dyn WindowOps) {
         log::trace!("{:?}", event);
+        if self.config.debug_key_events && matches!(event.kind, WMEK::Press(_) | WMEK::Release(_)) {
+            // Remote desktop clients map touch gestures to clicks in their own
+            // ways (a long press may arrive as Ctrl+click or a plain press), so
+            // log what actually arrives alongside the key events.
+            log::info!(
+                "mouse_event {:?} mods={:?} buttons={:?} clicks={}",
+                event.kind,
+                event.modifiers,
+                event.mouse_buttons,
+                event.platform_click_count
+            );
+        }
         let pane = match self.get_active_pane_or_overlay() {
             Some(pane) => pane,
             None => return,
