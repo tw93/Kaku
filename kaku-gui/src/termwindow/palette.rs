@@ -934,6 +934,17 @@ impl CommandPalette {
         result
     }
 
+    fn point_in_panel(&self, abs_x: f32, abs_y: f32) -> bool {
+        let element = self.element.borrow();
+        let Some(root) = element.as_ref().and_then(|e| e.first()) else {
+            return false;
+        };
+        abs_x >= root.bounds.min_x()
+            && abs_x <= root.bounds.max_x()
+            && abs_y >= root.bounds.min_y()
+            && abs_y <= root.bounds.max_y()
+    }
+
     fn pick_row_from_point(
         &self,
         abs_x: f32,
@@ -1026,16 +1037,21 @@ impl Modal for CommandPalette {
                     }
                 }
             }
-            wezterm_term::MouseButton::Left => {
-                let pressed_on_row = event.kind == wezterm_term::MouseEventKind::Press
-                    && self
-                        .pick_row_from_point(abs_x, abs_y, term_window)
-                        .is_some();
-                if pressed_on_row {
+            wezterm_term::MouseButton::Left
+                if event.kind == wezterm_term::MouseEventKind::Press =>
+            {
+                if self
+                    .pick_row_from_point(abs_x, abs_y, term_window)
+                    .is_some()
+                {
                     // Note: activate_selected returns false on failure, but the modal
                     // dismissal and error toast are handled internally. We intentionally
                     // don't propagate the failure here as the UI already gave feedback.
                     let _ = self.activate_selected(term_window);
+                } else if !self.point_in_panel(abs_x, abs_y) {
+                    // Clicking away closes the palette, so pointer-only setups
+                    // (touch over remote desktop) are not stuck needing Esc.
+                    term_window.cancel_modal();
                 }
             }
             _ => {}
