@@ -1288,6 +1288,14 @@ impl TermWindow {
             modal.focus_changed(focused, self);
         }
 
+        if focused && wezterm_toast_notification::take_blocked_notice() {
+            self.show_toast_for(
+                "Notifications are off for Kaku. Turn them on in Kaku > Notification Settings"
+                    .to_string(),
+                8000,
+            );
+        }
+
         if self.focused.is_none() {
             self.mouse.last_mouse_click = None;
             self.mouse.current_mouse_buttons.clear();

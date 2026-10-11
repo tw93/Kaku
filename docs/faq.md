@@ -149,9 +149,24 @@ brew uninstall --cask tw93/tap/kakuku
 brew install --cask kaku
 ```
 
-## Claude Code notifications don't appear.
+## Claude Code or Codex notifications don't appear.
 
-Kaku's notification permission may not be granted. Go to System Settings > Notifications > Kaku and enable Allow Notifications. Then restart Kaku.
+First check that macOS allows them: choose Kaku > Notification Settings... and turn on Allow Notifications. macOS never asks again after a denial, so when a notification gets dropped for this reason Kaku tells you the next time you switch back to it.
+
+Claude Code only notifies terminals it recognizes and does not recognize Kaku yet, so its default `auto` channel sends nothing here. Kaku understands the sequence Claude Code sends to Ghostty, so set this in `~/.claude/settings.json`:
+
+```json
+{ "preferredNotifChannel": "ghostty" }
+```
+
+Codex works without changes: it rings the terminal bell and Kaku turns that into a notification. To see Codex's own message instead of a generic one, add this to `~/.codex/config.toml`:
+
+```toml
+[tui]
+notification_method = "osc9"
+```
+
+Notifications appear while Kaku is in the background, not for the pane you are looking at.
 
 ## How do I change the global hotkey?
 

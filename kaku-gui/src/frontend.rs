@@ -1517,6 +1517,22 @@ mod tests {
         assert!(!frontend.contains("persistent_toast_notification(title, message);"));
     }
 
+    #[test]
+    fn kaku_menu_links_to_notification_settings() {
+        // macOS never re-prompts after a denial, so the menu is the way back.
+        let commands = include_str!("commands.rs")
+            .split("#[cfg(test)]")
+            .next()
+            .expect("commands production source");
+        let item = commands
+            .split("\"Notification Settings...\",")
+            .nth(1)
+            .expect("Notification Settings menu item");
+        assert!(item.contains(
+            "KeyAssignment::OpenUri(\n                                wezterm_toast_notification::NOTIFICATION_SETTINGS_URL.to_string(),"
+        ));
+    }
+
     /// User-facing update events must not call `restart_to_update` directly.
     /// Regression for toast-only confirm (d9e8500e) + menu sibling (06cbdc00).
     #[test]

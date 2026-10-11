@@ -8,12 +8,72 @@ use objc2::runtime::{Bool, NSObject, NSObjectProtocol, ProtocolObject};
 use objc2::{define_class, msg_send, AllocAnyThread};
 use objc2_foundation::{ns_string, NSArray, NSBundle, NSDictionary, NSError, NSSet, NSString};
 use objc2_user_notifications::{
-    UNAuthorizationOptions, UNMutableNotificationContent, UNNotification, UNNotificationAction,
-    UNNotificationActionOptions, UNNotificationCategory, UNNotificationCategoryOptions,
-    UNNotificationPresentationOptions, UNNotificationRequest, UNNotificationResponse,
-    UNUserNotificationCenter, UNUserNotificationCenterDelegate,
+    UNAuthorizationOptions, UNAuthorizationStatus, UNMutableNotificationContent, UNNotification,
+    UNNotificationAction, UNNotificationActionOptions, UNNotificationCategory,
+    UNNotificationCategoryOptions, UNNotificationPresentationOptions, UNNotificationRequest,
+    UNNotificationResponse, UNNotificationSettings, UNUserNotificationCenter,
+    UNUserNotificationCenterDelegate,
 };
+use std::ptr::NonNull;
+use std::sync::atomic::{AtomicU8, Ordering};
 use std::sync::Once;
+
+/// Opens System Settings > Notifications > Kaku.
+pub const NOTIFICATION_SETTINGS_URL: &str =
+    "x-apple.systempreferences:com.apple.Notifications-Settings.extension?id=fun.tw93.kaku";
+
+const BLOCKED_NONE: u8 = 0;
+const BLOCKED_PENDING: u8 = 1;
+const BLOCKED_SURFACED: u8 = 2;
+
+/// Once macOS denies authorization it never asks again, and a denied app's
+/// notifications vanish without an error. Remember that one was dropped so
+/// the GUI can say so once per launch instead of failing silently.
+static BLOCKED_NOTICE: AtomicU8 = AtomicU8::new(BLOCKED_NONE);
+
+fn mark_blocked(state: &AtomicU8) -> bool {
+    state
+        .compare_exchange(
+            BLOCKED_NONE,
+            BLOCKED_PENDING,
+            Ordering::SeqCst,
+            Ordering::SeqCst,
+        )
+        .is_ok()
+}
+
+fn take_blocked(state: &AtomicU8) -> bool {
+    state
+        .compare_exchange(
+            BLOCKED_PENDING,
+            BLOCKED_SURFACED,
+            Ordering::SeqCst,
+            Ordering::SeqCst,
+        )
+        .is_ok()
+}
+
+/// True once per launch, after a notification was dropped because
+/// notifications are turned off for Kaku in System Settings.
+pub fn take_blocked_notice() -> bool {
+    take_blocked(&BLOCKED_NOTICE)
+}
+
+fn note_if_blocked(center: &UNUserNotificationCenter) {
+    center.getNotificationSettingsWithCompletionHandler(&RcBlock::new(
+        |settings: NonNull<UNNotificationSettings>| {
+            let settings = unsafe { settings.as_ref() };
+            if settings.authorizationStatus() == UNAuthorizationStatus::Denied
+                && mark_blocked(&BLOCKED_NOTICE)
+            {
+                log::warn!(
+                    "notification dropped: notifications are turned off for Kaku in \
+                     System Settings > Notifications"
+                );
+            }
+        },
+    ));
+}
 
 fn has_valid_bundle_identifier() -> bool {
     let bundle = NSBundle::mainBundle();
@@ -179,6 +239,10 @@ pub fn show_notif(toast: ToastNotification) -> Result<(), Box<dyn std::error::Er
         return Err("Notifications unavailable: no valid bundle identifier".into());
     };
 
+    // Still post the request below: if the user has just turned
+    // notifications back on, the status read here may be stale.
+    note_if_blocked(&center);
+
     unsafe {
         log::debug!("show_notif center.delegate is {:?}", center.delegate());
 
@@ -270,4 +334,22 @@ fn spawn_kaku_update() {
             Err(e) => log::error!("spawn_kaku_update: failed to spawn: {}", e),
         }
     });
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn blocked_notice_surfaces_once_per_launch() {
+        let state = AtomicU8::new(BLOCKED_NONE);
+        assert!(!take_blocked(&state));
+        assert!(mark_blocked(&state));
+        assert!(!mark_blocked(&state));
+        assert!(take_blocked(&state));
+        assert!(!take_blocked(&state));
+        // Later drops in the same launch stay quiet.
+        assert!(!mark_blocked(&state));
+        assert!(!take_blocked(&state));
+    }
 }

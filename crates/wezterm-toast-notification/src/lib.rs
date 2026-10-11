@@ -44,6 +44,8 @@ pub fn persistent_toast_notification(title: &str, message: &str) {
 
 #[cfg(target_os = "macos")]
 pub use macos::initialize as macos_initialize;
+#[cfg(target_os = "macos")]
+pub use macos::{take_blocked_notice, NOTIFICATION_SETTINGS_URL};
 
 static UPDATE_CALLBACK: Mutex<Option<Box<dyn Fn() + Send>>> = Mutex::new(None);
 

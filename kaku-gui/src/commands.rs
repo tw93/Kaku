@@ -932,6 +932,20 @@ impl CommandDef {
                         }
                         insert_owned(menu, &set_default_terminal_item, &mut next_index);
 
+                        // macOS never asks again once notifications are denied,
+                        // so give the switch a place people can find.
+                        let notification_settings_item = MenuItem::new_with(
+                            "Notification Settings...",
+                            Some(kaku_perform_key_assignment_sel),
+                            "",
+                        );
+                        notification_settings_item.set_represented_item(
+                            RepresentedItem::KeyAssignment(KeyAssignment::OpenUri(
+                                wezterm_toast_notification::NOTIFICATION_SETTINGS_URL.to_string(),
+                            )),
+                        );
+                        insert_owned(menu, &notification_settings_item, &mut next_index);
+
                         insert_owned(menu, &MenuItem::new_separator(), &mut next_index);
 
                         let services_menu = Menu::new_with_title("Services");
