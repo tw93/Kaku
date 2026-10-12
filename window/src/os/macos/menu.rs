@@ -98,6 +98,12 @@ impl Menu {
         }
     }
 
+    pub fn insert_item(&self, item: &MenuItem, index: usize) {
+        unsafe {
+            let () = msg_send![*self.menu, insertItem:*item.item atIndex:index as NSInteger];
+        }
+    }
+
     pub fn item_with_title(&self, title: &str) -> Option<MenuItem> {
         unsafe {
             let item: id = msg_send![*self.menu, itemWithTitle:*nsstring(title)];
@@ -218,7 +224,11 @@ impl MenuItem {
     }
 
     pub fn new_separator() -> Self {
-        let item = unsafe { StrongPtr::new(NSMenuItem::separatorItem(nil)) };
+        // +separatorItem returns an autoreleased (+0) object, unlike alloc/init.
+        // Taking it with StrongPtr::new over-released it: the menu kept a
+        // dangling item and the next autorelease pool drain crashed in
+        // objc_release.
+        let item = unsafe { StrongPtr::retain(NSMenuItem::separatorItem(nil)) };
         Self { item }
     }
 
@@ -420,4 +430,24 @@ fn get_wrapper_class() -> &'static Class {
         }
         cls.register()
     })
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use cocoa::foundation::NSAutoreleasePool;
+
+    #[test]
+    fn separator_item_owns_a_reference_beyond_the_autorelease_pool() {
+        unsafe {
+            let pool = NSAutoreleasePool::new(nil);
+            let separator = MenuItem::new_separator();
+            let retain_count: usize = msg_send![*separator.item, retainCount];
+            // One reference belongs to the pool, the other to the wrapper.
+            assert_eq!(retain_count, 2);
+            pool.drain();
+            let retain_count: usize = msg_send![*separator.item, retainCount];
+            assert_eq!(retain_count, 1);
+        }
+    }
 }

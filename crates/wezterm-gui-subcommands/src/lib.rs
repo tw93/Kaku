@@ -62,7 +62,7 @@ pub struct StartCommand {
     pub _cmd: bool,
 
     /// Override the default windowing system class.
-    /// The default is "sh.kaku.Kaku".
+    /// The default is "fun.tw93.kaku".
     /// Under X11 and Windows this changes the window class.
     /// Under Wayland this changes the app_id.
     /// This changes the class for all windows spawned by this
@@ -143,7 +143,7 @@ pub struct SshCommand {
     pub verbose: bool,
 
     /// Override the default windowing system class.
-    /// The default is "sh.kaku.Kaku".
+    /// The default is "fun.tw93.kaku".
     /// Under X11 and Windows this changes the window class.
     /// Under Wayland this changes the app_id.
     /// This changes the class for all windows spawned by this
@@ -175,7 +175,7 @@ pub struct SerialCommand {
     pub baud: Option<usize>,
 
     /// Override the default windowing system class.
-    /// The default is "sh.kaku.Kaku".
+    /// The default is "fun.tw93.kaku".
     /// Under X11 and Windows this changes the window class.
     /// Under Wayland this changes the app_id.
     /// This changes the class for all windows spawned by this
@@ -213,7 +213,7 @@ pub struct ConnectCommand {
     pub new_tab: bool,
 
     /// Override the default windowing system class.
-    /// The default is "sh.kaku.Kaku".
+    /// The default is "fun.tw93.kaku".
     /// Under X11 and Windows this changes the window class.
     /// Under Wayland this changes the app_id.
     /// This changes the class for all windows spawned by this

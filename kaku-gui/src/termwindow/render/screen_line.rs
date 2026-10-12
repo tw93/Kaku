@@ -6,7 +6,7 @@ use crate::termwindow::render::{
 };
 use crate::termwindow::LineToElementShapeItem;
 use anyhow::Context;
-use config::{HsbTransform, TextStyle};
+use config::{HsbTransform, ImePreeditRendering, TextStyle};
 use std::ops::Range;
 use std::rc::Rc;
 use std::time::Instant;
@@ -16,6 +16,57 @@ use termwiz::surface::CursorShape;
 use wezterm_bidi::Direction;
 use wezterm_term::color::ColorAttribute;
 use wezterm_term::CellAttributes;
+
+fn composition_line(
+    source: &wezterm_term::Line,
+    cursor_x: usize,
+    composing: &str,
+    num_cols: usize,
+    rendering: ImePreeditRendering,
+) -> wezterm_term::Line {
+    let mut line = source.clone();
+    let seqno = line.current_seqno();
+    if rendering == ImePreeditRendering::BuiltinInsert {
+        let preedit =
+            wezterm_term::Line::from_text(composing, &CellAttributes::blank(), seqno, None);
+        if !composing.is_empty() && cursor_x < num_cols {
+            // A cursor can address the continuation cell of a wide glyph.
+            // Blank that glyph before inserting so it cannot hide the preedit.
+            let split_glyph = line
+                .visible_cells()
+                .find(|cell| {
+                    cell.cell_index() < cursor_x && cell.cell_index() + cell.width() > cursor_x
+                })
+                .map(|cell| (cell.cell_index(), cell.attrs().clone()));
+            if let Some((x, attrs)) = split_glyph {
+                line.set_cell(x, termwiz::cell::Cell::blank_with_attrs(attrs), seqno);
+            }
+        }
+        let mut x = cursor_x;
+        for cell in preedit.visible_cells() {
+            if x >= num_cols {
+                break;
+            }
+            let width = cell.width();
+            line.insert_cell(x, cell.as_cell(), usize::MAX, seqno);
+            x += width;
+        }
+        // Don't leave half a wide glyph at the right edge.
+        let clipped = line
+            .visible_cells()
+            .find(|cell| {
+                cell.cell_index() < num_cols && cell.cell_index() + cell.width() > num_cols
+            })
+            .map(|cell| cell.cell_index());
+        if let Some(x) = clipped {
+            line.set_cell(x, termwiz::cell::Cell::blank(), seqno);
+        }
+        line.resize(num_cols, seqno);
+    } else {
+        line.overlay_text_with_attribute(cursor_x, composing, CellAttributes::blank(), seqno);
+    }
+    line
+}
 
 fn block_cursor_vertical_bounds(
     pos_y: f32,
@@ -144,6 +195,7 @@ impl crate::TermWindow {
             shaped
         } else {
             let params = LineToElementParams {
+                num_cols,
                 config: params.config,
                 line: params.line,
                 palette: params.palette,
@@ -775,10 +827,13 @@ impl crate::TermWindow {
         let cell_clusters = if let Some((cursor_x, composing)) =
             params.shape_key.as_ref().and_then(|k| k.composing.as_ref())
         {
-            // Create an updated line with the composition overlaid
-            let mut line = params.line.clone();
-            let seqno = line.current_seqno();
-            line.overlay_text_with_attribute(*cursor_x, &composing, CellAttributes::blank(), seqno);
+            let line = composition_line(
+                params.line,
+                *cursor_x,
+                composing,
+                params.num_cols,
+                params.config.ime_preedit_rendering,
+            );
             line.cluster(bidi_hint)
         } else {
             params.line.cluster(bidi_hint)
@@ -945,6 +1000,82 @@ impl crate::TermWindow {
         }
 
         Ok((shaped, invalidate_on_hover_change))
+    }
+}
+
+#[cfg(test)]
+mod composition_tests {
+    use super::*;
+
+    #[test]
+    fn empty_or_out_of_bounds_preedit_keeps_a_wide_character() {
+        let original = wezterm_term::Line::from("한ab");
+        for (cursor, preedit) in [(1, ""), (4, "x")] {
+            let rendered = composition_line(
+                &original,
+                cursor,
+                preedit,
+                4,
+                ImePreeditRendering::BuiltinInsert,
+            );
+            assert_eq!(rendered.as_str(), "한ab");
+        }
+    }
+
+    #[test]
+    fn insert_preedit_handles_a_wide_character_continuation() {
+        let original = wezterm_term::Line::from("한ab");
+        for (preedit, columns, expected) in [("x", 5, " x ab"), ("文", 6, " 文 ab")] {
+            let rendered = composition_line(
+                &original,
+                1,
+                preedit,
+                columns,
+                ImePreeditRendering::BuiltinInsert,
+            );
+            assert_eq!(rendered.as_str(), expected);
+            assert_eq!(original.as_str(), "한ab");
+        }
+    }
+
+    #[test]
+    fn insert_preedit_preserves_korean_suffix_and_terminal_buffer() {
+        let original = wezterm_term::Line::from("가나다라");
+        let rendered = composition_line(&original, 4, "마", 10, ImePreeditRendering::BuiltinInsert);
+        assert_eq!(rendered.as_str(), "가나마다라");
+        assert_eq!(original.as_str(), "가나다라");
+    }
+
+    #[test]
+    fn overlay_preedit_keeps_legacy_behavior() {
+        let original = wezterm_term::Line::from("가나다라");
+        let rendered = composition_line(&original, 4, "마", 10, ImePreeditRendering::Builtin);
+        assert_eq!(rendered.as_str(), "가나마라");
+    }
+
+    #[test]
+    fn insert_preedit_clips_wide_glyph_at_pane_edge() {
+        let original = wezterm_term::Line::from("abcd");
+        let rendered = composition_line(&original, 3, "마", 4, ImePreeditRendering::BuiltinInsert);
+        assert_eq!(rendered.len(), 4);
+        assert_eq!(rendered.as_str(), "abc ");
+    }
+
+    #[test]
+    fn insert_preedit_preserves_combining_graphemes_and_suffix_style() {
+        let mut original = wezterm_term::Line::from("abcd");
+        let mut cell = original.get_cell(2).unwrap().as_cell();
+        cell.attrs_mut().set_italic(true);
+        original.set_cell(2, cell, original.current_seqno());
+        let rendered = composition_line(
+            &original,
+            2,
+            "e\u{301}",
+            5,
+            ImePreeditRendering::BuiltinInsert,
+        );
+        assert_eq!(rendered.as_str(), "abe\u{301}cd");
+        assert!(rendered.get_cell(3).unwrap().attrs().italic());
     }
 }
 

@@ -4,7 +4,7 @@
 #
 
 app = 'kaku-relay'
-primary_region = 'nrt'
+primary_region = 'sin'
 
 [build]
 
@@ -17,7 +17,7 @@ primary_region = 'nrt'
   processes = ['app']
 
 [[vm]]
-  memory = '1gb'
+  memory = '256mb'
   cpu_kind = 'shared'
   cpus = 1
-  memory_mb = 1024
+  memory_mb = 256

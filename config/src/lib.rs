@@ -1353,6 +1353,74 @@ return tab, {{ tab }}, panes, effective_config
     }
 
     #[test]
+    fn bundled_kaku_lua_pane_titles_are_opt_in_and_keep_manual_renames() -> anyhow::Result<()> {
+        let bundled = Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../assets/macos/Kaku.app/Contents/Resources/kaku.lua");
+        let source = std::fs::read_to_string(&bundled)?;
+        let lua = crate::lua::make_lua_context(&bundled)?;
+        let wezterm: mlua::Table = lua.load("return require 'wezterm'").eval()?;
+        wezterm.set(
+            "column_width",
+            lua.create_function(|_, text: String| {
+                Ok(termwiz::cell::unicode_column_width(&text, None))
+            })?,
+        )?;
+        smol::block_on(lua.load(&source).eval_async::<mlua::Value>())?;
+        let tab_callbacks: mlua::Table =
+            lua.named_registry_value("wezterm-event-format-tab-title")?;
+        let window_callbacks: mlua::Table =
+            lua.named_registry_value("wezterm-event-format-window-title")?;
+        lua.globals().set(
+            "test_tab_callback",
+            tab_callbacks.get::<_, mlua::Function>(1)?,
+        )?;
+        lua.globals().set(
+            "test_window_callback",
+            window_callbacks.get::<_, mlua::Function>(1)?,
+        )?;
+        lua.load(r#"
+local tab_callback = test_tab_callback
+local window_callback = test_window_callback
+local p1 = { pane_id = 1, title = 'test-title', current_working_dir = 'file:///tmp/project', user_vars = {} }
+local p2 = { pane_id = 2, title = 'other-title', current_working_dir = 'file:///tmp/other', user_vars = {} }
+local tab = { tab_id = 1, tab_index = 0, tab_title = '', active_pane = p1, panes = {p1}, status = 'none' }
+local cfg = { resolved_palette = {tab_bar = {}}, tab_title_use_pane_title = true }
+local function title_text()
+  local text = ''
+  for _, item in ipairs(tab_callback(tab, {tab}, tab.panes, cfg, false, 32)) do
+    text = text .. (item.Text or '')
+  end
+  return text:match('^%s*(.-)%s*$')
+end
+assert(title_text() == 'test-title')
+assert(window_callback(tab, p1, {tab}, tab.panes, cfg) == 'test-title')
+tab.panes = {p1, p2}
+assert(title_text() == 'test-title')
+tab.tab_title = 'manual-name'
+assert(title_text() == 'manual-name')
+assert(window_callback(tab, p1, {tab}, tab.panes, cfg) == 'manual-name')
+tab.tab_title = ''
+tab.panes = {p1}
+cfg.tab_title_use_pane_title = false
+assert(title_text() ~= 'test-title')
+cfg.tab_title_use_pane_title = true
+p1.title = ''
+assert(title_text() ~= '')
+cfg.tab_title_use_pane_title = false
+local fallback = title_text()
+cfg.tab_title_use_pane_title = true
+p1.title = 'kaku'
+assert(title_text() == fallback)
+tab.panes = {p1, p2}
+cfg.tab_title_use_pane_title = false
+local split_fallback = title_text()
+cfg.tab_title_use_pane_title = true
+assert(title_text() == split_fallback)
+"#).exec()?;
+        Ok(())
+    }
+
+    #[test]
     fn bundled_kaku_lua_foreground_process_tab_titles_default_to_off() {
         let bundled = Path::new(env!("CARGO_MANIFEST_DIR"))
             .join("../assets/macos/Kaku.app/Contents/Resources/kaku.lua");

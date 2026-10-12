@@ -2887,7 +2887,7 @@ dependencies = [
 
 [[package]]
 name = "kaku"
-version = "0.21.0"
+version = "0.22.0"
 dependencies = [
  "anyhow",
  "base64 0.22.1",
@@ -2938,7 +2938,7 @@ version = "0.1.0"
 
 [[package]]
 name = "kaku-gui"
-version = "0.21.0"
+version = "0.22.0"
 dependencies = [
  "anyhow",
  "base64 0.22.1",
@@ -3035,6 +3035,7 @@ version = "0.8.0"
 dependencies = [
  "anyhow",
  "axum",
+ "base64 0.22.1",
  "config",
  "fastrand",
  "futures-util",
@@ -3042,12 +3043,16 @@ dependencies = [
  "log",
  "mux",
  "parking_lot",
+ "promise",
  "qrcode",
+ "ring",
  "rustls",
  "serde",
  "serde_json",
+ "termwiz",
  "tokio",
  "tokio-tungstenite 0.26.2",
+ "wezterm-term",
 ]
 
 [[package]]

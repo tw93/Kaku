@@ -94,11 +94,45 @@ fn terminal_context_menu_actions(has_selection: bool) -> Vec<(&'static str, KeyA
             split(config::keyassignment::PaneDirection::Down),
         ),
         (
+            "New Tab",
+            KeyAssignment::SpawnTab(SpawnTabDomain::CurrentPaneDomain),
+        ),
+        (
             "Close Pane",
             KeyAssignment::CloseCurrentPane { confirm: true },
         ),
+        (
+            "Close Tab",
+            KeyAssignment::CloseCurrentTab { confirm: true },
+        ),
     ]);
     actions
+}
+
+/// Right-click menu for a tab in the tab bar. Closing a tab otherwise needs a
+/// middle button or the keyboard, which pointer-only setups such as touch over
+/// remote desktop do not have.
+fn tab_context_menu_actions() -> [(&'static str, KeyAssignment); 3] {
+    [
+        (
+            "New Tab",
+            KeyAssignment::SpawnTab(SpawnTabDomain::CurrentPaneDomain),
+        ),
+        ("Tab Navigator", KeyAssignment::ShowTabNavigator),
+        (
+            "Close Tab",
+            KeyAssignment::CloseCurrentTab { confirm: true },
+        ),
+    ]
+}
+
+/// Context-menu items deliberately have no AppKit keyEquivalent. Kaku's
+/// configurable InputMap remains the shortcut source of truth.
+#[cfg(target_os = "macos")]
+fn pane_action_menu_item(title: &str, action: KeyAssignment, pane_id: usize) -> MenuItem {
+    let item = MenuItem::new_with(title, Some(sel!(kakuPerformKeyAssignment:)), "");
+    item.set_represented_item(RepresentedItem::KeyAssignmentForPane { action, pane_id });
+    item
 }
 
 /// Per-window state describing in-flight window-level drag interactions
@@ -138,6 +172,10 @@ pub(crate) struct MouseInputState {
     pub selection_drag_active: bool,
     /// Keeps track of double and triple clicks
     pub last_mouse_click: Option<LastMouseClick>,
+    /// Button of a press that reached the tab bar through the touch band
+    /// above it. The rest of that gesture belongs to the tab bar, so its
+    /// motion and release must not fall through to terminal selection.
+    pub touch_band_press: Option<MousePress>,
 }
 
 impl Default for MouseInputState {
@@ -150,6 +188,7 @@ impl Default for MouseInputState {
             current_mouse_capture: None,
             selection_drag_active: false,
             last_mouse_click: None,
+            touch_band_press: None,
         }
     }
 }
@@ -181,6 +220,42 @@ fn tab_bar_item_starts_window_drag(item: TabBarItem) -> bool {
     matches!(
         item,
         TabBarItem::None | TabBarItem::LeftStatus | TabBarItem::RightStatus
+    )
+}
+
+/// How far a press may land above a bottom tab bar and still hit a tab. The
+/// retro bar is one glyph row (about 22pt at 2x), which is hard to hit with a
+/// finger over remote desktop; this keeps the visuals and widens the target
+/// into the bottom of the last terminal row.
+const BOTTOM_TAB_BAR_TOUCH_EXTENSION_PT: usize = 12;
+
+/// Maps a press just above a bottom tab bar onto the bar's top edge. The band
+/// covers the padding strip between the last terminal row and the bar, plus
+/// `extension` pixels of the last row itself.
+fn bottom_tab_bar_touch_y(
+    y: isize,
+    bar_top: isize,
+    terminal_bottom: isize,
+    extension: isize,
+) -> Option<isize> {
+    let band_top = bar_top.min(terminal_bottom) - extension;
+    (y >= band_top && y < bar_top).then_some(bar_top)
+}
+
+/// Only a plain left press (a tap) is widened. A middle press there is a
+/// paste into the last row and a right press is its context menu; neither
+/// may turn into closing or opening a tab.
+fn press_takes_touch_extension(kind: &WMEK, modifiers: window::Modifiers) -> bool {
+    matches!(kind, WMEK::Press(MousePress::Left)) && modifiers.remove_positional_mods().is_empty()
+}
+
+/// Only tabs and the new-tab button take the widened target. Status and
+/// empty bar regions start a window drag, which must never begin from inside
+/// the terminal.
+fn tab_bar_item_takes_touch_extension(item: &UIItemType) -> bool {
+    matches!(
+        item,
+        UIItemType::TabBar(TabBarItem::Tab { .. } | TabBarItem::NewTabButton)
     )
 }
 
@@ -624,6 +699,47 @@ impl super::TermWindow {
             .cloned()
     }
 
+    /// Resolves a plain left press (a tap) just above a bottom tab bar to the
+    /// tab under it. Middle and right presses stay with the terminal, so a
+    /// middle-click paste on the last row can never close a tab. Hover, wheel,
+    /// modified clicks and gestures already owned by the terminal keep their
+    /// normal routing.
+    fn resolve_bottom_tab_bar_touch_item(
+        &self,
+        event: &MouseEvent,
+        terminal_bottom: isize,
+    ) -> Option<UIItem> {
+        if !self.show_tab_bar
+            || !self.config.tab_bar_at_bottom
+            || !press_takes_touch_extension(&event.kind, event.modifiers)
+            || self.mouse.current_mouse_capture.is_some()
+        {
+            return None;
+        }
+        let bar_top = self
+            .ui_items
+            .iter()
+            .filter(|item| matches!(item.item_type, UIItemType::TabBar(_)))
+            .map(|item| item.y)
+            .min()? as isize;
+        #[cfg(target_os = "macos")]
+        let base_dpi: usize = 72;
+        #[cfg(not(target_os = "macos"))]
+        let base_dpi: usize = 96;
+        let extension = (BOTTOM_TAB_BAR_TOUCH_EXTENSION_PT * self.dimensions.dpi / base_dpi)
+            .max(BOTTOM_TAB_BAR_TOUCH_EXTENSION_PT) as isize;
+        let y = bottom_tab_bar_touch_y(event.coords.y, bar_top, terminal_bottom, extension)?;
+        self.ui_items
+            .iter()
+            .rev()
+            .find(|item| {
+                // Probe at each item's own top: fancy tabs sit below the bar top.
+                tab_bar_item_takes_touch_extension(&item.item_type)
+                    && item.hit_test(event.coords.x, y.max(item.y as isize))
+            })
+            .cloned()
+    }
+
     fn leave_ui_item(&mut self, item: &UIItem) {
         match item.item_type {
             UIItemType::TabBar(_) => {
@@ -650,6 +766,22 @@ impl super::TermWindow {
 
     pub fn mouse_event_impl(&mut self, event: MouseEvent, context: &dyn WindowOps) {
         log::trace!("{:?}", event);
+        if self.config.debug_key_events && matches!(event.kind, WMEK::Press(_) | WMEK::Release(_)) {
+            // Remote desktop clients map touch gestures to clicks in their own
+            // ways (a long press may arrive as Ctrl+click or a plain press), so
+            // log what actually arrives alongside the key events.
+            log::info!(
+                "mouse_event {:?} mods={:?} buttons={:?} clicks={}",
+                event.kind,
+                event.modifiers,
+                event.mouse_buttons,
+                event.platform_click_count
+            );
+        }
+        #[cfg(feature = "remote")]
+        if matches!(event.kind, WMEK::Press(_)) {
+            self.reclaim_active_tab_size();
+        }
         let pane = match self.get_active_pane_or_overlay() {
             Some(pane) => pane,
             None => return,
@@ -676,18 +808,7 @@ impl super::TermWindow {
 
         let border = self.get_os_border();
 
-        let top_tab_bar_visible = self.show_tab_bar && !self.config.tab_bar_at_bottom;
-        let top_bar_height = if top_tab_bar_visible {
-            self.tab_bar_pixel_height().unwrap_or(0.) as isize
-        } else {
-            0
-        };
-        let first_line_offset = top_bar_height
-            + super::render::borders::content_border_top(
-                self.window_state,
-                top_tab_bar_visible,
-                border.top.get(),
-            ) as isize;
+        let first_line_offset = self.terminal_first_row_offset() as isize;
 
         let (padding_left, padding_top) = self.padding_left_top();
         let terminal_origin_y = first_line_offset + padding_top as isize;
@@ -765,6 +886,10 @@ impl super::TermWindow {
 
         match event.kind {
             WMEK::Release(ref press) => {
+                let ends_touch_band_press = self.mouse.touch_band_press == Some(*press);
+                if ends_touch_band_press {
+                    self.mouse.touch_band_press = None;
+                }
                 if press == &MousePress::Left && self.window_drag.edge_drag_in_progress {
                     self.window_drag.edge_drag_in_progress = false;
                     self.finish_mouse_release(*press);
@@ -807,11 +932,16 @@ impl super::TermWindow {
                         return;
                     }
                 }
+                if ends_touch_band_press {
+                    self.finish_mouse_release(*press);
+                    return;
+                }
             }
 
             WMEK::Press(ref press) => {
                 // If a previous edge drag never received its Release, reset now.
                 self.window_drag.edge_drag_in_progress = false;
+                self.mouse.touch_band_press = None;
                 capture_mouse = true;
 
                 // Perform click counting
@@ -911,6 +1041,14 @@ impl super::TermWindow {
                 if self.drag_tab(&event, context) {
                     return;
                 }
+                if self.mouse.touch_band_press.is_some() {
+                    if event.mouse_buttons == WMB::NONE {
+                        // The release never arrived; stop owning the gesture.
+                        self.mouse.touch_band_press = None;
+                    } else {
+                        return;
+                    }
+                }
             }
             WMEK::VertWheel(_) | WMEK::HorzWheel(_) => {
                 if self.window_drag.is_window_dragging {
@@ -950,7 +1088,21 @@ impl super::TermWindow {
             self.mouse.current_mouse_capture,
             None | Some(MouseCapture::UI)
         ) {
-            let ui_item = self.resolve_ui_item(&event);
+            let terminal_bottom = terminal_origin_y + self.terminal_size.pixel_height as isize;
+            let direct_item = self.resolve_ui_item(&event);
+            let touch_band_item = match direct_item {
+                Some(_) => None,
+                None => self.resolve_bottom_tab_bar_touch_item(&event, terminal_bottom),
+            };
+            if let (Some(_), WMEK::Press(press)) = (&touch_band_item, &event.kind) {
+                self.mouse.touch_band_press = Some(*press);
+                // The press was counted on the last terminal row; move it off
+                // the grid so it cannot chain into a terminal double-click.
+                if let Some(click) = self.mouse.last_mouse_click.as_mut() {
+                    click.position.row = i64::MIN;
+                }
+            }
+            let ui_item = direct_item.or(touch_band_item);
 
             match (self.mouse.last_ui_item.take(), &ui_item) {
                 (Some(prior), Some(item)) => {
@@ -1075,6 +1227,7 @@ impl super::TermWindow {
         start_event: MouseEvent,
         x: usize,
         y: i64,
+        grab: f32,
         context: &dyn WindowOps,
     ) {
         let mux = Mux::get();
@@ -1099,6 +1252,7 @@ impl super::TermWindow {
             };
             self.split_drag_state = Some(super::SplitDragState {
                 tab_id: tab.tab_id(),
+                grab,
             });
             tab
         };
@@ -1173,7 +1327,52 @@ impl super::TermWindow {
     ) {
         match item.item_type {
             UIItemType::Split(split) => {
-                self.drag_split(item, split, start_event, x, y, context);
+                // Measure drags against the drawn line rather than the floored
+                // grid cell; with an even row gutter the line sits on a row
+                // edge (#562). The hit area spans the whole gutter, so offset by
+                // where the drag started instead of snapping to the pointer.
+                let (padding_left, padding_top) = self.padding_left_top();
+                let cell_width = self.render_metrics.cell_size.width as f32;
+                let cell_height = self.render_metrics.cell_size.height as f32;
+                let col_origin = padding_left + self.get_os_border().left.get() as f32;
+                let row_origin = self.terminal_first_row_offset() + padding_top;
+                let row_center = crate::termwindow::render::split::split_row_center_offset(
+                    self.config.split_pane_gap.max(1) as usize,
+                );
+                let pos = |coords: &::window::Point| -> f32 {
+                    match split.direction {
+                        SplitDirection::Horizontal => (coords.x as f32 - col_origin) / cell_width,
+                        SplitDirection::Vertical => (coords.y as f32 - row_origin) / cell_height,
+                    }
+                };
+                let grab = match &self.split_drag_state {
+                    Some(state) => state.grab,
+                    // First frame: `split` is still the line as it was pressed.
+                    None => {
+                        let line = match split.direction {
+                            SplitDirection::Horizontal => split.left as f32 + 0.5,
+                            SplitDirection::Vertical => split.top as f32 + row_center,
+                        };
+                        pos(&start_event.coords) - line
+                    }
+                };
+                let x = match split.direction {
+                    SplitDirection::Horizontal => {
+                        crate::termwindow::render::split::split_drag_col(pos(&event.coords), grab)
+                            .max(0) as usize
+                    }
+                    SplitDirection::Vertical => x,
+                };
+                let y = if y < 0 || split.direction == SplitDirection::Horizontal {
+                    y
+                } else {
+                    crate::termwindow::render::split::split_drag_row(
+                        pos(&event.coords) - grab,
+                        row_center,
+                    )
+                    .max(0)
+                };
+                self.drag_split(item, split, start_event, x, y, grab, context);
             }
             UIItemType::ScrollThumb => {
                 self.drag_scroll_thumb(item, start_event, event, context);
@@ -1229,6 +1428,38 @@ impl super::TermWindow {
             _ => {}
         }
         context.set_cursor(Some(MouseCursor::Arrow));
+    }
+
+    /// Opens the tab menu for the clicked tab. Its actions target that tab's
+    /// active pane, so they apply to the tab under the pointer even when it is
+    /// not the active one.
+    fn show_tab_context_menu(
+        &mut self,
+        tab_idx: usize,
+        event: &MouseEvent,
+        context: &dyn WindowOps,
+    ) {
+        #[cfg(target_os = "macos")]
+        {
+            let pane_id = Mux::get()
+                .get_window(self.mux_window_id)
+                .and_then(|window| window.get_by_idx(tab_idx).cloned())
+                .and_then(|tab| tab.get_active_pane())
+                .map(|pane| pane.pane_id().as_usize());
+            if let Some(pane_id) = pane_id {
+                let menu = Menu::new_with_title("");
+                for (title, action) in tab_context_menu_actions() {
+                    if matches!(action, KeyAssignment::CloseCurrentTab { .. }) {
+                        menu.add_item(&MenuItem::new_separator());
+                    }
+                    menu.add_item(&pane_action_menu_item(title, action, pane_id));
+                }
+                context.show_context_menu(menu, event.screen_coords);
+                return;
+            }
+        }
+        let _ = (tab_idx, event, context);
+        self.show_tab_navigator();
     }
 
     fn do_new_tab_button_click(&mut self, button: MousePress) {
@@ -1385,9 +1616,9 @@ impl super::TermWindow {
                 | TabBarItem::WindowButton(_) => {}
             },
             WMEK::Press(MousePress::Right) => match item {
-                TabBarItem::Tab { .. } => {
+                TabBarItem::Tab { tab_idx, .. } => {
                     self.tab_drag_state = None;
-                    self.show_tab_navigator();
+                    self.show_tab_context_menu(tab_idx, &event, context);
                 }
                 TabBarItem::NewTabButton { .. } => {
                     self.tab_drag_state = None;
@@ -2116,16 +2347,8 @@ impl super::TermWindow {
                         let has_selection =
                             !self.selection(mux::pane::PaneId::new(pane_id)).is_empty();
                         let menu = Menu::new_with_title("");
-                        let selector = sel!(kakuPerformKeyAssignment:);
                         for (title, action) in terminal_context_menu_actions(has_selection) {
-                            // Context-menu items deliberately have no AppKit keyEquivalent.
-                            // Kaku's configurable InputMap remains the shortcut source of truth.
-                            let item = MenuItem::new_with(title, Some(selector), "");
-                            item.set_represented_item(RepresentedItem::KeyAssignmentForPane {
-                                action,
-                                pane_id,
-                            });
-                            menu.add_item(&item);
+                            menu.add_item(&pane_action_menu_item(title, action, pane_id));
                         }
                         context.show_context_menu(menu, event.screen_coords);
                         return;
@@ -2252,11 +2475,13 @@ fn wmek_to_tmek_and_button(event: &MouseEvent) -> (TMEK, TMB) {
 #[cfg(test)]
 mod tests {
     use super::{
-        manual_drag_window_top_left, mouse_dispatch_target, option_click_cursor_bytes,
+        bottom_tab_bar_touch_y, manual_drag_window_top_left, mouse_dispatch_target,
+        option_click_cursor_bytes, press_takes_touch_extension,
         should_bypass_wheel_assignment_in_alt, should_preserve_tmux_bypass_reporting,
         should_show_terminal_context_menu, should_use_manual_window_drag,
         should_use_native_maximized_window_drag, should_zoom_title_area,
-        tab_bar_item_starts_window_drag, terminal_context_menu_actions,
+        tab_bar_item_starts_window_drag, tab_bar_item_takes_touch_extension,
+        tab_context_menu_actions, terminal_context_menu_actions,
         title_area_double_click_zoom_action, wheel_during_terminal_selection_action,
         MouseDispatchTarget, OptionClickRowInfo, SelectionDragWheelAction, TitleAreaZoomAction,
     };
@@ -2661,6 +2886,92 @@ mod tests {
             SelectionWheelScrollBehavior::default(),
             SelectionWheelScrollBehavior::Extend
         );
+    }
+
+    #[test]
+    fn bottom_tab_bar_touch_band_covers_gap_and_part_of_last_row() {
+        // Terminal ends at 1000, 20px of padding, bar starts at 1020, 24px extension.
+        let resolve = |y| bottom_tab_bar_touch_y(y, 1020, 1000, 24);
+        assert_eq!(resolve(1019), Some(1020), "padding strip above the bar");
+        assert_eq!(resolve(1000), Some(1020), "bottom edge of the last row");
+        assert_eq!(resolve(976), Some(1020), "top of the extension");
+        assert_eq!(resolve(975), None, "rest of the last row stays terminal");
+        assert_eq!(resolve(1020), None, "the bar itself resolves directly");
+        // Maximized: no padding strip, only the extension remains.
+        assert_eq!(bottom_tab_bar_touch_y(976, 1000, 1000, 24), Some(1000));
+        assert_eq!(bottom_tab_bar_touch_y(975, 1000, 1000, 24), None);
+    }
+
+    #[test]
+    fn only_a_plain_left_press_takes_the_touch_extension() {
+        assert!(press_takes_touch_extension(
+            &MouseEventKind::Press(MousePress::Left),
+            Modifiers::NONE
+        ));
+        assert!(press_takes_touch_extension(
+            &MouseEventKind::Press(MousePress::Left),
+            Modifiers::ENHANCED_KEY
+        ));
+        for press in [MousePress::Middle, MousePress::Right] {
+            assert!(!press_takes_touch_extension(
+                &MouseEventKind::Press(press),
+                Modifiers::NONE
+            ));
+        }
+        assert!(!press_takes_touch_extension(
+            &MouseEventKind::Press(MousePress::Left),
+            Modifiers::SUPER
+        ));
+        assert!(!press_takes_touch_extension(
+            &MouseEventKind::Move,
+            Modifiers::NONE
+        ));
+    }
+
+    #[test]
+    fn only_tabs_and_new_tab_button_take_the_touch_extension() {
+        use crate::tabbar::TabBarItem;
+        use crate::termwindow::UIItemType;
+        assert!(tab_bar_item_takes_touch_extension(&UIItemType::TabBar(
+            TabBarItem::Tab {
+                tab_idx: 0,
+                active: false
+            }
+        )));
+        assert!(tab_bar_item_takes_touch_extension(&UIItemType::TabBar(
+            TabBarItem::NewTabButton
+        )));
+        for item in [
+            TabBarItem::None,
+            TabBarItem::LeftStatus,
+            TabBarItem::RightStatus,
+        ] {
+            assert!(!tab_bar_item_takes_touch_extension(&UIItemType::TabBar(
+                item
+            )));
+        }
+        assert!(!tab_bar_item_takes_touch_extension(
+            &UIItemType::ScrollThumb
+        ));
+    }
+
+    #[test]
+    fn context_menus_offer_tab_lifecycle_with_confirmation() {
+        use config::keyassignment::SpawnTabDomain;
+        let new_tab = KeyAssignment::SpawnTab(SpawnTabDomain::CurrentPaneDomain);
+        let close_tab = KeyAssignment::CloseCurrentTab { confirm: true };
+        let terminal = terminal_context_menu_actions(false);
+        assert!(terminal.contains(&("New Tab", new_tab.clone())));
+        assert!(terminal.contains(&("Close Tab", close_tab.clone())));
+
+        let tab = tab_context_menu_actions();
+        assert_eq!(
+            tab.iter().map(|(title, _)| *title).collect::<Vec<_>>(),
+            ["New Tab", "Tab Navigator", "Close Tab"]
+        );
+        assert!(tab.contains(&("New Tab", new_tab)));
+        assert!(tab.contains(&("Tab Navigator", KeyAssignment::ShowTabNavigator)));
+        assert!(tab.contains(&("Close Tab", close_tab)));
     }
 
     #[test]

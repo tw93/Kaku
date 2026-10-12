@@ -747,6 +747,12 @@ impl LauncherState {
                                 return Ok(Some(action));
                             }
                         }
+                    } else if y as usize > self.filtered_entries.len()
+                        && mouse_buttons != MouseButtons::NONE
+                    {
+                        // A press below the list closes it like Esc, so
+                        // pointer-only setups are not stuck in the navigator.
+                        break;
                     }
                 }
                 InputEvent::Key(KeyEvent {
@@ -832,6 +838,30 @@ mod tests {
             pane_id: 42.into(),
             tab_id,
         }
+    }
+
+    #[test]
+    fn pointer_only_users_can_dismiss_list_overlays() {
+        // Touch over remote desktop has no easy Esc: a press away from the
+        // list closes the tab navigator and the command palette.
+        let launcher = include_str!("launcher.rs")
+            .split("#[cfg(test)]")
+            .next()
+            .unwrap();
+        assert!(launcher.contains(
+            "} else if y as usize > self.filtered_entries.len()\n                        && mouse_buttons != MouseButtons::NONE\n                    {"
+        ));
+        let palette = include_str!("../termwindow/palette.rs");
+        assert!(palette.contains("} else if !self.point_in_panel(abs_x, abs_y) {"));
+        let dismiss = palette
+            .split("} else if !self.point_in_panel(abs_x, abs_y) {")
+            .nth(1)
+            .unwrap();
+        assert!(dismiss
+            .split('}')
+            .next()
+            .unwrap()
+            .contains("term_window.cancel_modal();"));
     }
 
     #[test]

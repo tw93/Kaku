@@ -1,6 +1,6 @@
 # Keybindings
 
-All keybindings use macOS-native modifier keys. `Opt` = Option/Alt, `Ctrl` = Control.
+`Opt` = Option/Alt, `Ctrl` = Control.
 
 ## Window
 
@@ -8,10 +8,10 @@ All keybindings use macOS-native modifier keys. `Opt` = Option/Alt, `Ctrl` = Con
 | :--- | :--- |
 | New window | `Cmd + N` |
 | Close pane / tab / hide | `Cmd + W` |
-| Close current tab | `Cmd + Shift + W` |
 | Hide application | `Cmd + H` |
 | Minimize window | `Cmd + M` |
 | Toggle fullscreen | `Cmd + Ctrl + F` |
+| Toggle always on top | `Cmd + Shift + Up` |
 | Quit | `Cmd + Q` |
 | Toggle global window | `Cmd + Opt + Ctrl + K` |
 
@@ -75,8 +75,6 @@ All keybindings use macOS-native modifier keys. `Opt` = Option/Alt, `Ctrl` = Con
 | Browse remote files (SSH) | `Cmd + Shift + R` |
 | Open Doctor panel | `Ctrl + Shift + L` |
 
-> The Command Palette is the quickest way to find built-in commands when you do not remember a shortcut.
-
 ## Mouse
 
 | Action | Trigger |
@@ -102,6 +100,18 @@ table.insert(config.keys, {
   key = 'Space',
   mods = 'CMD|SHIFT',
   action = wezterm.action.EmitEvent('kaku-ai-chat'),
+})
+
+-- Example: copy and paste with Ctrl+Shift+C / Ctrl+Shift+V as on Linux:
+table.insert(config.keys, {
+  key = 'c',
+  mods = 'CTRL|SHIFT',
+  action = wezterm.action.CopyTo('Clipboard'),
+})
+table.insert(config.keys, {
+  key = 'v',
+  mods = 'CTRL|SHIFT',
+  action = wezterm.action.PasteFrom('Clipboard'),
 })
 ```
 

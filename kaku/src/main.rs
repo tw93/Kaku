@@ -123,42 +123,51 @@ enum SubCommand {
     #[command(short_flag_alias = 'e', hide = true)]
     BlockingStart(StartCommand),
 
-    #[command(name = "ai", about = "Manage AI settings")]
+    #[command(
+        name = "ai",
+        about = "Configure AI models, endpoints, and coding tools"
+    )]
     Ai(ai_config::AiConfigCommand),
 
     #[command(
         name = "chat",
-        about = "Start the AI chat in this terminal (alias for `k`)"
+        about = "Start interactive AI chat in this terminal (alias for `k`)"
     )]
     Chat(chat::ChatCommand),
 
-    #[command(name = "config", about = "Configure Kaku settings")]
+    #[command(
+        name = "config",
+        about = "Open interactive terminal settings and preferences"
+    )]
     Config(config_cmd::ConfigCommand),
 
-    #[command(name = "init", about = "Initialize Kaku shell integration")]
+    #[command(
+        name = "init",
+        about = "Set up shell integration and install optional CLI tools"
+    )]
     Init(init::InitCommand),
 
     #[command(
         name = "doctor",
-        about = "Check Kaku shell integration, environment, and runtime health"
+        about = "Check shell integration and environment, and write a diagnostic bundle"
     )]
     Doctor(doctor::DoctorCommand),
 
     #[command(
         name = "update",
-        about = "Download and install the latest Kaku release automatically"
+        about = "Check for updates and install the latest release"
     )]
     Update(update::UpdateCommand),
 
     #[command(
         name = "reset",
-        about = "Reset Kaku shell integration and managed defaults"
+        about = "Remove Kaku shell and tmux integration, reset managed defaults, delete AI memory"
     )]
     Reset(reset::ResetCommand),
 
     #[command(
         name = "cli",
-        about = "Interact with experimental mux server",
+        about = "Control tabs, panes, and windows from scripts",
         hide = true
     )]
     Cli(cli::CliCommand),
@@ -172,8 +181,15 @@ enum SubCommand {
     SetCwd(SetCwdCommand),
 
     #[cfg(feature = "remote")]
-    #[command(name = "remote", about = "Show QR code to connect Kaku iOS app")]
-    Remote,
+    #[command(
+        name = "remote",
+        about = "Show this Kaku's web link, to open its terminals from another device"
+    )]
+    Remote {
+        /// Replace the link; the old one stops working within seconds
+        #[arg(long)]
+        reset: bool,
+    },
 
     /// Generate shell completion information
     #[command(name = "shell-completion", hide = true)]
@@ -339,15 +355,23 @@ fn run() -> anyhow::Result<()> {
             cli::run_cli(&opts, cli)
         }
         #[cfg(feature = "remote")]
-        SubCommand::Remote => {
-            let state = kaku_remote::read_state()?;
-            let output = if let Some(relay) = &state.tunnel_relay {
-                kaku_remote::render_relay_qr_terminal(relay, &state.token)
+        SubCommand::Remote { reset } => {
+            let identity = if reset {
+                kaku_remote::reset_identity()?
             } else {
-                let host = lan_ip().unwrap_or_else(|| "127.0.0.1".to_string());
-                kaku_remote::render_qr_terminal(&host, state.port, &state.token)
+                kaku_remote::load_or_create_identity()?
             };
-            println!("{output}");
+            let state = kaku_remote::read_state()?;
+            let url = match &state.tunnel_relay {
+                Some(relay) => identity.link(relay),
+                // Without the relay the page is only reachable on this Mac,
+                // and its token changes with every Kaku launch.
+                None => format!("http://127.0.0.1:{}/#t={}", state.port, state.token),
+            };
+            println!("{}", kaku_remote::render_qr_terminal(&url));
+            if reset {
+                println!("The previous link stops working within a few seconds.");
+            }
             Ok(())
         }
         SubCommand::SetCwd(cmd) => cmd.run(),
@@ -408,16 +432,24 @@ fn select_main_menu_command() -> anyhow::Result<Option<SubCommand>> {
 
     const MENU_ITEMS: [(&str, &str, MenuChoice); 7] = [
         ("chat", "Start AI chat in this terminal", MenuChoice::Chat),
-        ("ai", "Manage AI tools and Kaku Assistant", MenuChoice::Ai),
+        (
+            "ai",
+            "Configure AI models, endpoints, and coding tools",
+            MenuChoice::Ai,
+        ),
         (
             "config",
             "Manage terminal and assistant settings",
             MenuChoice::Config,
         ),
-        ("init", "Initialize shell integration", MenuChoice::Init),
+        (
+            "init",
+            "Set up shell integration and install optional CLI tools",
+            MenuChoice::Init,
+        ),
         (
             "doctor",
-            "Run diagnostics for shell and runtime health",
+            "Check shell integration and write a diagnostic bundle",
             MenuChoice::Doctor,
         ),
         (
@@ -427,7 +459,7 @@ fn select_main_menu_command() -> anyhow::Result<Option<SubCommand>> {
         ),
         (
             "reset",
-            "Remove Kaku shell integration and managed defaults",
+            "Remove shell and tmux integration, reset managed defaults",
             MenuChoice::Reset,
         ),
     ];
@@ -456,7 +488,7 @@ fn select_main_menu_command() -> anyhow::Result<Option<SubCommand>> {
             "{green} | . \\ (_| ||   < | |_| |{reset}  {purple_bold}https://github.com/tw93/Kaku{reset}\r\n"
         ));
         out.push_str(&format!(
-            "{green} |_|\\_\\__,_||_|\\_\\ \\__,_|{reset}  {green}A fast, out-of-the-box terminal built for AI coding.{reset}\r\n"
+            "{green} |_|\\_\\__,_||_|\\_\\ \\__,_|{reset}  {green}An AI-friendly Mac terminal, ready out of the box.{reset}\r\n"
         ));
         out.push_str("\r\n");
         for (idx, (name, desc, _)) in MENU_ITEMS.iter().enumerate() {
@@ -647,12 +679,4 @@ fn resolve_gui_executable(exe_name: &str) -> anyhow::Result<PathBuf> {
         .into_iter()
         .next()
         .ok_or_else(|| anyhow!("unable to resolve GUI executable path"))
-}
-
-#[cfg(feature = "remote")]
-fn lan_ip() -> Option<String> {
-    use std::net::UdpSocket;
-    let sock = UdpSocket::bind("0.0.0.0:0").ok()?;
-    sock.connect("8.8.8.8:80").ok()?;
-    Some(sock.local_addr().ok()?.ip().to_string())
 }

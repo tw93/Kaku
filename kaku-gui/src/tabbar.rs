@@ -46,6 +46,19 @@ struct TitleText {
     items: Vec<FormatItem>,
 }
 
+/// The visible text of a tab title, without colors or attributes.
+#[cfg(feature = "remote")]
+fn title_plain_text(title: &TitleText) -> String {
+    title
+        .items
+        .iter()
+        .filter_map(|item| match item {
+            FormatItem::Text(text) => Some(text.as_str()),
+            _ => None,
+        })
+        .collect()
+}
+
 #[derive(Clone, Debug)]
 struct BatchTabTitles {
     callback_present: bool,
@@ -88,6 +101,30 @@ fn has_format_tab_title_callback(lua: &mlua::Lua) -> mlua::Result<bool> {
     Ok(matches!(tbl, mlua::Value::Table(_)))
 }
 
+/// The title a fresh terminal reports before any program sets one through
+/// OSC 0/2 (`term/src/terminalstate/mod.rs`). It is a placeholder, not a title
+/// an application chose, so `tab_title_use_pane_title` must fall through it.
+const DEFAULT_PANE_TITLE: &str = "kaku";
+
+/// The pane title an application set through OSC 0/2, when the user opted into
+/// showing it with `tab_title_use_pane_title`.
+fn app_pane_title<'a>(config: &ConfigHandle, pane: &'a PaneInformation) -> Option<&'a str> {
+    (config.tab_title_use_pane_title && !pane.title.is_empty() && pane.title != DEFAULT_PANE_TITLE)
+        .then_some(pane.title.as_str())
+}
+
+fn ssh_destination_for_default_title(
+    tab: &TabInformation,
+    config: &ConfigHandle,
+) -> Option<String> {
+    let pane = tab.active_pane.as_ref()?;
+    if tab.tab_title.is_empty() && app_pane_title(config, pane).is_none() {
+        ssh_destination_for_pane(pane)
+    } else {
+        None
+    }
+}
+
 fn call_format_tab_titles_batch_with_lua(
     lua: &mlua::Lua,
     tab_info: &[TabInformation],
@@ -107,12 +144,10 @@ fn call_format_tab_titles_batch_with_lua(
 
     let mut results = Vec::with_capacity(n);
     for tab in tab_info {
-        // SSH tabs skip Lua; caller will use build_default_title fallback.
-        if let Some(pane) = &tab.active_pane {
-            if tab.tab_title.is_empty() && ssh_destination_for_pane(pane).is_some() {
-                results.push(None);
-                continue;
-            }
+        // Default SSH titles skip Lua unless pane titles are enabled.
+        if ssh_destination_for_default_title(tab, config).is_some() {
+            results.push(None);
+            continue;
         }
 
         let result = config::lua::emit_sync_callback(
@@ -147,7 +182,7 @@ fn call_format_tab_titles_batch_with_lua(
 
 /// Calls format-tab-title for all tabs in a single Lua scope, serializing
 /// Config, tabs, and panes sequences only once instead of once per tab.
-/// Returns None for SSH tabs (which skip Lua) or when no callback is registered.
+/// Returns None for default SSH titles or when no callback is registered.
 fn call_format_tab_titles_batch(
     tab_info: &[TabInformation],
     pane_info: &[PaneInformation],
@@ -322,12 +357,8 @@ fn compute_tab_title_from_precomputed(
     config: &ConfigHandle,
     precomputed: Option<TitleText>,
 ) -> TitleText {
-    if let Some(pane) = &tab.active_pane {
-        if tab.tab_title.is_empty() {
-            if let Some(ssh_host) = ssh_destination_for_pane(pane) {
-                return build_default_title(tab, config, &ssh_title(&ssh_host), false, true);
-            }
-        }
+    if let Some(ssh_host) = ssh_destination_for_default_title(tab, config) {
+        return build_default_title(tab, config, &ssh_title(&ssh_host), false, true);
     }
     match precomputed {
         Some(title) => title,
@@ -335,6 +366,8 @@ fn compute_tab_title_from_precomputed(
             if let Some(pane) = &tab.active_pane {
                 let title = if !tab.tab_title.is_empty() {
                     tab.tab_title.clone()
+                } else if let Some(app_title) = app_pane_title(config, pane) {
+                    app_title.to_string()
                 } else if let Some(multi) =
                     tab_multi_pane_title(tab.tab_id, config.tab_title_show_foreground_process)
                 {
@@ -381,7 +414,11 @@ pub fn compute_tab_plain_title(tab: &TabInformation) -> String {
     }
 
     if let Some(pane) = &tab.active_pane {
-        let include_foreground_process = config::configuration().tab_title_show_foreground_process;
+        let config = config::configuration();
+        if let Some(app_title) = app_pane_title(&config, pane) {
+            return app_title.to_string();
+        }
+        let include_foreground_process = config.tab_title_show_foreground_process;
         return choose_plain_tab_title(
             ssh_destination_for_pane(pane),
             tab_multi_pane_title(tab.tab_id, include_foreground_process),
@@ -404,6 +441,9 @@ pub(crate) fn compute_pane_plain_title(
     pane: &PaneInformation,
     include_foreground_process: bool,
 ) -> String {
+    if let Some(app_title) = app_pane_title(&config::configuration(), pane) {
+        return app_title.to_string();
+    }
     ssh_destination_for_pane(pane)
         .or_else(|| pane_context_title(pane, include_foreground_process))
         .unwrap_or_else(|| pane.title.clone())
@@ -1070,6 +1110,11 @@ impl TabBarState {
 
             let mut tab_title =
                 compute_tab_title_from_precomputed(&tab_info[tab_idx], config, precomputed.clone());
+            #[cfg(feature = "remote")]
+            kaku_remote::publish_tab_title(
+                tab_info[tab_idx].tab_id.into(),
+                &title_plain_text(&tab_title),
+            );
             let mut cell_attrs = if active {
                 &active_cell_attrs
             } else {
@@ -1096,16 +1141,9 @@ impl TabBarState {
             if hover {
                 // The normal callback may return nil to opt into the default
                 // title while still customizing the hover state.
-                // SSH tabs skip Lua entirely: compute_tab_title_from_precomputed
-                // returns the SSH default title regardless of hover_precomputed.
-                let is_ssh_tab = tab_info[tab_idx]
-                    .active_pane
-                    .as_ref()
-                    .map(|p| {
-                        tab_info[tab_idx].tab_title.is_empty()
-                            && ssh_destination_for_pane(p).is_some()
-                    })
-                    .unwrap_or(false);
+                // Use the same SSH fallback policy as the normal title.
+                let is_ssh_tab =
+                    ssh_destination_for_default_title(&tab_info[tab_idx], config).is_some();
                 let hover_precomputed = if precomputed_titles.callback_present && !is_ssh_tab {
                     call_format_tab_title_hover(
                         &tab_info[tab_idx],
@@ -1383,6 +1421,91 @@ pub fn parse_status_text(text: &str, default_cell: CellAttributes) -> Line {
 #[cfg(test)]
 mod test {
     use super::*;
+
+    #[test]
+    fn ssh_pane_titles_keep_the_formatter_on_hover() -> anyhow::Result<()> {
+        config::designate_this_as_the_main_thread();
+        let config_file = tempfile::NamedTempFile::new()?;
+        let mut tab = make_tab(0, 0, false, "");
+        let mut user_vars = std::collections::HashMap::new();
+        user_vars.insert("WEZTERM_PROG".to_string(), "ssh test-host".to_string());
+        let pane = PaneInformation {
+            pane_id: 10000.into(),
+            pane_index: 0,
+            is_active: true,
+            is_zoomed: false,
+            has_unseen_output: false,
+            left: 0,
+            top: 0,
+            width: 80,
+            height: 24,
+            pixel_width: 0,
+            pixel_height: 0,
+            title: "application-title".to_string(),
+            user_vars,
+            progress: Progress::None,
+        };
+        for enabled in [false, true] {
+            std::fs::write(
+                config_file.path(),
+                format!(
+                    r#"
+local wezterm = require 'wezterm'
+wezterm.on('format-tab-title', function() return ' Lua title ' end)
+return {{ use_fancy_tab_bar = false, show_new_tab_button_in_tab_bar = false,
+          tab_title_use_pane_title = {} }}
+"#,
+                    enabled
+                ),
+            )?;
+            config::set_config_file_override(config_file.path());
+            config::reload();
+            let config = config::configuration_result()?;
+            assert_eq!(config.tab_title_use_pane_title, enabled);
+            // The second title is the terminal default: no program has set one
+            // yet, so the opt-in has nothing to show and SSH stays in charge (#566).
+            for (pane_title, app_title_set) in
+                [("application-title", true), (DEFAULT_PANE_TITLE, false)]
+            {
+                let mut pane = pane.clone();
+                pane.title = pane_title.to_string();
+                tab.active_pane = Some(pane.clone());
+                let tabs = [tab.clone()];
+                let panes = [pane.clone()];
+                let normal =
+                    TabBarState::new(80, None, &tabs, &panes, false, None, &config, "", "");
+                let normal_tab = normal
+                    .items
+                    .iter()
+                    .find(|entry| matches!(entry.item, TabBarItem::Tab { .. }))
+                    .expect("tab entry");
+                let hovered = TabBarState::new(
+                    80,
+                    Some(normal_tab.x),
+                    &tabs,
+                    &panes,
+                    false,
+                    None,
+                    &config,
+                    "",
+                    "",
+                );
+                let hovered_tab = hovered
+                    .items
+                    .iter()
+                    .find(|entry| matches!(entry.item, TabBarItem::Tab { .. }))
+                    .expect("hovered tab entry");
+                if enabled && app_title_set {
+                    assert_eq!(normal_tab.title.as_str(), " Lua title ");
+                } else {
+                    assert!(normal_tab.title.as_str().contains("test-host"));
+                }
+                assert_eq!(normal_tab.title.as_str(), hovered_tab.title.as_str());
+                assert_eq!(normal_tab.width, hovered_tab.width);
+            }
+        }
+        Ok(())
+    }
 
     fn plain_text(title: &TitleText) -> String {
         title

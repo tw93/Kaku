@@ -215,6 +215,38 @@ fn register_lua_modules() {
     }
 }
 
+/// Markers Claude Code sets on the processes of one running session.
+const CLAUDE_SESSION_MARKERS: &[&str] = &[
+    "CLAUDECODE",
+    "CLAUDE_PID",
+    "CLAUDE_EFFORT",
+    "CLAUDE_CODE_CHILD_SESSION",
+    "CLAUDE_CODE_ENTRYPOINT",
+    "CLAUDE_CODE_EXECPATH",
+    "CLAUDE_CODE_SESSION_ID",
+    "CLAUDE_CODE_SESSION_ATTENDED",
+    "CLAUDE_CODE_MESSAGING_SOCKET",
+    "CLAUDE_CODE_MESSAGING_TOKEN",
+    "CLAUDE_CODE_HARBOR_KITE",
+];
+
+/// When Kaku itself is launched from inside a Claude Code session (an agent
+/// running `open -a Kaku`), every shell it starts would inherit that
+/// session's markers, and a `claude` started there then treats itself as a
+/// nested child session and stops saving transcripts. Kaku is a new
+/// terminal, not part of that session, so drop the markers. Nothing is
+/// touched unless Kaku was started from such a session.
+fn unset_claude_session_markers() {
+    let from_claude_session = std::env::var_os("CLAUDECODE").is_some()
+        || std::env::var_os("CLAUDE_CODE_CHILD_SESSION").is_some();
+    if !from_claude_session {
+        return;
+    }
+    for key in CLAUDE_SESSION_MARKERS {
+        std::env::remove_var(key);
+    }
+}
+
 pub fn bootstrap() {
     config::assign_version_info(
         wezterm_version::wezterm_version(),
@@ -242,9 +274,44 @@ pub fn bootstrap() {
     // <https://github.com/wezterm/wezterm/issues/2237>
     std::env::remove_var("VTE_VERSION");
 
+    unset_claude_session_markers();
+
     // Sice folks don't like to reboot or sign out if they `chsh`,
     // SHELL may be stale. Rather than using a stale value, unset
     // it so that pty::CommandBuilder::get_shell will resolve the
     // shell from the password database instead.
     std::env::remove_var("SHELL");
+}
+
+#[cfg(test)]
+mod claude_marker_tests {
+    use super::*;
+
+    // One test owns these variables, so the two cases cannot race.
+    #[test]
+    fn claude_session_markers_are_dropped_only_when_launched_from_claude() {
+        std::env::remove_var("CLAUDECODE");
+        std::env::remove_var("CLAUDE_CODE_CHILD_SESSION");
+        std::env::set_var("CLAUDE_EFFORT", "kept");
+        unset_claude_session_markers();
+        assert_eq!(
+            std::env::var("CLAUDE_EFFORT").as_deref(),
+            Ok("kept"),
+            "a normal launch leaves the environment alone"
+        );
+
+        std::env::set_var("CLAUDE_CODE_CHILD_SESSION", "1");
+        std::env::set_var("CLAUDE_CODE_SESSION_ID", "abc");
+        std::env::set_var("CLAUDE_CODE_USE_BEDROCK", "1");
+        unset_claude_session_markers();
+        assert!(std::env::var_os("CLAUDE_CODE_CHILD_SESSION").is_none());
+        assert!(std::env::var_os("CLAUDE_CODE_SESSION_ID").is_none());
+        assert!(std::env::var_os("CLAUDE_EFFORT").is_none());
+        assert_eq!(
+            std::env::var("CLAUDE_CODE_USE_BEDROCK").as_deref(),
+            Ok("1"),
+            "settings that are not session markers survive"
+        );
+        std::env::remove_var("CLAUDE_CODE_USE_BEDROCK");
+    }
 }

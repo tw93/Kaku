@@ -83,7 +83,13 @@ if command -v zsh >/dev/null 2>&1; then
     add-zsh-hook() { :; }
     source "$HOME/.config/kaku/zsh/kaku.zsh" >/dev/null
     (( ${precmd_functions[(Ie)_kaku_reset_mouse_tracking]} )) || exit 1
+    (( ${preexec_functions[(Ie)_kaku_mouse_tracking_preexec]} )) || exit 1
+    # Initial and empty prompts must not write during instant-prompt capture.
+    [[ -z "$(_kaku_reset_mouse_tracking)" ]] || exit 1
+    _kaku_mouse_tracking_preexec
     _kaku_reset_mouse_tracking
+    # No new command: no redundant reset on another prompt.
+    [[ -z "$(_kaku_reset_mouse_tracking)" ]] || exit 1
   ')" || fail "mouse recovery hook is not registered"
   [[ "$mouse_reset" == $'\e[?1000;1002;1003;1004;1005;1006;1007;1016l' ]] \
     || fail "prompt did not reset stale mouse/focus reporting"
@@ -93,6 +99,7 @@ if command -v zsh >/dev/null 2>&1; then
     source "$HOME/.config/kaku/zsh/kaku.zsh" >/dev/null
     unset TMUX
     export KAKU_SESSION=1
+    _kaku_mouse_tracking_preexec
     _kaku_reset_mouse_tracking || exit 1
   ')" || fail "mouse hook must not stop later prompt hooks outside Kaku"
   [[ -z "$outside_reset" ]] || fail "mouse hook changed a different terminal"

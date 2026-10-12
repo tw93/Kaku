@@ -1,0 +1,490 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<title>Kaku</title>
+<link rel="stylesheet" href="assets/xterm.css">
+<style>
+  @font-face { font-family: "Kaku Mono"; src: url("assets/font-regular.ttf") format("truetype"); font-weight: 400; }
+  @font-face { font-family: "Kaku Mono"; src: url("assets/font-medium.ttf") format("truetype"); font-weight: 700; }
+  :root { --bg: #16161a; --fg: #d4d4d8; --muted: #8b8b93; --line: rgba(255,255,255,0.08); }
+  html, body { height: 100%; margin: 0; background: var(--bg); color: var(--fg); }
+  body { display: flex; flex-direction: column; font: 14px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+  body.tabs-bottom #bar { order: 2; border-bottom: 0; border-top: 1px solid var(--line); }
+  #bar { display: flex; align-items: center; gap: 2px; height: 34px; padding: 0 10px; border-bottom: 1px solid var(--line); flex: none; overflow-x: auto; }
+  #bar button { flex: none; max-width: 220px; height: 26px; padding: 0 10px; border: 0; border-radius: 6px; background: transparent; color: var(--muted); font: inherit; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
+  #bar button:hover { background: var(--line); }
+  #bar button[aria-current="true"] { background: var(--line); color: var(--fg); }
+  #bar .tab { display: flex; align-items: center; gap: 6px; padding-right: 6px; }
+  #bar .tab span:first-child { overflow: hidden; text-overflow: ellipsis; }
+  #bar .close { flex: none; width: 16px; height: 16px; line-height: 16px; border-radius: 4px; text-align: center; opacity: 0; }
+  #bar .tab:hover .close, #bar .tab[aria-current="true"] .close { opacity: 0.6; }
+  #bar .close:hover { opacity: 1; background: var(--line); }
+  #bar .add { width: 26px; padding: 0; font-size: 16px; }
+  #status { margin-left: auto; padding-left: 12px; color: var(--muted); white-space: nowrap; }
+  #stage { position: relative; flex: 1; min-height: 0; overflow: hidden; }
+  /* Chrome squeezes runs of CJK punctuation by default. xterm.js measures a
+     glyph as 32 copies in a row, so it read "，" as half width while rows draw
+     it full width, then padded it with extra letter-spacing: a wide gap after
+     every Chinese punctuation mark. Keep punctuation at its full width in
+     both places. */
+  .xterm, .xterm * { text-spacing-trim: space-all; }
+  #term { position: absolute; top: 8px; left: 8px; }
+  #history { position: absolute; right: 16px; bottom: 16px; display: none; height: 28px; padding: 0 12px; border: 0; border-radius: 14px; background: var(--line); color: var(--fg); font: inherit; cursor: pointer; }
+  #message { color: var(--muted); padding: 24px; text-align: center; line-height: 1.6; }
+</style>
+</head>
+<body>
+<div id="bar"><span id="status"></span></div>
+<div id="stage">
+  <div id="term"></div>
+  <button id="history" type="button">Back to live</button>
+</div>
+<script src="assets/xterm.js"></script>
+<script>
+(() => {
+  const params = new URLSearchParams(location.hash.slice(1));
+  // #t=<token>: this Mac or the LAN, plain WebSocket to Kaku.
+  // #k=<key>: through the relay, every message sealed with this key, which
+  // never leaves the browser because fragments are not sent to servers.
+  // Either one moves to this tab's session storage and out of the address
+  // bar, so it does not linger in history on a borrowed computer; a reload
+  // in the same tab still finds it.
+  const SECRET_SLOT = "kaku.link:" + location.pathname;
+  let stored = null;
+  try { stored = JSON.parse(sessionStorage.getItem(SECRET_SLOT) || "null"); } catch (_) {}
+  const token = params.get("t") || (stored && stored.t) || null;
+  const keyText = params.get("k") || (stored && stored.k) || null;
+  if (params.get("t") || params.get("k")) {
+    try { sessionStorage.setItem(SECRET_SLOT, JSON.stringify({ t: token, k: keyText })); } catch (_) {}
+    history.replaceState(null, "", location.pathname + location.search);
+  }
+  const IS_MAC = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
+  const bar = document.getElementById("bar");
+  const statusEl = document.getElementById("status");
+  const stage = document.getElementById("stage");
+  const termEl = document.getElementById("term");
+  const historyBtn = document.getElementById("history");
+
+  const showMessage = (text) => { stage.innerHTML = '<div id="message"></div>'; stage.firstChild.textContent = text; };
+  if (!token && !keyText) {
+    showMessage("Open this page from the link Kaku gives you.");
+    return;
+  }
+  if (keyText && !(window.crypto && crypto.subtle)) {
+    showMessage("This browser cannot open an encrypted Kaku link.");
+    return;
+  }
+
+  // ── Transport ──────────────────────────────────────────────────────────
+  const enc = new TextEncoder();
+  const dec = new TextDecoder();
+  const fromBase64Url = (s) => Uint8Array.from(atob(s.replace(/-/g, "+").replace(/_/g, "/")), (c) => c.charCodeAt(0));
+  const keyPromise = keyText
+    ? crypto.subtle.importKey("raw", fromBase64Url(keyText), "AES-GCM", false, ["encrypt", "decrypt"])
+    : null;
+  const TO_HOST = enc.encode("kaku-web c2h");
+  const FROM_HOST = enc.encode("kaku-web h2c");
+
+  const wsUrl = () => {
+    const scheme = location.protocol === "https:" ? "wss://" : "ws://";
+    if (keyText) {
+      const base = location.pathname.endsWith("/") ? location.pathname : location.pathname + "/";
+      return scheme + location.host + base + "ws";
+    }
+    return scheme + location.host + "/web/ws?token=" + encodeURIComponent(token);
+  };
+
+  let ws = null;
+  // Sealing and opening are async; chain them so messages keep their order.
+  let sendChain = Promise.resolve();
+  let recvChain = Promise.resolve();
+  const send = (msg) => {
+    const socket = ws;
+    if (!socket || socket.readyState !== WebSocket.OPEN) return;
+    const json = JSON.stringify(msg);
+    if (!keyPromise) { socket.send(json); return; }
+    sendChain = sendChain.then(async () => {
+      const key = await keyPromise;
+      const iv = crypto.getRandomValues(new Uint8Array(12));
+      const sealed = new Uint8Array(await crypto.subtle.encrypt({ name: "AES-GCM", iv, additionalData: TO_HOST }, key, enc.encode(json)));
+      const out = new Uint8Array(12 + sealed.length);
+      out.set(iv);
+      out.set(sealed, 12);
+      if (socket.readyState === WebSocket.OPEN) socket.send(out);
+    }).catch(() => {});
+  };
+  const receive = (data, handle) => {
+    if (!keyPromise) { handle(JSON.parse(data)); return; }
+    recvChain = recvChain.then(async () => {
+      const key = await keyPromise;
+      const bytes = new Uint8Array(data);
+      const plain = await crypto.subtle.decrypt({ name: "AES-GCM", iv: bytes.slice(0, 12), additionalData: FROM_HOST }, key, bytes.slice(12));
+      handle(JSON.parse(dec.decode(plain)));
+    }).catch(() => setStatus("This link is no longer valid"));
+  };
+
+  // ── Terminal ───────────────────────────────────────────────────────────
+  let paneId = null;
+  let tabId = null;
+  // Kaku's own font size; the page only shrinks below it until Kaku has
+  // resized the tab to this window.
+  let baseFontSize = 15;
+  let fontSize = baseFontSize;
+  let size = { cols: 0, rows: 0 };
+  let retry = 0;
+
+  const setStatus = (text) => { statusEl.textContent = text; };
+
+  // Kaku's own fallback order (JetBrains Mono, PingFang SC, Apple Symbols,
+  // Apple Color Emoji), then the Windows equivalents for CJK and emoji.
+  const FONT_STACK = '"Kaku Mono", "PingFang SC", "Apple Symbols", "Apple Color Emoji", "Microsoft YaHei", "Segoe UI Emoji", "Segoe UI Symbol", monospace';
+  const term = new Terminal({
+    fontSize,
+    fontFamily: FONT_STACK,
+    cursorBlink: true,
+    cursorInactiveStyle: "bar",
+    scrollback: 0,
+    allowTransparency: false,
+  });
+  term.open(termEl);
+
+  // The terminal sits at the top left with an 8px margin. Cell size comes
+  // from xterm.js, which re-measures synchronously when the font changes,
+  // so sizing needs no waiting for a frame and no guessing from a scaled font.
+  const MARGIN = 8;
+  const cellSize = () => {
+    const cell = term._core && term._core._renderService && term._core._renderService.dimensions.css.cell;
+    if (cell && cell.width && cell.height) return cell;
+    const screen = termEl.querySelector(".xterm-screen");
+    if (!screen || !term.cols) return null;
+    const rect = screen.getBoundingClientRect();
+    return { width: rect.width / term.cols, height: rect.height / term.rows };
+  };
+  const setFont = (px) => {
+    if (Math.abs(px - fontSize) < 0.05) return;
+    fontSize = px;
+    term.options.fontSize = px;
+  };
+
+  // Ask Kaku to size the tab to the grid this window holds at Kaku's font
+  // size. The Mac takes the tab back on its next local input, and the page
+  // claims it again on its own next input.
+  let claimed = "";
+  const fit = () => {
+    const availW = stage.clientWidth - MARGIN * 2;
+    const availH = stage.clientHeight - MARGIN * 2;
+    if (availW <= 0 || availH <= 0) return;
+    setFont(baseFontSize);
+    const base = cellSize();
+    if (!base) return;
+    if (ws && ws.readyState === WebSocket.OPEN && paneId !== null) {
+      const cols = Math.floor(availW / base.width);
+      const rows = Math.floor(availH / base.height);
+      const key = cols + "x" + rows;
+      if (cols >= 20 && rows >= 5 && key !== claimed) {
+        claimed = key;
+        send({ type: "resize", cols, rows });
+      }
+    }
+    // Until Kaku applies that size, the current grid may be larger than the
+    // window; shrink the font just enough for it to fit.
+    if (!size.cols) return;
+    let px = baseFontSize;
+    for (let i = 0; i < 40; i++) {
+      const cell = cellSize();
+      if (!cell || (size.cols * cell.width <= availW && size.rows * cell.height <= availH) || px <= 6) break;
+      const scale = Math.min(availW / (size.cols * cell.width), availH / (size.rows * cell.height));
+      px = Math.max(6, Math.min(px - 0.25, Math.floor(px * scale * 4) / 4));
+      setFont(px);
+    }
+  };
+  let resizeTimer = 0;
+  new ResizeObserver(() => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(fit, 100);
+  }).observe(stage);
+
+  // Keys that are not plain text go to Kaku, which encodes them for the
+  // pane's current modes. Plain characters and IME text arrive via onData.
+  const NAMED = new Set(["Enter", "Tab", "Escape", "Backspace", "Delete", "Insert", "Home", "End",
+    "PageUp", "PageDown", "ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"]);
+  // Kaku's editing shortcuts (bundled kaku.lua), sent as the keys Kaku
+  // turns them into. Cmd+R stays the browser's reload.
+  const MAC_SHORTCUTS = {
+    "meta+Backspace": { key: "u", ctrl: true },        // delete to line start
+    "alt+Backspace": { key: "w", ctrl: true },         // delete previous word
+    "meta+Delete": { key: "k", ctrl: true },           // delete to line end
+    "alt+Delete": { key: "d", alt: true },             // delete next word
+    "meta+ArrowLeft": { key: "a", ctrl: true },        // line start
+    "meta+ArrowRight": { key: "e", ctrl: true },       // line end
+    "alt+ArrowLeft": { key: "b", alt: true },          // previous word
+    "alt+ArrowRight": { key: "f", alt: true },         // next word
+    "meta+k": { key: "l", ctrl: true },                // clear
+  };
+  const OTHER_SHORTCUTS = {
+    "ctrl+Backspace": { key: "w", ctrl: true },
+    "ctrl+Delete": { key: "d", alt: true },
+    "ctrl+ArrowLeft": { key: "b", alt: true },
+    "ctrl+ArrowRight": { key: "f", alt: true },
+  };
+  const shortcutFor = (ev) => {
+    const mod = ev.metaKey ? "meta" : ev.altKey ? "alt" : ev.ctrlKey ? "ctrl" : null;
+    if (!mod || ev.shiftKey || (ev.metaKey && (ev.altKey || ev.ctrlKey))) return null;
+    const name = ev.key.length === 1 ? ev.key.toLowerCase() : ev.key;
+    return (IS_MAC ? MAC_SHORTCUTS : OTHER_SHORTCUTS)[mod + "+" + name] || null;
+  };
+
+  term.attachCustomKeyEventHandler((ev) => {
+    if (ev.isComposing || ev.keyCode === 229) return true;
+    const shortcut = shortcutFor(ev);
+    if (shortcut) {
+      if (ev.type === "keydown") send({ type: "key", ctrl: false, alt: false, shift: false, ...shortcut });
+      ev.preventDefault();
+      return false;
+    }
+    // Off the Mac, Ctrl+V pastes, and Ctrl+C copies when text is selected
+    // (Ctrl+Shift+C/V always do), as in other browser terminals. Returning
+    // false leaves the key to the browser, whose copy and paste events
+    // reach xterm.js and the paste handler below.
+    if (!IS_MAC && ev.ctrlKey && !ev.altKey && !ev.metaKey) {
+      const k = ev.key.toLowerCase();
+      if (k === "v") return false;
+      if (k === "c" && (ev.shiftKey || term.hasSelection())) return false;
+    }
+    if (ev.metaKey) {
+      // Kaku binds Cmd+Enter to a newline without executing.
+      if (ev.key === "Enter") {
+        if (ev.type === "keydown") send({ type: "text", data: "\n" });
+        ev.preventDefault();
+      }
+      // Leave Cmd+C / Cmd+V and other browser shortcuts alone.
+      return false;
+    }
+    let key = null;
+    if (NAMED.has(ev.key) || /^F([1-9]|1[0-9]|2[0-4])$/.test(ev.key)) {
+      key = ev.key;
+    } else if (ev.ctrlKey || ev.altKey) {
+      if (/^Key[A-Z]$/.test(ev.code)) key = ev.code.slice(3).toLowerCase();
+      else if (/^Digit[0-9]$/.test(ev.code)) key = ev.code.slice(5);
+      else if (ev.key.length === 1) key = ev.key;
+    }
+    if (key === null) return true;
+    if (ev.type === "keydown") {
+      // Kaku binds Shift+Enter to a newline without executing.
+      if (key === "Enter" && ev.shiftKey && !ev.ctrlKey && !ev.altKey) {
+        send({ type: "text", data: "\n" });
+      } else {
+        send({ type: "key", key, ctrl: ev.ctrlKey, alt: ev.altKey, shift: ev.shiftKey });
+      }
+    }
+    ev.preventDefault();
+    return false;
+  });
+  term.onData((data) => send({ type: "text", data }));
+
+  termEl.addEventListener("paste", (ev) => {
+    ev.preventDefault();
+    ev.stopImmediatePropagation();
+    const data = ev.clipboardData ? ev.clipboardData.getData("text/plain") : "";
+    if (data) send({ type: "paste", data });
+  }, true);
+
+  let wheelRemainder = 0;
+  stage.addEventListener("wheel", (ev) => {
+    ev.preventDefault();
+    ev.stopPropagation();
+    const lineHeight = Math.max(1, fontSize * 1.2);
+    const px = ev.deltaMode === 1 ? ev.deltaY * lineHeight : ev.deltaY;
+    wheelRemainder += -px / lineHeight;
+    const lines = Math.trunc(wheelRemainder);
+    if (lines !== 0) {
+      wheelRemainder -= lines;
+      send({ type: "scroll", lines });
+    }
+  }, { passive: false, capture: true });
+
+  historyBtn.addEventListener("click", () => {
+    send({ type: "scroll", lines: -1e9 });
+    term.focus();
+  });
+  stage.addEventListener("mousedown", () => term.focus());
+
+  // ── Tabs ───────────────────────────────────────────────────────────────
+  let tabs = [];
+  // After asking for a new tab, follow it once it shows up, the way Cmd+T
+  // switches to the new tab on the Mac.
+  let followNewTab = null;
+  let followUntil = 0;
+
+  const attach = (tab) => {
+    paneId = tab.pane_id;
+    tabId = tab.tab_id;
+    claimed = "";
+    size = { cols: 0, rows: 0 };
+    try { localStorage.setItem("kaku.tab", String(tabId)); } catch (_) {}
+    send({ type: "attach", pane_id: paneId });
+    renderTabs();
+    term.focus();
+  };
+
+  const renderTabs = () => {
+    bar.querySelectorAll("button").forEach((b) => b.remove());
+    for (const t of tabs) {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "tab";
+      b.setAttribute("aria-current", String(t.tab_id === tabId));
+      const label = document.createElement("span");
+      label.textContent = t.title || "Tab";
+      const close = document.createElement("span");
+      close.className = "close";
+      close.textContent = "×";
+      close.title = "Close Tab";
+      close.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        if (t.confirm_close && !confirm("Close this tab?")) return;
+        send({ type: "close_tab", tab_id: t.tab_id });
+      });
+      b.append(label, close);
+      b.addEventListener("click", () => { if (t.tab_id !== tabId) attach(t); else term.focus(); });
+      bar.insertBefore(b, statusEl);
+    }
+    const add = document.createElement("button");
+    add.type = "button";
+    add.className = "add";
+    add.textContent = "+";
+    add.title = "New Tab";
+    add.addEventListener("click", () => {
+      followNewTab = new Set(tabs.map((t) => t.tab_id));
+      followUntil = Date.now() + 5000;
+      send({ type: "new_tab" });
+    });
+    bar.insertBefore(add, statusEl);
+  };
+
+  const onTabs = (list) => {
+    tabs = list;
+    if (followNewTab) {
+      const fresh = tabs.find((t) => !followNewTab.has(t.tab_id));
+      if (fresh) { followNewTab = null; attach(fresh); return; }
+      if (Date.now() > followUntil) followNewTab = null;
+    }
+    const current = tabs.find((t) => t.tab_id === tabId);
+    if (!current) {
+      let saved = null;
+      try { saved = Number(localStorage.getItem("kaku.tab")); } catch (_) {}
+      const target = tabs.find((t) => t.tab_id === saved) || tabs.find((t) => t.active) || tabs[0];
+      if (target) attach(target);
+      else { renderTabs(); setStatus("No tabs"); }
+    } else if (current.pane_id !== paneId) {
+      // Follow the tab when focus moves to another split on the Mac.
+      attach(current);
+    } else {
+      renderTabs();
+    }
+  };
+
+  const onConfig = (cfg) => {
+    const theme = {};
+    if (cfg.background) { theme.background = cfg.background; document.documentElement.style.setProperty("--bg", cfg.background); }
+    if (cfg.foreground) { theme.foreground = cfg.foreground; document.documentElement.style.setProperty("--fg", cfg.foreground); }
+    if (cfg.cursor_bg) theme.cursor = cfg.cursor_bg;
+    if (cfg.cursor_fg) theme.cursorAccent = cfg.cursor_fg;
+    const names = ["black", "red", "green", "yellow", "blue", "magenta", "cyan", "white"];
+    (cfg.ansi || []).forEach((c, i) => { if (names[i]) theme[names[i]] = c; });
+    (cfg.brights || []).forEach((c, i) => { if (names[i]) theme["bright" + names[i][0].toUpperCase() + names[i].slice(1)] = c; });
+    term.options.theme = theme;
+    if (cfg.font_family && cfg.font_family !== "JetBrains Mono") {
+      term.options.fontFamily = '"' + cfg.font_family + '", ' + FONT_STACK;
+    }
+    if (cfg.line_height) term.options.lineHeight = cfg.line_height;
+    document.body.classList.toggle("tabs-bottom", !!cfg.tab_bar_at_bottom);
+    // One pixel under Kaku's size reads closer to the native window.
+    if (cfg.font_size) { baseFontSize = Math.max(8, cfg.font_size - 1); fontSize = baseFontSize; term.options.fontSize = fontSize; }
+    // xterm.js measures cells only when a font option changes, so once the
+    // bundled font is in, nudge the size to measure it instead of the
+    // fallback face it saw first; fit() then sets Kaku's size back.
+    document.fonts.load('16px "Kaku Mono"').finally(() => {
+      setFont(baseFontSize + 1);
+      fit();
+    });
+  };
+
+  const onFrame = (msg) => {
+    if (msg.cols !== size.cols || msg.rows !== size.rows) {
+      size = { cols: msg.cols, rows: msg.rows };
+      term.resize(msg.cols, msg.rows);
+      fit();
+    }
+    term.write(msg.data);
+    historyBtn.style.display = msg.scrolled ? "block" : "none";
+    document.title = msg.title ? msg.title + " - Kaku" : "Kaku";
+  };
+
+  const handle = (msg) => {
+    if (msg.type === "config") onConfig(msg);
+    else if (msg.type === "tabs") onTabs(msg.tabs);
+    else if (msg.type === "frame") onFrame(msg);
+    else if (msg.type === "closed") {
+      // A tabs update may already have moved the page to another tab; the
+      // late notice for the old pane must not drop the tab it moved to.
+      if (msg.pane_id !== paneId) return;
+      const gone = paneId;
+      tabId = null;
+      paneId = null;
+      onTabs(tabs.filter((t) => t.pane_id !== gone));
+    }
+  };
+
+  // Heartbeat: a link that died without closing (sleep, a network switch, a
+  // proxy's idle timeout) shows up as an unanswered ping; reconnect instead
+  // of waiting. Judge by the ping, not by time since the last message:
+  // background tabs run timers about once a minute, and measuring silence
+  // across that gap closed a healthy link every minute.
+  let lastHeard = Date.now();
+  let pingSentAt = 0;
+  const PONG_WAIT = 15000;
+  setInterval(() => {
+    if (!ws || ws.readyState !== WebSocket.OPEN) return;
+    if (pingSentAt > lastHeard && Date.now() - pingSentAt > PONG_WAIT) { ws.close(); return; }
+    if (pingSentAt > lastHeard) return;
+    pingSentAt = Date.now();
+    send({ type: "ping" });
+  }, 20000);
+
+  const connect = () => {
+    setStatus("Connecting");
+    const socket = new WebSocket(wsUrl());
+    socket.binaryType = "arraybuffer";
+    ws = socket;
+    lastHeard = Date.now();
+    pingSentAt = 0;
+    sendChain = Promise.resolve();
+    recvChain = Promise.resolve();
+    socket.onopen = () => {
+      retry = 0;
+      setStatus("");
+      // Through the relay, Kaku starts the session only after this first
+      // message opens with the key.
+      if (keyPromise) send({ type: "hello" });
+      // Re-attach after a reconnect; the server keeps no per-browser state.
+      if (paneId !== null) send({ type: "attach", pane_id: paneId });
+    };
+    socket.onmessage = (ev) => { lastHeard = Date.now(); receive(ev.data, handle); };
+    socket.onclose = (ev) => {
+      if (ws !== socket) return;
+      if (ev.code === 4404) setStatus("This Kaku is offline");
+      else setStatus("Disconnected, retrying");
+      claimed = "";
+      const delay = Math.min(5000, 500 * 2 ** retry++);
+      setTimeout(connect, delay);
+    };
+  };
+  connect();
+})();
+</script>
+</body>
+</html>

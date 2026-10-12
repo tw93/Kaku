@@ -110,6 +110,8 @@ mod local_hostname;
 mod macos;
 mod overlay;
 mod quad;
+#[cfg(feature = "remote")]
+mod remote_tabs;
 mod renderstate;
 mod resize_increment_calculator;
 mod scripting;
@@ -376,6 +378,7 @@ async fn async_run_terminal_gui(
     #[cfg(feature = "remote")]
     {
         ai_remote::register_if_configured();
+        remote_tabs::register();
         kaku_remote::start();
     }
 

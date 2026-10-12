@@ -344,7 +344,7 @@ impl App {
             },
             ConfigField {
                 section: "Window",
-                key: "Short Tab Titles",
+                key: "Compact Tab Titles",
                 lua_key: "tab_title_show_basename_only",
                 value: String::new(),
                 default: "Off".into(),
@@ -365,7 +365,7 @@ impl App {
                 key: "New Tab Button",
                 lua_key: "show_new_tab_button_in_tab_bar",
                 value: String::new(),
-                default: "Off".into(),
+                default: "On".into(),
                 options: vec!["On", "Off"],
                 skip_write: false,
             },
@@ -389,7 +389,7 @@ impl App {
             },
             ConfigField {
                 section: "Window",
-                key: "Shadow",
+                key: "Window Shadow",
                 lua_key: "__wdeco_shadow__",
                 value: String::new(),
                 default: "On".into(),
@@ -443,7 +443,7 @@ impl App {
             },
             ConfigField {
                 section: "Behavior",
-                key: "Bell Tab Prefix",
+                key: "Bell Tab Dot",
                 lua_key: "bell_tab_indicator",
                 value: String::new(),
                 default: "On".into(),
@@ -1685,6 +1685,22 @@ return config
 
         assert_eq!(field.value, "Auto");
         assert!(!field.skip_write);
+    }
+
+    #[test]
+    fn new_tab_button_field_matches_bundled_default() {
+        let app = test_app();
+        let field = app
+            .fields
+            .iter()
+            .find(|f| f.lua_key == "show_new_tab_button_in_tab_bar")
+            .expect("show_new_tab_button_in_tab_bar field to exist");
+        let bundled = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../assets/macos/Kaku.app/Contents/Resources/kaku.lua");
+        let content = std::fs::read_to_string(bundled).expect("read bundled kaku.lua");
+
+        assert_eq!(field.default, "On");
+        assert!(content.contains("config.show_new_tab_button_in_tab_bar = true\n"));
     }
 
     #[test]

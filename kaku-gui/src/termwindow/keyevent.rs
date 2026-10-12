@@ -9,6 +9,26 @@ use std::sync::Arc;
 use std::time::{Duration, Instant};
 use termwiz::input::KeyboardEncoding;
 
+fn encode_kitty_key_event(
+    key: &KeyEvent,
+    flags: ::window::KittyKeyboardFlags,
+    swap_backspace_and_delete: bool,
+) -> String {
+    if swap_backspace_and_delete {
+        let swapped = match key.key {
+            KeyCode::Char('\x08') => Some(KeyCode::Char('\x7f')),
+            KeyCode::Char('\x7f') => Some(KeyCode::Char('\x08')),
+            _ => None,
+        };
+        if let Some(swapped) = swapped {
+            let mut key = key.clone();
+            key.key = swapped;
+            return key.encode_kitty(flags);
+        }
+    }
+    key.encode_kitty(flags)
+}
+
 #[derive(Debug, Clone)]
 pub struct KeyTableStateEntry {
     name: String,
@@ -307,7 +327,11 @@ impl super::TermWindow {
             return None;
         }
         if let KeyboardEncoding::Kitty(flags) = pane.get_keyboard_encoding() {
-            Some(key.encode_kitty(flags))
+            Some(encode_kitty_key_event(
+                key,
+                flags,
+                self.config.swap_backspace_and_delete,
+            ))
         } else {
             None
         }
@@ -502,6 +526,10 @@ impl super::TermWindow {
     }
 
     pub fn raw_key_event_impl(&mut self, key: RawKeyEvent, context: &dyn WindowOps) {
+        #[cfg(feature = "remote")]
+        if key.key_is_down {
+            self.reclaim_active_tab_size();
+        }
         // The leader key is a kind of modal modifier key.
         // It is allowed to be active for up to the leader timeout duration,
         // after which it auto-deactivates.
@@ -1349,5 +1377,70 @@ impl super::TermWindow {
             WK::KeyPadPageDown => KC::KeyPadPageDown,
         };
         Key::Code(code)
+    }
+}
+
+#[cfg(test)]
+mod kitty_encoding_tests {
+    use super::*;
+    use ::window::KittyKeyboardFlags;
+
+    fn event(key: char, is_down: bool) -> KeyEvent {
+        KeyEvent {
+            key: KeyCode::Char(key),
+            modifiers: Modifiers::NONE,
+            leds: KeyboardLedStatus::empty(),
+            repeat_count: 1,
+            key_is_down: is_down,
+            raw: None,
+            #[cfg(windows)]
+            win32_uni_char: None,
+        }
+    }
+
+    #[test]
+    fn kitty_delete_keys_honor_the_swap_setting() {
+        let flags = KittyKeyboardFlags::DISAMBIGUATE_ESCAPE_CODES;
+        for (swap, backspace, delete) in [(false, "\x7f", "\x1b[3;1~"), (true, "\x1b[3;1~", "\x7f")]
+        {
+            assert_eq!(
+                encode_kitty_key_event(&event('\x08', true), flags, swap),
+                backspace
+            );
+            assert_eq!(
+                encode_kitty_key_event(&event('\x7f', true), flags, swap),
+                delete
+            );
+            assert_eq!(encode_kitty_key_event(&event('x', true), flags, swap), "x");
+        }
+    }
+
+    #[test]
+    fn kitty_swapped_delete_keys_keep_event_types_and_modifiers() {
+        let flags = KittyKeyboardFlags::DISAMBIGUATE_ESCAPE_CODES
+            | KittyKeyboardFlags::REPORT_EVENT_TYPES
+            | KittyKeyboardFlags::REPORT_ALL_KEYS_AS_ESCAPE_CODES;
+        assert_eq!(
+            encode_kitty_key_event(&event('\x7f', false), flags, true),
+            "\x1b[127;1:3u"
+        );
+        assert_eq!(
+            encode_kitty_key_event(&event('\x08', false), flags, true),
+            "\x1b[3;1:3~"
+        );
+        assert_eq!(
+            encode_kitty_key_event(
+                &event('\x7f', false),
+                KittyKeyboardFlags::DISAMBIGUATE_ESCAPE_CODES,
+                true
+            ),
+            ""
+        );
+        let mut modified = event('\x7f', true);
+        modified.modifiers = Modifiers::CTRL;
+        assert_eq!(
+            encode_kitty_key_event(&modified, flags, true),
+            "\x1b[127;5u"
+        );
     }
 }

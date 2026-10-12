@@ -5,7 +5,7 @@ use crate::{startup_trace, TermWindow};
 use ::window::*;
 use anyhow::{Context, Error};
 use config::keyassignment::{KeyAssignment, SpawnCommand, SpawnTabDomain};
-use config::{ConfigSubscription, NotificationHandling};
+use config::ConfigSubscription;
 use mux::client::ClientId;
 use mux::pane::PaneId;
 use mux::tab::TabId;
@@ -19,7 +19,6 @@ use std::rc::Rc;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, LazyLock, Mutex};
 use wezterm_term::{Alert, ClipboardSelection};
-use wezterm_toast_notification::*;
 
 pub const SET_DEFAULT_TERMINAL_EVENT: &str = "set-default-terminal";
 
@@ -717,48 +716,11 @@ impl GuiFrontEnd {
                     crate::session_restore::mark_dirty();
                 }
                 MuxNotification::Alert {
-                    pane_id,
-                    alert:
-                        Alert::ToastNotification {
-                            title,
-                            body,
-                            focus: _,
-                        },
-                } => {
-                    let mux = Mux::get();
-
-                    if let Some((_domain, window_id, tab_id)) = mux.resolve_pane_id(pane_id) {
-                        let config = config::configuration();
-
-                        if let Some((_fdomain, f_window, f_tab, f_pane)) =
-                            mux.resolve_focused_pane(&client_id)
-                        {
-                            let show = match config.notification_handling {
-                                NotificationHandling::NeverShow => false,
-                                NotificationHandling::AlwaysShow => true,
-                                NotificationHandling::SuppressFromFocusedPane => f_pane != pane_id,
-                                NotificationHandling::SuppressFromFocusedTab => f_tab != tab_id,
-                                NotificationHandling::SuppressFromFocusedWindow => {
-                                    f_window != window_id
-                                }
-                            };
-
-                            if show {
-                                let message = if title.is_none() { "" } else { &body };
-                                let title = title.as_ref().unwrap_or(&body);
-                                // FIXME: if notification.focus is true, we should do
-                                // something here to arrange to focus pane_id when the
-                                // notification is clicked
-                                persistent_toast_notification(title, message);
-                            }
-                        }
-                    }
-                }
-                MuxNotification::Alert {
                     pane_id: _,
-                    alert: Alert::Bell | Alert::Progress(_),
+                    alert: Alert::Bell | Alert::Progress(_) | Alert::ToastNotification { .. },
                 } => {
-                    // Handled via TermWindowNotif; NOP it here.
+                    // Handled via TermWindowNotif; NOP it here. Posting the toast here
+                    // too showed every OSC 9 / OSC 777 notification twice.
                 }
                 MuxNotification::Alert {
                     pane_id: _,
@@ -1593,19 +1555,11 @@ pub fn try_new() -> Result<Rc<GuiFrontEnd>, Error> {
                 if let Some(conn) = Connection::get() {
                     conn.sync_global_hotkey();
                 }
+                // Rebuild on the main thread, outside the config lock, so
+                // launch_menu and key binding edits reach the menubar (#570).
+                crate::commands::CommandDef::recreate_menubar(&config::configuration());
             })
             .detach();
-            // TODO(macos): AppKit does not allow safe async menubar reconstruction
-            // from a config-reload callback; the initial menubar is built synchronously
-            // in try_new(). Re-enable on macOS once a safe main-thread dispatch path
-            // is available.
-            #[cfg(not(target_os = "macos"))]
-            {
-                promise::spawn::spawn_into_main_thread(async {
-                    crate::commands::CommandDef::recreate_menubar(&config::configuration());
-                })
-                .detach();
-            }
             true
         }
     });
@@ -1729,6 +1683,29 @@ mod tests {
                     .find("front_end().record_window_focus(self.mux_window_id)")
                     .unwrap()
         );
+    }
+
+    #[test]
+    fn ordinary_focus_preserves_upstream_remote_size_reclamation() {
+        let term = include_str!("termwindow/mod.rs");
+        let gain = term
+            .split("fn focus_changed(")
+            .nth(1)
+            .unwrap()
+            .split("if !self.config.tab_bar_at_bottom")
+            .next()
+            .unwrap();
+        assert!(gain.contains("if focused {"));
+        assert!(gain
+            .contains("#[cfg(feature = \"remote\")]\n            self.reclaim_active_tab_size()"));
+        let forget = gain
+            .find("forget_logically_closed(self.mux_window_id)")
+            .unwrap();
+        let record = gain
+            .find("record_window_focus(self.mux_window_id)")
+            .unwrap();
+        let reclaim = gain.find("self.reclaim_active_tab_size()").unwrap();
+        assert!(forget < record && record < reclaim);
     }
 
     #[test]
@@ -1964,6 +1941,69 @@ mod tests {
     }
 
     #[test]
+    fn config_reload_rebuilds_menubar_on_macos_in_place() {
+        // Production source only, so the assertions cannot match themselves.
+        let frontend = include_str!("frontend.rs")
+            .split("#[cfg(test)]")
+            .next()
+            .expect("frontend production source");
+        let reload = frontend
+            .split("config::subscribe_to_config_reload({")
+            .nth(1)
+            .and_then(|body| body.split("\n            true\n").next())
+            .expect("config reload callback");
+        let spawned = reload
+            .split("promise::spawn::spawn_into_main_thread(async {")
+            .nth(1)
+            .and_then(|body| body.split("            })\n            .detach();").next())
+            .expect("main-thread task in the reload callback");
+        // The rebuild runs inside the main-thread task (not in the callback,
+        // which may hold the config lock) and on macOS too (#570).
+        assert!(
+            spawned.contains(
+                "\n                crate::commands::CommandDef::recreate_menubar(&config::configuration());\n"
+            ),
+            "config reload must rebuild the menubar from the main-thread task"
+        );
+        assert!(
+            !reload.contains("#[cfg(not(target_os = \"macos\"))]"),
+            "config reload must not skip the menubar rebuild on macOS"
+        );
+
+        // A rebuild must reproduce the first build without dropping what
+        // AppKit injected at launch (AutoFill, Start Dictation, Emoji &
+        // Symbols in Edit): remove only the items Kaku tagged, keep the
+        // existing menus, re-add the fixed Kaku menu items every time and
+        // insert ahead of the injected items rather than append after them.
+        let commands = include_str!("commands.rs");
+        let rebuild = commands
+            .split("pub fn recreate_menubar(config: &ConfigHandle) {")
+            .nth(1)
+            .and_then(|body| body.split("\n    }\n}\n").next())
+            .expect("macOS recreate_menubar body");
+        assert!(
+            rebuild.contains(
+                "if item.get_tag() == KAKU_MENU_ITEM_TAG {\n                                menu.remove_item(&item);\n"
+            ),
+            "a rebuild must remove only the menu items Kaku added"
+        );
+        assert!(
+            !rebuild.contains(".remove_all_items();"),
+            "emptying the main menu loses the Edit items AppKit adds only at launch"
+        );
+        assert!(
+            rebuild.contains(
+                "\n                if next_index == 0 {\n                    let menu = &submenu;\n"
+            ) && rebuild.contains("insert_owned(menu, &about_item, &mut next_index);"),
+            "the fixed Kaku menu items must be re-added on every build, not only when the menu is new"
+        );
+        assert!(
+            rebuild.contains("insert_owned(&submenu, &item, &mut next_index);"),
+            "command items must be inserted in rank order ahead of AppKit items"
+        );
+    }
+
+    #[test]
     fn settings_command_preserves_custom_config_path() {
         assert_eq!(
             kaku_config_command("kaku".into(), Some(Path::new("/tmp/custom config.lua"))),
@@ -1993,6 +2033,36 @@ mod tests {
         let program = "/Applications/Kaku Nightly.app/Contents/MacOS/kaku";
         let quoted = shell_quote_program(program);
         assert_eq!(shlex::split(&quoted), Some(vec![program.to_string()]));
+    }
+
+    #[test]
+    fn osc_notifications_post_one_system_notification() {
+        // TermWindow owns OSC 9 / OSC 777 toasts. The frontend subscriber used
+        // to post its own copy, so every notification showed up twice.
+        let frontend = include_str!("frontend.rs")
+            .split("#[cfg(test)]")
+            .next()
+            .expect("frontend production source");
+        assert!(frontend.contains(
+            "alert: Alert::Bell | Alert::Progress(_) | Alert::ToastNotification { .. },"
+        ));
+        assert!(!frontend.contains("persistent_toast_notification(title, message);"));
+    }
+
+    #[test]
+    fn kaku_menu_links_to_notification_settings() {
+        // macOS never re-prompts after a denial, so the menu is the way back.
+        let commands = include_str!("commands.rs")
+            .split("#[cfg(test)]")
+            .next()
+            .expect("commands production source");
+        let item = commands
+            .split("\"Notification Settings...\",")
+            .nth(1)
+            .expect("Notification Settings menu item");
+        assert!(item.contains(
+            "KeyAssignment::OpenUri(\n                                wezterm_toast_notification::NOTIFICATION_SETTINGS_URL.to_string(),"
+        ));
     }
 
     /// User-facing update events must not call `restart_to_update` directly.

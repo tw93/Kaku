@@ -33,14 +33,14 @@ use ::wezterm_term::input::{ClickPosition, MouseButton as TMB};
 use ::window::*;
 use anyhow::{anyhow, ensure, Context};
 use config::keyassignment::{
-    Confirmation, KeyAssignment, LauncherActionArgs, PaneDirection, PaneEncoding, Pattern,
-    PromptInputLine, QuickSelectArguments, RotationDirection, ScrollbackEraseMode, SpawnCommand,
-    SplitSize,
+    Confirmation, KeyAssignment, LauncherActionArgs, PaneDirection, PaneEncoding, PaneSelectMode,
+    Pattern, PromptInputLine, QuickSelectArguments, RotationDirection, ScrollbackEraseMode,
+    SpawnCommand, SplitSize,
 };
 use config::window::WindowLevel;
 use config::{
     configuration, AudibleBell, ConfigHandle, Dimension, DimensionContext, FrontEndSelection,
-    GeometryOrigin, GuiPosition, TermConfig, WindowCloseConfirmation,
+    GeometryOrigin, GuiPosition, NotificationHandling, TermConfig, WindowCloseConfirmation,
 };
 use lfucache::*;
 use mlua::{FromLua, LuaSerdeExt, UserData, UserDataFields};
@@ -356,6 +356,26 @@ fn summarize_bell_tokens(tokens: &[&str]) -> Option<String> {
     }
 
     None
+}
+
+/// Whether an OSC 9 / OSC 777 notification from a pane in this window should
+/// become a system notification. A notification you would be looking at as
+/// it arrives is noise, so the default only shows while the window is in the
+/// background; the Suppress* modes widen that to unseen panes and tabs.
+fn should_show_toast(
+    handling: NotificationHandling,
+    window_has_focus: bool,
+    in_active_tab: bool,
+    is_inactive_pane: bool,
+) -> bool {
+    match handling {
+        NotificationHandling::NeverShow => false,
+        NotificationHandling::AlwaysShow | NotificationHandling::SuppressFromFocusedWindow => {
+            !window_has_focus
+        }
+        NotificationHandling::SuppressFromFocusedTab => !window_has_focus || !in_active_tab,
+        NotificationHandling::SuppressFromFocusedPane => !window_has_focus || is_inactive_pane,
+    }
 }
 
 fn bell_notification_message(
@@ -677,6 +697,13 @@ pub enum MouseCapture {
 /// context of the window-specific event loop
 pub enum TermWindowNotif {
     InvalidateShapeCache,
+    /// Close one tab in place without switching to it. Sent by the web
+    /// terminal after the browser already asked per tab_close_confirmation,
+    /// since a prompt drawn here would only be visible on the Mac.
+    #[cfg(feature = "remote")]
+    CloseConfirmedTab {
+        tab_id: TabId,
+    },
     PerformAssignment {
         pane_id: PaneId,
         assignment: KeyAssignment,
@@ -956,6 +983,9 @@ enum EventState {
 /// State tracked during a live split-divider drag.
 struct SplitDragState {
     tab_id: TabId,
+    /// Distance in cells from the line's center to where the drag started,
+    /// so a grab anywhere in the gutter does not snap the line to the pointer.
+    grab: f32,
 }
 
 /// State tracked during a live tab drag-reorder gesture.
@@ -1276,6 +1306,8 @@ impl TermWindow {
             // last_session.json resurrects tabs the user already closed.
             crate::session_restore::forget_logically_closed(self.mux_window_id);
             front_end().record_window_focus(self.mux_window_id);
+            #[cfg(feature = "remote")]
+            self.reclaim_active_tab_size();
         }
         if !self.config.tab_bar_at_bottom && self.layout_is_effective_fullscreen() {
             self.arm_layout_sticky_fullscreen();
@@ -1287,6 +1319,14 @@ impl TermWindow {
 
         if let Some(modal) = self.get_modal() {
             modal.focus_changed(focused, self);
+        }
+
+        if focused && wezterm_toast_notification::take_blocked_notice() {
+            self.show_toast_for(
+                "Notifications are off for Kaku. Turn them on in Kaku > Notification Settings"
+                    .to_string(),
+                8000,
+            );
         }
 
         if self.focused.is_none() {
@@ -1409,6 +1449,20 @@ impl TermWindow {
 }
 
 impl TermWindow {
+    /// The web terminal sizes a tab to the browser while it is driving it.
+    /// Local input takes the tab back, so whichever side interacted last
+    /// decides the size.
+    #[cfg(feature = "remote")]
+    pub(crate) fn reclaim_active_tab_size(&mut self) {
+        let Some(tab) = Mux::get().get_active_tab_for_window(self.mux_window_id) else {
+            return;
+        };
+        let size = tab.get_size();
+        if size.rows != self.terminal_size.rows || size.cols != self.terminal_size.cols {
+            tab.resize(self.terminal_size);
+        }
+    }
+
     fn arm_layout_sticky_fullscreen(&mut self) {
         if self.config.tab_bar_at_bottom {
             return;
@@ -2034,10 +2088,22 @@ impl TermWindow {
             WindowEvent::PerformKeyAssignmentForPane { action, pane_id } => {
                 let pane_id = PaneId::new(pane_id);
                 let mux = Mux::get();
-                let belongs_to_window = mux
-                    .resolve_pane_id(pane_id)
-                    .is_some_and(|(_, window_id, _)| window_id == self.mux_window_id);
-                if !belongs_to_window {
+                let tab_id = match mux.resolve_pane_id(pane_id) {
+                    Some((_, window_id, tab_id)) if window_id == self.mux_window_id => tab_id,
+                    _ => return Ok(true),
+                };
+
+                // Close the menu's tab in place, like middle-click. Focusing it
+                // first would leave the user on its neighbor instead of the tab
+                // they were on.
+                if let KeyAssignment::CloseCurrentTab { confirm } = action {
+                    let tab_idx = mux
+                        .get_window(self.mux_window_id)
+                        .and_then(|window| window.idx_by_id(tab_id));
+                    if let Some(tab_idx) = tab_idx {
+                        self.close_specific_tab(tab_idx, confirm);
+                        window.invalidate();
+                    }
                     return Ok(true);
                 }
 
@@ -2325,6 +2391,21 @@ impl TermWindow {
                 self.invalidate_modal();
                 window.invalidate();
             }
+            #[cfg(feature = "remote")]
+            TermWindowNotif::CloseConfirmedTab { tab_id } => {
+                let mux = Mux::get();
+                let in_this_window = mux
+                    .get_window(self.mux_window_id)
+                    .and_then(|w| w.idx_by_id(tab_id))
+                    .is_some();
+                if let (true, Some(tab)) = (in_this_window, mux.get_tab(tab_id)) {
+                    // Same bookkeeping as close_specific_tab, so Cmd+Shift+T
+                    // can reopen a tab closed from the browser.
+                    self.record_closed_tab_cwd(&tab);
+                    mux.remove_tab(tab_id);
+                    window.invalidate();
+                }
+            }
             TermWindowNotif::PerformAssignment {
                 pane_id,
                 assignment,
@@ -2542,7 +2623,17 @@ impl TermWindow {
                         self.pane_state(pane_id).has_unread_notification = true;
                     }
 
-                    if !window_has_focus {
+                    // The only place OSC 9 / OSC 777 notifications become system
+                    // notifications; the frontend used to post a second copy.
+                    let in_active_tab = Mux::get()
+                        .get_active_tab_for_window(self.mux_window_id)
+                        .map_or(false, |tab| tab.contains_pane(pane_id));
+                    if should_show_toast(
+                        self.config.notification_handling,
+                        window_has_focus,
+                        in_active_tab,
+                        is_inactive,
+                    ) {
                         ToastNotification {
                             title: title.unwrap_or_else(|| "Kaku".to_string()),
                             message: body,
@@ -3980,6 +4071,48 @@ impl TermWindow {
         Ok(())
     }
 
+    /// Move the focused pane out of its split, into a new tab or window.
+    ///
+    /// This used to open the letter-labelled pane picker first, which users
+    /// found confusing; the pane they mean is the one they are in.
+    fn move_active_pane_out(
+        &mut self,
+        pane: &Arc<dyn Pane>,
+        new_window: bool,
+    ) -> anyhow::Result<()> {
+        let mux = Mux::get();
+        let tab = mux
+            .get_active_tab_for_window(self.mux_window_id)
+            .ok_or_else(|| anyhow!("no active tab"))?;
+
+        // A lone pane already is the whole tab: moving it to a new tab would
+        // only reorder tabs, and a new window is exactly MoveTabToNewWindow.
+        if tab.count_panes_blocking() < 2 {
+            if new_window {
+                self.move_tab_to_new_window()?;
+            }
+            return Ok(());
+        }
+
+        let pane_id = pane.pane_id();
+        let window_id = if new_window {
+            None
+        } else {
+            Some(self.mux_window_id)
+        };
+        promise::spawn::spawn(async move {
+            if let Err(err) = mux.move_pane_to_new_tab(pane_id, window_id, None).await {
+                log::error!("failed to move_pane_to_new_tab: {err:#}");
+                return;
+            }
+            if !new_window {
+                mux.focus_pane_and_containing_tab(pane_id).ok();
+            }
+        })
+        .detach();
+        Ok(())
+    }
+
     /// Move the active tab into a window of its own, panes and all.
     ///
     /// `PaneSelect(MoveToNewWindow)` only relocates a single pane, so a split
@@ -5251,10 +5384,14 @@ impl TermWindow {
                     }),
                 );
             }
-            PaneSelect(args) => {
-                let modal = crate::termwindow::paneselect::PaneSelector::new(self, args);
-                self.set_modal(Rc::new(modal));
-            }
+            PaneSelect(args) => match args.mode {
+                PaneSelectMode::MoveToNewTab => self.move_active_pane_out(pane, false)?,
+                PaneSelectMode::MoveToNewWindow => self.move_active_pane_out(pane, true)?,
+                _ => {
+                    let modal = crate::termwindow::paneselect::PaneSelector::new(self, args);
+                    self.set_modal(Rc::new(modal));
+                }
+            },
             CharSelect(args) => {
                 let modal = crate::termwindow::charselect::CharSelector::new(self, args);
                 self.set_modal(Rc::new(modal));
@@ -6659,6 +6796,26 @@ assert(overrides.window_padding.top == 0 and overrides.hide_tab_bar_if_only_one_
     }
 
     #[test]
+    fn move_pane_commands_skip_the_letter_picker() {
+        // Move Pane to New Tab/Window act on the focused pane directly; only
+        // the remaining PaneSelect modes may open the PaneSelector modal.
+        let source = include_str!("mod.rs").split("#[cfg(test)]").next().unwrap();
+        let arm = source
+            .split("PaneSelect(args) => match args.mode {")
+            .nth(1)
+            .unwrap();
+        let arm = arm.split("CharSelect(args) =>").next().unwrap();
+        let modal = arm.find("PaneSelector::new(self, args)").unwrap();
+        let to_tab = arm
+            .find("PaneSelectMode::MoveToNewTab => self.move_active_pane_out(pane, false)?,")
+            .unwrap();
+        let to_window = arm
+            .find("PaneSelectMode::MoveToNewWindow => self.move_active_pane_out(pane, true)?,")
+            .unwrap();
+        assert!(to_tab < modal && to_window < modal);
+    }
+
+    #[test]
     fn destroyed_window_events_stop_before_rendering_or_notifications() {
         let source = include_str!("mod.rs").split("#[cfg(test)]").next().unwrap();
         assert!(source.contains("window_destroyed: false,"));
@@ -6925,6 +7082,43 @@ assert(overrides.window_padding.top == 0 and overrides.hide_tab_bar_if_only_one_
             Some(&MouseCapture::UI),
             captured_pane
         ));
+    }
+
+    #[test]
+    fn osc_toasts_follow_notification_handling() {
+        use super::should_show_toast;
+        use config::NotificationHandling::*;
+
+        // (window focused, pane in active tab, pane inactive)
+        let background = (false, true, false);
+        let focused_active = (true, true, false);
+        let focused_other_pane = (true, true, true);
+        let focused_other_tab = (true, false, true);
+        let show = |h, (f, t, i)| should_show_toast(h, f, t, i);
+
+        for h in [
+            AlwaysShow,
+            SuppressFromFocusedWindow,
+            SuppressFromFocusedTab,
+            SuppressFromFocusedPane,
+        ] {
+            assert!(
+                show(h, background),
+                "{:?} shows while Kaku is in the background",
+                h
+            );
+            assert!(
+                !show(h, focused_active),
+                "{:?} stays quiet for the pane in view",
+                h
+            );
+        }
+        assert!(!show(NeverShow, background));
+        assert!(!show(AlwaysShow, focused_other_pane));
+        assert!(!show(AlwaysShow, focused_other_tab));
+        assert!(show(SuppressFromFocusedPane, focused_other_pane));
+        assert!(!show(SuppressFromFocusedTab, focused_other_pane));
+        assert!(show(SuppressFromFocusedTab, focused_other_tab));
     }
 
     #[test]

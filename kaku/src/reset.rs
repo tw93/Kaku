@@ -394,6 +394,11 @@ mod imp {
         println!(
             "This will remove Kaku shell and tmux integration and reset Kaku-managed git defaults."
         );
+        println!(
+            "It also deletes AI memory and backups in {}:",
+            config_home().display()
+        );
+        println!("soul/, ai_chat_memory.md, ai_chat_onboarded, and backups/.");
         print!("Continue with reset? [y/N] ");
         io::stdout().flush().context("flush stdout")?;
 

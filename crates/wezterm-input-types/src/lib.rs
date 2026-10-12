@@ -1741,7 +1741,15 @@ impl KeyEvent {
             // Check for simple text generating keys
             match &self.key {
                 Char('\x08') => return '\x7f'.to_string(),
+                // Forward Delete is a functional key, not a legacy text key.
+                Char('\x7f') if flags.contains(KittyKeyboardFlags::DISAMBIGUATE_ESCAPE_CODES) => {}
                 Char('\x7f') => return '\x08'.to_string(),
+                // With DISAMBIGUATE_ESCAPE_CODES, ESC must not be sent as a
+                // raw \x1b byte, since the entire point of the flag is to eliminate
+                // that ambiguity.  Let it fall through to the CSI-u path below
+                // which will produce \x1b[27;1u as required by the spec.
+                // https://sw.kovidgoyal.net/kitty/keyboard-protocol/#disambiguate
+                Char('\x1b') if flags.contains(KittyKeyboardFlags::DISAMBIGUATE_ESCAPE_CODES) => {}
                 Char(c) => return c.to_string(),
                 _ => {}
             }
@@ -3225,6 +3233,88 @@ mod test {
             }
             .encode_kitty(flags),
             "\u{1b}[102;14u".to_string()
+        );
+    }
+    /// ESC with DISAMBIGUATE_ESCAPE_CODES must produce \x1b[27;1u, not a raw \x1b.
+    /// https://sw.kovidgoyal.net/kitty/keyboard-protocol/#disambiguate
+    #[test]
+    fn encode_escape_disambiguate() {
+        // Flag 1 only: ESC on key-down → \x1b[27;1u
+        let flags = KittyKeyboardFlags::DISAMBIGUATE_ESCAPE_CODES;
+        assert_eq!(
+            KeyEvent {
+                key: KeyCode::Char('\x1b'),
+                modifiers: Modifiers::NONE,
+                leds: KeyboardLedStatus::empty(),
+                repeat_count: 1,
+                key_is_down: true,
+                raw: None,
+                #[cfg(windows)]
+                win32_uni_char: None,
+            }
+            .encode_kitty(flags),
+            "\x1b[27;1u".to_string()
+        );
+
+        // No flags at all: ESC on key-down must still be sent as a raw \x1b
+        // (legacy behaviour is unchanged).
+        let flags = KittyKeyboardFlags::NONE;
+        assert_eq!(
+            KeyEvent {
+                key: KeyCode::Char('\x1b'),
+                modifiers: Modifiers::NONE,
+                leds: KeyboardLedStatus::empty(),
+                repeat_count: 1,
+                key_is_down: true,
+                raw: None,
+                #[cfg(windows)]
+                win32_uni_char: None,
+            }
+            .encode_kitty(flags),
+            "\x1b".to_string()
+        );
+
+        // DISAMBIGUATE + REPORT_EVENT_TYPES: key-up must produce \x1b[27;1:3u
+        let flags =
+            KittyKeyboardFlags::DISAMBIGUATE_ESCAPE_CODES | KittyKeyboardFlags::REPORT_EVENT_TYPES;
+        assert_eq!(
+            KeyEvent {
+                key: KeyCode::Char('\x1b'),
+                modifiers: Modifiers::NONE,
+                leds: KeyboardLedStatus::empty(),
+                repeat_count: 1,
+                key_is_down: false,
+                raw: None,
+                #[cfg(windows)]
+                win32_uni_char: None,
+            }
+            .encode_kitty(flags),
+            "\x1b[27;1:3u".to_string()
+        );
+    }
+
+    #[test]
+    fn encode_forward_delete_disambiguate() {
+        let mut event = KeyEvent {
+            key: KeyCode::Char('\x7f'),
+            modifiers: Modifiers::NONE,
+            leds: KeyboardLedStatus::empty(),
+            repeat_count: 1,
+            key_is_down: true,
+            raw: None,
+            #[cfg(windows)]
+            win32_uni_char: None,
+        };
+        let flags = KittyKeyboardFlags::DISAMBIGUATE_ESCAPE_CODES;
+        assert_eq!(event.encode_kitty(flags), "\x1b[3;1~");
+        // Preserve the existing legacy fallback when the application has not
+        // negotiated disambiguation.
+        assert_eq!(event.encode_kitty(KittyKeyboardFlags::NONE), "\x08");
+        event.key_is_down = false;
+        assert_eq!(event.encode_kitty(flags), "");
+        assert_eq!(
+            event.encode_kitty(flags | KittyKeyboardFlags::REPORT_EVENT_TYPES),
+            "\x1b[3;1:3~"
         );
     }
 }

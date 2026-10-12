@@ -183,25 +183,8 @@ impl crate::TermWindow {
         let (_, padding_top) = self.padding_left_top();
         let content_left = self.content_left_inset();
 
-        let tab_bar_height = if self.show_tab_bar {
-            self.tab_bar_pixel_height()
-                .context("tab_bar_pixel_height")?
-        } else {
-            0.
-        };
-        let top_bar_height = if self.config.tab_bar_at_bottom {
-            0.0
-        } else {
-            tab_bar_height
-        };
         let border = self.get_os_border();
-        // A top tab bar covers ordinary titlebar clearance, not the drawer's notch safe area.
-        let effective_border_top = super::borders::content_border_top(
-            self.window_state,
-            self.show_tab_bar && !self.config.tab_bar_at_bottom,
-            border.top.get(),
-        ) as f32;
-        let top_pixel_y = top_bar_height + padding_top + effective_border_top;
+        let top_pixel_y = self.terminal_first_row_offset() + padding_top;
 
         let cursor = pos.pane.get_cursor_position();
         if pos.is_active {
@@ -275,10 +258,15 @@ impl crate::TermWindow {
                 )
             };
 
-            // Calculate the width - respect right padding
+            // Calculate the width. Like the left edge above, the right-most pane
+            // fills the right padding unless transparent fill strips paint it,
+            // so a dimmed inactive pane does not leave an undimmed strip (#562).
             let width = if pos.left + pos.width >= self.terminal_size.cols as usize {
-                // Right-most pane: extend to split center but respect window padding
-                let padding_right = self.effective_right_padding(&config) as f32;
+                let padding_right = if transparent_fill_strips_active {
+                    self.effective_right_padding(&config) as f32
+                } else {
+                    0.0
+                };
                 self.dimensions.pixel_width as f32 - x - padding_right - border.right.get() as f32
             } else {
                 (pos.width as f32 * cell_width) + width_delta
@@ -292,7 +280,14 @@ impl crate::TermWindow {
                 // subtract bottom_bar_height again here to avoid a gap.
                 // When tab bar is at bottom, it covers the bottom border area, so
                 // don't subtract border.bottom which would create a gap.
-                let padding_bottom = effective_padding_bottom;
+                // Same as the right edge: fill the bottom padding unless a
+                // transparent fill strip or a bottom tab bar owns it.
+                let bottom_tab_bar = self.show_tab_bar && self.config.tab_bar_at_bottom;
+                let padding_bottom = if transparent_fill_strips_active || bottom_tab_bar {
+                    effective_padding_bottom
+                } else {
+                    0.0
+                };
                 let effective_border_bottom = if self.show_tab_bar && self.config.tab_bar_at_bottom
                 {
                     0.0
@@ -602,6 +597,7 @@ impl crate::TermWindow {
                         pane_is_active: pane_is_active_for_cursor,
                         config_generation: self.term_window.config.generation(),
                         shape_generation: self.term_window.shape_generation,
+                        num_cols: self.dims.cols,
                         quad_generation: self.term_window.quad_generation,
                         composing: composing.clone(),
                         selection: selrange.clone(),
@@ -647,6 +643,7 @@ impl crate::TermWindow {
                     let shape_key = LineToEleShapeCacheKey {
                         shape_hash,
                         shape_generation: quad_key.shape_generation,
+                        num_cols: self.dims.cols,
                         window_is_transparent: self.window_is_transparent,
                         composing: if self.cursor.y == stable_row && pane_is_active_for_cursor {
                             if let DeadKeyStatus::Composing(composing) =

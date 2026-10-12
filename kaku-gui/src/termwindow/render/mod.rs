@@ -58,6 +58,7 @@ pub struct CachedLineState {
 
 #[derive(Debug, Hash, Clone, PartialEq, Eq)]
 pub struct LineQuadCacheKey {
+    pub num_cols: usize,
     pub config_generation: usize,
     pub shape_generation: usize,
     pub quad_generation: usize,
@@ -88,6 +89,7 @@ pub struct LineQuadCacheValue {
 }
 
 pub struct LineToElementParams<'a> {
+    pub num_cols: usize,
     pub line: &'a Line,
     pub config: &'a ConfigHandle,
     pub palette: &'a ColorPalette,
@@ -100,6 +102,7 @@ pub struct LineToElementParams<'a> {
 pub struct LineToEleShapeCacheKey {
     pub shape_hash: [u8; 16],
     pub composing: Option<(usize, String)>,
+    pub num_cols: usize,
     pub shape_generation: usize,
     pub window_is_transparent: bool,
 }
@@ -374,6 +377,20 @@ impl crate::TermWindow {
                 pixel_max: self.terminal_size.pixel_height as f32,
                 pixel_cell: self.render_metrics.cell_size.height as f32,
             })
+    }
+
+    /// Pixel y of the terminal grid's top edge, before top padding: the OS
+    /// top inset plus a top tab bar when one is shown. Pane backgrounds,
+    /// split lines and mouse hit-testing take their origin from here so they
+    /// match where text is drawn; a pane background that skipped the inset
+    /// under a top tab bar sat above its split line (#562).
+    pub fn terminal_first_row_offset(&self) -> f32 {
+        let top_tab_bar_height = if self.show_tab_bar && !self.config.tab_bar_at_bottom {
+            self.tab_bar_pixel_height().unwrap_or(0.)
+        } else {
+            0.
+        };
+        borders::terminal_first_row_offset(top_tab_bar_height, self.get_os_border().top.get())
     }
 
     pub fn padding_left_top(&self) -> (f32, f32) {

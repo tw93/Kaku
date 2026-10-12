@@ -1,5 +1,5 @@
 use crate::inputmap::InputMap;
-use config::keyassignment::{ClipboardCopyDestination, ClipboardPasteSource, PaneEncoding, *};
+use config::keyassignment::{ClipboardCopyDestination, ClipboardPasteSource, *};
 use config::window::WindowLevel;
 use config::{ConfigHandle, DeferredKeyCode};
 use mux::domain::DomainState;
@@ -124,11 +124,13 @@ impl CommandDef {
 
             keys.push((mods, key.clone()));
 
-            if mods == Modifiers::SUPER {
-                // We want each SUPER/CMD version of the keys to also have
-                // CTRL+SHIFT version(s) for environments where SUPER/CMD
-                // is reserved for the window manager.
-                // This bit synthesizes those.
+            // We want each SUPER/CMD version of the keys to also have
+            // CTRL+SHIFT version(s) for environments where SUPER/CMD
+            // is reserved for the window manager.
+            // This bit synthesizes those. macOS never reserves Cmd, and the
+            // copies took Ctrl chords that shells and TUIs own: Ctrl+_ is
+            // readline/zsh undo, and Ctrl+Shift+L shadowed Kaku Doctor.
+            if mods == Modifiers::SUPER && !cfg!(target_os = "macos") {
                 keys.push((Modifiers::CTRL | Modifiers::SHIFT, key.clone()));
                 if ukey != key {
                     keys.push((Modifiers::CTRL | Modifiers::SHIFT, ukey.clone()));
@@ -225,7 +227,6 @@ impl CommandDef {
             CopyTo(ClipboardCopyDestination::Clipboard),
             PasteFrom(ClipboardPasteSource::Clipboard),
             Search(Pattern::CurrentSelectionOrEmptyString),
-            QuickSelect,
             ClearScrollback(ScrollbackEraseMode::ScrollbackOnly),
             // View menu
             ResetFontSize,
@@ -240,7 +241,6 @@ impl CommandDef {
             MaximizeWindow,
             Hide,
             ToggleAlwaysOnTop,
-            ToggleAlwaysOnBottom,
             ActivateWindowRelative(-1),
             ActivateWindowRelative(1),
             ActivateTabRelative(-1),
@@ -496,7 +496,10 @@ impl CommandDef {
             });
         }
 
-        // Generate some stuff based on the mux state
+        // Generate some stuff based on the mux state. Items that change with
+        // domain attach or workspace state stay out of the menubar: it is only
+        // rebuilt on config reload, so they would show up after an appearance
+        // switch and then go stale. The palette still lists them.
         if let Some(mux) = Mux::try_get() {
             let mut domains = mux.iter_domains();
             domains.sort_by(|a, b| {
@@ -526,7 +529,7 @@ impl CommandDef {
                                 domain: SpawnTabDomain::DomainName(name.to_string()),
                                 ..SpawnCommand::default()
                             }),
-                            menubar: &["Shell"],
+                            menubar: if name == "local" { &["Shell"] } else { &[] },
                             icon: None,
                         });
                     } else {
@@ -535,7 +538,7 @@ impl CommandDef {
                             doc: "".into(),
                             keys: vec![],
                             action: KeyAssignment::AttachDomain(name.to_string()),
-                            menubar: &["Shell"],
+                            menubar: &[],
                             icon: None,
                         });
                     }
@@ -557,7 +560,7 @@ impl CommandDef {
                         action: KeyAssignment::DetachDomain(SpawnTabDomain::DomainName(
                             name.to_string(),
                         )),
-                        menubar: &["Shell"],
+                        menubar: &[],
                         icon: None,
                     });
                 }
@@ -574,22 +577,11 @@ impl CommandDef {
                             name: Some(workspace.clone()),
                             spawn: None,
                         },
-                        menubar: &["Window"],
+                        menubar: &[],
                         icon: None,
                     });
                 }
             }
-            result.push(ExpandedCommand {
-                brief: "Create new Workspace".into(),
-                doc: "".into(),
-                keys: vec![],
-                action: KeyAssignment::SwitchToWorkspace {
-                    name: None,
-                    spawn: None,
-                },
-                menubar: &["Window"],
-                icon: None,
-            });
         }
 
         // And sweep to pick up stuff from their key assignments
@@ -662,8 +654,11 @@ impl CommandDef {
     }
 
     /// Rebuild the macOS menubar from the current config and key bindings.
-    /// Uses a mark-sweep approach: tag existing items, update or create new
-    /// ones, then remove stale items at the end.
+    /// Called synchronously at startup and again on the main thread after a
+    /// config reload. Every item Kaku adds carries `KAKU_MENU_ITEM_TAG`; a
+    /// rebuild removes those and inserts the new set at the top of each
+    /// menu, so the fixed Kaku menu items, separators and rank order come out
+    /// as on the first build.
     #[cfg(target_os = "macos")]
     pub fn recreate_menubar(config: &ConfigHandle) {
         use window::os::macos::menu::*;
@@ -673,31 +668,33 @@ impl CommandDef {
 
         let inputmap = InputMap::new(config);
 
-        let mut candidates_for_removal = vec![];
         #[allow(unexpected_cfgs)] // <https://github.com/SSheldon/rust-objc/issues/125>
         let kaku_perform_key_assignment_sel = sel!(kakuPerformKeyAssignment:);
 
-        /// Mark menu items as candidates for removal
-        fn mark_candidates(menu: &Menu, candidates: &mut Vec<MenuItem>, action: SEL) {
-            for item in menu.items() {
-                if let Some(submenu) = item.get_sub_menu() {
-                    mark_candidates(&submenu, candidates, action);
-                }
-                if item.get_action() == Some(action) {
-                    item.set_tag(0);
-                    candidates.push(item);
-                }
-            }
+        const KAKU_MENU_ITEM_TAG: cocoa::foundation::NSInteger = 0x4b61_6b75;
+
+        /// Insert an item Kaku owns at `index`, ahead of anything AppKit
+        /// injected into the same menu.
+        fn insert_owned(menu: &Menu, item: &MenuItem, index: &mut usize) {
+            item.set_tag(KAKU_MENU_ITEM_TAG);
+            menu.insert_item(item, *index);
+            *index += 1;
         }
 
         let main_menu = match Menu::get_main_menu() {
             Some(existing) => {
-                mark_candidates(
-                    &existing,
-                    &mut candidates_for_removal,
-                    kaku_perform_key_assignment_sel,
-                );
-
+                // Keep the top-level menus themselves: AppKit adds AutoFill,
+                // Start Dictation and Emoji & Symbols to Edit only at launch,
+                // so a fresh Edit menu would lose them for good.
+                for top in existing.items() {
+                    if let Some(menu) = top.get_sub_menu() {
+                        for item in menu.items() {
+                            if item.get_tag() == KAKU_MENU_ITEM_TAG {
+                                menu.remove_item(&item);
+                            }
+                        }
+                    }
+                }
                 existing
             }
             None => {
@@ -776,10 +773,6 @@ impl CommandDef {
                     MoveTabRelative(-1) => 40,
                     MoveTabRelative(1) => 41,
                     PaneSelect(PaneSelectArguments {
-                        mode: PaneSelectMode::Activate,
-                        ..
-                    }) => 50,
-                    PaneSelect(PaneSelectArguments {
                         mode: PaneSelectMode::MoveToNewTab,
                         ..
                     }) => 51,
@@ -847,6 +840,7 @@ impl CommandDef {
             });
 
             let mut prev_group: Option<usize> = None;
+            let mut next_index = 0;
             for cmd in menu_commands {
                 let rank = command_rank_for_menu(title, &cmd.action);
                 let group = separator_group_for_menu(title, rank);
@@ -862,7 +856,14 @@ impl CommandDef {
                     // have no value here.
                     if cmd.menubar[0] == "Kaku" {
                         menu.assign_as_app_menu();
+                    }
+                });
 
+                // The fixed Kaku menu items head the menu on every build,
+                // including a rebuild that reuses the existing menu.
+                if next_index == 0 {
+                    let menu = &submenu;
+                    if cmd.menubar[0] == "Kaku" {
                         let about_item = MenuItem::new_with(
                             &format!("Kaku V{}", config::wezterm_version()),
                             Some(kaku_perform_key_assignment_sel),
@@ -871,9 +872,9 @@ impl CommandDef {
                         about_item.set_represented_item(RepresentedItem::KeyAssignment(
                             KeyAssignment::EmitEvent("run-kaku-cli".to_string()),
                         ));
-                        menu.add_item(&about_item);
+                        insert_owned(menu, &about_item, &mut next_index);
 
-                        menu.add_item(&MenuItem::new_separator());
+                        insert_owned(menu, &MenuItem::new_separator(), &mut next_index);
 
                         #[allow(unexpected_cfgs)]
                         // <https://github.com/SSheldon/rust-objc/issues/125>
@@ -890,7 +891,7 @@ impl CommandDef {
                         if !app_delegate.is_null() {
                             settings_item.set_target(app_delegate);
                         }
-                        menu.add_item(&settings_item);
+                        insert_owned(menu, &settings_item, &mut next_index);
 
                         let check_update = MenuItem::new_with(
                             "Check for Updates...",
@@ -900,7 +901,7 @@ impl CommandDef {
                         check_update.set_represented_item(RepresentedItem::KeyAssignment(
                             KeyAssignment::EmitEvent("run-kaku-update".to_string()),
                         ));
-                        menu.add_item(&check_update);
+                        insert_owned(menu, &check_update, &mut next_index);
 
                         // Show "Restart to Update" when a staged update is ready.
                         if let Some(info) = crate::update::staged_update_available() {
@@ -913,7 +914,7 @@ impl CommandDef {
                             restart_item.set_represented_item(RepresentedItem::KeyAssignment(
                                 KeyAssignment::EmitEvent("restart-to-update".to_string()),
                             ));
-                            menu.add_item(&restart_item);
+                            insert_owned(menu, &restart_item, &mut next_index);
                         }
 
                         let set_default_terminal_item = MenuItem::new_with(
@@ -929,25 +930,39 @@ impl CommandDef {
                         if let Some(conn) = Connection::get() {
                             set_default_terminal_item.set_state(conn.is_default_terminal());
                         }
-                        menu.add_item(&set_default_terminal_item);
+                        insert_owned(menu, &set_default_terminal_item, &mut next_index);
 
-                        menu.add_item(&MenuItem::new_separator());
+                        // macOS never asks again once notifications are denied,
+                        // so give the switch a place people can find.
+                        let notification_settings_item = MenuItem::new_with(
+                            "Notification Settings...",
+                            Some(kaku_perform_key_assignment_sel),
+                            "",
+                        );
+                        notification_settings_item.set_represented_item(
+                            RepresentedItem::KeyAssignment(KeyAssignment::OpenUri(
+                                wezterm_toast_notification::NOTIFICATION_SETTINGS_URL.to_string(),
+                            )),
+                        );
+                        insert_owned(menu, &notification_settings_item, &mut next_index);
+
+                        insert_owned(menu, &MenuItem::new_separator(), &mut next_index);
 
                         let services_menu = Menu::new_with_title("Services");
                         services_menu.assign_as_services_menu();
                         let services_item = MenuItem::new_with("Services", None, "");
-                        menu.add_item(&services_item);
+                        insert_owned(menu, &services_item, &mut next_index);
                         services_item.set_sub_menu(&services_menu);
 
-                        menu.add_item(&MenuItem::new_separator());
+                        insert_owned(menu, &MenuItem::new_separator(), &mut next_index);
                     }
-                });
+                }
 
                 // Insert a separator when the logical group changes
                 if cmd.menubar.len() == 1 {
                     if let Some(pg) = prev_group {
                         if pg != group {
-                            submenu.add_item(&MenuItem::new_separator());
+                            insert_owned(&submenu, &MenuItem::new_separator(), &mut next_index);
                         }
                     }
                     prev_group = Some(group);
@@ -955,7 +970,11 @@ impl CommandDef {
 
                 // Fill out any submenu hierarchy
                 for sub_title in cmd.menubar.iter().skip(1) {
-                    submenu = submenu.get_or_create_sub_menu(sub_title, |_menu| {});
+                    let parent = submenu;
+                    submenu = parent.get_or_create_sub_menu(sub_title, |_menu| {});
+                    if let Some(container) = parent.item_with_title(sub_title) {
+                        container.set_tag(KAKU_MENU_ITEM_TAG);
+                    }
                 }
 
                 let mut candidate = inputmap.locate_app_wide_key_assignment(&cmd.action);
@@ -999,23 +1018,16 @@ impl CommandDef {
                     .map(|(key, _)| key_code_to_equivalent(key))
                     .unwrap_or_else(String::new);
 
-                let represented_item = RepresentedItem::KeyAssignment(cmd.action.clone());
-                let item = match submenu.get_item_with_represented_item(&represented_item) {
-                    Some(existing) => {
-                        existing.set_title(&cmd.brief);
-                        existing.set_key_equivalent(&short_cut);
-                        existing
-                    }
-                    None => {
-                        let item = MenuItem::new_with(
-                            &cmd.brief,
-                            Some(kaku_perform_key_assignment_sel),
-                            &short_cut,
-                        );
-                        submenu.add_item(&item);
-                        item
-                    }
-                };
+                let item = MenuItem::new_with(
+                    &cmd.brief,
+                    Some(kaku_perform_key_assignment_sel),
+                    &short_cut,
+                );
+                if cmd.menubar.len() == 1 {
+                    insert_owned(&submenu, &item, &mut next_index);
+                } else {
+                    submenu.add_item(&item);
+                }
 
                 if !short_cut.is_empty() {
                     let mods: Modifiers = candidate[0].1;
@@ -1041,17 +1053,7 @@ impl CommandDef {
                     item.set_key_equiv_modifier_mask(equiv_mods);
                 }
 
-                item.set_represented_item(represented_item);
-                // Update the tag to indicate that this item should
-                // not be removed by the sweep below
-                item.set_tag(1);
-            }
-        }
-
-        // Now sweep away any items that were not updated
-        for item in candidates_for_removal {
-            if item.get_tag() == 0 {
-                item.get_menu().map(|menu| menu.remove_item(&item));
+                item.set_represented_item(RepresentedItem::KeyAssignment(cmd.action.clone()));
             }
         }
     }
@@ -1323,7 +1325,7 @@ pub fn derive_command_from_key_assignment(action: &KeyAssignment) -> Option<Comm
             icon: None,
         },
         QuickSelect => CommandDef {
-            brief: "QuickSelect".into(),
+            brief: "Quick Select".into(),
             doc: "Quick selection mode".into(),
             keys: vec![(Modifiers::CTRL.union(Modifiers::SHIFT), "Space".into())],
             args: &[ArgType::ActivePane],
@@ -1331,7 +1333,7 @@ pub fn derive_command_from_key_assignment(action: &KeyAssignment) -> Option<Comm
             icon: None,
         },
         QuickSelectArgs(_) => CommandDef {
-            brief: "Enter QuickSelect mode".into(),
+            brief: "Enter Quick Select mode".into(),
             doc: "Activates the quick selection UI for the current pane".into(),
             keys: vec![],
             args: &[ArgType::ActivePane],
@@ -1352,9 +1354,9 @@ pub fn derive_command_from_key_assignment(action: &KeyAssignment) -> Option<Comm
         }) => CommandDef {
             brief: "Select Pane".into(),
             doc: "Select a pane interactively".into(),
-            keys: vec![(Modifiers::SUPER.union(Modifiers::ALT), "p".into())],
+            keys: vec![],
             args: &[ArgType::ActivePane],
-            menubar: &["Window"],
+            menubar: &[],
             icon: None,
         },
         PaneSelect(PaneSelectArguments {
@@ -1384,13 +1386,8 @@ pub fn derive_command_from_key_assignment(action: &KeyAssignment) -> Option<Comm
             ..
         }) => CommandDef {
             brief: "Move Pane to New Tab".into(),
-            doc: "Move selected pane to a new tab".into(),
-            keys: vec![(
-                Modifiers::SUPER
-                    .union(Modifiers::ALT)
-                    .union(Modifiers::SHIFT),
-                "t".into(),
-            )],
+            doc: "Move the current pane to a new tab".into(),
+            keys: vec![],
             args: &[ArgType::ActivePane],
             menubar: &["Window"],
             icon: None,
@@ -1400,7 +1397,7 @@ pub fn derive_command_from_key_assignment(action: &KeyAssignment) -> Option<Comm
             ..
         }) => CommandDef {
             brief: "Move Pane to New Window".into(),
-            doc: "Move selected pane to a new window".into(),
+            doc: "Move the current pane to a new window".into(),
             keys: vec![(
                 Modifiers::SUPER
                     .union(Modifiers::ALT)
@@ -1414,10 +1411,7 @@ pub fn derive_command_from_key_assignment(action: &KeyAssignment) -> Option<Comm
         DecreaseFontSize => CommandDef {
             brief: "Decrease Font Size".into(),
             doc: "Make text smaller".into(),
-            keys: vec![
-                (Modifiers::SUPER, "-".into()),
-                (Modifiers::CTRL, "-".into()),
-            ],
+            keys: vec![(Modifiers::SUPER, "-".into())],
             args: &[ArgType::ActiveWindow],
             menubar: &["View"],
             icon: None,
@@ -1425,10 +1419,7 @@ pub fn derive_command_from_key_assignment(action: &KeyAssignment) -> Option<Comm
         IncreaseFontSize => CommandDef {
             brief: "Increase Font Size".into(),
             doc: "Make text larger".into(),
-            keys: vec![
-                (Modifiers::SUPER, "=".into()),
-                (Modifiers::CTRL, "=".into()),
-            ],
+            keys: vec![(Modifiers::SUPER, "=".into())],
             args: &[ArgType::ActiveWindow],
             menubar: &["View"],
             icon: None,
@@ -1436,10 +1427,7 @@ pub fn derive_command_from_key_assignment(action: &KeyAssignment) -> Option<Comm
         ResetFontSize => CommandDef {
             brief: "Reset Font Size".into(),
             doc: "Reset to configured font size".into(),
-            keys: vec![
-                (Modifiers::SUPER, "0".into()),
-                (Modifiers::CTRL, "0".into()),
-            ],
+            keys: vec![(Modifiers::SUPER, "0".into())],
             args: &[ArgType::ActiveWindow],
             menubar: &["View"],
             icon: None,
@@ -2603,7 +2591,7 @@ pub fn derive_command_from_key_assignment(action: &KeyAssignment) -> Option<Comm
 /// included in the default key assignments and command palette.
 fn compute_default_actions() -> Vec<KeyAssignment> {
     // These are ordered by their position within the various menus
-    let mut actions = vec![
+    vec![
         // ----------------- Kaku
         #[cfg(target_os = "macos")]
         HideApplication,
@@ -2629,8 +2617,6 @@ fn compute_default_actions() -> Vec<KeyAssignment> {
         CloseCurrentPane { confirm: true },
         ReopenLastClosedTab,
         RestorePreviousWindow,
-        DetachDomain(SpawnTabDomain::CurrentPaneDomain),
-        ResetTerminal,
         // ----------------- Edit
         #[cfg(not(target_os = "macos"))]
         PasteFrom(ClipboardPasteSource::PrimarySelection),
@@ -2646,10 +2632,6 @@ fn compute_default_actions() -> Vec<KeyAssignment> {
         SendStringIfNotAltScreen("\x1f".to_string()),
         ClearScrollback(ScrollbackEraseMode::ScrollbackOnly),
         ClearScrollback(ScrollbackEraseMode::ScrollbackAndViewport),
-        QuickSelect,
-        CharSelect(CharSelectArguments::default()),
-        ActivateCopyMode,
-        ClearKeyTableStack,
         ActivateCommandPalette,
         // ----------------- View
         DecreaseFontSize,
@@ -2669,21 +2651,6 @@ fn compute_default_actions() -> Vec<KeyAssignment> {
         Search(Pattern::CurrentSelectionOrEmptyString),
         PaneSelect(PaneSelectArguments {
             alphabet: String::new(),
-            mode: PaneSelectMode::Activate,
-            show_pane_ids: false,
-        }),
-        PaneSelect(PaneSelectArguments {
-            alphabet: String::new(),
-            mode: PaneSelectMode::SwapWithActive,
-            show_pane_ids: false,
-        }),
-        PaneSelect(PaneSelectArguments {
-            alphabet: String::new(),
-            mode: PaneSelectMode::SwapWithActiveKeepFocus,
-            show_pane_ids: false,
-        }),
-        PaneSelect(PaneSelectArguments {
-            alphabet: String::new(),
             mode: PaneSelectMode::MoveToNewTab,
             show_pane_ids: false,
         }),
@@ -2692,8 +2659,6 @@ fn compute_default_actions() -> Vec<KeyAssignment> {
             mode: PaneSelectMode::MoveToNewWindow,
             show_pane_ids: false,
         }),
-        RotatePanes(RotationDirection::Clockwise),
-        RotatePanes(RotationDirection::CounterClockwise),
         TogglePaneSplitDirection,
         ActivateTab(0),
         ActivateTab(1),
@@ -2728,23 +2693,15 @@ fn compute_default_actions() -> Vec<KeyAssignment> {
         ShowDebugOverlay,
         // ----------------- Misc
         OpenLinkAtMouseCursor,
-    ];
-
-    actions.extend(
-        PaneEncoding::ordered_list()
-            .into_iter()
-            .map(KeyAssignment::SetPaneEncoding),
-    );
-
-    actions
+    ]
 }
 
 #[cfg(test)]
 mod tests {
     use super::{derive_command_from_key_assignment, CommandDef};
-    use config::keyassignment::KeyAssignment;
+    use config::keyassignment::{KeyAssignment, PaneSelectArguments, PaneSelectMode};
     use config::ConfigHandle;
-    use window::Modifiers;
+    use window::{KeyCode, Modifiers};
 
     #[test]
     fn deprecated_input_broadcast_actions_are_not_exposed() {
@@ -2768,6 +2725,144 @@ mod tests {
                 KeyAssignment::ToggleCurrentTabPanesInputBroadcast
                     | KeyAssignment::ToggleAllPanesInputBroadcast
             )));
+    }
+
+    #[test]
+    fn mux_state_commands_stay_out_of_the_menubar() {
+        // The menubar is only rebuilt on config reload (#570), so commands
+        // that follow domain attach or workspace state must stay palette-only.
+        let source = include_str!("commands.rs")
+            .split("#[cfg(test)]")
+            .next()
+            .expect("commands production source");
+        for (what, form) in [
+            (
+                "Attach Domain",
+                "action: KeyAssignment::AttachDomain(name.to_string()),\n                            menubar: &[],",
+            ),
+            (
+                "Detach Domain",
+                "name.to_string(),\n                        )),\n                        menubar: &[],",
+            ),
+            (
+                "New Tab (Domain X)",
+                "menubar: if name == \"local\" { &[\"Shell\"] } else { &[] },",
+            ),
+            (
+                "Switch to workspace",
+                "name: Some(workspace.clone()),\n                            spawn: None,\n                        },\n                        menubar: &[],",
+            ),
+        ] {
+            assert!(
+                source.contains(form),
+                "{} must not be added to the menubar",
+                what
+            );
+        }
+    }
+
+    #[test]
+    fn select_pane_is_not_exposed_by_default() {
+        // Cmd+Opt+P used to open a modal that labels each split with a letter
+        // and swallows clicks and scrolling until Esc, which users hit by
+        // accident and could not get out of. User configs can still bind it.
+        let config = ConfigHandle::default_config();
+        let select_pane = KeyAssignment::PaneSelect(PaneSelectArguments {
+            alphabet: String::new(),
+            mode: PaneSelectMode::Activate,
+            show_pane_ids: false,
+        });
+
+        let cmd = derive_command_from_key_assignment(&select_pane).expect("command");
+        assert!(cmd.keys.is_empty());
+        assert!(cmd.menubar.is_empty());
+        assert!(!CommandDef::default_key_assignments(&config).iter().any(
+            |(_, _, action)| matches!(
+                action,
+                KeyAssignment::PaneSelect(PaneSelectArguments {
+                    mode: PaneSelectMode::Activate,
+                    ..
+                })
+            )
+        ));
+        assert!(!CommandDef::actions_for_palette_only(&config)
+            .iter()
+            .any(|cmd| cmd.action == select_pane));
+    }
+
+    #[test]
+    fn rarely_used_wezterm_actions_are_not_exposed_by_default() {
+        // These either open an input-grabbing modal (QuickSelect, CharSelect,
+        // Copy Mode, the swap pane picker) or have no use in Kaku. User
+        // configs can still bind every one of them.
+        let config = ConfigHandle::default_config();
+        let is_removed = |action: &KeyAssignment| {
+            matches!(
+                action,
+                KeyAssignment::QuickSelect
+                    | KeyAssignment::CharSelect(_)
+                    | KeyAssignment::ActivateCopyMode
+                    | KeyAssignment::ClearKeyTableStack
+                    | KeyAssignment::ResetTerminal
+                    | KeyAssignment::RotatePanes(_)
+                    | KeyAssignment::SetPaneEncoding(_)
+                    | KeyAssignment::DetachDomain(_)
+                    | KeyAssignment::ToggleAlwaysOnBottom
+                    | KeyAssignment::SwitchToWorkspace { name: None, .. }
+                    | KeyAssignment::PaneSelect(PaneSelectArguments {
+                        mode: PaneSelectMode::SwapWithActive
+                            | PaneSelectMode::SwapWithActiveKeepFocus,
+                        ..
+                    })
+            )
+        };
+
+        assert!(!CommandDef::default_key_assignments(&config)
+            .iter()
+            .any(|(_, _, action)| is_removed(action)));
+        assert!(!CommandDef::actions_for_palette_only(&config)
+            .iter()
+            .any(|cmd| is_removed(&cmd.action)));
+        assert!(!CommandDef::actions_for_palette_and_menubar(&config)
+            .iter()
+            .any(|cmd| is_removed(&cmd.action) && !cmd.menubar.is_empty()));
+
+        // Always on Top stays: Window menu, palette and Cmd+Shift+Up.
+        assert!(CommandDef::default_key_assignments(&config)
+            .iter()
+            .any(|(_, _, action)| *action == KeyAssignment::ToggleAlwaysOnTop));
+        assert!(CommandDef::actions_for_palette_only(&config)
+            .iter()
+            .any(|cmd| cmd.action == KeyAssignment::ToggleAlwaysOnTop));
+    }
+
+    #[test]
+    fn ctrl_chords_stay_with_the_shell_on_macos() {
+        // Kaku binds its shortcuts on Cmd. The WezTerm-era Ctrl copies took
+        // chords that shells and TUIs own (Ctrl+_ is readline/zsh undo,
+        // Ctrl+Shift+Q quit the app) and Cmd+L's copy shadowed Ctrl+Shift+L.
+        let config = ConfigHandle::default_config();
+        let map = crate::inputmap::InputMap::new(&config);
+        for ((key, mods), entry) in map.keys.default.iter() {
+            if !mods.contains(Modifiers::CTRL) || mods.contains(Modifiers::SUPER) {
+                continue;
+            }
+            assert!(
+                matches!(
+                    entry.action,
+                    KeyAssignment::ActivateTabRelative(_)
+                        | KeyAssignment::MoveTabRelative(_)
+                        | KeyAssignment::ShowDebugOverlay
+                ),
+                "{mods:?} {key:?} must not be a default binding, it maps to {:?}",
+                entry.action
+            );
+        }
+        assert!(map.keys.default.iter().any(|((key, mods), entry)| {
+            *mods == Modifiers::CTRL | Modifiers::SHIFT
+                && *key == KeyCode::Char('l')
+                && entry.action == KeyAssignment::ShowDebugOverlay
+        }));
     }
 
     #[test]

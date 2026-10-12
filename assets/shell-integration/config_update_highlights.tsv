@@ -88,3 +88,7 @@
 34	tmux 中保留 Kaku 提示符和智能补全，fish 的 grep 补全正常展开
 35	Sessions are saved while Kaku runs, so a crash or force quit still restores your windows
 35	Kaku 运行时会定期保存会话，崩溃或强制退出后也能恢复窗口
+36	Tabs show a + button, and right-clicking a tab offers New Tab and Close Tab
+36	标签栏默认显示 + 按钮，右键标签可以新建或关闭标签
+36	Kaku no longer prints before the first prompt, so Powerlevel10k instant prompt stays quiet
+36	Kaku 不再在第一个提示符前输出内容，Powerlevel10k 的 instant prompt 不再报警告

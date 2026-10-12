@@ -567,6 +567,11 @@ pub struct Config {
     #[dynamic(default)]
     pub tab_title_show_foreground_process: bool,
 
+    /// Prefer the active pane's OSC 0/2 title over auto-generated directory titles.
+    /// Explicitly renamed tabs still take precedence.
+    #[dynamic(default)]
+    pub tab_title_use_pane_title: bool,
+
     #[dynamic(default = "default_true")]
     pub mouse_wheel_scrolls_tabs: bool,
 
@@ -3465,6 +3470,7 @@ mod tests {
         let config = super::Config::default();
 
         assert!(!config.tab_title_show_foreground_process);
+        assert!(!config.tab_title_use_pane_title);
     }
 
     #[test]
@@ -4240,6 +4246,8 @@ pub enum ImePreeditRendering {
     /// IME preedit is rendered by WezTerm itself
     #[default]
     Builtin,
+    /// IME preedit shifts the rest of the row for display only.
+    BuiltinInsert,
     /// IME preedit is rendered by system
     System,
 }
