@@ -16,7 +16,7 @@ use crate::{
 use anyhow::{anyhow, ensure};
 use async_trait::async_trait;
 use cocoa::appkit::{
-    self, CGFloat, NSApplication, NSApplicationActivateIgnoringOtherApps,
+    self, CGFloat, NSApp, NSApplication, NSApplicationActivateIgnoringOtherApps,
     NSApplicationPresentationOptions, NSBackingStoreBuffered, NSEvent, NSEventModifierFlags,
     NSOpenGLContext, NSOpenGLPixelFormat, NSPasteboard, NSRunningApplication, NSScreen, NSView,
     NSViewHeightSizable, NSViewWidthSizable, NSWindow, NSWindowStyleMask,
@@ -66,10 +66,6 @@ pub fn is_app_terminating() -> bool {
     APP_TERMINATING.load(Ordering::Relaxed)
 }
 
-// Cached opacity state, updated on config change. Avoids a Mutex lock
-// on every compositor call to isOpaque (60-120Hz on ProMotion displays).
-static VIEW_IS_OPAQUE: AtomicBool = AtomicBool::new(true);
-
 #[allow(non_upper_case_globals)]
 const NSViewLayerContentsPlacementTopLeft: NSInteger = 11;
 #[allow(non_upper_case_globals)]
@@ -80,6 +76,8 @@ const ZOOM_HIDE_CONTENT_MS: u64 = 20;
 const FULLSCREEN_DISPLAY_CHANGE_OPENGL_PRESENT_DEFER_MS: u64 = 300;
 const WINDOWED_DISPLAY_CHANGE_OPENGL_PRESENT_DEFER_MS: u64 = 150;
 const MOVE_PERSIST_DELAY_SECS: f64 = 0.35;
+#[cfg(test)]
+const HOTKEY_SLIDE_DURATION: Duration = Duration::from_millis(200);
 // cocoa 0.25 does not expose these newer AppKit collection-behavior bits.
 // Keep the raw values local so Kaku can opt into native macOS window tiling
 // without broadening the dependency surface.
@@ -224,13 +222,21 @@ pub struct GlContextPair {
     pub backend: BackendImpl,
 }
 
+fn gl_layer_is_opaque(window_opacity: f32) -> BOOL {
+    if window_opacity >= 1.0 {
+        YES
+    } else {
+        NO
+    }
+}
+
 impl GlContextPair {
     /// on macOS we first try to initialize EGL by dynamically loading it.
     /// The system doesn't provide an EGL implementation, but the ANGLE
     /// project (and MetalANGLE) both provide implementations.
     /// The ANGLE EGL implementation wants a CALayer descendant passed
     /// as the EGLNativeWindowType.
-    pub fn create(view: id) -> anyhow::Result<Self> {
+    pub fn create(view: id, window_opacity: f32) -> anyhow::Result<Self> {
         let behavior = if cfg!(debug_assertions) {
             glium::debug::DebugCallbackBehavior::DebugMessageOnError
         } else {
@@ -243,11 +249,7 @@ impl GlContextPair {
             // Importantly, we must set its scale to 1.0 prior to initializing
             // EGL to prevent undesirable scaling.
             let layer: id;
-            let layer_opaque = if config::configuration().window_background_opacity >= 1.0 {
-                YES
-            } else {
-                NO
-            };
+            let layer_opaque = gl_layer_is_opaque(window_opacity);
             unsafe {
                 let _: () = msg_send![view, setWantsLayer: YES];
                 layer = msg_send![view, layer];
@@ -516,7 +518,174 @@ mod cglbits {
 pub(crate) struct WindowInner {
     view: StrongPtr,
     window: StrongPtr,
+    // Park the native host while the terminal view is in a panel. A dedicated
+    // drawer's host is newly created and never shown as an ordinary window.
+    ordinary_window: Option<StrongPtr>,
+    ordinary_window_screens: Vec<NSRect>,
+    dedicated_hotkey: bool,
     config: ConfigHandle,
+}
+
+#[derive(Clone, Copy)]
+struct HotkeySlide {
+    resting_frame: NSRect,
+    from: NSPoint,
+    to: NSPoint,
+    started: Instant,
+    duration: Duration,
+    showing: bool,
+    hide_on_focus_loss: bool,
+}
+
+fn hotkey_offscreen_origin(frame: NSRect, screen: NSRect) -> NSPoint {
+    // AppKit points have a bottom-left origin, including on secondary screens.
+    NSPoint::new(frame.origin.x, screen.origin.y + screen.size.height)
+}
+
+impl HotkeySlide {
+    fn should_hide_when_cancelled(self, is_key: bool) -> bool {
+        !(self.showing || self.hide_on_focus_loss && is_key)
+    }
+
+    fn reverse_on_focus_gain(self, is_key: bool, current_origin: NSPoint) -> Option<Self> {
+        if !self.hide_on_focus_loss || self.showing || !is_key {
+            return None;
+        }
+        Some(Self {
+            from: current_origin,
+            to: self.resting_frame.origin,
+            started: Instant::now(),
+            showing: true,
+            hide_on_focus_loss: false,
+            ..self
+        })
+    }
+
+    fn reverse_when_auto_hide_disabled(
+        self,
+        hide_on_focus_loss: bool,
+        current_origin: NSPoint,
+    ) -> Option<Self> {
+        // Pinning cancels only an in-flight automatic hide, never a hotkey hide.
+        self.reverse_on_focus_gain(!hide_on_focus_loss, current_origin)
+    }
+
+    fn origin_at(self, elapsed: Duration) -> NSPoint {
+        if self.duration.is_zero() {
+            return self.to;
+        }
+        let t = (elapsed.as_secs_f64() / self.duration.as_secs_f64()).min(1.);
+        let eased = t * t * (3. - 2. * t);
+        NSPoint::new(
+            self.from.x + (self.to.x - self.from.x) * eased,
+            self.from.y + (self.to.y - self.from.y) * eased,
+        )
+    }
+}
+
+fn hotkey_should_hide(showing: Option<bool>, is_key: bool, is_visible: bool) -> bool {
+    showing.unwrap_or(is_key && is_visible)
+}
+
+fn drawer_hotkey_should_hide(
+    showing: Option<bool>,
+    is_key: bool,
+    is_visible: bool,
+    hide_on_focus_loss: bool,
+) -> bool {
+    showing.unwrap_or(is_visible && (is_key || !hide_on_focus_loss))
+}
+
+fn hotkey_animation_duration(duration_ms: u64, reduce_motion: bool) -> Duration {
+    if reduce_motion {
+        Duration::ZERO
+    } else {
+        Duration::from_millis(duration_ms)
+    }
+}
+
+fn hotkey_extend_behind_notch(
+    is_panel: bool,
+    override_value: Option<bool>,
+    inherited: bool,
+) -> bool {
+    if is_panel {
+        override_value.unwrap_or(inherited)
+    } else {
+        inherited
+    }
+}
+
+fn should_hide_hotkey_on_focus_loss(
+    is_panel: bool,
+    is_key: bool,
+    is_visible: bool,
+    showing: Option<bool>,
+    enabled: bool,
+) -> bool {
+    enabled && is_panel && !is_key && is_visible && showing != Some(false)
+}
+
+fn defer_hotkey_request(pending: &Cell<Option<bool>>, transitioning: bool, showing: bool) -> bool {
+    pending.set(if transitioning { Some(showing) } else { None });
+    transitioning
+}
+
+fn cancel_hotkey_visibility_intent(pending: &Cell<Option<bool>>, exit_hide: &Cell<bool>) {
+    // A stable fullscreen hide can set the exit marker without queuing a hotkey intent.
+    pending.set(None);
+    exit_hide.set(false);
+}
+
+#[derive(Clone, Copy)]
+struct ScreenResize {
+    dimensions: Dimensions,
+    window_state: WindowState,
+    live_resizing: bool,
+}
+
+#[derive(Default)]
+struct DeferredScreenResize {
+    pending: Cell<Option<ScreenResize>>,
+}
+
+impl DeferredScreenResize {
+    fn is_pending(&self) -> bool {
+        self.pending.get().is_some()
+    }
+
+    // Only the first snapshot needs a callback; later resizes replace its payload.
+    fn update(&self, resize: ScreenResize) -> bool {
+        self.pending.replace(Some(resize)).is_none()
+    }
+
+    fn take(&self) -> Option<ScreenResize> {
+        self.pending.take()
+    }
+}
+
+fn content_size_changed(current: NSSize, requested: NSSize) -> bool {
+    (requested.width - current.width).abs() > 0.01
+        || (requested.height - current.height).abs() > 0.01
+}
+
+fn should_start_native_fullscreen_exit(transitioning: bool, target: Option<bool>) -> bool {
+    !(transitioning && target == Some(false))
+}
+
+fn use_appkit_fullscreen_toggle(use_native: bool, hotkey_panel: bool) -> bool {
+    // A panel must return its terminal view to the ordinary window first.
+    use_native && !hotkey_panel
+}
+
+fn set_titlebar_button_hidden(button: id, hidden: BOOL) {
+    // Panels and borderless/fullscreen windows may not have every button.
+    if button.is_null() {
+        return;
+    }
+    unsafe {
+        let _: () = msg_send![button, setHidden: hidden];
+    }
 }
 
 fn function_key_to_keycode(function_key: char) -> KeyCode {
@@ -559,6 +728,62 @@ impl Window {
     }
 }
 
+fn hotkey_panel_style_mask(mask: NSWindowStyleMask) -> NSWindowStyleMask {
+    // A borderless host avoids native rounded chrome. The terminal view opts
+    // into nonactivating panel keyboard focus via needsPanelToBecomeKey.
+    (mask & NSWindowStyleMask::NSResizableWindowMask)
+        | nonactivating_panel_mask()
+        | NSWindowStyleMask::NSFullSizeContentViewWindowMask
+}
+
+fn hotkey_window_level() -> NSWindowLevel {
+    use objc2_core_graphics::{CGWindowLevelForKey, CGWindowLevelKey};
+    // Cover both the menu bar and status items, but leave system popups above us.
+    i64::from(
+        CGWindowLevelForKey(CGWindowLevelKey::MainMenuWindowLevelKey)
+            .max(CGWindowLevelForKey(CGWindowLevelKey::StatusWindowLevelKey)),
+    ) + 1
+}
+
+fn nonactivating_panel_mask() -> NSWindowStyleMask {
+    // NSWindowStyleMaskNonactivatingPanel is missing from cocoa's bindings.
+    unsafe { NSWindowStyleMask::from_bits_unchecked(1 << 7) }
+}
+
+fn is_hotkey_panel(window: id) -> bool {
+    unsafe {
+        let panel: BOOL = msg_send![window, isKindOfClass: get_hotkey_window_class()];
+        panel == YES
+    }
+}
+
+fn hotkey_collection_behavior(
+    mut behavior: appkit::NSWindowCollectionBehavior,
+    macos_major: u32,
+) -> appkit::NSWindowCollectionBehavior {
+    behavior.remove(
+        appkit::NSWindowCollectionBehavior::NSWindowCollectionBehaviorCanJoinAllSpaces
+            | appkit::NSWindowCollectionBehavior::NSWindowCollectionBehaviorFullScreenPrimary
+            | fullscreen_allows_tiling_behavior(),
+    );
+    behavior.insert(
+        appkit::NSWindowCollectionBehavior::NSWindowCollectionBehaviorMoveToActiveSpace
+            | appkit::NSWindowCollectionBehavior::NSWindowCollectionBehaviorFullScreenAuxiliary,
+    );
+    if macos_major >= 13 {
+        // Newer Stage Manager / fullscreen roles are absent from cocoa.
+        unsafe {
+            behavior.remove(appkit::NSWindowCollectionBehavior::from_bits_unchecked(
+                (1 << 16) | (1 << 17),
+            ));
+            behavior.insert(appkit::NSWindowCollectionBehavior::from_bits_unchecked(
+                1 << 18,
+            ));
+        }
+    }
+    behavior
+}
+
 fn set_window_position(window: *mut Object, coords: ScreenPoint) {
     unsafe {
         let cartesian = screen_point_to_cartesian(coords);
@@ -593,6 +818,8 @@ const MIN_RESTORE_HEIGHT: usize = 120;
 
 thread_local! {
     static LAST_CLOSED_WINDOW_POSITION: RefCell<Option<ScreenPoint>> = RefCell::new(None);
+    // The view survives the NSWindow -> NSPanel host swap; never retain a session here.
+    static OS_PARAMETER_VIEWS: RefCell<BTreeMap<usize, WeakPtr>> = RefCell::new(BTreeMap::new());
     // Sync drag flag: set by request_drag_move(), checked by mouse_down to execute performWindowDragWithEvent:
     static PENDING_DRAG_MOVE: Cell<bool> = Cell::new(false);
     static PENDING_DRAG_MOVE_FROM_MAXIMIZED: Cell<bool> = Cell::new(false);
@@ -600,6 +827,83 @@ thread_local! {
     // consumed by the first mouseDragged: so a bare single click never reaches
     // performWindowDragWithEvent: (which macOS would treat as a snap/maximize). #414
     static ARMED_MAXIMIZED_NATIVE_DRAG: Cell<bool> = Cell::new(false);
+}
+
+fn os_parameters_native_view(
+    window_id: usize,
+    borrowed_view: impl FnOnce() -> Option<id>,
+) -> Option<StrongPtr> {
+    let registered = OS_PARAMETER_VIEWS.with(|views| views.borrow().get(&window_id).cloned());
+    let view = match registered {
+        Some(view) => view.load(),
+        None => unsafe { StrongPtr::retain(borrowed_view()?) },
+    };
+    if view.is_null() {
+        None
+    } else {
+        Some(view)
+    }
+}
+
+fn os_parameters_screen(window: Option<id>, main_screen: impl FnOnce() -> id) -> id {
+    let screen = window.map_or(nil, |window| unsafe { msg_send![window, screen] });
+    if screen.is_null() {
+        main_screen()
+    } else {
+        screen
+    }
+}
+
+fn os_parameters_native_window(view: &StrongPtr) -> Option<StrongPtr> {
+    let window: id = unsafe { msg_send![**view, window] };
+    if window.is_null() {
+        None
+    } else {
+        Some(unsafe { StrongPtr::retain(window) })
+    }
+}
+
+fn os_parameters_native_state(window: id, window_state: WindowState) -> (bool, bool) {
+    let native_full_screen =
+        unsafe { NSWindow::styleMask(window) }.contains(NSWindowStyleMask::NSFullScreenWindowMask);
+    let hotkey_panel = window_state.contains(WindowState::HOTKEY_WINDOW) || is_hotkey_panel(window);
+    (native_full_screen, hotkey_panel)
+}
+
+fn screen_safe_area_top(screen: id) -> Option<usize> {
+    if screen.is_null() {
+        return None;
+    }
+    get_screen_safe_area_insets(screen).map(|insets| unsafe {
+        let frame = NSScreen::frame(screen);
+        let backing_frame = NSScreen::convertRectToBacking_(screen, frame);
+        let scale = backing_frame.size.height / frame.size.height;
+        (insets.top.ceil() * scale) as usize
+    })
+}
+
+fn make_terminal_key_window(window: &StrongPtr, view: &StrongPtr) {
+    unsafe {
+        window.makeKeyAndOrderFront_(nil);
+        // A key NSWindow can still be its own first responder instead of the terminal.
+        window.makeFirstResponder_(**view);
+    }
+}
+
+fn set_window_style_mask_preserving_responder(window: &StrongPtr, mask: NSWindowStyleMask) {
+    unsafe {
+        // AppKit can reset firstResponder while rebuilding the window's frame view.
+        let responder: id = msg_send![**window, firstResponder];
+        let responder = if responder.is_null() {
+            None
+        } else {
+            Some(StrongPtr::retain(responder))
+        };
+        window.setStyleMask_(mask);
+        if let Some(responder) = responder {
+            window.makeFirstResponder_(*responder);
+        }
+    }
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
@@ -672,8 +976,17 @@ fn window_position(window: *mut Object) -> Option<ScreenPoint> {
 }
 
 fn remember_last_closed_window_position(window: *mut Object) {
-    if window.is_null() {
+    if window.is_null() || is_hotkey_panel(window) {
         return;
+    }
+
+    let content_view: id = unsafe { msg_send![window, contentView] };
+    if !content_view.is_null() {
+        if let Some(view) = unsafe { WindowView::get_this(&*content_view) } {
+            if view.hotkey_slide.get().is_some() {
+                return;
+            }
+        }
     }
 
     let style_mask = unsafe { NSWindow::styleMask(window) };
@@ -797,6 +1110,21 @@ fn fit_frame_to_visible_frame(frame: NSRect, visible_frame: NSRect) -> Option<NS
     }
 }
 
+fn frame_after_display_change(
+    frame: NSRect,
+    simple_fullscreen: bool,
+    fills_visible_frame: bool,
+    screen: ScreenGeometry,
+) -> NSRect {
+    if simple_fullscreen {
+        screen.frame
+    } else if fills_visible_frame {
+        screen.visible_frame
+    } else {
+        fit_frame_to_visible_frame(frame, screen.visible_frame).unwrap_or(frame)
+    }
+}
+
 /// Returns the y for `setFrameOrigin` that keeps the frame's top edge at or
 /// below the visible frame's top (i.e. below the menu bar), or None when the
 /// frame is already compliant. Only the top edge is constrained: windows may
@@ -819,6 +1147,163 @@ fn clamp_frame_top_below_menu_bar(frame: NSRect, visible_frame: NSRect) -> Optio
 struct ScreenGeometry {
     frame: NSRect,
     visible_frame: NSRect,
+}
+
+#[derive(Clone, Copy, Default)]
+struct WindowedScreenState {
+    screen_id: Option<u32>,
+    screen: Option<ScreenGeometry>,
+    frame: Option<NSRect>,
+    fills_visible_frame: bool,
+    max_invalidated_by_move: bool,
+}
+
+impl WindowedScreenState {
+    fn settled(self, frame: NSRect, screen_id: Option<u32>, screen: ScreenGeometry) -> Self {
+        let fills_visible_frame = nsrect_approx_eq(frame, screen.visible_frame, 1.0);
+        Self {
+            screen_id,
+            screen: Some(screen),
+            frame: Some(frame),
+            fills_visible_frame,
+            max_invalidated_by_move: self.max_invalidated_by_move && !fills_visible_frame,
+        }
+    }
+
+    fn after_frame_change(
+        self,
+        frame: NSRect,
+        screen_id: Option<u32>,
+        screen: ScreenGeometry,
+        previous_screen: Option<ScreenGeometry>,
+    ) -> Self {
+        if let Some(previous) = self.screen {
+            // Topology changes can move a window before the observer runs.
+            // Only a move on unchanged live screens updates its saved intent.
+            if !previous_screen.is_some_and(|live| {
+                nsrect_approx_eq(previous.frame, live.frame, 0.5)
+                    && nsrect_approx_eq(previous.visible_frame, live.visible_frame, 0.5)
+            }) {
+                return self;
+            }
+        }
+        let mut next = self.settled(frame, screen_id, screen);
+        if let Some(previous) = self.frame {
+            let resized = (previous.size.width - frame.size.width).abs() > 0.5
+                || (previous.size.height - frame.size.height).abs() > 0.5;
+            let moved = self.screen_id != screen_id
+                || (previous.origin.x - frame.origin.x).abs() > 0.5
+                || (previous.origin.y - frame.origin.y).abs() > 0.5;
+            if resized || next.fills_visible_frame {
+                next.max_invalidated_by_move = false;
+            } else if moved {
+                next.max_invalidated_by_move = true;
+            }
+        }
+        next
+    }
+
+    fn fills_after_topology_change(self, last_maximized: bool) -> bool {
+        self.fills_visible_frame || (last_maximized && !self.max_invalidated_by_move)
+    }
+}
+
+fn hotkey_panel_frame(screen: ScreenGeometry, height_percent: f64) -> NSRect {
+    // AppKit points, not backing pixels. The drawer covers the menu bar area.
+    let height = screen.frame.size.height * height_percent / 100.;
+    NSRect::new(
+        NSPoint::new(
+            screen.frame.origin.x,
+            screen.frame.origin.y + screen.frame.size.height - height,
+        ),
+        NSSize::new(screen.frame.size.width, height),
+    )
+}
+
+fn frame_after_display_topology_change(
+    frame: NSRect,
+    simple_fullscreen: bool,
+    fills_visible_frame: bool,
+    previous_screens: &[NSRect],
+    current_screens: &[NSRect],
+    screen: ScreenGeometry,
+) -> NSRect {
+    // Added/reordered displays need no correction. Any removed or resized
+    // display can strand a window spanning that display, even if its own stays.
+    let prior_displays_unchanged = !previous_screens.is_empty()
+        && previous_screens.iter().all(|previous| {
+            current_screens
+                .iter()
+                .any(|current| nsrect_approx_eq(*previous, *current, 0.5))
+        });
+    if prior_displays_unchanged {
+        frame
+    } else {
+        frame_after_display_change(frame, simple_fullscreen, fills_visible_frame, screen)
+    }
+}
+
+fn screen_frames() -> Vec<NSRect> {
+    unsafe {
+        let screens = NSScreen::screens(nil);
+        (0..NSArray::count(screens))
+            .map(|index| {
+                let screen = NSArray::objectAtIndex(screens, index);
+                msg_send![screen, frame]
+            })
+            .collect()
+    }
+}
+
+fn select_hotkey_screen_geometry(
+    mouse: Option<NSPoint>,
+    screens: &[ScreenGeometry],
+    fallback: Option<ScreenGeometry>,
+) -> Option<ScreenGeometry> {
+    mouse
+        .and_then(|point| {
+            screens.iter().find(|screen| {
+                let frame = screen.frame;
+                // Half-open edges select exactly one of two adjacent displays.
+                point.x >= frame.origin.x
+                    && point.x < frame.origin.x + frame.size.width
+                    && point.y >= frame.origin.y
+                    && point.y < frame.origin.y + frame.size.height
+            })
+        })
+        .copied()
+        .or(fallback)
+}
+
+fn hotkey_screen_geometry(follow_mouse: bool) -> Option<ScreenGeometry> {
+    unsafe {
+        let main = NSScreen::mainScreen(nil);
+        let fallback = if main.is_null() {
+            None
+        } else {
+            Some(ScreenGeometry {
+                frame: msg_send![main, frame],
+                visible_frame: msg_send![main, visibleFrame],
+            })
+        };
+        if !follow_mouse {
+            return fallback;
+        }
+
+        // mouseLocation and NSScreen frames are both global AppKit points.
+        let mouse = NSEvent::mouseLocation(nil);
+        let screens = NSScreen::screens(nil);
+        let count = NSArray::count(screens);
+        let mut geometries = Vec::with_capacity(count as usize);
+        for i in 0..count {
+            let screen = NSArray::objectAtIndex(screens, i);
+            geometries.push(ScreenGeometry {
+                frame: msg_send![screen, frame],
+                visible_frame: msg_send![screen, visibleFrame],
+            });
+        }
+        select_hotkey_screen_geometry(Some(mouse), &geometries, fallback)
+    }
 }
 
 fn rect_top(rect: NSRect) -> f64 {
@@ -902,6 +1387,10 @@ fn visible_frame_for_target_frame(window: id, frame: NSRect) -> Option<NSRect> {
 }
 
 fn visible_frame_for_window(window: id) -> Option<NSRect> {
+    screen_geometry_for_window(window).map(|screen| screen.visible_frame)
+}
+
+fn screen_geometry_for_window(window: id) -> Option<ScreenGeometry> {
     if window.is_null() {
         return None;
     }
@@ -916,7 +1405,10 @@ fn visible_frame_for_window(window: id) -> Option<NSRect> {
         if screen.is_null() {
             None
         } else {
-            Some(msg_send![screen, visibleFrame])
+            Some(ScreenGeometry {
+                frame: msg_send![screen, frame],
+                visible_frame: msg_send![screen, visibleFrame],
+            })
         }
     }
 }
@@ -994,18 +1486,25 @@ fn screen_identifier_for_window(window: *mut Object) -> Option<u32> {
 }
 
 fn has_screen_identifier(screen_id: u32) -> bool {
+    screen_geometry_for_identifier(screen_id).is_some()
+}
+
+fn screen_geometry_for_identifier(screen_id: u32) -> Option<ScreenGeometry> {
     unsafe {
         let screens = NSScreen::screens(nil);
         let count = screens.count();
         for idx in 0..count {
             let screen = screens.objectAtIndex(idx);
             if screen_identifier_for_screen(screen) == Some(screen_id) {
-                return true;
+                return Some(ScreenGeometry {
+                    frame: msg_send![screen, frame],
+                    visible_frame: msg_send![screen, visibleFrame],
+                });
             }
         }
     }
 
-    false
+    None
 }
 
 fn parse_legacy_window_size(s: &str) -> Option<PersistedWindowSize> {
@@ -1090,7 +1589,7 @@ fn load_persisted_restore() -> PersistedRestore {
 }
 
 fn persist_window_state(window: *mut Object, persist_position: bool) -> bool {
-    if window.is_null() {
+    if window.is_null() || is_hotkey_panel(window) {
         return false;
     }
 
@@ -1100,6 +1599,7 @@ fn persist_window_state(window: *mut Object, persist_position: bool) -> bool {
             if window_view.simple_fullscreen_active.get()
                 || window_view.simple_fullscreen_transition_active.get()
                 || window_view.native_fullscreen_transition_active.get()
+                || window_view.hotkey_slide.get().is_some()
             {
                 return false;
             }
@@ -1148,8 +1648,14 @@ pub(crate) fn on_app_terminating() {
     APP_TERMINATING.store(true, Ordering::Relaxed);
     if let Some(conn) = Connection::get() {
         let mut windows = vec![];
-        for window_inner in conn.windows.borrow().values() {
-            let window = *window_inner.borrow().window;
+        let tracked_windows: Vec<_> = conn.windows.borrow().values().cloned().collect();
+        for window_inner in tracked_windows {
+            let mut inner = window_inner.borrow_mut();
+            if inner.dedicated_hotkey {
+                continue;
+            }
+            inner.restore_ordinary_window();
+            let window = *inner.window;
             if !window.is_null() {
                 windows.push(window);
             }
@@ -1188,6 +1694,35 @@ pub(crate) fn on_app_terminating() {
 }
 
 impl Window {
+    pub async fn discard_hotkey_window() {
+        if let Some(id) = super::app::take_hotkey_window() {
+            let _ = Connection::with_window_inner(id, |inner| {
+                inner.close();
+                Ok(())
+            })
+            .await;
+        }
+    }
+
+    /// Called on the GUI thread before the newly created window is ever shown.
+    pub fn initialize_hotkey_window(&self, visible: bool) -> anyhow::Result<()> {
+        let conn =
+            Connection::get().ok_or_else(|| anyhow!("window connection is not initialized"))?;
+        let handle = conn
+            .window_by_id(self.id)
+            .ok_or_else(|| anyhow!("invalid window id {}", self.id))?;
+        let mut inner = handle.borrow_mut();
+        inner.dedicated_hotkey = true;
+        inner.prepare_global_hotkey_panel();
+        super::app::register_hotkey_window(self.id);
+        if visible {
+            inner.show_global_hotkey_window();
+        } else {
+            inner.dispatch_resize_event();
+        }
+        Ok(())
+    }
+
     pub async fn new_window<F>(
         _class_name: &str,
         name: &str,
@@ -1222,7 +1757,11 @@ impl Window {
             (Some(x), Some(y)) => Some(ScreenPoint::new(x as isize, y as isize)),
             _ => None,
         };
-        let is_first_window = conn.windows.borrow().is_empty();
+        let is_first_window = !conn
+            .windows
+            .borrow()
+            .values()
+            .any(|window| !window.borrow().is_dedicated_hotkey());
         let remembered_initial_pos = if explicit_initial_pos.is_none() && is_first_window {
             last_closed_window_position()
         } else {
@@ -1280,6 +1819,8 @@ impl Window {
                 key_is_down: None,
                 dead_pending: None,
                 fullscreen: None,
+                fullscreen_screens: Vec::new(),
+                display_screen_frames: screen_frames(),
                 config: config.clone(),
                 ime_state: ImeDisposition::None,
                 ime_last_event: None,
@@ -1389,10 +1930,18 @@ impl Window {
             let window_handle = Window { id: window_id };
             let window_inner = Rc::new(RefCell::new(WindowInner {
                 window,
+                ordinary_window: None,
+                ordinary_window_screens: Vec::new(),
+                dedicated_hotkey: false,
                 view,
                 config: config.clone(),
             }));
             inner.borrow_mut().window.replace(weak_window);
+            OS_PARAMETER_VIEWS.with(|views| {
+                views
+                    .borrow_mut()
+                    .insert(window_id, window_inner.borrow().view.weak());
+            });
             conn.windows
                 .borrow_mut()
                 .insert(window_id, Rc::clone(&window_inner));
@@ -1487,7 +2036,13 @@ pub(crate) fn broadcast_system_appearance_change() {
 /// @see https://developer.apple.com/documentation/appkit/nswindow/level
 pub type NSWindowLevel = i64;
 
-pub fn nswindow_level_to_window_level(nswindow_level: NSWindowLevel) -> WindowLevel {
+pub fn nswindow_level_to_window_level(
+    nswindow_level: NSWindowLevel,
+    hotkey_panel: bool,
+) -> WindowLevel {
+    if hotkey_panel {
+        return WindowLevel::AlwaysOnTop;
+    }
     match nswindow_level {
         -1 => WindowLevel::AlwaysOnBottom,
         0 => WindowLevel::Normal,
@@ -1572,17 +2127,8 @@ impl WindowOps for Window {
 
     fn order_out(&self) {
         Connection::with_window_inner(self.id, |inner| {
-            // orderOut on a native-fullscreen window leaves the Space behind
-            // as a stranded black overlay. Exit the Space first; the hide is
-            // completed from did_exit_fullscreen once AppKit tears it down.
-            if inner.is_native_fullscreen() {
-                if let Some(window_view) = unsafe { WindowView::get_this(&**inner.view) } {
-                    window_view.order_out_on_fullscreen_exit.set(true);
-                }
-                inner.exit_native_fullscreen();
-            } else {
-                inner.order_out();
-            }
+            inner.clear_pending_hotkey_visibility();
+            inner.order_out_after_fullscreen_exit();
             Ok(())
         });
     }
@@ -1739,57 +2285,51 @@ impl WindowOps for Window {
     fn get_os_parameters(
         &self,
         config: &ConfigHandle,
-        _window_state: WindowState,
+        window_state: WindowState,
     ) -> anyhow::Result<Option<Parameters>> {
         // We implement this method primarily to provide Notch-avoidance for
         // systems with a notch.
-        // We only need this for non-native full screen mode.
+        // Non-native fullscreen and top-edge drawers can extend behind the notch.
 
-        let native_full_screen = self
-            .ns_window()
-            .map(|ns_window| {
-                let style_mask = unsafe { NSWindow::styleMask(ns_window) };
-                style_mask.contains(NSWindowStyleMask::NSFullScreenWindowMask)
-            })
-            .unwrap_or(false);
+        // Resize dispatch can hold WindowInner's mutable borrow. Use the weak
+        // view to query its current host rather than falling back to mainScreen.
+        let Some(native_view) = os_parameters_native_view(self.id, || self.ns_view()) else {
+            return Ok(None);
+        };
+        let window_view = unsafe { WindowView::get_this(&**native_view) };
+        if window_view
+            .as_ref()
+            .is_some_and(|view| view.is_closing.get())
+        {
+            return Ok(None);
+        }
+        let Some(native_window) = os_parameters_native_window(&native_view) else {
+            return Ok(None);
+        };
+        let (native_full_screen, hotkey_panel) =
+            os_parameters_native_state(*native_window, window_state);
 
         // For simple fullscreen, window_state may lag one frame behind the style/frame update.
         // Track the state in WindowView::simple_fullscreen_active (Cell<bool>) so we can
         // read it without borrowing the RefCell and avoid borrow conflicts during resize.
-        let simple_full_screen = self
-            .ns_view()
-            .and_then(|ns_view| unsafe { WindowView::get_this(&*ns_view) })
-            .map(|view| view.simple_fullscreen_active.get())
-            .unwrap_or(false);
+        let simple_full_screen = !hotkey_panel
+            && window_view
+                .map(|view| view.simple_fullscreen_active.get())
+                .unwrap_or(false);
 
-        let should_apply_notch_padding = simple_full_screen
+        let should_apply_notch_padding = (simple_full_screen || hotkey_panel)
             && !native_full_screen
-            && !config.macos_fullscreen_extend_behind_notch;
+            && !hotkey_extend_behind_notch(
+                hotkey_panel,
+                config.macos_global_hotkey_extend_behind_notch,
+                config.macos_fullscreen_extend_behind_notch,
+            );
 
         let border_dimensions = if should_apply_notch_padding {
-            let screen = if let Some(ns_window) = self.ns_window() {
-                unsafe {
-                    let window_screen: id = msg_send![ns_window, screen];
-                    if window_screen.is_null() {
-                        NSScreen::mainScreen(nil)
-                    } else {
-                        window_screen
-                    }
-                }
-            } else {
-                unsafe { NSScreen::mainScreen(nil) }
-            };
-
-            if screen.is_null() {
-                None
-            } else if let Some(insets) = get_screen_safe_area_insets(screen) {
-                let screen_frame = unsafe { NSScreen::frame(screen) };
-                let scale = unsafe {
-                    let backing_frame = NSScreen::convertRectToBacking_(screen, screen_frame);
-                    backing_frame.size.height / screen_frame.size.height
-                };
-
-                let top = (insets.top.ceil() * scale) as usize;
+            let screen = os_parameters_screen(Some(*native_window), || unsafe {
+                NSScreen::mainScreen(nil)
+            });
+            if let Some(top) = screen_safe_area_top(screen) {
                 let border_color = config
                     .resolved_palette
                     .background
@@ -1936,7 +2476,9 @@ impl WindowInner {
     }
 
     pub(crate) fn is_fullscreen(&mut self) -> bool {
-        if self.is_native_fullscreen() {
+        if self.ordinary_window.is_some() {
+            false
+        } else if self.is_native_fullscreen() {
             true
         } else if let Some(window_view) = WindowView::get_this(unsafe { &**self.view }) {
             // Use try_borrow to avoid a double-borrow panic when is_fullscreen is called
@@ -2008,6 +2550,7 @@ impl WindowInner {
     }
 
     fn toggle_simple_fullscreen(&mut self) {
+        self.cancel_hotkey_slide();
         let current_app = unsafe { NSApplication::sharedApplication(nil) };
 
         if let Some(window_view) = WindowView::get_this(unsafe { &**self.view }) {
@@ -2028,7 +2571,29 @@ impl WindowInner {
                         self.config.integrated_title_button_style,
                         self.config.native_macos_fullscreen_mode,
                     );
-                    self.window.setFrame_display_(saved_rect, YES);
+                    current_app.setPresentationOptions_(
+                        NSApplicationPresentationOptions::NSApplicationPresentationDefault,
+                    );
+                    let (fills_visible_frame, previous_screens) = {
+                        let inner = window_view.inner.borrow();
+                        (
+                            window_view.windowed_screen.get().fills_visible_frame,
+                            inner.fullscreen_screens.clone(),
+                        )
+                    };
+                    let restored_rect = screen_geometry_for_window(*self.window)
+                        .map(|screen| {
+                            frame_after_display_topology_change(
+                                saved_rect,
+                                false,
+                                fills_visible_frame,
+                                &previous_screens,
+                                &screen_frames(),
+                                screen,
+                            )
+                        })
+                        .unwrap_or(saved_rect);
+                    self.window.setFrame_display_(restored_rect, YES);
                     let clear: id = msg_send![class!(NSColor), clearColor];
                     let opaque = if self.config.window_background_opacity >= 1.0 {
                         YES
@@ -2037,11 +2602,10 @@ impl WindowInner {
                     };
                     let _: () = msg_send![*self.window, setOpaque: opaque];
                     let _: () = msg_send![*self.window, setBackgroundColor: clear];
-                    current_app.setPresentationOptions_(
-                        NSApplicationPresentationOptions::NSApplicationPresentationDefault,
-                    );
                     window_view.inner.borrow_mut().fullscreen.take();
+                    window_view.inner.borrow_mut().fullscreen_screens.clear();
                     window_view.simple_fullscreen_active.set(false);
+                    window_view.settle_windowed_screen_state(*self.window);
                     window_view.inner.borrow_mut().invalidated = true;
                 },
                 None => unsafe {
@@ -2054,11 +2618,11 @@ impl WindowInner {
                     window_view.inner.borrow_mut().live_resizing = true;
                     // Go full screen
                     let saved_rect = NSWindow::frame(*self.window);
-                    window_view
-                        .inner
-                        .borrow_mut()
-                        .fullscreen
-                        .replace(saved_rect);
+                    {
+                        let mut inner = window_view.inner.borrow_mut();
+                        inner.fullscreen.replace(saved_rect);
+                        inner.fullscreen_screens = screen_frames();
+                    }
                     window_view.simple_fullscreen_active.set(true);
 
                     let main_screen = NSScreen::mainScreen(nil);
@@ -2080,8 +2644,17 @@ impl WindowInner {
                         msg_send![class!(NSColor), clearColor]
                     };
                     let _: () = msg_send![*self.window, setBackgroundColor: bg_color];
-                    self.window
-                        .setStyleMask_(NSWindowStyleMask::NSBorderlessWindowMask);
+                    let mask = NSWindowStyleMask::NSBorderlessWindowMask;
+                    if is_hotkey_panel(*self.window) {
+                        apply_decorations_to_window(
+                            &self.window,
+                            WindowDecorations::NONE,
+                            self.config.integrated_title_button_style,
+                            false,
+                        );
+                    } else {
+                        set_window_style_mask_preserving_responder(&self.window, mask);
+                    }
                     self.window.setHasShadow_(NO);
                     self.window.setFrame_display_(screen_rect, YES);
                     current_app.setPresentationOptions_(
@@ -2096,8 +2669,10 @@ impl WindowInner {
 
     fn update_window_shadow(&mut self) {
         let opaque = self.config.window_background_opacity >= 1.0;
-        VIEW_IS_OPAQUE.store(opaque, Ordering::Relaxed);
         let is_opaque = if opaque { YES } else { NO };
+        if let Some(window_view) = WindowView::get_this(unsafe { &**self.view }) {
+            window_view.opaque.set(is_opaque);
+        }
         unsafe {
             self.window.setOpaque_(is_opaque);
             // when transparent, also turn off the window shadow,
@@ -2169,10 +2744,12 @@ impl WindowInner {
             // MACOS_FORCE_SQUARE_CORNERS opts out entirely: required on macOS 26
             // where the compositor leaves the NSWindow occupancy rectangular, so
             // tiled neighbor apps would otherwise poke into the clipped arcs.
-            let force_square = self
-                .config
-                .window_decorations
-                .contains(WindowDecorations::MACOS_FORCE_SQUARE_CORNERS);
+            // The full-width drawer must not add rounding at the screen edges.
+            let force_square = is_hotkey_panel(*self.window)
+                || self
+                    .config
+                    .window_decorations
+                    .contains(WindowDecorations::MACOS_FORCE_SQUARE_CORNERS);
             if !APP_TERMINATING.load(Ordering::Relaxed) {
                 let layer: id = msg_send![*self.view, layer];
                 if !layer.is_null() {
@@ -2328,8 +2905,10 @@ impl WindowInner {
                     arm_display_change_opengl_present_defer(window_view, window_id, defer_ms);
                 }
                 if transition_active {
-                    return true;
+                    return false;
                 }
+                let previous_screens =
+                    std::mem::replace(&mut inner.display_screen_frames, screen_frames());
                 if let Some(gl_context_pair) = inner.gl_context_pair.as_ref() {
                     log::debug!(
                         "refreshing OpenGL context for window after display change (window_id={})",
@@ -2345,9 +2924,19 @@ impl WindowInner {
                 // on lock-screen return). Doing heavy render work synchronously here
                 // can cause a main-thread busy-loop hang.
                 inner.invalidated = true;
-                let is_fullscreen = fullscreen_like;
+                let fills_visible_frame = window_view
+                    .windowed_screen
+                    .get()
+                    .fills_after_topology_change(
+                        inner
+                            .last_reported_window_state
+                            .contains(WindowState::MAXIMIZED),
+                    );
                 Connection::with_window_inner(window_id, move |inner| {
-                    if !is_fullscreen {
+                    inner.cancel_hotkey_slide();
+                    // Read the live mode: the window may have entered fullscreen
+                    // while this refresh was queued. AppKit owns native fullscreen.
+                    if !inner.is_native_fullscreen() {
                         // Reapply window decorations so the title bar is
                         // restored after a monitor disconnection.
                         inner.apply_decorations();
@@ -2358,11 +2947,37 @@ impl WindowInner {
                         // stay reachable.
                         unsafe {
                             let frame = NSWindow::frame(*inner.window);
-                            if let Some(visible_frame) = visible_frame_for_window(*inner.window) {
-                                if let Some(adjusted) =
-                                    fit_frame_to_visible_frame(frame, visible_frame)
-                                {
+                            if let Some(screen) = screen_geometry_for_window(*inner.window) {
+                                let simple_fullscreen = inner.is_fullscreen();
+                                let hotkey_panel = is_hotkey_panel(*inner.window);
+                                let adjusted = if hotkey_panel {
+                                    hotkey_panel_frame(
+                                        screen,
+                                        inner.config.macos_global_hotkey_height_percent,
+                                    )
+                                } else {
+                                    frame_after_display_topology_change(
+                                        frame,
+                                        simple_fullscreen,
+                                        fills_visible_frame,
+                                        &previous_screens,
+                                        &screen_frames(),
+                                        screen,
+                                    )
+                                };
+                                if !nsrect_approx_eq(frame, adjusted, 0.5) {
                                     inner.window.setFrame_display_(adjusted, YES);
+                                }
+                                if !simple_fullscreen && !hotkey_panel {
+                                    if let Some(view) = WindowView::get_this(&**inner.view) {
+                                        view.windowed_screen.set(
+                                            view.windowed_screen.get().settled(
+                                                NSWindow::frame(*inner.window),
+                                                screen_identifier_for_window(*inner.window),
+                                                screen,
+                                            ),
+                                        );
+                                    }
                                 }
                             }
                         }
@@ -2383,6 +2998,11 @@ impl WindowInner {
     }
 
     fn show(&mut self) {
+        if self.dedicated_hotkey {
+            self.show_global_hotkey_window();
+            return;
+        }
+        self.restore_ordinary_window();
         unsafe {
             let current_app = NSRunningApplication::currentApplication(nil);
             current_app.activateWithOptions_(NSApplicationActivateIgnoringOtherApps);
@@ -2391,8 +3011,10 @@ impl WindowInner {
             // to what it was.
             // Without this, the CAMetalLayer used by webgpu seems to get
             // stuck with a scale factor of 2 despite us having configured 1.
-            self.window
-                .setStyleMask_(NSWindowStyleMask::NSBorderlessWindowMask);
+            set_window_style_mask_preserving_responder(
+                &self.window,
+                NSWindowStyleMask::NSBorderlessWindowMask,
+            );
 
             apply_decorations_to_window(
                 &self.window,
@@ -2404,20 +3026,70 @@ impl WindowInner {
             self.update_titlebar_background();
             apply_window_appearance(&self.window, &self.config);
 
-            self.window.makeKeyAndOrderFront_(nil);
+            make_terminal_key_window(&self.window, &self.view);
         }
         self.dispatch_resize_event();
     }
 
     fn close(&mut self) {
+        self.clear_pending_hotkey_visibility();
+        self.cancel_hotkey_slide();
         unsafe {
+            if let Some(window) = self.ordinary_window.take() {
+                window.close();
+            }
             self.window.close();
         }
     }
 
     pub(crate) fn focus(&mut self) {
+        if self.dedicated_hotkey {
+            self.show_global_hotkey_window();
+            return;
+        }
+        self.restore_ordinary_window();
+        make_terminal_key_window(&self.window, &self.view);
+    }
+
+    pub(crate) fn is_dedicated_hotkey(&self) -> bool {
+        self.dedicated_hotkey
+    }
+
+    pub(crate) fn ordinary_global_hotkey_should_hide(&self) -> bool {
+        let pending = WindowView::get_this(unsafe { &**self.view }).and_then(|view| {
+            view.pending_hotkey_visibility
+                .get()
+                .or_else(|| view.order_out_on_fullscreen_exit.get().then_some(false))
+        });
+        hotkey_should_hide(pending, self.is_key_window(), self.is_visible())
+    }
+
+    pub(crate) fn show_ordinary_global_hotkey_window(&mut self) {
+        if self.dedicated_hotkey {
+            return;
+        }
+        if self.defer_hotkey_visibility(true) {
+            return;
+        }
+        // Cancel a pending fullscreen-exit hide without installing a panel or
+        // changing the ordinary window's frame, style, or terminal session.
+        if let Some(view) = WindowView::get_this(unsafe { &**self.view }) {
+            view.order_out_on_fullscreen_exit.set(false);
+        }
         unsafe {
-            self.window.makeKeyAndOrderFront_(nil);
+            let hidden: BOOL = msg_send![NSApp(), isHidden];
+            if hidden == YES {
+                let _: () = msg_send![NSApp(), unhide: NSApp()];
+            }
+            NSRunningApplication::currentApplication(nil)
+                .activateWithOptions_(NSApplicationActivateIgnoringOtherApps);
+        }
+        self.focus();
+    }
+
+    pub(crate) fn hide_ordinary_global_hotkey_window(&mut self) {
+        if !self.dedicated_hotkey && !self.defer_hotkey_visibility(false) {
+            self.order_out_after_fullscreen_exit();
         }
     }
 
@@ -2456,39 +3128,341 @@ impl WindowInner {
         true
     }
 
-    /// Prepare a regular window to be shown by the global hotkey from any
-    /// active macOS Space (including another app's fullscreen Space).
-    pub(crate) fn prepare_for_global_hotkey_show(&mut self) {
-        if self.is_fullscreen() {
-            return;
-        }
+    fn prepare_global_hotkey_panel(&mut self) {
         unsafe {
-            let mut behavior = self.window.collectionBehavior();
-            behavior.insert(
-                appkit::NSWindowCollectionBehavior::NSWindowCollectionBehaviorMoveToActiveSpace
-                    | appkit::NSWindowCollectionBehavior::NSWindowCollectionBehaviorFullScreenAuxiliary,
-            );
-            self.window.setCollectionBehavior_(behavior);
+            if self.ordinary_window.is_none() {
+                self.ordinary_window_screens = screen_frames();
+                let frame = NSWindow::frame(*self.window);
+                let style = hotkey_panel_style_mask(NSWindow::styleMask(*self.window));
+                let panel: id = msg_send![get_hotkey_window_class(), alloc];
+                let panel = StrongPtr::new(NSWindow::initWithContentRect_styleMask_backing_defer_(
+                    panel,
+                    frame,
+                    style,
+                    NSBackingStoreBuffered,
+                    NO,
+                ));
+                panel.setReleasedWhenClosed_(NO);
+                let _: () = msg_send![*panel, setExcludedFromWindowsMenu: YES];
+                let _: () = msg_send![*panel, setRestorable: NO];
+                let _: () = msg_send![*panel, setTabbingMode: 2i64];
+                let _: () = msg_send![*panel, setFloatingPanel: YES];
+                let _: () = msg_send![*panel, setHidesOnDeactivate: NO];
+                panel.setAcceptsMouseMovedEvents_(YES);
+                panel.setTitle_(self.window.title());
+                panel.setBackgroundColor_(self.window.backgroundColor());
+                panel.setColorSpace_(NSWindow::colorSpace(*self.window));
+                let opaque: BOOL = msg_send![*self.window, isOpaque];
+                panel.setOpaque_(opaque);
+                panel.setHasShadow_(self.window.hasShadow());
+                let min_size: NSSize = msg_send![*self.window, contentMinSize];
+                let increments: NSSize = msg_send![*self.window, resizeIncrements];
+                let _: () = msg_send![*panel, setContentMinSize: min_size];
+                panel.setResizeIncrements_(increments);
+                let _: () = msg_send![*panel, registerForDraggedTypes:
+                    NSArray::arrayWithObject(nil, appkit::NSFilenamesPboardType)];
+                panel.setLevel_(hotkey_window_level());
+                panel.setCollectionBehavior_(hotkey_collection_behavior(
+                    self.window.collectionBehavior(),
+                    macos_version_major(),
+                ));
+                self.window.setDelegate_(nil);
+                self.window.setContentView_(nil);
+                let _: () = msg_send![*self.window, orderOut: nil];
+                let ordinary = std::mem::replace(&mut self.window, panel);
+                self.ordinary_window = Some(ordinary);
+                if let Some(view) = WindowView::get_this(&**self.view) {
+                    view.inner.borrow_mut().window = Some(self.window.weak());
+                }
+                self.window.setContentView_(*self.view);
+                self.window.setDelegate_(*self.view);
+                if self.is_fullscreen() {
+                    apply_decorations_to_window(
+                        &self.window,
+                        WindowDecorations::NONE,
+                        self.config.integrated_title_button_style,
+                        false,
+                    );
+                } else {
+                    self.apply_decorations();
+                }
+                self.update_window_shadow();
+                self.update_titlebar_background();
+                self.update_window_background_blur();
+                apply_window_appearance(&self.window, &self.config);
+                self.window.setFrame_display_(frame, NO);
+            }
         }
     }
 
-    /// Restore the default collection behavior after a global hotkey reveal
-    /// so native Cmd+` window cycling stays scoped to the current Space.
-    pub(crate) fn restore_after_global_hotkey_show(&mut self) {
-        if self.is_fullscreen() {
+    /// A nonactivating panel can take keyboard focus without activating Kaku
+    /// or leaving the foreground app's fullscreen Space. Keep the same NSView
+    /// (and Metal surface) when installing the terminal's native panel host.
+    pub(crate) fn show_global_hotkey_window(&mut self) {
+        if self.defer_hotkey_visibility(true) {
             return;
         }
+        self.prepare_global_hotkey_panel();
         unsafe {
-            let mut behavior = self.window.collectionBehavior();
-            behavior.remove(
-                appkit::NSWindowCollectionBehavior::NSWindowCollectionBehaviorMoveToActiveSpace
-                    | appkit::NSWindowCollectionBehavior::NSWindowCollectionBehaviorFullScreenAuxiliary,
+            if let Some(geometry) =
+                hotkey_screen_geometry(self.config.macos_global_hotkey_follow_mouse)
+            {
+                let frame =
+                    hotkey_panel_frame(geometry, self.config.macos_global_hotkey_height_percent);
+                self.animate_hotkey_slide(frame, geometry.frame, true);
+            }
+            // Cmd+H may have hidden the app independently of the hotkey.
+            let hidden: BOOL = msg_send![NSApp(), isHidden];
+            if hidden == YES {
+                let _: () = msg_send![NSApp(), unhideWithoutActivation];
+            }
+            // Only the panel takes keyboard focus; do not activate the app.
+            self.window.makeKeyAndOrderFront_(nil);
+            self.window.makeFirstResponder_(*self.view);
+        }
+        self.dispatch_resize_event();
+    }
+
+    fn restore_ordinary_window(&mut self) {
+        if self.dedicated_hotkey {
+            return;
+        }
+        self.clear_pending_hotkey_visibility();
+        self.cancel_hotkey_slide();
+        let Some(ordinary) = self.ordinary_window.take() else {
+            return;
+        };
+        let previous_screens = std::mem::take(&mut self.ordinary_window_screens);
+        unsafe {
+            ordinary.setTitle_(self.window.title());
+            self.window.setDelegate_(nil);
+            self.window.setContentView_(nil);
+            self.window.close();
+            self.window = ordinary;
+            if let Some(view) = WindowView::get_this(&**self.view) {
+                view.inner.borrow_mut().window = Some(self.window.weak());
+            }
+            self.window.setContentView_(*self.view);
+            self.window.setDelegate_(*self.view);
+            self.apply_decorations();
+            self.update_window_shadow();
+            self.update_window_background_blur();
+            self.update_titlebar_background();
+            apply_window_appearance(&self.window, &self.config);
+            if !self.is_native_fullscreen() {
+                // The drawer's geometry must not replace the parked ordinary window.
+                let ordinary_frame = NSWindow::frame(*self.window);
+                if let Some(screen) = screen_geometry_for_window(*self.window) {
+                    let fills_visible_frame = WindowView::get_this(&**self.view)
+                        .map(|view| view.windowed_screen.get().fills_visible_frame)
+                        .unwrap_or(false);
+                    let adjusted = frame_after_display_topology_change(
+                        ordinary_frame,
+                        self.is_fullscreen(),
+                        fills_visible_frame,
+                        &previous_screens,
+                        &screen_frames(),
+                        screen,
+                    );
+                    self.window.setFrame_display_(adjusted, NO);
+                }
+            }
+        }
+        self.dispatch_resize_event();
+    }
+
+    pub(crate) fn is_visible(&self) -> bool {
+        unsafe {
+            let visible: BOOL = msg_send![*self.window, isVisible];
+            visible == YES
+        }
+    }
+
+    pub(crate) fn global_hotkey_should_hide(&self) -> bool {
+        let showing = WindowView::get_this(unsafe { &**self.view }).and_then(|view| {
+            view.pending_hotkey_visibility
+                .get()
+                .or_else(|| view.hotkey_slide.get().map(|slide| slide.showing))
+        });
+        drawer_hotkey_should_hide(
+            showing,
+            self.is_key_window(),
+            self.is_visible(),
+            self.config.macos_global_hotkey_hide_on_focus_loss,
+        )
+    }
+
+    pub(crate) fn hide_global_hotkey_window(&mut self) {
+        if self.defer_hotkey_visibility(false) {
+            return;
+        }
+        if self.ordinary_window.is_some() {
+            if let Some(screen) = screen_geometry_for_window(*self.window) {
+                let resting_frame = WindowView::get_this(unsafe { &**self.view })
+                    .and_then(|view| view.hotkey_slide.get().map(|slide| slide.resting_frame))
+                    .unwrap_or_else(|| unsafe { NSWindow::frame(*self.window) });
+                self.animate_hotkey_slide(resting_frame, screen.frame, false);
+                return;
+            }
+        }
+        if self.is_native_fullscreen() {
+            // Keep the desired state while AppKit exits, so a second hotkey
+            // reverses this hide rather than asking to hide again.
+            if let Some(view) = WindowView::get_this(unsafe { &**self.view }) {
+                view.pending_hotkey_visibility.set(Some(false));
+            }
+        }
+        self.order_out_after_fullscreen_exit();
+    }
+
+    fn defer_hotkey_visibility(&self, showing: bool) -> bool {
+        let Some(view) = WindowView::get_this(unsafe { &**self.view }) else {
+            return false;
+        };
+        if defer_hotkey_request(
+            &view.pending_hotkey_visibility,
+            view.native_fullscreen_transition_active.get(),
+            showing,
+        ) {
+            // A reveal cancels the hide attached to the in-flight exit.
+            if showing {
+                view.order_out_on_fullscreen_exit.set(false);
+            }
+            log::debug!(
+                "deferring hotkey visibility={} until native fullscreen completes",
+                showing
             );
-            self.window.setCollectionBehavior_(behavior);
+            true
+        } else {
+            false
+        }
+    }
+
+    fn clear_pending_hotkey_visibility(&self) {
+        if let Some(view) = WindowView::get_this(unsafe { &**self.view }) {
+            cancel_hotkey_visibility_intent(
+                &view.pending_hotkey_visibility,
+                &view.order_out_on_fullscreen_exit,
+            );
+        }
+    }
+
+    fn order_out_after_fullscreen_exit(&mut self) {
+        // Never strand a black native-fullscreen Space with a direct orderOut.
+        if self.is_native_fullscreen() {
+            if let Some(view) = WindowView::get_this(unsafe { &**self.view }) {
+                view.order_out_on_fullscreen_exit.set(true);
+                if !should_start_native_fullscreen_exit(
+                    view.native_fullscreen_transition_active.get(),
+                    view.native_fullscreen_target.get(),
+                ) {
+                    return;
+                }
+            }
+            self.exit_native_fullscreen();
+        } else {
+            self.order_out();
+        }
+    }
+
+    fn animate_hotkey_slide(&mut self, resting_frame: NSRect, screen: NSRect, showing: bool) {
+        let Some(view) = WindowView::get_this(unsafe { &**self.view }) else {
+            return;
+        };
+        let generation = view.hotkey_slide_generation.get().wrapping_add(1);
+        view.hotkey_slide_generation.set(generation);
+        let offscreen = hotkey_offscreen_origin(resting_frame, screen);
+        let from = if showing && !self.is_visible() {
+            offscreen
+        } else {
+            unsafe { NSWindow::frame(*self.window).origin }
+        };
+        let reduce_motion: BOOL = unsafe {
+            let workspace: id = msg_send![class!(NSWorkspace), sharedWorkspace];
+            msg_send![workspace, accessibilityDisplayShouldReduceMotion]
+        };
+        let slide = HotkeySlide {
+            resting_frame,
+            from,
+            to: if showing {
+                resting_frame.origin
+            } else {
+                offscreen
+            },
+            started: Instant::now(),
+            duration: hotkey_animation_duration(
+                self.config.macos_global_hotkey_animation_duration_ms,
+                reduce_motion == YES,
+            ),
+            showing,
+            hide_on_focus_loss: false,
+        };
+        view.hotkey_slide.set(Some(slide));
+        unsafe {
+            if slide.duration.is_zero() {
+                self.cancel_hotkey_slide();
+                return;
+            }
+            self.window
+                .setFrame_display_(NSRect::new(from, resting_frame.size), NO);
+        }
+        let window_id = view.window_id.get();
+        // Timed main-thread steps allow a new hotkey to reverse immediately;
+        // AppKit's synchronous setFrame:display:animate: blocks hotkey handling.
+        promise::spawn::spawn(async move {
+            loop {
+                async_io::Timer::after(Duration::from_millis(8)).await;
+                let running = Connection::with_window_inner(window_id, move |inner| {
+                    Ok(inner.step_hotkey_slide(generation))
+                })
+                .await;
+                if !matches!(running, Ok(true)) {
+                    break;
+                }
+            }
+        })
+        .detach();
+    }
+
+    fn step_hotkey_slide(&mut self, generation: u64) -> bool {
+        let Some(view) = WindowView::get_this(unsafe { &**self.view }) else {
+            return false;
+        };
+        if view.hotkey_slide_generation.get() != generation || view.is_closing.get() {
+            return false;
+        }
+        let Some(mut slide) = view.hotkey_slide.get() else {
+            return false;
+        };
+        if slide.hide_on_focus_loss {
+            let current_origin = unsafe { NSWindow::frame(*self.window).origin };
+            if let Some(reverse) = slide.reverse_on_focus_gain(self.is_key_window(), current_origin)
+            {
+                log::debug!("global hotkey panel regained keyboard focus; sliding back in");
+                slide = reverse;
+                view.hotkey_slide.set(Some(slide));
+            }
+        }
+        let elapsed = slide.started.elapsed();
+        if elapsed >= slide.duration {
+            self.cancel_hotkey_slide();
+            return false;
+        }
+        unsafe {
+            let _: () = msg_send![*self.window, setFrameOrigin: slide.origin_at(elapsed)];
+        }
+        true
+    }
+
+    fn cancel_hotkey_slide(&mut self) {
+        if let Some(view) = WindowView::get_this(unsafe { &**self.view }) {
+            view.cancel_hotkey_slide(*self.window);
         }
     }
 
     fn hide(&mut self) {
+        self.clear_pending_hotkey_visibility();
+        self.cancel_hotkey_slide();
         unsafe {
             NSWindow::miniaturize_(*self.window, *self.window);
             // We could literally set it invisible like this, but
@@ -2498,9 +3472,10 @@ impl WindowInner {
     }
 
     /// Remove the window from screen without changing fullscreen state.
-    /// Used by the global hotkey to hide a fullscreen window; the window
-    /// retains its fullscreen style mask and will restore when focused.
+    /// Native fullscreen callers must use order_out_after_fullscreen_exit()
+    /// instead, so AppKit can tear down the Space before hiding the window.
     pub(crate) fn order_out(&mut self) {
+        self.cancel_hotkey_slide();
         unsafe {
             let () = msg_send![*self.window, orderOut: nil];
         }
@@ -2553,7 +3528,12 @@ impl WindowInner {
 
     fn set_window_level(&mut self, level: WindowLevel) {
         unsafe {
-            NSWindow::setLevel_(*self.window, window_level_to_nswindow_level(level));
+            let level = if self.dedicated_hotkey {
+                hotkey_window_level()
+            } else {
+                window_level_to_nswindow_level(level)
+            };
+            NSWindow::setLevel_(*self.window, level);
         }
         // Dispatch a resize event with the updated window state
         self.dispatch_resize_event();
@@ -2564,11 +3544,13 @@ impl WindowInner {
             let frame = NSView::frame(*self.view as *mut _);
             let backing_frame = NSView::convertRectToBacking(*self.view as *mut _, frame);
             let scale = backing_frame.size.width / frame.size.width;
+            let size = NSSize::new(width as f64 / scale, height as f64 / scale);
+            // Same-size render housekeeping must not interrupt the reveal.
+            if content_size_changed(frame.size, size) {
+                self.cancel_hotkey_slide();
+            }
 
-            NSWindow::setContentSize_(
-                *self.window,
-                NSSize::new(width as f64 / scale, height as f64 / scale),
-            );
+            NSWindow::setContentSize_(*self.window, size);
 
             // setContentSize_ doesn't explicitly invalidate,
             // so we need to do it ourselves
@@ -2576,7 +3558,8 @@ impl WindowInner {
         }
     }
 
-    fn set_window_position(&self, coords: ScreenPoint) {
+    fn set_window_position(&mut self, coords: ScreenPoint) {
+        self.cancel_hotkey_slide();
         set_window_position(*self.window, coords);
     }
 
@@ -2600,6 +3583,7 @@ impl WindowInner {
     }
 
     fn maximize(&mut self) {
+        self.cancel_hotkey_slide();
         // Always call zoom when explicitly requested by the user.
         // NSWindow::isZoomed can falsely return YES after screen changes,
         // which would cause the zoom call to be skipped even though the
@@ -2609,14 +3593,25 @@ impl WindowInner {
         unsafe {
             NSWindow::zoom_(*self.window, nil);
         }
+        self.revalidate_windowed_zoom_intent();
     }
 
     fn restore(&mut self) {
+        self.cancel_hotkey_slide();
         if self.is_zoomed() {
             self.arm_transition_content_hide(ZOOM_HIDE_CONTENT_MS, "zoom_restore", false);
             unsafe {
                 NSWindow::zoom_(*self.window, nil);
             }
+            self.revalidate_windowed_zoom_intent();
+        }
+    }
+
+    fn revalidate_windowed_zoom_intent(&self) {
+        if let Some(view) = WindowView::get_this(unsafe { &**self.view }) {
+            let mut state = view.windowed_screen.get();
+            state.max_invalidated_by_move = false;
+            view.windowed_screen.set(state);
         }
     }
 
@@ -2625,6 +3620,7 @@ impl WindowInner {
     /// `Connection::screens()` plus `set_window_position`: the single-screen
     /// point math needs no cross-space conversion at all.
     fn center(&mut self) {
+        self.cancel_hotkey_slide();
         unsafe {
             let screen: id = msg_send![*self.window, screen];
             let screen = if screen.is_null() {
@@ -2643,6 +3639,12 @@ impl WindowInner {
     }
 
     fn toggle_fullscreen(&mut self) {
+        if self.dedicated_hotkey {
+            return;
+        }
+        if self.ordinary_window.is_some() {
+            self.show();
+        }
         if self.config.native_macos_fullscreen_mode {
             if self.exit_simple_fullscreen() {
                 return;
@@ -2688,13 +3690,35 @@ impl WindowInner {
     fn config_did_change(&mut self, config: &ConfigHandle) {
         let dpi_changed =
             self.config.dpi != config.dpi || self.config.dpi_by_screen != config.dpi_by_screen;
+        let panel_layout_changed = is_hotkey_panel(*self.window)
+            && (self.config.macos_global_hotkey_height_percent
+                != config.macos_global_hotkey_height_percent
+                || hotkey_extend_behind_notch(
+                    true,
+                    self.config.macos_global_hotkey_extend_behind_notch,
+                    self.config.macos_fullscreen_extend_behind_notch,
+                ) != hotkey_extend_behind_notch(
+                    true,
+                    config.macos_global_hotkey_extend_behind_notch,
+                    config.macos_fullscreen_extend_behind_notch,
+                ));
 
         self.config = config.clone();
         if let Some(window_view) = WindowView::get_this(unsafe { &**self.view }) {
-            let mut inner = window_view.inner.borrow_mut();
-            inner.config = config.clone();
-            if dpi_changed {
-                inner.screen_changed = true;
+            {
+                let mut inner = window_view.inner.borrow_mut();
+                inner.config = config.clone();
+                if dpi_changed || panel_layout_changed {
+                    inner.screen_changed = true;
+                }
+            }
+            if let Some(reverse) = window_view.hotkey_slide.get().and_then(|slide| {
+                slide.reverse_when_auto_hide_disabled(
+                    config.macos_global_hotkey_hide_on_focus_loss,
+                    unsafe { NSWindow::frame(*self.window).origin },
+                )
+            }) {
+                window_view.hotkey_slide.set(Some(reverse));
             }
         }
         self.update_window_shadow();
@@ -2702,6 +3726,16 @@ impl WindowInner {
         self.update_titlebar_background();
         apply_window_appearance(&self.window, &self.config);
         self.apply_decorations();
+        if panel_layout_changed {
+            self.cancel_hotkey_slide();
+            if let Some(screen) = screen_geometry_for_window(*self.window) {
+                let frame = hotkey_panel_frame(screen, config.macos_global_hotkey_height_percent);
+                unsafe {
+                    self.window.setFrame_display_(frame, NO);
+                }
+            }
+            self.dispatch_resize_event();
+        }
     }
 }
 
@@ -2795,13 +3829,25 @@ fn apply_decorations_to_window(
     native_macos_fullscreen_mode: bool,
 ) {
     let mask = decoration_to_mask(decorations, integrated_title_button_style);
-    let decorations = effective_decorations(decorations, integrated_title_button_style);
+    let decorations = if is_hotkey_panel(**window) {
+        decorations & WindowDecorations::RESIZE
+    } else {
+        effective_decorations(decorations, integrated_title_button_style)
+    };
     unsafe {
-        window.setStyleMask_(mask);
-        window.setCollectionBehavior_(native_macos_fullscreen_collection_behavior(
-            window.collectionBehavior(),
-            native_macos_fullscreen_mode,
-        ));
+        if is_hotkey_panel(**window) {
+            window.setStyleMask_(hotkey_panel_style_mask(mask));
+            window.setCollectionBehavior_(hotkey_collection_behavior(
+                window.collectionBehavior(),
+                macos_version_major(),
+            ));
+        } else {
+            set_window_style_mask_preserving_responder(window, mask);
+            window.setCollectionBehavior_(native_macos_fullscreen_collection_behavior(
+                window.collectionBehavior(),
+                native_macos_fullscreen_mode,
+            ));
+        }
 
         let hidden = if decorations.contains(WindowDecorations::TITLE)
             || decorations.contains(WindowDecorations::INTEGRATED_BUTTONS)
@@ -2817,7 +3863,7 @@ fn apply_decorations_to_window(
             appkit::NSWindowButton::NSWindowZoomButton,
         ] {
             let button = window.standardWindowButton_(*titlebar_button);
-            let _: () = msg_send![button, setHidden: hidden];
+            set_titlebar_button_hidden(button, hidden);
         }
 
         window.setTitleVisibility_(if decorations.contains(WindowDecorations::TITLE) {
@@ -2985,6 +4031,9 @@ struct Inner {
     /// When using simple fullscreen mode, this tracks
     /// the window dimensions that need to be restored
     fullscreen: Option<NSRect>,
+    /// Preserve cross-display window geometry unless a saved display disappears.
+    fullscreen_screens: Vec<NSRect>,
+    display_screen_frames: Vec<NSRect>,
 
     config: ConfigHandle,
 
@@ -3174,7 +4223,7 @@ impl Keyboard {
 impl Inner {
     fn enable_opengl(&mut self) -> anyhow::Result<Rc<glium::backend::Context>> {
         let view = self.view_id.as_ref().unwrap().load();
-        let glium_context = GlContextPair::create(*view)?;
+        let glium_context = GlContextPair::create(*view, self.config.window_background_opacity)?;
 
         self.gl_context_pair.replace(glium_context.clone());
 
@@ -3302,9 +4351,16 @@ fn simple_fullscreen_target_rect(screen: id, extend_behind_notch: bool) -> NSRec
 
 struct WindowView {
     inner: Rc<RefCell<Inner>>,
+    // Per-view cache avoids reborrowing Inner from AppKit's isOpaque callback.
+    opaque: Cell<BOOL>,
     /// Window ID stored outside RefCell so window_will_close can access it even
     /// when a borrow is already held by a caller higher on the stack.
     window_id: Cell<usize>,
+    /// Move delegates can run while Inner is borrowed by set_window_position.
+    windowed_screen: Cell<WindowedScreenState>,
+    hotkey_slide: Cell<Option<HotkeySlide>>,
+    hotkey_slide_generation: Cell<u64>,
+    pending_hotkey_visibility: Cell<Option<bool>>,
     /// Tracks simple fullscreen state without requiring RefCell borrow.
     simple_fullscreen_active: Cell<bool>,
     /// Tracks simple fullscreen transition state without requiring RefCell borrow.
@@ -3320,6 +4376,7 @@ struct WindowView {
     native_fullscreen_target: Cell<Option<bool>>,
     native_fullscreen_transition_start: Cell<Option<Instant>>,
     resize_retry_scheduled: Cell<bool>,
+    deferred_screen_resize: DeferredScreenResize,
     /// Set when window_will_close fires; prevents fullscreen transition
     /// handlers from dispatching events to an already-destroyed window.
     is_closing: Cell<bool>,
@@ -3579,6 +4636,1065 @@ fn should_clear_modifiers_for_empty_unmod(
 mod tests {
     use super::*;
 
+    fn screen_resize(width: usize, height: usize, dpi: usize, state: WindowState) -> ScreenResize {
+        ScreenResize {
+            dimensions: Dimensions {
+                pixel_width: width,
+                pixel_height: height,
+                dpi,
+            },
+            window_state: state,
+            live_resizing: false,
+        }
+    }
+
+    #[test]
+    fn deferred_screen_resize_keeps_recovered_dimensions_and_state() {
+        let pending = DeferredScreenResize::default();
+        assert!(pending.update(screen_resize(1538, 1148, 144, WindowState::empty())));
+        assert!(!pending.update(screen_resize(3456, 2104, 144, WindowState::MAXIMIZED)));
+        let latest = pending.take().unwrap();
+        assert_eq!(latest.dimensions.pixel_width, 3456);
+        assert_eq!(latest.dimensions.pixel_height, 2104);
+        assert_eq!(latest.window_state, WindowState::MAXIMIZED);
+        assert!(!pending.is_pending());
+        assert!(pending.take().is_none());
+    }
+
+    #[test]
+    fn deferred_screen_resize_keeps_latest_dpi_and_live_resize_end() {
+        let pending = DeferredScreenResize::default();
+        let mut initial = screen_resize(3840, 720, 144, WindowState::HOTKEY_WINDOW);
+        initial.live_resizing = true;
+        assert!(pending.update(initial));
+        assert!(!pending.update(screen_resize(3456, 746, 192, WindowState::HOTKEY_WINDOW)));
+        let latest = pending.take().unwrap();
+        assert_eq!(latest.dimensions.pixel_width, 3456);
+        assert_eq!(latest.dimensions.pixel_height, 746);
+        assert_eq!(latest.dimensions.dpi, 192);
+        assert_eq!(latest.window_state, WindowState::HOTKEY_WINDOW);
+        assert!(!latest.live_resizing);
+    }
+
+    #[test]
+    fn deferred_screen_resize_is_one_shot_and_per_window() {
+        let ordinary = DeferredScreenResize::default();
+        let hotkey = DeferredScreenResize::default();
+        assert!(!ordinary.is_pending());
+        assert!(ordinary.update(screen_resize(100, 200, 96, WindowState::empty())));
+        assert!(hotkey.update(screen_resize(300, 400, 144, WindowState::HOTKEY_WINDOW)));
+        assert_eq!(ordinary.take().unwrap().dimensions.pixel_width, 100);
+        assert!(ordinary.take().is_none());
+        assert!(hotkey.is_pending());
+        assert_eq!(hotkey.take().unwrap().dimensions.pixel_width, 300);
+        assert!(ordinary.update(screen_resize(500, 600, 192, WindowState::FULL_SCREEN)));
+        assert_eq!(
+            ordinary.take().unwrap().window_state,
+            WindowState::FULL_SCREEN
+        );
+    }
+
+    #[test]
+    fn deferred_screen_resize_same_size_keeps_latest_state() {
+        let pending = DeferredScreenResize::default();
+        assert!(pending.update(screen_resize(800, 600, 96, WindowState::empty())));
+        assert!(!pending.update(screen_resize(800, 600, 96, WindowState::FULL_SCREEN)));
+        assert_eq!(
+            pending.take().unwrap().window_state,
+            WindowState::FULL_SCREEN
+        );
+    }
+
+    #[test]
+    fn deferred_screen_resize_discarded_transition_can_reschedule() {
+        let pending = DeferredScreenResize::default();
+        assert!(pending.update(screen_resize(800, 600, 96, WindowState::empty())));
+        assert!(pending.take().is_some());
+        assert!(pending.take().is_none());
+        assert!(pending.update(screen_resize(1600, 900, 144, WindowState::FULL_SCREEN)));
+        assert_eq!(pending.take().unwrap().dimensions.pixel_width, 1600);
+        assert!(pending.take().is_none());
+    }
+
+    #[test]
+    fn fullscreen_intent_stable_hide_is_cancelled_by_new_ordinary_focus() {
+        let pending = Cell::new(None);
+        let exit_hide = Cell::new(false);
+        assert!(!defer_hotkey_request(&pending, false, false));
+        exit_hide.set(true);
+        assert_eq!(pending.get(), None);
+        assert!(exit_hide.get());
+        cancel_hotkey_visibility_intent(&pending, &exit_hide);
+        assert_eq!(pending.get(), None);
+        assert!(!exit_hide.get());
+    }
+
+    #[test]
+    fn fullscreen_intent_cancel_clears_both_cells_and_is_idempotent() {
+        for requested in [None, Some(false), Some(true)] {
+            for hide in [false, true] {
+                let pending = Cell::new(requested);
+                let exit_hide = Cell::new(hide);
+                for _ in 0..2 {
+                    cancel_hotkey_visibility_intent(&pending, &exit_hide);
+                    assert_eq!(pending.get(), None);
+                    assert!(
+                        !exit_hide.get(),
+                        "pending={:?}, exit_hide={}",
+                        requested,
+                        hide
+                    );
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn fullscreen_intent_cancel_is_local_to_the_focused_window() {
+        let first_pending = Cell::new(None);
+        let first_hide = Cell::new(true);
+        let second_pending = Cell::new(Some(false));
+        let second_hide = Cell::new(true);
+        cancel_hotkey_visibility_intent(&first_pending, &first_hide);
+        assert_eq!(first_pending.get(), None);
+        assert!(!first_hide.get());
+        assert_eq!(second_pending.get(), Some(false));
+        assert!(second_hide.get());
+        cancel_hotkey_visibility_intent(&second_pending, &second_hide);
+        assert_eq!(second_pending.get(), None);
+        assert!(!second_hide.get());
+    }
+
+    #[test]
+    fn fullscreen_intent_exit_consumes_only_an_uncancelled_or_newer_hide() {
+        let pending = Cell::new(None);
+        let exit_hide = Cell::new(true);
+        // Match did_exit_fullscreen's one-shot consumption, with a positive hide case.
+        assert!(exit_hide.replace(false));
+        assert!(!exit_hide.replace(false));
+        exit_hide.set(true);
+        cancel_hotkey_visibility_intent(&pending, &exit_hide);
+        assert!(!exit_hide.replace(false));
+        // A later explicit hide must still be able to re-arm the exit marker.
+        assert!(!defer_hotkey_request(&pending, false, false));
+        exit_hide.set(true);
+        assert!(exit_hide.replace(false));
+        assert!(!exit_hide.replace(false));
+        assert_eq!(pending.get(), None);
+    }
+
+    #[test]
+    fn fullscreen_intent_cancellation_and_native_exit_wiring() {
+        let source = include_str!("window.rs");
+        let ordinary = &source[source.find("impl WindowInner {").unwrap()..];
+        for signature in ["fn show(&mut self)", "pub(crate) fn focus(&mut self)"] {
+            let method = production_method(ordinary, signature);
+            assert!(
+                method.find("if self.dedicated_hotkey").unwrap()
+                    < method.find("self.show_global_hotkey_window()").unwrap()
+            );
+            assert!(
+                method.find("return;").unwrap()
+                    < method.find("self.restore_ordinary_window()").unwrap()
+            );
+            assert!(
+                method.find("self.restore_ordinary_window()").unwrap()
+                    < method.find("make_terminal_key_window").unwrap()
+            );
+        }
+        let restore = production_method(source, "fn restore_ordinary_window(");
+        assert!(
+            restore
+                .find("self.clear_pending_hotkey_visibility()")
+                .unwrap()
+                < restore.find("self.ordinary_window.take()").unwrap()
+        );
+        let clear = production_method(source, "fn clear_pending_hotkey_visibility(");
+        assert!(clear.contains("cancel_hotkey_visibility_intent("));
+        assert!(clear.contains("&view.pending_hotkey_visibility"));
+        assert!(clear.contains("&view.order_out_on_fullscreen_exit"));
+        let mark = production_method(source, "fn order_out_after_fullscreen_exit(");
+        assert!(
+            mark.find("view.order_out_on_fullscreen_exit.set(true)")
+                .unwrap()
+                < mark.find("self.exit_native_fullscreen()").unwrap()
+        );
+        let consume = production_method(source, "extern \"C\" fn did_exit_fullscreen(");
+        assert!(consume.contains("if this.order_out_on_fullscreen_exit.replace(false)"));
+        assert!(
+            consume
+                .find("order_out_on_fullscreen_exit.replace(false)")
+                .unwrap()
+                < consume.find("orderOut: nil").unwrap()
+        );
+        assert!(
+            consume.find("orderOut: nil").unwrap()
+                < consume
+                    .find("this.dispatch_pending_hotkey_visibility()")
+                    .unwrap()
+        );
+    }
+
+    fn ordinary_input_host_fixture() -> StrongPtr {
+        static CLASS: std::sync::OnceLock<&'static Class> = std::sync::OnceLock::new();
+        let cls = CLASS.get_or_init(|| {
+            let mut cls = ClassDecl::new("KakuOrdinaryInputFixture", class!(NSObject)).unwrap();
+            cls.add_ivar::<NSUInteger>("focusStep");
+            cls.add_ivar::<NSUInteger>("responderStep");
+            cls.add_ivar::<id>("responder");
+            cls.add_ivar::<NSUInteger>("styleMask");
+            extern "C" fn first_responder(this: &Object, _: Sel) -> id {
+                unsafe { *this.get_ivar("responder") }
+            }
+            extern "C" fn set_style(this: &mut Object, _: Sel, mask: NSUInteger) {
+                let host = this as *mut Object;
+                unsafe {
+                    this.set_ivar("styleMask", mask);
+                    // AppKit replaces the responder with the host when changing style.
+                    this.set_ivar("responder", host);
+                }
+            }
+            extern "C" fn order_front(this: &mut Object, _: Sel, _: id) {
+                unsafe {
+                    let step: NSUInteger = *this.get_ivar("focusStep");
+                    this.set_ivar("focusStep", step + 1);
+                }
+            }
+            extern "C" fn make_responder(this: &mut Object, _: Sel, view: id) -> BOOL {
+                unsafe {
+                    let step: NSUInteger = *this.get_ivar("focusStep");
+                    this.set_ivar("responderStep", step);
+                    this.set_ivar("focusStep", step + 1);
+                    this.set_ivar("responder", view);
+                }
+                YES
+            }
+            unsafe {
+                cls.add_method(
+                    sel!(firstResponder),
+                    first_responder as extern "C" fn(&Object, Sel) -> id,
+                );
+                cls.add_method(
+                    sel!(setStyleMask:),
+                    set_style as extern "C" fn(&mut Object, Sel, NSUInteger),
+                );
+                cls.add_method(
+                    sel!(makeKeyAndOrderFront:),
+                    order_front as extern "C" fn(&mut Object, Sel, id),
+                );
+                cls.add_method(
+                    sel!(makeFirstResponder:),
+                    make_responder as extern "C" fn(&mut Object, Sel, id) -> BOOL,
+                );
+            }
+            cls.register()
+        });
+        unsafe {
+            let host: id = msg_send![*cls, new];
+            (*host).set_ivar("focusStep", 0 as NSUInteger);
+            (*host).set_ivar("responderStep", 0 as NSUInteger);
+            // Reproduce the native probe: the ordinary host starts as its own responder.
+            (*host).set_ivar("responder", host);
+            StrongPtr::new(host)
+        }
+    }
+
+    #[test]
+    fn ordinary_style_change_preserves_input_on_fullscreen_enter_and_exit() {
+        let _pool = unsafe { StrongPtr::new(NSAutoreleasePool::new(nil)) };
+        let host = ordinary_input_host_fixture();
+        let view = unsafe { StrongPtr::new(msg_send![class!(NSObject), new]) };
+        unsafe { (**host).set_ivar("responder", *view) };
+        for mask in [
+            NSWindowStyleMask::NSBorderlessWindowMask,
+            NSWindowStyleMask::NSTitledWindowMask,
+        ] {
+            set_window_style_mask_preserving_responder(&host, mask);
+            assert_eq!(unsafe { *(**host).get_ivar::<id>("responder") }, *view);
+            assert_eq!(
+                unsafe { *(**host).get_ivar::<NSUInteger>("styleMask") },
+                mask.bits() as NSUInteger
+            );
+        }
+        assert_eq!(unsafe { *(**host).get_ivar::<NSUInteger>("focusStep") }, 2);
+    }
+
+    #[test]
+    fn ordinary_style_change_does_not_assign_an_absent_responder() {
+        let _pool = unsafe { StrongPtr::new(NSAutoreleasePool::new(nil)) };
+        let host = ordinary_input_host_fixture();
+        unsafe { (**host).set_ivar("responder", nil) };
+        set_window_style_mask_preserving_responder(
+            &host,
+            NSWindowStyleMask::NSBorderlessWindowMask,
+        );
+        assert_eq!(unsafe { *(**host).get_ivar::<NSUInteger>("focusStep") }, 0);
+    }
+
+    #[test]
+    fn ordinary_style_change_does_not_replace_another_windows_responder() {
+        let _pool = unsafe { StrongPtr::new(NSAutoreleasePool::new(nil)) };
+        let first = ordinary_input_host_fixture();
+        let second = ordinary_input_host_fixture();
+        let first_view = unsafe { StrongPtr::new(msg_send![class!(NSObject), new]) };
+        let second_view = unsafe { StrongPtr::new(msg_send![class!(NSObject), new]) };
+        unsafe {
+            (**first).set_ivar("responder", *first_view);
+            (**second).set_ivar("responder", *second_view);
+        }
+        set_window_style_mask_preserving_responder(
+            &first,
+            NSWindowStyleMask::NSBorderlessWindowMask,
+        );
+        assert_eq!(
+            unsafe { *(**first).get_ivar::<id>("responder") },
+            *first_view
+        );
+        assert_eq!(
+            unsafe { *(**second).get_ivar::<id>("responder") },
+            *second_view
+        );
+        assert_eq!(
+            unsafe { *(**second).get_ivar::<NSUInteger>("focusStep") },
+            0
+        );
+    }
+
+    #[test]
+    fn ordinary_style_change_wiring_leaves_the_hotkey_panel_route_unchanged() {
+        let source = include_str!("window.rs");
+        let helper = production_method(source, "fn set_window_style_mask_preserving_responder(");
+        assert!(
+            helper.find("firstResponder").unwrap()
+                < helper.find("window.setStyleMask_(mask)").unwrap()
+        );
+        assert!(
+            helper.find("StrongPtr::retain").unwrap()
+                < helper.find("window.setStyleMask_(mask)").unwrap()
+        );
+        assert!(
+            helper.find("window.setStyleMask_(mask)").unwrap()
+                < helper.find("window.makeFirstResponder_").unwrap()
+        );
+        assert!(!helper.contains("makeKeyAndOrderFront"));
+        assert!(!helper.contains("activateWithOptions"));
+        let decorations = production_method(source, "fn apply_decorations_to_window(");
+        assert!(decorations.contains("window.setStyleMask_(hotkey_panel_style_mask(mask))"));
+        assert!(decorations.contains("set_window_style_mask_preserving_responder(window, mask)"));
+        let fullscreen = production_method(source, "fn toggle_simple_fullscreen(");
+        assert!(
+            fullscreen.contains("set_window_style_mask_preserving_responder(&self.window, mask)")
+        );
+        assert!(!fullscreen.contains("self.window.setStyleMask_"));
+    }
+
+    #[test]
+    fn ordinary_input_focus_orders_front_then_selects_the_terminal_view() {
+        let _pool = unsafe { StrongPtr::new(NSAutoreleasePool::new(nil)) };
+        let host = ordinary_input_host_fixture();
+        let view = unsafe { StrongPtr::new(msg_send![class!(NSObject), new]) };
+        assert_eq!(unsafe { *(**host).get_ivar::<id>("responder") }, *host);
+        make_terminal_key_window(&host, &view);
+        let responder = unsafe { *(**host).get_ivar::<id>("responder") };
+        let responder_step = unsafe { *(**host).get_ivar::<NSUInteger>("responderStep") };
+        let steps = unsafe { *(**host).get_ivar::<NSUInteger>("focusStep") };
+        assert_eq!(responder, *view);
+        assert_eq!(responder_step, 1);
+        assert_eq!(steps, 2);
+    }
+
+    #[test]
+    fn ordinary_input_focus_uses_each_hosts_view_and_reselects_on_reopen() {
+        let _pool = unsafe { StrongPtr::new(NSAutoreleasePool::new(nil)) };
+        let first = ordinary_input_host_fixture();
+        let second = ordinary_input_host_fixture();
+        let first_view = unsafe { StrongPtr::new(msg_send![class!(NSObject), new]) };
+        let second_view = unsafe { StrongPtr::new(msg_send![class!(NSObject), new]) };
+        make_terminal_key_window(&first, &first_view);
+        make_terminal_key_window(&second, &second_view);
+        assert_eq!(
+            unsafe { *(**first).get_ivar::<id>("responder") },
+            *first_view
+        );
+        assert_eq!(
+            unsafe { *(**second).get_ivar::<id>("responder") },
+            *second_view
+        );
+        // A native reopen may have restored the host itself as first responder.
+        unsafe { (**first).set_ivar("responder", *first) };
+        make_terminal_key_window(&first, &first_view);
+        assert_eq!(
+            unsafe { *(**first).get_ivar::<id>("responder") },
+            *first_view
+        );
+        assert_eq!(
+            unsafe { *(**first).get_ivar::<NSUInteger>("responderStep") },
+            3
+        );
+        assert_eq!(unsafe { *(**first).get_ivar::<NSUInteger>("focusStep") }, 4);
+        assert_eq!(
+            unsafe { *(**second).get_ivar::<NSUInteger>("focusStep") },
+            2
+        );
+    }
+
+    #[test]
+    fn ordinary_input_focus_wiring_keeps_the_dedicated_panel_route() {
+        let source = include_str!("window.rs");
+        let ordinary = &source[source.find("impl WindowInner {").unwrap()..];
+        for signature in ["fn show(&mut self)", "pub(crate) fn focus(&mut self)"] {
+            let method = production_method(ordinary, signature);
+            assert!(method.contains("make_terminal_key_window(&self.window, &self.view)"));
+            assert!(
+                method.find("if self.dedicated_hotkey").unwrap()
+                    < method.find("self.show_global_hotkey_window()").unwrap()
+            );
+            assert!(
+                method.find("return;").unwrap() < method.find("make_terminal_key_window").unwrap()
+            );
+            assert!(
+                method.find("self.restore_ordinary_window()").unwrap()
+                    < method.find("make_terminal_key_window").unwrap()
+            );
+        }
+        let panel = production_method(source, "pub(crate) fn show_global_hotkey_window(");
+        assert!(!panel.contains("make_terminal_key_window"));
+        assert!(panel.contains("makeFirstResponder_(*self.view)"));
+        assert!(!panel.contains("activateWithOptions_"));
+    }
+
+    #[repr(C)]
+    struct FixtureInsets {
+        top: CGFloat,
+        left: CGFloat,
+        bottom: CGFloat,
+        right: CGFloat,
+    }
+
+    unsafe impl objc::Encode for FixtureInsets {
+        fn encode() -> objc::Encoding {
+            unsafe { objc::Encoding::from_str("{NSEdgeInsets=dddd}") }
+        }
+    }
+
+    // Foundation objects supply native selectors without creating windows or an NSApp.
+    fn native_screen_fixture(link: id, top: CGFloat, scale: CGFloat) -> StrongPtr {
+        static CLASS: std::sync::OnceLock<&'static Class> = std::sync::OnceLock::new();
+        let cls = CLASS.get_or_init(|| {
+            let mut cls = ClassDecl::new("KakuOsParameterFixture", class!(NSObject)).unwrap();
+            cls.add_ivar::<id>("fixtureLink");
+            cls.add_ivar::<CGFloat>("fixtureTop");
+            cls.add_ivar::<CGFloat>("fixtureScale");
+            cls.add_ivar::<NSUInteger>("fixtureStyle");
+            cls.add_ivar::<*mut c_void>(VIEW_CLS_NAME);
+            extern "C" fn link(this: &Object, _: Sel) -> id {
+                unsafe { *this.get_ivar("fixtureLink") }
+            }
+            extern "C" fn style(this: &Object, _: Sel) -> NSUInteger {
+                unsafe { *this.get_ivar("fixtureStyle") }
+            }
+            extern "C" fn insets(this: &Object, _: Sel) -> FixtureInsets {
+                FixtureInsets {
+                    top: unsafe { *this.get_ivar("fixtureTop") },
+                    left: 0.,
+                    bottom: 0.,
+                    right: 0.,
+                }
+            }
+            extern "C" fn frame(_: &Object, _: Sel) -> NSRect {
+                NSRect::new(NSPoint::new(0., 0.), NSSize::new(1920., 1080.))
+            }
+            extern "C" fn backing(this: &Object, _: Sel, rect: NSRect) -> NSRect {
+                let scale: CGFloat = unsafe { *this.get_ivar("fixtureScale") };
+                NSRect::new(
+                    rect.origin,
+                    NSSize::new(rect.size.width * scale, rect.size.height * scale),
+                )
+            }
+            unsafe {
+                cls.add_method(sel!(window), link as extern "C" fn(&Object, Sel) -> id);
+                cls.add_method(sel!(screen), link as extern "C" fn(&Object, Sel) -> id);
+                cls.add_method(
+                    sel!(styleMask),
+                    style as extern "C" fn(&Object, Sel) -> NSUInteger,
+                );
+                cls.add_method(
+                    sel!(safeAreaInsets),
+                    insets as extern "C" fn(&Object, Sel) -> FixtureInsets,
+                );
+                cls.add_method(sel!(frame), frame as extern "C" fn(&Object, Sel) -> NSRect);
+                cls.add_method(
+                    sel!(convertRectToBacking:),
+                    backing as extern "C" fn(&Object, Sel, NSRect) -> NSRect,
+                );
+            }
+            cls.register()
+        });
+        unsafe {
+            let obj: id = msg_send![*cls, new];
+            (*obj).set_ivar("fixtureLink", link);
+            (*obj).set_ivar("fixtureTop", top);
+            (*obj).set_ivar("fixtureScale", scale);
+            (*obj).set_ivar("fixtureStyle", 0 as NSUInteger);
+            (*obj).set_ivar(VIEW_CLS_NAME, std::ptr::null_mut::<c_void>());
+            StrongPtr::new(obj)
+        }
+    }
+
+    fn fixture_os_parameter_top(
+        window_id: usize,
+        borrowed_view: &RefCell<id>,
+        main_screen: id,
+        fallbacks: &Cell<usize>,
+    ) -> Option<usize> {
+        let view = os_parameters_native_view(window_id, || {
+            borrowed_view.try_borrow().ok().map(|view| *view)
+        });
+        let window = view.as_ref().and_then(os_parameters_native_window);
+        let screen = os_parameters_screen(window.as_ref().map(|window| **window), || {
+            fallbacks.set(fallbacks.get() + 1);
+            main_screen
+        });
+        screen_safe_area_top(screen)
+    }
+
+    #[test]
+    fn native_screen_pinned_drawer_keeps_external_inset_under_outer_borrow() {
+        let _pool = unsafe { StrongPtr::new(NSAutoreleasePool::new(nil)) };
+        let external = native_screen_fixture(nil, 0., 1.);
+        let builtin = native_screen_fixture(nil, 37.5, 2.);
+        let panel = native_screen_fixture(*external, 0., 1.);
+        let view = native_screen_fixture(*panel, 0., 1.);
+        OS_PARAMETER_VIEWS.with(|views| views.borrow_mut().insert(91, view.weak()));
+        let outer = RefCell::new(*view);
+        let _held = outer.borrow_mut();
+        assert!(outer.try_borrow().is_err());
+        let fallbacks = Cell::new(0);
+        let top = fixture_os_parameter_top(91, &outer, *builtin, &fallbacks);
+        assert_eq!(top, Some(0));
+        assert_eq!(fallbacks.get(), 0);
+        OS_PARAMETER_VIEWS.with(|views| views.borrow_mut().remove(&91));
+    }
+
+    #[test]
+    fn native_screen_simple_fullscreen_keeps_current_screen_scale_under_outer_borrow() {
+        let _pool = unsafe { StrongPtr::new(NSAutoreleasePool::new(nil)) };
+        let builtin = native_screen_fixture(nil, 37.5, 2.);
+        let external = native_screen_fixture(nil, 0., 1.);
+        let window = native_screen_fixture(*builtin, 0., 1.);
+        let view = native_screen_fixture(*window, 0., 1.);
+        OS_PARAMETER_VIEWS.with(|views| views.borrow_mut().insert(92, view.weak()));
+        let outer = RefCell::new(*view);
+        let _held = outer.borrow_mut();
+        let fallbacks = Cell::new(0);
+        let top = fixture_os_parameter_top(92, &outer, *external, &fallbacks);
+        assert_eq!(top, Some(76));
+        assert_eq!(fallbacks.get(), 0);
+        OS_PARAMETER_VIEWS.with(|views| views.borrow_mut().remove(&92));
+    }
+
+    #[test]
+    fn native_screen_view_ref_tracks_panel_swap_and_screen_change() {
+        let _pool = unsafe { StrongPtr::new(NSAutoreleasePool::new(nil)) };
+        let external = native_screen_fixture(nil, 0., 1.);
+        let builtin = native_screen_fixture(nil, 37.5, 2.);
+        let ordinary = native_screen_fixture(*external, 0., 1.);
+        let panel = native_screen_fixture(*builtin, 0., 1.);
+        let view = native_screen_fixture(*ordinary, 0., 1.);
+        OS_PARAMETER_VIEWS.with(|views| views.borrow_mut().insert(93, view.weak()));
+        let outer = RefCell::new(*view);
+        let fallbacks = Cell::new(0);
+        assert_eq!(
+            fixture_os_parameter_top(93, &outer, *builtin, &fallbacks),
+            Some(0)
+        );
+        // The same view now belongs to the panel; no cached host/screen may survive.
+        unsafe { (**view).set_ivar("fixtureLink", *panel) };
+        let _held = outer.borrow_mut();
+        assert_eq!(
+            fixture_os_parameter_top(93, &outer, *external, &fallbacks),
+            Some(76)
+        );
+        unsafe { (**panel).set_ivar("fixtureLink", *external) };
+        assert_eq!(
+            fixture_os_parameter_top(93, &outer, *builtin, &fallbacks),
+            Some(0)
+        );
+        assert_eq!(fallbacks.get(), 0);
+        OS_PARAMETER_VIEWS.with(|views| views.borrow_mut().remove(&93));
+    }
+
+    #[test]
+    fn native_screen_current_fullscreen_flags_under_outer_borrow() {
+        let _pool = unsafe { StrongPtr::new(NSAutoreleasePool::new(nil)) };
+        let ordinary = native_screen_fixture(nil, 0., 1.);
+        let replacement = native_screen_fixture(nil, 0., 1.);
+        let view = native_screen_fixture(*ordinary, 0., 1.);
+        OS_PARAMETER_VIEWS.with(|views| views.borrow_mut().insert(95, view.weak()));
+        let outer = RefCell::new(*view);
+        let _held = outer.borrow_mut();
+        let native_view =
+            os_parameters_native_view(95, || outer.try_borrow().ok().map(|view| *view))
+                .expect("current view must remain queryable under an outer mutable borrow");
+        let window = os_parameters_native_window(&native_view).unwrap();
+        assert_eq!(*window, *ordinary);
+        assert_eq!(
+            os_parameters_native_state(*window, WindowState::default()),
+            (false, false)
+        );
+        unsafe {
+            (**replacement).set_ivar(
+                "fixtureStyle",
+                NSWindowStyleMask::NSFullScreenWindowMask.bits(),
+            );
+            (**view).set_ivar("fixtureLink", *replacement);
+        }
+        let window = os_parameters_native_window(&native_view).unwrap();
+        assert_eq!(*window, *replacement);
+        assert_eq!(
+            os_parameters_native_state(*window, WindowState::default()),
+            (true, false)
+        );
+        unsafe { (**replacement).set_ivar("fixtureStyle", 0 as NSUInteger) };
+        assert_eq!(
+            os_parameters_native_state(*window, WindowState::HOTKEY_WINDOW),
+            (false, true)
+        );
+        unsafe { (**view).set_ivar("fixtureLink", nil) };
+        assert!(os_parameters_native_window(&native_view).is_none());
+        OS_PARAMETER_VIEWS.with(|views| views.borrow_mut().remove(&95));
+    }
+
+    #[test]
+    fn native_screen_weak_view_expires_without_using_a_stale_borrowed_pointer() {
+        let _pool = unsafe { StrongPtr::new(NSAutoreleasePool::new(nil)) };
+        let view = native_screen_fixture(nil, 0., 1.);
+        OS_PARAMETER_VIEWS.with(|views| views.borrow_mut().insert(94, view.weak()));
+        drop(view);
+        let borrowed = Cell::new(false);
+        assert!(os_parameters_native_view(94, || {
+            borrowed.set(true);
+            None
+        })
+        .is_none());
+        assert!(!borrowed.get());
+        OS_PARAMETER_VIEWS.with(|views| views.borrow_mut().remove(&94));
+        let view = native_screen_fixture(nil, 0., 1.);
+        assert_eq!(
+            *os_parameters_native_view(94, || Some(*view)).unwrap(),
+            *view
+        );
+        assert_eq!(screen_safe_area_top(nil), None);
+    }
+
+    #[test]
+    fn native_screen_parameters_use_live_screen_and_exclude_native_fullscreen() {
+        let _pool = unsafe { StrongPtr::new(NSAutoreleasePool::new(nil)) };
+        let external = native_screen_fixture(nil, 0., 1.);
+        let builtin = native_screen_fixture(nil, 37.5, 2.);
+        let host = native_screen_fixture(*external, 0., 1.);
+        let view = native_screen_fixture(*host, 0., 1.);
+        OS_PARAMETER_VIEWS.with(|views| views.borrow_mut().insert(96, view.weak()));
+        let window = Window::for_test(96);
+        let config = ConfigHandle::default_config();
+        // No Connection or borrowable WindowInner exists in this fixture.
+        assert!(window.ns_window().is_none());
+        let parameters = window
+            .get_os_parameters(&config, WindowState::HOTKEY_WINDOW)
+            .unwrap()
+            .unwrap();
+        assert_eq!(parameters.border_dimensions.unwrap().top.get(), 0);
+        unsafe { (**host).set_ivar("fixtureLink", *builtin) };
+        let parameters = window
+            .get_os_parameters(&config, WindowState::HOTKEY_WINDOW)
+            .unwrap()
+            .unwrap();
+        assert_eq!(parameters.border_dimensions.unwrap().top.get(), 76);
+        let ordinary = window
+            .get_os_parameters(&config, WindowState::default())
+            .unwrap()
+            .unwrap();
+        assert!(ordinary.border_dimensions.is_none());
+        unsafe {
+            (**host).set_ivar(
+                "fixtureStyle",
+                NSWindowStyleMask::NSFullScreenWindowMask.bits(),
+            );
+        }
+        let fullscreen = window
+            .get_os_parameters(&config, WindowState::HOTKEY_WINDOW)
+            .unwrap()
+            .unwrap();
+        assert!(fullscreen.border_dimensions.is_none());
+        OS_PARAMETER_VIEWS.with(|views| views.borrow_mut().remove(&96));
+    }
+
+    #[test]
+    fn native_screen_registry_lifetime_and_parameter_wiring() {
+        let source = include_str!("window.rs");
+        let create = production_method(source, "pub async fn new_window<");
+        assert!(create.contains(".insert(window_id, window_inner.borrow().view.weak())"));
+        assert!(
+            create.find("OS_PARAMETER_VIEWS.with").unwrap()
+                < create.find("events.assign_window").unwrap()
+        );
+        let close = production_method(source, "extern \"C\" fn window_will_close(");
+        assert!(
+            close.find("remove(&view.window_id.get())").unwrap()
+                < close.find("WindowEvent::Destroyed").unwrap()
+        );
+        let parameters = production_method(source, "fn get_os_parameters(");
+        assert!(parameters.contains("os_parameters_native_view(self.id"));
+        assert!(parameters.contains("os_parameters_native_window(&native_view)"));
+        assert!(parameters.contains("os_parameters_native_state(*native_window, window_state)"));
+        assert!(parameters.contains("os_parameters_screen(Some(*native_window)"));
+        assert!(parameters.contains("view.simple_fullscreen_active.get()"));
+        assert!(
+            parameters.find("view.is_closing.get()").unwrap()
+                < parameters.find("os_parameters_native_window").unwrap()
+        );
+        assert!(!parameters.contains("self.ns_window()"));
+    }
+
+    #[test]
+    fn hotkey_options_egl_layer_opacity_uses_effective_window_config() {
+        for (global_opacity, window_opacity, expected) in [(1., 0.5, NO), (0.5, 1., YES)] {
+            assert_ne!(gl_layer_is_opaque(global_opacity), expected);
+            assert_eq!(gl_layer_is_opaque(window_opacity), expected);
+        }
+        assert_eq!(gl_layer_is_opaque(0.), NO);
+        assert_eq!(gl_layer_is_opaque(0.999), NO);
+    }
+
+    #[test]
+    fn hotkey_options_egl_layer_opacity_wiring() {
+        let source = include_str!("window.rs");
+        let create = production_method(source, "pub fn create(view:");
+        assert!(!create.contains("config::configuration().window_background_opacity"));
+        assert!(create.contains("config::configuration().prefer_egl"));
+        assert!(create.contains("let layer_opaque = gl_layer_is_opaque(window_opacity)"));
+        assert!(create.contains("setOpaque: layer_opaque"));
+        let enable = source
+            .split("impl Inner {\n")
+            .nth(1)
+            .unwrap()
+            .split("fn translate_key_event(")
+            .next()
+            .unwrap();
+        assert!(
+            enable.contains("GlContextPair::create(*view, self.config.window_background_opacity)")
+        );
+        assert!(!create.contains("inner.borrow"));
+    }
+
+    #[test]
+    fn hotkey_options_view_opacity_cache_is_per_window_wiring() {
+        let source = include_str!("window.rs");
+        let opaque = production_method(source, "extern \"C\" fn is_opaque(");
+        assert!(!opaque.contains("VIEW_IS_OPAQUE"));
+        assert!(opaque.contains("this.opaque.get()"));
+        assert!(!opaque.contains("inner.borrow"));
+        let update = production_method(source, "fn update_window_shadow(");
+        assert!(update.contains("window_view.opaque.set(is_opaque)"));
+        let init = production_method(source, "fn init_with_frame(");
+        let init: String = init.split_whitespace().collect();
+        assert!(init.contains(
+            "opaque:Cell::new(gl_layer_is_opaque(inner.borrow().config.window_background_opacity"
+        ));
+    }
+
+    #[test]
+    fn hotkey_options_view_opacity_caches_do_not_overwrite_each_other() {
+        let ordinary = Cell::new(gl_layer_is_opaque(0.5));
+        let drawer = Cell::new(gl_layer_is_opaque(1.));
+        assert_eq!(ordinary.get(), NO);
+        assert_eq!(drawer.get(), YES);
+        drawer.set(gl_layer_is_opaque(0.3));
+        assert_eq!(ordinary.get(), NO);
+        ordinary.set(gl_layer_is_opaque(1.));
+        assert_eq!(ordinary.get(), YES);
+        assert_eq!(drawer.get(), NO);
+    }
+
+    #[test]
+    fn hotkey_options_height_percent_controls_drawer_frame() {
+        let screen = ScreenGeometry {
+            frame: NSRect::new(NSPoint::new(-1200., 900.), NSSize::new(1200., 900.)),
+            visible_frame: NSRect::new(NSPoint::new(-1200., 900.), NSSize::new(1200., 850.)),
+        };
+        for percent in [10., 50., 100.] {
+            let frame = hotkey_panel_frame(screen, percent);
+            assert_eq!(frame.size.height, 900. * percent / 100.);
+            assert_eq!(frame.size.width, 1200.);
+            assert_eq!(frame.origin.x, -1200.);
+            assert_eq!(frame.origin.y + frame.size.height, 1800.);
+        }
+    }
+
+    #[test]
+    fn hotkey_options_animation_duration_respects_zero_and_reduce_motion() {
+        assert_eq!(hotkey_animation_duration(0, false), Duration::ZERO);
+        assert_eq!(
+            hotkey_animation_duration(500, false),
+            Duration::from_millis(500)
+        );
+        assert_eq!(hotkey_animation_duration(500, true), Duration::ZERO);
+    }
+
+    #[test]
+    fn hotkey_options_slide_captures_duration_and_handles_zero_without_division() {
+        let slide = HotkeySlide {
+            resting_frame: NSRect::new(NSPoint::new(0., 600.), NSSize::new(1000., 300.)),
+            from: NSPoint::new(0., 900.),
+            to: NSPoint::new(0., 600.),
+            started: Instant::now(),
+            duration: hotkey_animation_duration(500, false),
+            showing: true,
+            hide_on_focus_loss: false,
+        };
+        assert_eq!(slide.origin_at(Duration::from_millis(250)).y, 750.);
+        // A new setting does not change the duration of an existing slide.
+        let new_duration = hotkey_animation_duration(0, false);
+        assert_eq!(slide.duration, Duration::from_millis(500));
+        let immediate = HotkeySlide {
+            duration: new_duration,
+            ..slide
+        };
+        assert_eq!(immediate.origin_at(Duration::ZERO).y, immediate.to.y);
+        let hide = HotkeySlide {
+            from: slide.to,
+            to: slide.from,
+            showing: false,
+            ..immediate
+        };
+        assert_eq!(hide.origin_at(Duration::ZERO).y, hide.to.y);
+    }
+
+    #[test]
+    fn hotkey_options_pinning_reverses_only_inflight_auto_hide() {
+        let hide = HotkeySlide {
+            resting_frame: NSRect::new(NSPoint::new(0., 600.), NSSize::new(1000., 300.)),
+            from: NSPoint::new(0., 600.),
+            to: NSPoint::new(0., 900.),
+            started: Instant::now(),
+            duration: Duration::from_millis(500),
+            showing: false,
+            hide_on_focus_loss: true,
+        };
+        let current = NSPoint::new(0., 750.);
+        assert!(hide
+            .reverse_when_auto_hide_disabled(true, current)
+            .is_none());
+        let reverse = hide
+            .reverse_when_auto_hide_disabled(false, current)
+            .unwrap();
+        assert!(reverse.showing);
+        assert!(!reverse.hide_on_focus_loss);
+        assert_eq!(reverse.duration, hide.duration);
+        assert_eq!(reverse.from.y, current.y);
+        assert_eq!(reverse.to.y, hide.resting_frame.origin.y);
+        assert!(HotkeySlide {
+            hide_on_focus_loss: false,
+            ..hide
+        }
+        .reverse_when_auto_hide_disabled(false, current)
+        .is_none());
+    }
+
+    #[test]
+    fn hotkey_options_hide_on_focus_loss_can_be_disabled() {
+        assert!(!should_hide_hotkey_on_focus_loss(
+            true, false, true, None, false
+        ));
+        assert!(should_hide_hotkey_on_focus_loss(
+            true, false, true, None, true
+        ));
+        assert!(hotkey_should_hide(None, true, true));
+    }
+
+    #[test]
+    fn hotkey_options_explicit_toggle_hides_a_pinned_unfocused_drawer() {
+        assert!(drawer_hotkey_should_hide(None, false, true, false));
+        assert!(!drawer_hotkey_should_hide(None, false, false, false));
+        assert!(!drawer_hotkey_should_hide(None, false, true, true));
+        assert!(drawer_hotkey_should_hide(Some(true), false, false, false));
+        assert!(!drawer_hotkey_should_hide(Some(false), true, true, false));
+    }
+
+    #[test]
+    fn hotkey_options_notch_override_inherits_only_when_unset() {
+        assert!(!hotkey_extend_behind_notch(true, Some(false), true));
+        assert!(hotkey_extend_behind_notch(true, Some(true), false));
+        for inherited in [false, true] {
+            assert_eq!(hotkey_extend_behind_notch(true, None, inherited), inherited);
+            assert_eq!(
+                hotkey_extend_behind_notch(false, Some(!inherited), inherited),
+                inherited
+            );
+        }
+    }
+
+    #[test]
+    fn hotkey_options_native_consumer_wiring() {
+        let source = include_str!("window.rs");
+        let reveal = production_method(source, "pub(crate) fn show_global_hotkey_window(");
+        let refresh = production_method(source, "pub(crate) fn refresh_after_display_change(");
+        let animate = production_method(source, "fn animate_hotkey_slide(");
+        let reload = production_method(source, "fn config_did_change(&mut self,");
+        let resign = production_method(source, "extern \"C\" fn did_resign_key(");
+        let parameters = production_method(source, "fn get_os_parameters(");
+        assert!(reveal.contains("self.config.macos_global_hotkey_height_percent"));
+        assert!(refresh.contains("inner.config.macos_global_hotkey_height_percent"));
+        assert!(animate.contains("self.config.macos_global_hotkey_animation_duration_ms"));
+        assert!(resign.contains("inner.config.macos_global_hotkey_hide_on_focus_loss"));
+        assert!(parameters.contains("config.macos_global_hotkey_extend_behind_notch"));
+        let toggle = production_method(source, "pub(crate) fn global_hotkey_should_hide(");
+        assert!(toggle.contains("drawer_hotkey_should_hide("));
+        assert!(toggle.contains("self.config.macos_global_hotkey_hide_on_focus_loss"));
+        assert!(reload.contains("hotkey_panel_frame("));
+        assert!(reload.contains("reverse_when_auto_hide_disabled("));
+        assert!(reload.contains("dpi_changed || panel_layout_changed"));
+        assert!(reload.contains("screen_geometry_for_window(*self.window)"));
+        assert!(!reload.contains("hotkey_screen_geometry("));
+        let step = production_method(source, "fn step_hotkey_slide(");
+        assert!(step.contains("elapsed >= slide.duration"));
+        assert!(!step.contains("self.config.macos_global_hotkey_animation_duration_ms"));
+        assert!(animate.contains("if slide.duration.is_zero()"));
+        let origin = production_method(source, "fn origin_at(");
+        assert!(
+            origin.find("self.duration.is_zero()").unwrap()
+                < origin.find("self.duration.as_secs_f64()").unwrap()
+        );
+    }
+
+    #[test]
+    fn boundary_cancelling_auto_hide_keeps_regained_focus() {
+        let hide = HotkeySlide {
+            resting_frame: NSRect::new(NSPoint::new(0., 600.), NSSize::new(1000., 300.)),
+            from: NSPoint::new(0., 700.),
+            to: NSPoint::new(0., 1000.),
+            started: Instant::now(),
+            duration: HOTKEY_SLIDE_DURATION,
+            showing: false,
+            hide_on_focus_loss: true,
+        };
+        assert!(!hide.should_hide_when_cancelled(true));
+        assert!(hide.should_hide_when_cancelled(false));
+        assert!(HotkeySlide {
+            hide_on_focus_loss: false,
+            ..hide
+        }
+        .should_hide_when_cancelled(true));
+        assert!(!HotkeySlide {
+            showing: true,
+            ..hide
+        }
+        .should_hide_when_cancelled(false));
+        let source = production_method(include_str!("window.rs"), "fn cancel_hotkey_slide(&self,");
+        assert!(source.contains("slide.should_hide_when_cancelled("));
+    }
+
+    #[test]
+    fn boundary_ordinary_move_updates_fill_cache_before_topology_observer() {
+        let source = production_method(include_str!("window.rs"), "extern \"C\" fn did_move(");
+        assert!(source.contains("refresh_windowed_screen_state("));
+        let refresh = production_method(
+            include_str!("window.rs"),
+            "pub(crate) fn refresh_after_display_change(",
+        );
+        assert!(refresh.contains("fills_after_topology_change("));
+        let resize = production_method(include_str!("window.rs"), "extern \"C\" fn did_resize(");
+        assert!(resize.contains("!this.windowed_screen.get().max_invalidated_by_move"));
+    }
+
+    #[test]
+    fn boundary_live_screen_move_invalidates_old_fill_and_maximized_intent() {
+        let (screens, filled_a, _) = side_by_side_screens();
+        let initial = WindowedScreenState::default().settled(filled_a, Some(1), screens[0]);
+        let moved_frame = NSRect::new(NSPoint::new(1550., 80.), filled_a.size);
+        let moved = initial.after_frame_change(moved_frame, Some(2), screens[1], Some(screens[0]));
+        assert_eq!(moved.screen_id, Some(2));
+        assert!(!moved.fills_visible_frame);
+        assert!(moved.max_invalidated_by_move);
+        assert!(!moved.fills_after_topology_change(true));
+        // A subsequent resize must not revive stale isZoomed/last MAX.
+        let unchanged =
+            moved.after_frame_change(moved_frame, Some(2), screens[1], Some(screens[1]));
+        assert!(unchanged.max_invalidated_by_move);
+        assert!(!unchanged.fills_after_topology_change(true));
+        let forced = moved.after_frame_change(filled_a, Some(1), screens[0], None);
+        assert!(!forced.fills_after_topology_change(true));
+        let resized = moved.after_frame_change(
+            NSRect::new(moved_frame.origin, NSSize::new(900., 700.)),
+            Some(2),
+            screens[1],
+            Some(screens[1]),
+        );
+        assert!(!resized.max_invalidated_by_move);
+        let maximized = moved.after_frame_change(
+            screens[1].visible_frame,
+            Some(2),
+            screens[1],
+            Some(screens[1]),
+        );
+        assert!(maximized.fills_visible_frame);
+        assert!(!maximized.max_invalidated_by_move);
+    }
+
+    #[test]
+    fn boundary_topology_moves_preserve_prior_fill_even_when_screen_id_survives() {
+        let (screens, filled_a, _) = side_by_side_screens();
+        let initial = WindowedScreenState::default().settled(filled_a, Some(1), screens[0]);
+        for previous in [
+            None,
+            Some(ScreenGeometry {
+                frame: screens[1].frame,
+                ..screens[0]
+            }),
+            Some(ScreenGeometry {
+                visible_frame: screens[1].visible_frame,
+                ..screens[0]
+            }),
+        ] {
+            let migrated =
+                initial.after_frame_change(screens[1].visible_frame, Some(2), screens[1], previous);
+            assert_eq!(migrated.screen_id, Some(1));
+            assert!(nsrect_approx_eq(migrated.frame.unwrap(), filled_a, 0.));
+            assert!(migrated.fills_after_topology_change(true));
+        }
+        let settled = initial.settled(screens[1].visible_frame, Some(2), screens[1]);
+        assert_eq!(settled.screen_id, Some(2));
+        assert!(settled.fills_visible_frame);
+    }
+
+    #[test]
+    fn boundary_fullscreen_exit_rebases_windowed_screen_cache() {
+        let source = include_str!("window.rs");
+        let simple = production_method(source, "fn toggle_simple_fullscreen(&mut self)");
+        assert!(simple.contains("settle_windowed_screen_state(*self.window)"));
+        let native = production_method(source, "extern \"C\" fn did_exit_fullscreen(");
+        assert!(native.contains("settle_windowed_screen_state(window)"));
+
+        let (screens, filled_a, _) = side_by_side_screens();
+        let initial = WindowedScreenState::default().settled(filled_a, Some(1), screens[0]);
+        // The display changed during fullscreen while the windowed cache froze.
+        let landed = initial.settled(screens[1].visible_frame, Some(1), screens[1]);
+        let smaller = NSRect::new(NSPoint::new(1500., 80.), NSSize::new(800., 600.));
+        let resized = landed.after_frame_change(smaller, Some(1), screens[1], Some(screens[1]));
+        assert!(!resized.fills_after_topology_change(false));
+        assert!(nsrect_approx_eq(resized.frame.unwrap(), smaller, 0.));
+    }
+
+    #[test]
+    fn boundary_screen_change_dispatches_deferred_resize_without_dpi_change() {
+        let source = production_method(
+            include_str!("window.rs"),
+            "extern \"C\" fn did_change_screen(",
+        );
+        assert!(source.contains("Connection::with_window_inner("));
+        assert!(source.contains("inner.dispatch_resize_event()"));
+    }
+
     #[test]
     fn centered_frame_origin_centers_inside_visible_frame() {
         // A secondary display sitting left of the primary, in its own
@@ -3631,6 +5747,65 @@ mod tests {
             left_visible,
             right_visible,
         )
+    }
+
+    #[test]
+    fn hotkey_follow_mouse_selects_each_display_and_shared_boundary() {
+        let (screens, _, _) = side_by_side_screens();
+        for (mouse, expected) in [
+            (NSPoint::new(100., 100.), screens[0]),
+            (NSPoint::new(1440., 100.), screens[1]),
+            (NSPoint::new(3000., 1000.), screens[1]),
+        ] {
+            let selected =
+                select_hotkey_screen_geometry(Some(mouse), &screens, Some(screens[0])).unwrap();
+            assert!(nsrect_approx_eq(selected.frame, expected.frame, 0.0));
+            assert!(nsrect_approx_eq(
+                selected.visible_frame,
+                expected.visible_frame,
+                0.0
+            ));
+        }
+    }
+
+    #[test]
+    fn hotkey_follow_mouse_handles_negative_and_stacked_display_origins() {
+        let screens = [
+            ScreenGeometry {
+                frame: NSRect::new(NSPoint::new(-1920., -200.), NSSize::new(1920., 1080.)),
+                visible_frame: NSRect::new(NSPoint::new(-1920., -200.), NSSize::new(1920., 1055.)),
+            },
+            ScreenGeometry {
+                frame: NSRect::new(NSPoint::new(0., 900.), NSSize::new(1440., 900.)),
+                visible_frame: NSRect::new(NSPoint::new(0., 900.), NSSize::new(1440., 875.)),
+            },
+        ];
+        for (mouse, expected) in [
+            (NSPoint::new(-100., -100.), screens[0]),
+            (NSPoint::new(100., 1000.), screens[1]),
+        ] {
+            let selected = select_hotkey_screen_geometry(Some(mouse), &screens, None).unwrap();
+            assert!(nsrect_approx_eq(selected.frame, expected.frame, 0.0));
+        }
+    }
+
+    #[test]
+    fn hotkey_follow_mouse_falls_back_when_disabled_or_no_display_matches() {
+        let (screens, _, _) = side_by_side_screens();
+        for mouse in [
+            None,
+            Some(NSPoint::new(-500., -500.)),
+            Some(NSPoint::new(3360., 100.)),
+        ] {
+            let selected =
+                select_hotkey_screen_geometry(mouse, &screens, Some(screens[0])).unwrap();
+            assert!(nsrect_approx_eq(selected.frame, screens[0].frame, 0.0));
+        }
+        assert!(select_hotkey_screen_geometry(Some(NSPoint::new(1., 1.)), &[], None).is_none());
+        let selected =
+            select_hotkey_screen_geometry(Some(NSPoint::new(1., 1.)), &[], Some(screens[0]))
+                .unwrap();
+        assert!(nsrect_approx_eq(selected.frame, screens[0].frame, 0.0));
     }
 
     #[test]
@@ -4165,6 +6340,621 @@ mod tests {
     }
 
     #[test]
+    fn simple_fullscreen_follows_remaining_display_after_disconnect() {
+        let external = NSRect::new(NSPoint::new(-1920., 0.), NSSize::new(1920., 1080.));
+        let builtin = ScreenGeometry {
+            frame: NSRect::new(NSPoint::new(0., 0.), NSSize::new(1728., 1117.)),
+            visible_frame: NSRect::new(NSPoint::new(0., 0.), NSSize::new(1728., 1084.)),
+        };
+        let adjusted = frame_after_display_change(external, true, false, builtin);
+        assert!(nsrect_approx_eq(adjusted, builtin.frame, 0.5));
+    }
+
+    fn production_method<'a>(source: &'a str, signature: &str) -> &'a str {
+        // Native AppKit callbacks cannot run on the unit-test worker threads.
+        // Guard their entrypoints as well as testing the decision helpers.
+        let indent = if source.contains(&format!("\n    {signature}")) {
+            "    "
+        } else {
+            ""
+        };
+        let signature = format!("\n{indent}{signature}");
+        let method = &source[source.find(&signature).expect("production method missing")..];
+        &method[..method
+            .find(&format!("\n{indent}}}"))
+            .expect("method end missing")]
+    }
+
+    #[test]
+    fn dedicated_hotkey_window_never_becomes_an_ordinary_window() {
+        let source = include_str!("window.rs");
+        let source = &source[source.find("impl WindowInner {").unwrap()..];
+        for signature in [
+            "fn show(&mut self)",
+            "pub(crate) fn focus(&mut self)",
+            "fn restore_ordinary_window(",
+            "fn toggle_fullscreen(&mut self)",
+        ] {
+            let method = production_method(source, signature);
+            assert!(method.contains("self.dedicated_hotkey"), "{}", signature);
+        }
+    }
+
+    #[test]
+    fn hotkey_lifecycle_defers_migration_until_native_transition_finishes() {
+        let source = include_str!("window.rs");
+        let show = production_method(source, "pub(crate) fn show_global_hotkey_window(");
+        let guard = show.find("self.defer_hotkey_visibility(true)");
+        let detach = show.find("self.prepare_global_hotkey_panel()").unwrap();
+        assert!(guard.is_some_and(|guard| guard < detach));
+    }
+
+    #[test]
+    fn hotkey_lifecycle_hides_native_fullscreen_through_the_shared_safe_path() {
+        let source = include_str!("window.rs");
+        let hide = production_method(source, "pub(crate) fn hide_global_hotkey_window(");
+        assert!(hide.contains("self.defer_hotkey_visibility(false)"));
+        assert!(hide.contains("self.order_out_after_fullscreen_exit()"));
+        let ordinary = production_method(source, "fn order_out(&self)");
+        assert!(ordinary.contains("inner.order_out_after_fullscreen_exit()"));
+    }
+
+    #[test]
+    fn hotkey_lifecycle_geometry_changes_supersede_animation() {
+        let source = include_str!("window.rs");
+        for signature in [
+            "fn set_inner_size(&mut self,",
+            "fn set_window_position(&",
+            "fn maximize(&mut self)",
+            "fn restore(&mut self)",
+            "fn center(&mut self)",
+            "fn hide(&mut self)",
+        ] {
+            // Only inspect the WindowInner implementation, not WindowOps.
+            let source = &source[source.find("impl WindowInner {").unwrap()..];
+            let method = production_method(source, signature);
+            assert!(
+                method.contains("self.cancel_hotkey_slide()"),
+                "{}",
+                signature
+            );
+        }
+    }
+
+    #[test]
+    fn hotkey_lifecycle_callbacks_replay_only_the_latest_pending_intent() {
+        let source = include_str!("window.rs");
+        for signature in [
+            "extern \"C\" fn did_enter_fullscreen(",
+            "extern \"C\" fn did_exit_fullscreen(",
+        ] {
+            let callback = production_method(source, signature);
+            assert!(callback.contains("this.dispatch_pending_hotkey_visibility()"));
+        }
+        let replay = production_method(source, "fn dispatch_pending_hotkey_visibility(");
+        assert!(replay.contains("Connection::with_window_inner"));
+        assert!(replay.contains("view.pending_hotkey_visibility.replace(None)"));
+        assert!(replay.contains("view.is_closing.get()"));
+        assert!(replay.contains("view.native_fullscreen_transition_active.get()"));
+        for signature in ["fn restore_ordinary_window(", "fn close(&mut self)"] {
+            assert!(production_method(source, signature)
+                .contains("self.clear_pending_hotkey_visibility()"));
+        }
+    }
+
+    #[test]
+    fn hotkey_lifecycle_pending_request_tracks_rapid_reversal() {
+        let pending = Cell::new(None);
+        assert!(defer_hotkey_request(&pending, true, false));
+        assert!(!hotkey_should_hide(pending.get(), true, true));
+        assert!(defer_hotkey_request(&pending, true, true));
+        assert!(hotkey_should_hide(pending.get(), false, false));
+        assert!(defer_hotkey_request(&pending, true, false));
+        assert_eq!(pending.replace(None), Some(false));
+        assert_eq!(pending.replace(None), None);
+        assert!(!defer_hotkey_request(&pending, false, true));
+        assert_eq!(pending.get(), None);
+    }
+
+    #[test]
+    fn hotkey_lifecycle_repeated_hide_does_not_reverse_a_native_exit() {
+        assert!(!should_start_native_fullscreen_exit(true, Some(false)));
+        assert!(should_start_native_fullscreen_exit(false, Some(false)));
+        assert!(should_start_native_fullscreen_exit(true, Some(true)));
+        assert!(should_start_native_fullscreen_exit(false, None));
+        let hide = production_method(
+            include_str!("window.rs"),
+            "fn order_out_after_fullscreen_exit(",
+        );
+        assert!(
+            hide.find("should_start_native_fullscreen_exit").unwrap()
+                < hide.find("self.exit_native_fullscreen()").unwrap()
+        );
+    }
+
+    #[test]
+    fn hotkey_lifecycle_drag_and_live_resize_settle_animation() {
+        let source = include_str!("window.rs");
+        let drag = production_method(source, "extern \"C\" fn mouse_down(");
+        let settle = drag.find("view.cancel_hotkey_slide(window)").unwrap();
+        assert!(settle < drag.find("performWindowDragWithEvent: nsevent").unwrap());
+        let resize = production_method(source, "extern \"C\" fn will_start_live_resize(");
+        assert!(resize.contains("this.cancel_hotkey_slide(window)"));
+        let zoom = production_method(source, "extern \"C\" fn window_will_use_standard_frame(");
+        assert!(zoom.contains("view.cancel_hotkey_slide(window)"));
+    }
+
+    #[test]
+    fn hotkey_lifecycle_same_size_housekeeping_does_not_cancel_reveal() {
+        let size = NSSize::new(800., 600.);
+        assert!(!content_size_changed(size, size));
+        assert!(!content_size_changed(size, NSSize::new(800.001, 600.)));
+        assert!(content_size_changed(size, NSSize::new(800.5, 600.)));
+        assert!(content_size_changed(size, NSSize::new(800., 601.)));
+        let method = production_method(include_str!("window.rs"), "fn set_inner_size(&mut self,");
+        assert!(method.contains("if content_size_changed(frame.size, size)"));
+    }
+
+    #[test]
+    fn hotkey_panel_clears_layer_rounding_on_creation_and_config_reload() {
+        let source = include_str!("window.rs");
+        let update = production_method(source, "fn update_window_shadow(&mut self)");
+        assert!(update.contains("is_hotkey_panel(*self.window)"));
+        assert!(update.contains("if force_square {\n                        0.0"));
+        assert!(update.contains("setCornerRadius: corner_radius"));
+        let backing = production_method(source, "extern \"C\" fn make_backing_layer(");
+        assert!(backing.contains("is_hotkey_panel("));
+        assert!(backing.contains("&& !force_square"));
+        let prepare = production_method(source, "fn prepare_global_hotkey_panel(&mut self)");
+        assert!(prepare.contains("self.update_window_shadow()"));
+        let reload = production_method(source, "fn config_did_change(&mut self,");
+        assert!(reload.contains("self.update_window_shadow()"));
+        // A square drawer needs a borderless host plus explicit panel input opt-in.
+        let panel = hotkey_panel_style_mask(NSWindowStyleMask::NSResizableWindowMask);
+        assert!(!panel.contains(NSWindowStyleMask::NSTitledWindowMask));
+        assert!(panel.contains(nonactivating_panel_mask()));
+    }
+
+    #[test]
+    fn hotkey_panel_is_nonactivating_even_from_fullscreen_or_borderless() {
+        for mask in [
+            NSWindowStyleMask::NSFullScreenWindowMask,
+            NSWindowStyleMask::NSBorderlessWindowMask,
+            NSWindowStyleMask::NSTitledWindowMask
+                | NSWindowStyleMask::NSClosableWindowMask
+                | NSWindowStyleMask::NSMiniaturizableWindowMask
+                | NSWindowStyleMask::NSResizableWindowMask,
+        ] {
+            let panel = hotkey_panel_style_mask(mask);
+            assert!(panel.contains(nonactivating_panel_mask()));
+            assert!(!panel.contains(NSWindowStyleMask::NSTitledWindowMask));
+            assert!(panel.contains(NSWindowStyleMask::NSFullSizeContentViewWindowMask));
+            assert!(!panel.intersects(
+                NSWindowStyleMask::NSClosableWindowMask
+                    | NSWindowStyleMask::NSMiniaturizableWindowMask
+                    | NSWindowStyleMask::NSFullScreenWindowMask
+            ));
+            assert_eq!(
+                panel.contains(NSWindowStyleMask::NSResizableWindowMask),
+                mask.contains(NSWindowStyleMask::NSResizableWindowMask)
+            );
+        }
+    }
+
+    #[test]
+    fn borderless_hotkey_view_opts_into_panel_keyboard_focus() {
+        let source = include_str!("window.rs");
+        let class = production_method(source, "fn define_class()");
+        assert!(class.contains("sel!(needsPanelToBecomeKey)"));
+        let input = production_method(source, "extern \"C\" fn needs_panel_to_become_key(");
+        assert!(input.contains("is_hotkey_panel(window)"));
+        assert!(input.contains("!window.is_null()"));
+        assert!(!input.contains("borrow"));
+        let show = production_method(source, "pub(crate) fn show_global_hotkey_window(");
+        let make_key = show.find("makeKeyAndOrderFront_(nil)").unwrap();
+        let make_responder = show.find("makeFirstResponder_(*self.view)").unwrap();
+        assert!(make_key < make_responder);
+    }
+
+    #[test]
+    fn hotkey_panel_frame_is_full_width_top_third_in_appkit_points() {
+        for screen in [
+            ScreenGeometry {
+                frame: NSRect::new(NSPoint::new(0., 0.), NSSize::new(1728., 1117.)),
+                visible_frame: NSRect::new(NSPoint::new(0., 70.), NSSize::new(1728., 1022.)),
+            },
+            ScreenGeometry {
+                frame: NSRect::new(NSPoint::new(-1920., -200.), NSSize::new(1920., 1080.)),
+                visible_frame: NSRect::new(NSPoint::new(-1850., -200.), NSSize::new(1850., 1055.)),
+            },
+            ScreenGeometry {
+                frame: NSRect::new(NSPoint::new(0., 1117.), NSSize::new(1080., 1920.)),
+                visible_frame: NSRect::new(NSPoint::new(0., 1117.), NSSize::new(1080., 1895.)),
+            },
+        ] {
+            let frame = hotkey_panel_frame(screen, 100. / 3.);
+            assert_eq!(frame.origin.x, screen.frame.origin.x);
+            assert_eq!(frame.size.width, screen.frame.size.width);
+            assert!((frame.size.height - screen.frame.size.height / 3.).abs() < 1e-9);
+            assert!((rect_top(frame) - rect_top(screen.frame)).abs() < 0.001);
+        }
+    }
+
+    #[test]
+    fn hotkey_panel_frame_ignores_menu_bar_and_dock_reservations() {
+        let screen = ScreenGeometry {
+            frame: NSRect::new(NSPoint::new(-1920., -200.), NSSize::new(1920., 1080.)),
+            visible_frame: NSRect::new(NSPoint::new(-1920., 650.), NSSize::new(1920., 205.)),
+        };
+        assert!(nsrect_approx_eq(
+            hotkey_panel_frame(screen, 100. / 3.),
+            NSRect::new(NSPoint::new(-1920., 520.), NSSize::new(1920., 360.)),
+            0.
+        ));
+    }
+
+    #[test]
+    fn hotkey_panel_is_above_the_menu_bar_but_keeps_system_popups_above_it() {
+        use objc2_core_graphics::{CGWindowLevelForKey, CGWindowLevelKey};
+        let level = hotkey_window_level();
+        assert!(
+            level
+                > i64::from(CGWindowLevelForKey(
+                    CGWindowLevelKey::MainMenuWindowLevelKey
+                ))
+        );
+        assert!(level > i64::from(CGWindowLevelForKey(CGWindowLevelKey::StatusWindowLevelKey)));
+        assert!(
+            level
+                < i64::from(CGWindowLevelForKey(
+                    CGWindowLevelKey::PopUpMenuWindowLevelKey
+                ))
+        );
+        for native in [-1, 0, 3, level] {
+            assert_eq!(
+                nswindow_level_to_window_level(native, true),
+                WindowLevel::AlwaysOnTop
+            );
+        }
+        for (native, expected) in [
+            (-1, WindowLevel::AlwaysOnBottom),
+            (0, WindowLevel::Normal),
+            (3, WindowLevel::AlwaysOnTop),
+        ] {
+            assert_eq!(nswindow_level_to_window_level(native, false), expected);
+        }
+        let source = include_str!("window.rs");
+        let prepare = production_method(source, "fn prepare_global_hotkey_panel(");
+        assert!(prepare.contains("panel.setLevel_(hotkey_window_level())"));
+        let level = production_method(
+            &source[source.find("impl WindowInner {").unwrap()..],
+            "fn set_window_level(",
+        );
+        assert!(level.contains("self.dedicated_hotkey"));
+        assert!(level.contains("hotkey_window_level()"));
+        let resize = production_method(source, "extern \"C\" fn did_resize(");
+        assert!(resize.contains("nswindow_level_to_window_level(level, hotkey_panel)"));
+        let parameters = production_method(source, "fn get_os_parameters(");
+        assert!(parameters.contains("simple_full_screen || hotkey_panel"));
+    }
+
+    #[test]
+    fn ordinary_frame_after_hotkey_preserves_cross_display_geometry() {
+        let (screens, _, _) = side_by_side_screens();
+        let original = NSRect::new(NSPoint::new(200., 50.), NSSize::new(2200., 700.));
+        for fullscreen in [false, true] {
+            let restored = frame_after_display_topology_change(
+                original,
+                fullscreen,
+                false,
+                &[screens[0].frame, screens[1].frame],
+                &[screens[0].frame, screens[1].frame],
+                screens[0],
+            );
+            assert!(nsrect_approx_eq(restored, original, 0.));
+        }
+        let after_disconnect = frame_after_display_topology_change(
+            NSRect::new(NSPoint::new(2000., 50.), NSSize::new(2200., 700.)),
+            false,
+            false,
+            &[screens[1].frame],
+            &[screens[0].frame],
+            screens[0],
+        );
+        assert!(fit_frame_to_visible_frame(after_disconnect, screens[0].visible_frame).is_none());
+    }
+
+    #[test]
+    fn ordinary_frame_after_hotkey_detects_neighbor_disconnect_and_ignores_order() {
+        let (screens, _, _) = side_by_side_screens();
+        let original = NSRect::new(NSPoint::new(200., 50.), NSSize::new(2200., 700.));
+        let previous = [screens[0].frame, screens[1].frame];
+        let after_disconnect = frame_after_display_topology_change(
+            original,
+            false,
+            false,
+            &previous,
+            &[screens[0].frame],
+            screens[0],
+        );
+        assert!(fit_frame_to_visible_frame(after_disconnect, screens[0].visible_frame).is_none());
+        let reordered = frame_after_display_topology_change(
+            original,
+            false,
+            false,
+            &previous,
+            &[screens[1].frame, screens[0].frame],
+            screens[0],
+        );
+        assert!(nsrect_approx_eq(reordered, original, 0.));
+    }
+
+    #[test]
+    fn hotkey_panel_display_refresh_uses_drawer_layout_not_mouse_selection() {
+        let source = include_str!("window.rs");
+        let refresh = production_method(source, "pub(crate) fn refresh_after_display_change(");
+        assert!(refresh.contains("hotkey_panel_frame("));
+        assert!(refresh.contains("inner.config.macos_global_hotkey_height_percent"));
+        assert!(refresh.contains("frame_after_display_topology_change("));
+        assert!(refresh.contains("!simple_fullscreen && !hotkey_panel"));
+        assert!(!refresh.contains("hotkey_screen_geometry("));
+    }
+
+    #[test]
+    fn hotkey_panel_layout_never_overwrites_ordinary_geometry() {
+        let source = include_str!("window.rs");
+        let restore = production_method(source, "fn restore_ordinary_window(");
+        assert!(!restore.contains("setFrame_display_(frame, NO)"));
+        assert!(restore.contains("ordinary_frame = NSWindow::frame(*self.window)"));
+        assert!(restore.contains("frame_after_display_topology_change("));
+        let terminate = production_method(source, "pub(crate) fn on_app_terminating(");
+        assert!(terminate.contains("inner.restore_ordinary_window()"));
+        let reveal = production_method(source, "pub(crate) fn show_global_hotkey_window(");
+        assert!(reveal.contains("self.config.macos_global_hotkey_height_percent"));
+        let persist = production_method(source, "fn persist_window_state(");
+        assert!(persist.contains("is_hotkey_panel(window)"));
+        let remember = production_method(source, "fn remember_last_closed_window_position(");
+        assert!(remember.contains("is_hotkey_panel(window)"));
+    }
+
+    #[test]
+    fn hotkey_panel_focus_loss_hides_only_a_visible_unfocused_panel() {
+        assert!(should_hide_hotkey_on_focus_loss(
+            true, false, true, None, true
+        ));
+        assert!(should_hide_hotkey_on_focus_loss(
+            true,
+            false,
+            true,
+            Some(true),
+            true
+        ));
+        assert!(!should_hide_hotkey_on_focus_loss(
+            true,
+            false,
+            true,
+            Some(false),
+            true
+        ));
+        assert!(!should_hide_hotkey_on_focus_loss(
+            true, true, true, None, true
+        ));
+        assert!(!should_hide_hotkey_on_focus_loss(
+            true, false, false, None, true
+        ));
+        assert!(!should_hide_hotkey_on_focus_loss(
+            false, false, true, None, true
+        ));
+        let callback =
+            production_method(include_str!("window.rs"), "extern \"C\" fn did_resign_key(");
+        assert!(callback.contains("Connection::with_window_inner(this.window_id.get()"));
+        assert!(callback.contains("should_hide_hotkey_on_focus_loss("));
+        assert!(callback.contains("inner.hide_global_hotkey_window()"));
+        assert!(!callback.contains("orderOut:"));
+    }
+
+    #[test]
+    fn focus_regain_reverses_only_focus_loss_hiding_not_explicit_hotkey_hiding() {
+        let frame = NSRect::new(NSPoint::new(0., 600.), NSSize::new(1000., 300.));
+        let hide = HotkeySlide {
+            resting_frame: frame,
+            from: frame.origin,
+            to: NSPoint::new(0., 1000.),
+            started: Instant::now(),
+            duration: HOTKEY_SLIDE_DURATION,
+            showing: false,
+            hide_on_focus_loss: true,
+        };
+        let current = NSPoint::new(0., 750.);
+        assert!(hide.reverse_on_focus_gain(false, current).is_none());
+        let reverse = hide.reverse_on_focus_gain(true, current).unwrap();
+        assert!(reverse.showing);
+        assert!(!reverse.hide_on_focus_loss);
+        assert_eq!((reverse.from.x, reverse.from.y), (current.x, current.y));
+        assert_eq!(
+            (reverse.to.x, reverse.to.y),
+            (frame.origin.x, frame.origin.y)
+        );
+        assert!(nsrect_approx_eq(reverse.resting_frame, frame, 0.));
+        assert!(HotkeySlide {
+            hide_on_focus_loss: false,
+            ..hide
+        }
+        .reverse_on_focus_gain(true, current)
+        .is_none());
+        let source = include_str!("window.rs");
+        let step = production_method(source, "fn step_hotkey_slide(");
+        assert!(
+            step.find("reverse_on_focus_gain").unwrap()
+                < step.find("self.cancel_hotkey_slide()").unwrap()
+        );
+        let animate = production_method(source, "fn animate_hotkey_slide(");
+        assert!(animate.contains("hide_on_focus_loss: false"));
+        let resign = production_method(source, "extern \"C\" fn did_resign_key(");
+        assert!(resign.contains("slide.hide_on_focus_loss = true"));
+    }
+
+    #[test]
+    fn hotkey_panel_does_not_inherit_parked_simple_fullscreen_state() {
+        let source = include_str!("window.rs");
+        let fullscreen = production_method(source, "pub(crate) fn is_fullscreen(");
+        assert!(fullscreen.contains("self.ordinary_window.is_some()"));
+        let toggle = production_method(source, "fn toggle_fullscreen(&mut self)");
+        assert!(
+            toggle.find("self.show()").unwrap()
+                < toggle
+                    .find("if self.config.native_macos_fullscreen_mode")
+                    .unwrap()
+        );
+        for signature in [
+            "fn get_os_parameters(",
+            "fn update_application_presentation(",
+            "extern \"C\" fn did_resize(",
+        ] {
+            let method = production_method(source, signature);
+            assert!(method.contains("!hotkey_panel"), "{}", signature);
+        }
+        let resize = production_method(source, "extern \"C\" fn did_resize(");
+        assert!(resize.contains("&& !hotkey_panel\n"));
+    }
+
+    #[test]
+    fn hotkey_uses_panel_without_changing_ordinary_window_class() {
+        assert_eq!(
+            get_hotkey_window_class().superclass().unwrap().name(),
+            "NSPanel"
+        );
+        assert_eq!(get_window_class().superclass().unwrap().name(), "NSWindow");
+    }
+
+    #[test]
+    fn hotkey_slide_moves_above_each_screen_and_reaches_exact_endpoints() {
+        for screen in [
+            NSRect::new(NSPoint::new(0., 0.), NSSize::new(1728., 1117.)),
+            NSRect::new(NSPoint::new(-1920., 1117.), NSSize::new(1920., 1080.)),
+        ] {
+            let frame = NSRect::new(screen.origin, NSSize::new(800., 600.));
+            let point = |p: NSPoint| (p.x, p.y);
+            let offscreen = hotkey_offscreen_origin(frame, screen);
+            assert_eq!(offscreen.x, frame.origin.x);
+            assert_eq!(offscreen.y, screen.origin.y + screen.size.height);
+            let show = HotkeySlide {
+                resting_frame: frame,
+                from: offscreen,
+                to: frame.origin,
+                started: Instant::now(),
+                duration: HOTKEY_SLIDE_DURATION,
+                showing: true,
+                hide_on_focus_loss: false,
+            };
+            assert_eq!(point(show.origin_at(Duration::ZERO)), point(offscreen));
+            assert_eq!(
+                point(show.origin_at(HOTKEY_SLIDE_DURATION)),
+                point(frame.origin)
+            );
+            assert_eq!(
+                point(show.origin_at(Duration::from_secs(1))),
+                point(frame.origin)
+            );
+            let midway = show.origin_at(HOTKEY_SLIDE_DURATION / 2);
+            assert_eq!(midway.y, (offscreen.y + frame.origin.y) / 2.);
+            let hide = HotkeySlide {
+                from: midway,
+                to: offscreen,
+                showing: false,
+                ..show
+            };
+            // Reversal starts at the current position, not at either endpoint.
+            assert_eq!(point(hide.origin_at(Duration::ZERO)), point(midway));
+            assert_eq!(
+                point(hide.origin_at(HOTKEY_SLIDE_DURATION)),
+                point(offscreen)
+            );
+            assert!(nsrect_approx_eq(hide.resting_frame, frame, 0.));
+        }
+    }
+
+    #[test]
+    fn hotkey_toggle_reverses_an_inflight_hide_instead_of_hiding_again() {
+        assert!(hotkey_should_hide(Some(true), true, true));
+        assert!(!hotkey_should_hide(Some(false), true, true));
+        assert!(hotkey_should_hide(None, true, true));
+        assert!(!hotkey_should_hide(None, false, true));
+        assert!(!hotkey_should_hide(None, true, false));
+    }
+
+    #[test]
+    fn native_fullscreen_restores_hotkey_panel_before_appkit_toggle() {
+        assert!(use_appkit_fullscreen_toggle(true, false));
+        assert!(!use_appkit_fullscreen_toggle(true, true));
+        assert!(!use_appkit_fullscreen_toggle(false, false));
+        assert!(!use_appkit_fullscreen_toggle(false, true));
+    }
+
+    #[test]
+    fn missing_titlebar_buttons_are_allowed_for_fullscreen_hotkey_panels() {
+        set_titlebar_button_hidden(nil, YES);
+        set_titlebar_button_hidden(nil, NO);
+    }
+
+    #[test]
+    fn hotkey_behavior_does_not_conflict_with_primary_fullscreen() {
+        let initial =
+            appkit::NSWindowCollectionBehavior::NSWindowCollectionBehaviorFullScreenPrimary
+                | appkit::NSWindowCollectionBehavior::NSWindowCollectionBehaviorCanJoinAllSpaces;
+        let behavior = hotkey_collection_behavior(initial, 11);
+        assert!(!behavior.contains(
+            appkit::NSWindowCollectionBehavior::NSWindowCollectionBehaviorFullScreenPrimary
+        ));
+        assert!(!behavior.contains(
+            appkit::NSWindowCollectionBehavior::NSWindowCollectionBehaviorCanJoinAllSpaces
+        ));
+        assert!(behavior.contains(
+            appkit::NSWindowCollectionBehavior::NSWindowCollectionBehaviorFullScreenAuxiliary
+        ));
+        assert!(behavior.contains(
+            appkit::NSWindowCollectionBehavior::NSWindowCollectionBehaviorMoveToActiveSpace
+        ));
+    }
+
+    #[test]
+    fn simple_fullscreen_exit_only_corrects_invalid_display_topology() {
+        let source = include_str!("window.rs");
+        let toggle = production_method(source, "fn toggle_simple_fullscreen(&mut self)");
+        assert!(toggle.contains("frame_after_display_topology_change("));
+        assert!(toggle.contains("fullscreen_screens"));
+        assert!(toggle.contains("fullscreen_screens = screen_frames()"));
+        let refresh = production_method(source, "pub(crate) fn refresh_after_display_change(");
+        assert!(refresh.contains("frame_after_display_topology_change("));
+    }
+
+    #[test]
+    fn windowed_frame_fits_remaining_display_after_disconnect() {
+        let external = NSRect::new(NSPoint::new(-2560., 50.), NSSize::new(2400., 1400.));
+        let builtin = ScreenGeometry {
+            frame: NSRect::new(NSPoint::new(0., 0.), NSSize::new(1440., 900.)),
+            visible_frame: NSRect::new(NSPoint::new(0., 0.), NSSize::new(1440., 875.)),
+        };
+        let adjusted = frame_after_display_change(external, false, false, builtin);
+        assert!(nsrect_approx_eq(adjusted, builtin.visible_frame, 0.5));
+    }
+
+    #[test]
+    fn filled_window_expands_to_taller_remaining_display() {
+        // AppKit moved and centered the external screen's 1050pt-tall window,
+        // but it did not expand it to the built-in screen's 1084pt work area.
+        let migrated = NSRect::new(NSPoint::new(0., 17.), NSSize::new(1728., 1050.));
+        let builtin = ScreenGeometry {
+            frame: NSRect::new(NSPoint::new(0., 0.), NSSize::new(1728., 1117.)),
+            visible_frame: NSRect::new(NSPoint::new(0., 0.), NSSize::new(1728., 1084.)),
+        };
+        let adjusted = frame_after_display_change(migrated, false, true, builtin);
+        assert!(nsrect_approx_eq(adjusted, builtin.visible_frame, 0.5));
+        let ordinary = frame_after_display_change(migrated, false, false, builtin);
+        assert!(nsrect_approx_eq(ordinary, migrated, 0.5));
+    }
+
+    #[test]
     fn oversized_window_frame_is_fit_to_visible_frame() {
         let frame = NSRect::new(NSPoint::new(100.0, 100.0), NSSize::new(1920.0, 1080.0));
         let visible = NSRect::new(NSPoint::new(0.0, 0.0), NSSize::new(1440.0, 900.0));
@@ -4228,12 +7018,23 @@ mod tests {
 /// focus once the titlebar has been removed; the default behavior of
 /// NSWindow is to reject focus when it doesn't have a titlebar!
 fn get_window_class() -> &'static Class {
-    Class::get(WINDOW_CLS_NAME).unwrap_or_else(|| {
-        let mut cls = ClassDecl::new(WINDOW_CLS_NAME, class!(NSWindow))
-            .expect("Unable to register Window class");
+    register_window_class(WINDOW_CLS_NAME, class!(NSWindow), false)
+}
+
+fn get_hotkey_window_class() -> &'static Class {
+    register_window_class("KakuHotkeyPanel", class!(NSPanel), true)
+}
+
+fn register_window_class(name: &str, base: &'static Class, panel: bool) -> &'static Class {
+    Class::get(name).unwrap_or_else(|| {
+        let mut cls = ClassDecl::new(name, base).expect("Unable to register Window class");
 
         extern "C" fn yes(_: &mut Object, _: Sel) -> BOOL {
             YES
+        }
+
+        extern "C" fn no(_: &mut Object, _: Sel) -> BOOL {
+            NO
         }
 
         extern "C" fn redirect_toggle_fullscreen(this: &mut Object, _sel: Sel, sender: id) {
@@ -4244,7 +7045,7 @@ fn get_window_class() -> &'static Class {
                         let inner = window_view.inner.borrow();
                         (inner.window_id, inner.config.native_macos_fullscreen_mode)
                     };
-                    if use_native {
+                    if use_appkit_fullscreen_toggle(use_native, is_hotkey_panel(this as id)) {
                         unsafe {
                             let () =
                                 msg_send![super(this, class!(NSWindow)), toggleFullScreen: sender];
@@ -4287,7 +7088,7 @@ fn get_window_class() -> &'static Class {
             );
             cls.add_method(
                 sel!(canBecomeMainWindow),
-                yes as extern "C" fn(&mut Object, Sel) -> BOOL,
+                if panel { no } else { yes } as extern "C" fn(&mut Object, Sel) -> BOOL,
             );
             cls.add_method(
                 sel!(toggleFullScreen:),
@@ -4304,6 +7105,102 @@ fn get_window_class() -> &'static Class {
 }
 
 impl WindowView {
+    fn settle_windowed_screen_state(&self, window: id) {
+        if window.is_null() || self.is_closing.get() || is_hotkey_panel(window) {
+            return;
+        }
+        unsafe {
+            if let Some(screen) = screen_geometry_for_window(window) {
+                // Fullscreen can outlive a display change; rebase the frozen
+                // snapshot once its final ordinary frame has been restored.
+                self.windowed_screen.set(self.windowed_screen.get().settled(
+                    NSWindow::frame(window),
+                    screen_identifier_for_window(window),
+                    screen,
+                ));
+            }
+        }
+    }
+
+    fn refresh_windowed_screen_state(&self, window: id) {
+        if window.is_null()
+            || self.is_closing.get()
+            || is_hotkey_panel(window)
+            || self.simple_fullscreen_active.get()
+            || self.simple_fullscreen_transition_active.get()
+            || self.native_fullscreen_transition_active.get()
+            || self.hotkey_slide.get().is_some()
+        {
+            return;
+        }
+        unsafe {
+            if NSWindow::styleMask(window).contains(NSWindowStyleMask::NSFullScreenWindowMask) {
+                return;
+            }
+            if let Some(screen) = screen_geometry_for_window(window) {
+                let previous = self.windowed_screen.get();
+                self.windowed_screen.set(previous.after_frame_change(
+                    NSWindow::frame(window),
+                    screen_identifier_for_window(window),
+                    screen,
+                    previous.screen_id.and_then(screen_geometry_for_identifier),
+                ));
+            }
+        }
+    }
+
+    fn cancel_hotkey_slide(&self, window: id) {
+        if window.is_null() {
+            return;
+        }
+        if let Some(slide) = self.hotkey_slide.get() {
+            self.hotkey_slide_generation
+                .set(self.hotkey_slide_generation.get().wrapping_add(1));
+            unsafe {
+                let is_key: BOOL = msg_send![window, isKeyWindow];
+                if slide.should_hide_when_cancelled(is_key == YES) {
+                    let _: () = msg_send![window, orderOut: nil];
+                }
+                // Keep the guard set while settling, so callbacks cannot save
+                // a transient animation frame as the user's window geometry.
+                NSWindow::setFrame_display_(window, slide.resting_frame, NO);
+            }
+            self.hotkey_slide.set(None);
+        }
+    }
+
+    fn dispatch_pending_hotkey_visibility(&self) {
+        if self.pending_hotkey_visibility.get().is_none() {
+            return;
+        }
+        // Run after the delegate callback releases its borrows. Read the intent
+        // at execution time so rapid toggles or Dock reopening can supersede it.
+        Connection::with_window_inner(self.window_id.get(), |inner| {
+            let showing = WindowView::get_this(unsafe { &**inner.view }).and_then(|view| {
+                if view.is_closing.get() || view.native_fullscreen_transition_active.get() {
+                    None
+                } else {
+                    view.pending_hotkey_visibility.replace(None)
+                }
+            });
+            if let Some(showing) = showing {
+                log::debug!("applying deferred hotkey visibility={}", showing);
+                if !inner.dedicated_hotkey {
+                    if showing {
+                        inner.show_ordinary_global_hotkey_window();
+                    } else {
+                        inner.hide_ordinary_global_hotkey_window();
+                    }
+                } else if showing {
+                    inner.show_global_hotkey_window();
+                } else {
+                    inner.hide_global_hotkey_window();
+                }
+            }
+            Ok(())
+        });
+    }
+
     fn cancel_pending_perform_requests(view: *mut Object) {
         unsafe {
             let _: () = msg_send![
@@ -4631,6 +7528,12 @@ impl WindowView {
         YES
     }
 
+    extern "C" fn needs_panel_to_become_key(view: &mut Object, _sel: Sel) -> BOOL {
+        // Nonactivating panels consult the hit view, not just canBecomeKeyWindow.
+        let window: id = unsafe { msg_send![view, window] };
+        (!window.is_null() && is_hotkey_panel(window)) as BOOL
+    }
+
     extern "C" fn view_did_change_effective_appearance(this: &mut Object, _sel: Sel) {
         if let Some(this) = Self::get_this(this) {
             if let Some(conn) = Connection::get() {
@@ -4699,7 +7602,11 @@ impl WindowView {
 
         {
             let inner = self.inner.borrow();
-            is_simple_full_screen = inner.fullscreen.is_some();
+            let hotkey_panel = inner.window.as_ref().is_some_and(|window| {
+                let window = window.load();
+                is_hotkey_panel(*window)
+            });
+            is_simple_full_screen = !hotkey_panel && inner.fullscreen.is_some();
             native_full_screen = inner.window.as_ref().map_or(false, |window| {
                 let window = window.load();
                 let style_mask = unsafe { NSWindow::styleMask(*window) };
@@ -4739,6 +7646,34 @@ impl WindowView {
         if let Some(this) = Self::get_this(this) {
             this.dispatch_event(WindowEvent::FocusChanged(false));
             this.update_application_presentation(true);
+            // Recheck on the next turn: a hotkey or Dock reopen may supersede
+            // this focus loss before the callback releases its native borrows.
+            Connection::with_window_inner(this.window_id.get(), |inner| {
+                let showing = WindowView::get_this(unsafe { &**inner.view }).and_then(|view| {
+                    view.pending_hotkey_visibility
+                        .get()
+                        .or_else(|| view.hotkey_slide.get().map(|slide| slide.showing))
+                });
+                if should_hide_hotkey_on_focus_loss(
+                    inner.ordinary_window.is_some(),
+                    inner.is_key_window(),
+                    inner.is_visible(),
+                    showing,
+                    inner.config.macos_global_hotkey_hide_on_focus_loss,
+                ) {
+                    log::debug!("global hotkey panel lost keyboard focus; sliding out");
+                    inner.hide_global_hotkey_window();
+                    if let Some(view) = WindowView::get_this(unsafe { &**inner.view }) {
+                        if let Some(mut slide) =
+                            view.hotkey_slide.get().filter(|slide| !slide.showing)
+                        {
+                            slide.hide_on_focus_loss = true;
+                            view.hotkey_slide.set(Some(slide));
+                        }
+                    }
+                }
+                Ok(())
+            });
         }
     }
 
@@ -4767,14 +7702,12 @@ impl WindowView {
 
     // Tell macOS the view is opaque when window_background_opacity is 1.0
     // so the compositor can skip blending it with content behind it.
-    // Reads from a cached AtomicBool (updated on config change) to avoid
-    // acquiring the config Mutex on every compositor call (60-120Hz).
-    extern "C" fn is_opaque(_this: &Object, _sel: Sel) -> BOOL {
-        if VIEW_IS_OPAQUE.load(Ordering::Relaxed) {
-            YES
-        } else {
-            NO
-        }
+    // Reads the per-view cache to avoid borrowing Inner or acquiring the
+    // config Mutex on every compositor call (60-120Hz).
+    extern "C" fn is_opaque(this: &Object, _sel: Sel) -> BOOL {
+        Self::get_this(this)
+            .map(|this| this.opaque.get())
+            .unwrap_or(NO)
     }
 
     extern "C" fn mouse_down_can_move_window(_this: &Object, _sel: Sel) -> BOOL {
@@ -4850,6 +7783,9 @@ impl WindowView {
         // dispatching events into an already-destroyed TermWindow.
         if let Some(view) = Self::get_this(this) {
             view.is_closing.set(true);
+            OS_PARAMETER_VIEWS.with(|views| {
+                views.borrow_mut().remove(&view.window_id.get());
+            });
         }
         Self::cancel_pending_perform_requests(this as *mut Object);
         Self::detach_backing_layer(this);
@@ -4891,6 +7827,10 @@ impl WindowView {
 
     extern "C" fn did_move(this: &mut Object, _sel: Sel, _notification: id) {
         unsafe {
+            let window: id = msg_send![this as id, window];
+            if let Some(view) = Self::get_this(this) {
+                view.refresh_windowed_screen_state(window);
+            }
             let _: () = msg_send![
                 class!(NSObject),
                 cancelPreviousPerformRequestsWithTarget: this as *mut Object
@@ -4984,10 +7924,11 @@ impl WindowView {
 
     extern "C" fn mouse_down(this: &mut Object, _sel: Sel, nsevent: id) {
         // Check if we're in fullscreen mode - if so, disable dragging
+        let window: id = unsafe { msg_send![this as id, window] };
         let in_fullscreen = if let Some(view) = Self::get_this(this) {
-            let simple_fullscreen = view.inner.borrow().fullscreen.is_some();
+            let simple_fullscreen =
+                !is_hotkey_panel(window) && view.inner.borrow().fullscreen.is_some();
             let native_fullscreen = unsafe {
-                let window: id = msg_send![this as id, window];
                 window != nil
                     && NSWindow::styleMask(window)
                         .contains(NSWindowStyleMask::NSFullScreenWindowMask)
@@ -5017,6 +7958,9 @@ impl WindowView {
             unsafe {
                 let window: id = msg_send![this as id, window];
                 if window != nil {
+                    if let Some(view) = Self::get_this(this) {
+                        view.cancel_hotkey_slide(window);
+                    }
                     let is_zoomed: bool = msg_send![window, isZoomed];
                     let fills_visible_frame = window_fills_visible_frame(window);
                     match requested_window_drag_action(
@@ -5667,14 +8611,28 @@ impl WindowView {
             if let Ok(mut inner) = this.inner.try_borrow_mut() {
                 inner.screen_changed = true;
             }
+            // Same-DPI moves may not cause windowDidResize. Refresh after the
+            // delegate releases its borrows, without moving the native window.
+            Connection::with_window_inner(this.window_id.get(), |inner| {
+                if let Some(view) = Self::get_this(unsafe { &**inner.view }) {
+                    if view.is_closing.get() {
+                        return Ok(());
+                    }
+                    view.inner.borrow_mut().screen_changed = true;
+                }
+                inner.dispatch_resize_event();
+                Ok(())
+            });
         }
     }
 
     extern "C" fn will_start_live_resize(this: &mut Object, _sel: Sel, _notification: id) {
+        let window: id = unsafe { msg_send![this as id, window] };
         if let Some(this) = Self::get_this(this) {
             if this.is_closing.get() {
                 return;
             }
+            this.cancel_hotkey_slide(window);
             if let Ok(mut inner) = this.inner.try_borrow_mut() {
                 inner.live_resizing = true;
             }
@@ -5760,6 +8718,7 @@ impl WindowView {
                     events.dispatch(WindowEvent::NeedRepaint);
                 }
             }
+            this.dispatch_pending_hotkey_visibility();
         }
     }
 
@@ -5794,6 +8753,7 @@ impl WindowView {
     }
 
     extern "C" fn did_exit_fullscreen(this: &mut Object, _sel: Sel, _notification: id) {
+        let window: id = unsafe { msg_send![this, window] };
         if let Some(this) = Self::get_this(this) {
             if this.is_closing.get() {
                 return;
@@ -5801,6 +8761,7 @@ impl WindowView {
             this.native_fullscreen_transition_active.set(false);
             this.native_fullscreen_target.set(None);
             this.transition_hide_until.set(None);
+            this.settle_windowed_screen_state(window);
             // Transition is complete: mark as non-live so the landing resize
             // calls tab.resize() (not resize_visual) and properly commits the
             // terminal buffer to the final windowed dimensions.
@@ -5855,6 +8816,7 @@ impl WindowView {
                     );
                 }
             }
+            this.dispatch_pending_hotkey_visibility();
         }
     }
 
@@ -5922,19 +8884,34 @@ impl WindowView {
             // higher up the callstack already has a mutable
             // reference and we'd panic.
             let native_transition_active = this.native_fullscreen_transition_active.get();
-            let is_full_screen = if native_transition_active {
-                this.native_fullscreen_target.get().unwrap_or(false)
-            } else {
-                inner.fullscreen.is_some()
-                    || inner.window.as_ref().map_or(false, |window| {
-                        let window = window.load();
-                        let style_mask = unsafe { NSWindow::styleMask(*window) };
-                        style_mask.contains(NSWindowStyleMask::NSFullScreenWindowMask)
-                    })
-            };
+            let hotkey_panel = inner.window.as_ref().is_some_and(|window| {
+                let window = window.load();
+                is_hotkey_panel(*window)
+            });
+            let is_full_screen = !hotkey_panel
+                && if native_transition_active {
+                    this.native_fullscreen_target.get().unwrap_or(false)
+                } else {
+                    inner.fullscreen.is_some()
+                        || inner.window.as_ref().map_or(false, |window| {
+                            let window = window.load();
+                            let style_mask = unsafe { NSWindow::styleMask(*window) };
+                            style_mask.contains(NSWindowStyleMask::NSFullScreenWindowMask)
+                        })
+                };
 
             let live_resizing = inner.live_resizing;
             let screen_changed = std::mem::take(&mut inner.screen_changed);
+
+            if !is_full_screen
+                && !hotkey_panel
+                && !native_transition_active
+                && this.hotkey_slide.get().is_none()
+            {
+                if let Some(window) = inner.window.as_ref().map(|w| w.load()) {
+                    this.refresh_windowed_screen_state(*window);
+                }
+            }
 
             // Note: isZoomed can falsely return YES during screen changes.
             // When screen_changed is true, carry forward the prior MAXIMIZED
@@ -5944,24 +8921,26 @@ impl WindowView {
             // permanently after moving to another screen.
             // <https://github.com/wezterm/wezterm/issues/3503>
             // <https://github.com/tw93/Kaku/issues/131>
-            let is_zoomed = if screen_changed {
-                inner
-                    .last_reported_window_state
-                    .contains(WindowState::MAXIMIZED)
-            } else {
-                !is_full_screen
-                    && inner.window.as_ref().map_or(false, |window| {
-                        let window = window.load();
-                        unsafe { msg_send![*window, isZoomed] }
-                    })
-            };
+            let is_zoomed = !hotkey_panel
+                && !this.windowed_screen.get().max_invalidated_by_move
+                && if screen_changed {
+                    inner
+                        .last_reported_window_state
+                        .contains(WindowState::MAXIMIZED)
+                } else {
+                    !is_full_screen
+                        && inner.window.as_ref().map_or(false, |window| {
+                            let window = window.load();
+                            unsafe { msg_send![*window, isZoomed] }
+                        })
+                };
 
             let window_level = inner
                 .window
                 .as_ref()
                 .map(|window| {
                     let level = unsafe { window.load().level() };
-                    nswindow_level_to_window_level(level)
+                    nswindow_level_to_window_level(level, hotkey_panel)
                 })
                 .unwrap_or_default();
 
@@ -6019,7 +8998,10 @@ impl WindowView {
             };
             inner.last_reported_dpi = Some(dpi);
 
-            let window_state = screen_state | level_state;
+            let mut window_state = screen_state | level_state;
+            if hotkey_panel {
+                window_state |= WindowState::HOTKEY_WINDOW;
+            }
             let prior_window_state = inner.last_reported_window_state;
             let events = inner.events.clone();
             let mut pending_events = Vec::new();
@@ -6056,30 +9038,45 @@ impl WindowView {
             };
 
             if !suppress_intermediate_resize {
-                if screen_changed {
+                if screen_changed || this.deferred_screen_resize.is_pending() {
                     // Defer the resize dispatch to the next run-loop turn when the resize
                     // was triggered by a display reconfiguration (lock-screen return,
                     // monitor connect/disconnect). Dispatching synchronously here means
                     // we are still inside _NSCGSDisplayConfigurationDidReconfigureNotificationHandler
                     // -> _setFrameCommon -> postNotification, and re-entering AppKit or
                     // doing heavy render work in that context causes a main-thread hang.
-                    let dimensions = Dimensions {
-                        pixel_width: width as usize,
-                        pixel_height: height as usize,
-                        dpi,
+                    // Recovery can resize again before that turn. Keep the latest
+                    // snapshot, including the screen-change reason, until dispatch.
+                    let resize = ScreenResize {
+                        dimensions: Dimensions {
+                            pixel_width: width as usize,
+                            pixel_height: height as usize,
+                            dpi,
+                        },
+                        window_state,
+                        live_resizing,
                     };
-                    let window_id = inner.window_id;
-                    Connection::with_window_inner(window_id, move |inner| {
-                        if let Some(window_view) = WindowView::get_this(unsafe { &**inner.view }) {
-                            window_view.dispatch_event(WindowEvent::Resized {
-                                dimensions,
-                                window_state,
-                                live_resizing,
-                                screen_changed: true,
-                            });
-                        }
-                        Ok(())
-                    });
+                    if this.deferred_screen_resize.update(resize) {
+                        let window_id = inner.window_id;
+                        Connection::with_window_inner(window_id, move |inner| {
+                            if let Some(window_view) =
+                                WindowView::get_this(unsafe { &**inner.view })
+                            {
+                                if window_view.is_closing.get() {
+                                    return Ok(());
+                                }
+                                if let Some(resize) = window_view.deferred_screen_resize.take() {
+                                    window_view.dispatch_event(WindowEvent::Resized {
+                                        dimensions: resize.dimensions,
+                                        window_state: resize.window_state,
+                                        live_resizing: resize.live_resizing,
+                                        screen_changed: true,
+                                    });
+                                }
+                            }
+                            Ok(())
+                        });
+                    }
                 } else {
                     pending_events.push(WindowEvent::Resized {
                         dimensions: Dimensions {
@@ -6092,6 +9089,11 @@ impl WindowView {
                         screen_changed,
                     });
                 }
+            } else {
+                // A fullscreen transition may suppress this snapshot, but the
+                // next accepted resize must still refresh display-dependent layout.
+                let pending = this.deferred_screen_resize.take();
+                inner.screen_changed |= screen_changed || pending.is_some();
             }
 
             if simple_transition_active {
@@ -6120,11 +9122,14 @@ impl WindowView {
     /// the window to not fill the screen completely.
     /// <https://github.com/tw93/Kaku/issues/131>
     extern "C" fn window_will_use_standard_frame(
-        _this: &mut Object,
+        this: &mut Object,
         _sel: Sel,
         window: id,
         default_frame: NSRect,
     ) -> NSRect {
+        if let Some(view) = Self::get_this(this) {
+            view.cancel_hotkey_slide(window);
+        }
         unsafe {
             let screen: id = msg_send![window, screen];
             if screen.is_null() {
@@ -6181,9 +9186,13 @@ impl WindowView {
                 (
                     inner.config.front_end == config::FrontEndSelection::WebGpu,
                     inner
-                        .config
-                        .window_decorations
-                        .contains(WindowDecorations::MACOS_FORCE_SQUARE_CORNERS),
+                        .window
+                        .as_ref()
+                        .is_some_and(|window| is_hotkey_panel(*window.load()))
+                        || inner
+                            .config
+                            .window_decorations
+                            .contains(WindowDecorations::MACOS_FORCE_SQUARE_CORNERS),
                 )
             })
             .unwrap_or((false, false));
@@ -6343,7 +9352,14 @@ impl WindowView {
 
         let view = Box::into_raw(Box::new(Self {
             inner: Rc::clone(&inner),
+            opaque: Cell::new(gl_layer_is_opaque(
+                inner.borrow().config.window_background_opacity,
+            )),
             window_id: Cell::new(inner.borrow().window_id),
+            windowed_screen: Cell::new(WindowedScreenState::default()),
+            hotkey_slide: Cell::new(None),
+            hotkey_slide_generation: Cell::new(0),
+            pending_hotkey_visibility: Cell::new(None),
             simple_fullscreen_active: Cell::new(false),
             simple_fullscreen_transition_active: Cell::new(false),
             transition_hide_until: Cell::new(None),
@@ -6352,6 +9368,7 @@ impl WindowView {
             native_fullscreen_target: Cell::new(None),
             native_fullscreen_transition_start: Cell::new(None),
             resize_retry_scheduled: Cell::new(false),
+            deferred_screen_resize: DeferredScreenResize::default(),
             is_closing: Cell::new(false),
             order_out_on_fullscreen_exit: Cell::new(false),
         }));
@@ -6584,6 +9601,11 @@ impl WindowView {
             cls.add_method(
                 sel!(acceptsFirstResponder),
                 Self::accepts_first_responder as extern "C" fn(&mut Object, Sel) -> BOOL,
+            );
+
+            cls.add_method(
+                sel!(needsPanelToBecomeKey),
+                Self::needs_panel_to_become_key as extern "C" fn(&mut Object, Sel) -> BOOL,
             );
 
             cls.add_method(

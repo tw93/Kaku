@@ -352,7 +352,7 @@ impl crate::TermWindow {
                         0.0
                     } else if super::borders::integrated_buttons_top_inset(
                         &self.config,
-                        self.layout_is_effective_fullscreen(),
+                        self.effective_layout_window_state(),
                         self.show_tab_bar && !self.config.tab_bar_at_bottom,
                         self.dimensions.dpi as f32,
                     ) > 0

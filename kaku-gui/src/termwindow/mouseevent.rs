@@ -676,11 +676,18 @@ impl super::TermWindow {
 
         let border = self.get_os_border();
 
-        let first_line_offset = if self.show_tab_bar && !self.config.tab_bar_at_bottom {
+        let top_tab_bar_visible = self.show_tab_bar && !self.config.tab_bar_at_bottom;
+        let top_bar_height = if top_tab_bar_visible {
             self.tab_bar_pixel_height().unwrap_or(0.) as isize
         } else {
-            border.top.get() as isize
+            0
         };
+        let first_line_offset = top_bar_height
+            + super::render::borders::content_border_top(
+                self.window_state,
+                top_tab_bar_visible,
+                border.top.get(),
+            ) as isize;
 
         let (padding_left, padding_top) = self.padding_left_top();
         let terminal_origin_y = first_line_offset + padding_top as isize;

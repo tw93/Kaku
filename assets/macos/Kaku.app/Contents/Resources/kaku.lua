@@ -305,6 +305,10 @@ end
 local function update_window_config(window, is_full_screen, _pane)
   local now = monotonic_now()
   local dims = window:get_dimensions()
+  -- Drawer settings and explicit per-window overrides are resolved in Rust.
+  if dims.is_hotkey_window then
+    return
+  end
   local current_hash = dims_hash(dims)
   local state = resize_state_by_window[window]
   if not state then
@@ -3976,6 +3980,12 @@ end
 
 -- Dynamically switch font weight when theme changes
 wezterm.on('window-config-reloaded', function(window, pane)
+  local dims = window:get_dimensions()
+  -- The drawer inherits font/frame unless explicitly overridden in its typed layer.
+  -- Do not introduce managed runtime overrides that survive a Lua VM reload.
+  if dims.is_hotkey_window then
+    return
+  end
   local overrides = window:get_config_overrides() or {}
   local scheme = resolve_kaku_color_scheme(overrides.color_scheme or config.color_scheme)
   local is_light = scheme == 'Kaku Light'
@@ -4022,7 +4032,6 @@ wezterm.on('window-config-reloaded', function(window, pane)
     window:set_config_overrides(overrides)
   end
 
-  local dims = window:get_dimensions()
   update_window_config(window, dims.is_full_screen, pane)
 end)
 
@@ -4426,6 +4435,16 @@ config.send_composed_key_when_left_alt_is_pressed = false
 -- Keep Right Option available for composing locale/symbol characters.
 config.send_composed_key_when_right_alt_is_pressed = true
 config.native_macos_fullscreen_mode = true
+-- Opt in to revealing the global hotkey window on the mouse's display.
+config.macos_global_hotkey_follow_mouse = false
+-- Omitted drawer appearance and padding inherit the ordinary base config.
+-- config.macos_global_hotkey_appearance = { window_background_opacity = 0.85 }
+-- config.macos_global_hotkey_padding = { left = '16px', right = '16px', top = '8px', bottom = '8px' }
+config.macos_global_hotkey_mode = 'Drawer'
+config.macos_global_hotkey_height_percent = 100 / 3
+config.macos_global_hotkey_animation_duration_ms = 200
+config.macos_global_hotkey_hide_on_focus_loss = true
+-- config.macos_global_hotkey_extend_behind_notch = false
 config.quit_when_all_windows_are_closed = false
 
 -- ===== Key Bindings =====

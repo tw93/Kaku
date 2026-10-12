@@ -93,6 +93,22 @@ pub mod spawn;
 pub mod tab_rename;
 pub mod webgpu;
 
+fn window_configuration(window_state: WindowState, overrides: &Value) -> ConfigHandle {
+    let result = if window_state.contains(WindowState::HOTKEY_WINDOW) {
+        config::hotkey_config(overrides)
+    } else if matches!(overrides, Value::Null)
+        || matches!(overrides, Value::Object(obj) if obj.is_empty())
+    {
+        return configuration();
+    } else {
+        config::overridden_config(overrides)
+    };
+    result.unwrap_or_else(|err| {
+        log::error!("Failed to resolve window configuration: {:#}", err);
+        configuration()
+    })
+}
+
 fn scrollback_erase_mode_for_pane(
     requested: ScrollbackEraseMode,
     alternate_screen_active: bool,
@@ -1169,6 +1185,10 @@ impl TermWindow {
     }
 
     fn close_requested(&mut self, _window: &Window) {
+        if front_end().is_hotkey_window(self.mux_window_id) {
+            _window.order_out();
+            return;
+        }
         // AppKit sends `windowShouldClose:` to every NSWindow during Cmd+Q as
         // well as for plain Cmd+W. `on_app_terminating` sets the global flag
         // before those quit-time `windowShouldClose:` calls fan out, so this
@@ -1255,6 +1275,7 @@ impl TermWindow {
             // otherwise the exit-time session save skips it forever and the stale
             // last_session.json resurrects tabs the user already closed.
             crate::session_restore::forget_logically_closed(self.mux_window_id);
+            front_end().record_window_focus(self.mux_window_id);
         }
         if !self.config.tab_bar_at_bottom && self.layout_is_effective_fullscreen() {
             self.arm_layout_sticky_fullscreen();
@@ -1500,18 +1521,37 @@ impl TermWindow {
 
     pub async fn new_window(mux_window_id: MuxWindowId) -> anyhow::Result<()> {
         crate::startup_trace::mark("TermWindow::new_window ENTER");
-        let config = configuration();
+        #[cfg(target_os = "macos")]
+        let initial_window_state = if front_end().is_hotkey_window(mux_window_id) {
+            WindowState::HOTKEY_WINDOW
+        } else {
+            WindowState::empty()
+        };
+        #[cfg(not(target_os = "macos"))]
+        let initial_window_state = WindowState::empty();
+        let config = window_configuration(initial_window_state, &Value::default());
         let dpi = config.dpi.unwrap_or_else(|| ::window::default_dpi()) as usize;
         crate::startup_trace::mark("  FontConfiguration#2 start");
         let fontconfig = Rc::new(FontConfiguration::new(Some(config.clone()), dpi)?);
         crate::startup_trace::mark("  FontConfiguration#2 done");
-        let persisted_font_scale = resize::load_persisted_font_scale(&config);
+        let persisted_font_scale = resize::load_persisted_font_scale(&config, initial_window_state);
         if let Some(font_scale) = persisted_font_scale {
             fontconfig.change_scaling(font_scale, dpi);
         }
 
         let mux = Mux::get();
         crate::startup_trace::mark("    mux.get_active_tab_for_window start");
+        {
+            let term_config: Arc<dyn TerminalConfiguration> =
+                Arc::new(TermConfig::with_config(config.clone()));
+            if let Some(window) = mux.get_window(mux_window_id) {
+                for tab in window.iter() {
+                    for pane in tab.iter_panes_ignoring_zoom() {
+                        pane.pane.set_config(Arc::clone(&term_config));
+                    }
+                }
+            }
+        }
         let size = match mux.get_active_tab_for_window(mux_window_id) {
             Some(tab) => tab.get_size(),
             None => {
@@ -1578,8 +1618,11 @@ impl TermWindow {
             pixel_max: terminal_size.pixel_width as f32,
             pixel_cell: render_metrics.cell_size.width as f32,
         };
-        let padding_left = config.window_padding.left.evaluate_as_pixels(h_context) as usize;
-        let padding_right = resize::effective_right_padding(&config, h_context) as usize;
+        let padding_left = resize::effective_window_padding(&config, initial_window_state)
+            .left
+            .evaluate_as_pixels(h_context) as usize;
+        let padding_right =
+            resize::effective_right_padding(&config, h_context, initial_window_state) as usize;
         let v_context = DimensionContext {
             dpi: dpi as f32,
             pixel_max: terminal_size.pixel_height as f32,
@@ -1591,7 +1634,7 @@ impl TermWindow {
             show_tab_bar,
             config.tab_bar_at_bottom,
             tab_bar_height,
-            false,
+            initial_window_state,
         );
 
         let mut dimensions = Dimensions {
@@ -1608,7 +1651,7 @@ impl TermWindow {
         // Mirror get_os_border() for non-fullscreen startup windows.
         let integrated_top_inset = crate::termwindow::render::borders::integrated_buttons_top_inset(
             &config,
-            false,
+            initial_window_state,
             show_tab_bar && !config.tab_bar_at_bottom,
             dpi as f32,
         );
@@ -1669,7 +1712,7 @@ impl TermWindow {
             fonts: Rc::clone(&fontconfig),
             render_metrics,
             dimensions,
-            window_state: WindowState::default(),
+            window_state: initial_window_state,
             resize_state: ResizeLifecycleState::default(),
             terminal_size,
             render_state,
@@ -1838,6 +1881,13 @@ impl TermWindow {
         // NSWindow's NSAppearance to the resolved theme at window-creation time
         // (see apply_window_appearance in window/src/os/macos/window.rs).
         crate::startup_trace::mark("  window.show() start");
+        #[cfg(target_os = "macos")]
+        if let Some(visible) = front_end().hotkey_window_initial_visibility(mux_window_id) {
+            window.initialize_hotkey_window(visible)?;
+        } else {
+            window.show();
+        }
+        #[cfg(not(target_os = "macos"))]
         window.show();
         crate::startup_trace::mark("  window.show() done");
 
@@ -2505,13 +2555,17 @@ impl TermWindow {
                     self.update_title();
                     window.invalidate();
                 }
-                MuxNotification::TabAddedToWindow {
-                    window_id: _,
-                    tab_id,
-                } => {
+                MuxNotification::TabAddedToWindow { window_id, tab_id } => {
+                    if window_id != self.mux_window_id {
+                        return Ok(());
+                    }
                     let mux = Mux::get();
                     let mut size = self.terminal_size;
                     if let Some(tab) = mux.get_tab(tab_id) {
+                        if front_end().is_hotkey_window(self.mux_window_id) {
+                            tab.resize(self.terminal_size);
+                            return Ok(());
+                        }
                         // If we attached to a remote domain and loaded in
                         // a tab async, we need to fixup its size, either
                         // by resizing it or resizes ourselves.
@@ -3056,13 +3110,17 @@ impl TermWindow {
             &self.config,
             DimensionContext {
                 dpi: self.dimensions.dpi as f32,
-                pixel_max: self.terminal_size.pixel_height as f32,
+                pixel_max: resize::padding_pixel_max(
+                    self.window_state,
+                    self.dimensions.pixel_height,
+                    self.terminal_size.pixel_height,
+                ),
                 pixel_cell: self.render_metrics.cell_size.height as f32,
             },
             self.show_tab_bar,
             self.config.tab_bar_at_bottom,
             tab_bar_height,
-            self.layout_uses_edge_to_edge_padding(),
+            self.window_state,
         )
     }
 
@@ -3103,7 +3161,7 @@ impl TermWindow {
     fn palette(&mut self) -> &ColorPalette {
         if self.palette.is_none() {
             self.palette
-                .replace(config::TermConfig::new().color_palette());
+                .replace(TermConfig::with_config(self.config.clone()).color_palette());
         }
         self.palette.as_ref().unwrap()
     }
@@ -3143,23 +3201,9 @@ impl TermWindow {
             },
             |conn| conn.name(),
         );
-        let config = if matches!(&self.config_overrides, Value::Null)
-            || matches!(&self.config_overrides, Value::Object(obj) if obj.is_empty())
-        {
-            configuration()
-        } else {
-            match config::overridden_config(&self.config_overrides) {
-                Ok(config) => config,
-                Err(err) => {
-                    log::error!(
-                        "Failed to apply config overrides to window: {:#}: {:?}",
-                        err,
-                        self.config_overrides
-                    );
-                    configuration()
-                }
-            }
-        };
+        let config = window_configuration(self.window_state, &self.config_overrides);
+        let reset_hotkey_font_scale = self.window_state.contains(WindowState::HOTKEY_WINDOW)
+            && self.config.font_size != config.font_size;
         self.config = config.clone();
         self.palette.take();
         let chat_colors = ai_chat::chat_palette(self.palette());
@@ -3218,6 +3262,9 @@ impl TermWindow {
 
         if let Err(err) = self.fonts.config_changed(&config) {
             log::error!("Failed to load font configuration: {:#}", err);
+        }
+        if reset_hotkey_font_scale {
+            self.fonts.change_scaling(1.0, self.dimensions.dpi as usize);
         }
 
         // Recreate texture atlas to ensure subpixel AA and font rendering changes
@@ -5083,7 +5130,7 @@ impl TermWindow {
                 let switcher = crate::frontend::WorkspaceSwitcher::new(&name);
                 mux.set_active_workspace(&name);
 
-                if mux.iter_windows_in_workspace(&name).is_empty() {
+                if !front_end().workspace_has_ordinary_windows(&name) {
                     let spawn = spawn.as_ref().map(|s| s.clone()).unwrap_or_default();
                     let size = self.terminal_size;
                     let term_config = Arc::new(TermConfig::with_config(self.config.clone()));
@@ -6476,6 +6523,107 @@ mod tests {
     use mux::pane::PaneId;
     use std::path::PathBuf;
     use wezterm_term::{Progress, StableRowIndex};
+
+    #[test]
+    fn hotkey_config_is_resolved_for_creation_and_reload() {
+        let source = include_str!("mod.rs").split("#[cfg(test)]").next().unwrap();
+        let creation = source.split("pub async fn new_window(").nth(1).unwrap();
+        let creation = creation.split("let dpi =").next().unwrap();
+        assert!(creation.contains("window_configuration(initial_window_state"));
+        let initialization = source.split("let mux = Mux::get();\n        crate::startup_trace::mark(\"    mux.get_active_tab_for_window start\");").nth(1).unwrap();
+        let initialization = initialization.split("let size =").next().unwrap();
+        assert!(
+            !initialization.contains("initial_window_state.contains(WindowState::HOTKEY_WINDOW)")
+        );
+        assert!(initialization.contains("TermConfig::with_config(config.clone())"));
+        assert!(initialization.contains("pane.pane.set_config(Arc::clone(&term_config))"));
+        let reload = source.split("fn config_was_reloaded_impl(").nth(1).unwrap();
+        let reload = reload
+            .split("self.config = config.clone();")
+            .next()
+            .unwrap();
+        assert!(reload.contains("window_configuration(self.window_state"));
+    }
+
+    #[test]
+    fn window_palette_uses_the_windows_effective_config() {
+        let source = include_str!("mod.rs").split("#[cfg(test)]").next().unwrap();
+        let palette = source.split("fn palette(&mut self)").nth(1).unwrap();
+        let palette = palette.split("pub fn config_was_reloaded").next().unwrap();
+        assert!(palette.contains("TermConfig::with_config(self.config.clone())"));
+        assert!(!palette.contains("TermConfig::new()"));
+    }
+
+    #[test]
+    fn bundled_hooks_preserve_hotkey_layers_and_follow_the_effective_theme() -> anyhow::Result<()> {
+        let source = include_str!("../../../assets/macos/Kaku.app/Contents/Resources/kaku.lua");
+        let update = source
+            .split("local function update_window_config(")
+            .nth(1)
+            .unwrap();
+        let update = update
+            .split("local function extract_path_from_cwd(")
+            .next()
+            .unwrap();
+        let hook = source
+            .split("wezterm.on('window-config-reloaded',")
+            .nth(1)
+            .unwrap();
+        let hook = hook
+            .split("config.bold_brightens_ansi_colors")
+            .next()
+            .unwrap();
+        let lua = mlua::Lua::new();
+        lua.load(format!(
+            r#"
+local config = {{color_scheme = 'Kaku Dark'}}
+local callback
+local wezterm = {{on = function(_, fn) callback = fn end}}
+local window_font_theme, window_has_managed_font_override = {{}}, {{}}
+local window_has_managed_window_frame_override = {{}}
+local user_has_custom_font, user_has_custom_font_rules, user_has_custom_window_frame = false, false, false
+local monotonic_now = function() return 1 end
+local resize_state_by_window = {{}}
+local resolve_kaku_color_scheme = function(scheme) return scheme end
+local sync_claude_code_theme = function() error('drawer must not rewrite shared CLI theme') end
+local build_font_config = function(light)
+  assert(light, 'managed fonts must follow the effective drawer theme')
+  return 'light-font', {{'light-rule'}}
+end
+local build_managed_window_frame = function(scheme)
+  assert(scheme == 'Kaku Light')
+  return {{marker = 'light-frame'}}
+end
+local window_frame_matches_theme = function() return false end
+local function update_window_config({update}
+wezterm.on('window-config-reloaded',{hook}
+local overrides = {{window_padding = {{top = 0}}, hide_tab_bar_if_only_one_tab = false}}
+local appearance = {{font = 'custom-font', window_frame = {{marker = 'custom-frame'}}}}
+local writes = 0
+local window = {{
+  get_config_overrides = function() return overrides end,
+  get_dimensions = function() return {{is_hotkey_window = true}} end,
+  effective_config = function()
+    return {{color_scheme = 'Kaku Light', macos_global_hotkey_appearance = appearance}}
+  end,
+  set_config_overrides = function(_, value) overrides = value; writes = writes + 1 end,
+}}
+callback(window)
+assert(writes == 0, 'explicit drawer font and frame must not acquire managed overrides')
+assert(overrides.window_padding.top == 0 and overrides.hide_tab_bar_if_only_one_tab == false)
+appearance = {{}}
+callback(window)
+assert(writes == 0, 'a drawer-only theme must inherit the ordinary font and frame, not create managed overrides')
+assert(overrides.font == nil and overrides.window_frame == nil)
+assert(overrides.window_padding.top == 0 and overrides.hide_tab_bar_if_only_one_tab == false)
+appearance = {{font_rules = {{}}, window_frame = {{marker = 'custom-frame'}}}}
+callback(window)
+assert(overrides.font == nil and overrides.font_rules == nil and overrides.window_frame == nil)
+assert(overrides.window_padding.top == 0 and overrides.hide_tab_bar_if_only_one_tab == false)
+"#
+        )).exec()?;
+        Ok(())
+    }
 
     #[test]
     fn fancy_tab_bar_reads_resolved_theme_colors() {

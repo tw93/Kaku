@@ -125,16 +125,26 @@ pub(crate) struct ResizeLifecycleState {
     pub deferred_layout_relayout_epoch: usize,
 }
 
+fn resize_needs_layout_refresh(
+    dimensions_unchanged: bool,
+    window_state_unchanged: bool,
+    screen_changed: bool,
+) -> bool {
+    // Equal geometry can belong to a different screen with a different safe area.
+    screen_changed || !dimensions_unchanged || !window_state_unchanged
+}
+
 fn should_normalize_fullscreen_state_on_resize(
     tab_bar_at_bottom: bool,
     was_fullscreen: bool,
-    incoming_fullscreen: bool,
+    incoming_state: WindowState,
     is_focused: bool,
     dimensions_unchanged: bool,
 ) -> bool {
     !tab_bar_at_bottom
+        && !incoming_state.contains(WindowState::HOTKEY_WINDOW)
         && was_fullscreen
-        && !incoming_fullscreen
+        && !incoming_state.contains(WindowState::FULL_SCREEN)
         && (!is_focused || dimensions_unchanged)
 }
 
@@ -242,6 +252,9 @@ impl super::TermWindow {
             return;
         }
         let mut normalized_window_state = window_state;
+        if normalized_window_state.contains(WindowState::HOTKEY_WINDOW) {
+            self.layout_sticky_fullscreen_until = None;
+        }
         if live_resizing
             && self.resize_state.pending_screen_change_resize
             && dimensions.dpi == self.dimensions.dpi
@@ -252,12 +265,11 @@ impl super::TermWindow {
         }
         let dimensions_unchanged = dimensions == self.dimensions;
         let was_fullscreen = self.window_state.contains(WindowState::FULL_SCREEN);
-        let incoming_fullscreen = normalized_window_state.contains(WindowState::FULL_SCREEN);
         let is_focused = self.focused.is_some();
         if should_normalize_fullscreen_state_on_resize(
             self.config.tab_bar_at_bottom,
             was_fullscreen,
-            incoming_fullscreen,
+            normalized_window_state,
             is_focused,
             dimensions_unchanged,
         ) {
@@ -270,7 +282,11 @@ impl super::TermWindow {
             self.arm_layout_sticky_fullscreen();
         }
 
-        if dimensions_unchanged && self.window_state == normalized_window_state {
+        if !resize_needs_layout_refresh(
+            dimensions_unchanged,
+            self.window_state == normalized_window_state,
+            screen_changed,
+        ) {
             // Even if the geometry didn't change, live resize state transitions
             // still matter for flushing deferred work.
             let was_live_resizing = self.resize_state.live_resizing;
@@ -547,7 +563,8 @@ impl super::TermWindow {
 
         let config = &self.config;
         let uses_edge_to_edge_padding = self.layout_uses_edge_to_edge_padding();
-        let user_has_custom_padding = user_has_custom_window_padding_assignment();
+        let user_has_custom_padding = self.window_state.contains(WindowState::HOTKEY_WINDOW)
+            || user_has_custom_window_padding_assignment();
 
         let tab_bar_height = if self.show_tab_bar {
             // Use the real height only when title_font is already cached;
@@ -582,25 +599,35 @@ impl super::TermWindow {
 
             let h_context = DimensionContext {
                 dpi: dimensions.dpi as f32,
-                pixel_max: size.pixel_width as f32,
+                pixel_max: padding_pixel_max(
+                    self.window_state,
+                    self.dimensions.pixel_width,
+                    size.pixel_width,
+                ),
                 pixel_cell: self.render_metrics.cell_size.width as f32,
             };
             let v_context = DimensionContext {
                 dpi: dimensions.dpi as f32,
-                pixel_max: size.pixel_height as f32,
+                pixel_max: padding_pixel_max(
+                    self.window_state,
+                    self.dimensions.pixel_height,
+                    size.pixel_height,
+                ),
                 pixel_cell: self.render_metrics.cell_size.height as f32,
             };
-            let padding_left = config.window_padding.left.evaluate_as_pixels(h_context) as usize;
+            let padding_left = effective_window_padding(config, self.window_state)
+                .left
+                .evaluate_as_pixels(h_context) as usize;
             let (padding_top, padding_bottom) = effective_vertical_padding_with_policy(
                 config,
                 v_context,
                 self.show_tab_bar,
                 self.config.tab_bar_at_bottom,
                 tab_bar_height_px,
-                uses_edge_to_edge_padding,
+                self.window_state,
                 user_has_custom_padding,
             );
-            let padding_right = effective_right_padding(&config, h_context);
+            let padding_right = effective_right_padding(config, h_context, self.window_state);
 
             let pixel_height = (rows * self.render_metrics.cell_size.height as usize)
                 + (padding_top + padding_bottom)
@@ -634,31 +661,43 @@ impl super::TermWindow {
 
             let h_context = DimensionContext {
                 dpi: dimensions.dpi as f32,
-                pixel_max: self.terminal_size.pixel_width as f32,
+                pixel_max: padding_pixel_max(
+                    self.window_state,
+                    self.dimensions.pixel_width,
+                    self.terminal_size.pixel_width,
+                ),
                 pixel_cell: self.render_metrics.cell_size.width as f32,
             };
             let v_context = DimensionContext {
                 dpi: dimensions.dpi as f32,
-                pixel_max: self.terminal_size.pixel_height as f32,
+                pixel_max: padding_pixel_max(
+                    self.window_state,
+                    self.dimensions.pixel_height,
+                    self.terminal_size.pixel_height,
+                ),
                 pixel_cell: self.render_metrics.cell_size.height as f32,
             };
-            let padding_left = config.window_padding.left.evaluate_as_pixels(h_context) as usize;
+            let padding_left = effective_window_padding(config, self.window_state)
+                .left
+                .evaluate_as_pixels(h_context) as usize;
             let (mut padding_top, mut padding_bottom) = effective_vertical_padding_with_policy(
                 config,
                 v_context,
                 self.show_tab_bar,
                 self.config.tab_bar_at_bottom,
                 tab_bar_height_px,
-                uses_edge_to_edge_padding,
+                self.window_state,
                 user_has_custom_padding,
             );
-            let padding_right = effective_right_padding(&config, h_context);
+            let padding_right = effective_right_padding(config, h_context, self.window_state);
 
             // When the AI chat overlay is active on the focused pane, shrink
             // the bottom padding so the chat box sits closer to the window /
             // tab-bar edge. This only affects layout while the overlay is open;
             // closing it triggers a resize that restores the normal padding.
-            if self.has_ai_chat_overlay_on_active_pane() {
+            if !self.window_state.contains(WindowState::HOTKEY_WINDOW)
+                && self.has_ai_chat_overlay_on_active_pane()
+            {
                 let chat_bottom = if self.show_tab_bar { 0 } else { 4 };
                 padding_bottom = padding_bottom.min(chat_bottom);
             }
@@ -944,7 +983,7 @@ impl super::TermWindow {
             self.apply_dimensions(&dimensions, None, window, true);
         }
 
-        persist_current_font_size(&self.config, self.fonts.get_font_scale());
+        persist_current_font_size(&self.config, self.fonts.get_font_scale(), self.window_state);
     }
 
     pub fn decrease_font_size(&mut self) {
@@ -1008,20 +1047,22 @@ impl super::TermWindow {
             pixel_max: self.dimensions.pixel_height as f32,
             pixel_cell: render_metrics.cell_size.height as f32,
         };
-        let padding_left = config.window_padding.left.evaluate_as_pixels(h_context) as usize;
+        let padding_left = effective_window_padding(config, self.window_state)
+            .left
+            .evaluate_as_pixels(h_context) as usize;
         let (padding_top, padding_bottom) = effective_vertical_padding(
             config,
             v_context,
             show_tab_bar,
             config.tab_bar_at_bottom,
             tab_bar_height,
-            self.layout_uses_edge_to_edge_padding(),
+            self.window_state,
         );
 
         let dimensions = Dimensions {
             pixel_width: ((terminal_size.cols as usize * render_metrics.cell_size.width as usize)
                 + padding_left
-                + effective_right_padding(&config, h_context)),
+                + effective_right_padding(config, h_context, self.window_state)),
             pixel_height: ((terminal_size.rows as usize * render_metrics.cell_size.height as usize)
                 + padding_top
                 + padding_bottom) as usize
@@ -1061,20 +1102,29 @@ impl super::TermWindow {
                 dpi: self.dimensions.dpi as f32,
                 pixel_max: self.dimensions.pixel_width as f32,
             },
+            self.window_state,
         )
     }
 }
 
-fn font_size_state_file() -> PathBuf {
+fn font_size_state_name(window_state: WindowState) -> &'static str {
+    if window_state.contains(WindowState::HOTKEY_WINDOW) {
+        ".kaku_hotkey_font_size"
+    } else {
+        ".kaku_font_size"
+    }
+}
+
+fn font_size_state_file(window_state: WindowState) -> PathBuf {
     config::CONFIG_DIRS
         .first()
         .cloned()
         .unwrap_or_else(|| config::HOME_DIR.join(".config").join("kaku"))
-        .join(".kaku_font_size")
+        .join(font_size_state_name(window_state))
 }
 
-fn persist_current_font_size(config: &ConfigHandle, font_scale: f64) {
-    let file_name = font_size_state_file();
+fn persist_current_font_size(config: &ConfigHandle, font_scale: f64, window_state: WindowState) {
+    let file_name = font_size_state_file(window_state);
 
     if (font_scale - 1.0).abs() < 0.0001 {
         if let Err(err) = std::fs::remove_file(&file_name) {
@@ -1115,8 +1165,16 @@ fn persist_current_font_size(config: &ConfigHandle, font_scale: f64) {
     }
 }
 
-pub(super) fn load_persisted_font_scale(config: &ConfigHandle) -> Option<f64> {
-    let file_name = font_size_state_file();
+pub(super) fn load_persisted_font_scale(
+    config: &ConfigHandle,
+    window_state: WindowState,
+) -> Option<f64> {
+    if window_state.contains(WindowState::HOTKEY_WINDOW)
+        && config.macos_global_hotkey_appearance.font_size.is_some()
+    {
+        return None;
+    }
+    let file_name = font_size_state_file(window_state);
     let saved_font_size = std::fs::read_to_string(&file_name)
         .ok()
         .and_then(|s| s.trim().parse::<f64>().ok())?;
@@ -1234,6 +1292,26 @@ fn effective_top_padding(base_top: usize, default_top: usize) -> usize {
     }
 }
 
+pub(crate) fn effective_window_padding(
+    config: &Config,
+    _window_state: WindowState,
+) -> &config::WindowPadding {
+    // Hotkey overrides are resolved before layout, rendering and hit testing.
+    &config.window_padding
+}
+
+pub(crate) fn padding_pixel_max(
+    window_state: WindowState,
+    window_pixels: usize,
+    terminal_pixels: usize,
+) -> f32 {
+    if window_state.contains(WindowState::HOTKEY_WINDOW) {
+        window_pixels as f32
+    } else {
+        terminal_pixels as f32
+    }
+}
+
 /// Computes vertical padding used for layout.
 /// Bottom-tab layouts subtract the tab bar height from bottom padding so the
 /// content block remains stable. Top-tab layouts preserve the full top padding
@@ -1244,7 +1322,7 @@ pub fn effective_vertical_padding(
     show_tab_bar: bool,
     tab_bar_at_bottom: bool,
     tab_bar_height: usize,
-    is_fullscreen: bool,
+    window_state: WindowState,
 ) -> (usize, usize) {
     effective_vertical_padding_with_policy(
         config,
@@ -1252,7 +1330,7 @@ pub fn effective_vertical_padding(
         show_tab_bar,
         tab_bar_at_bottom,
         tab_bar_height,
-        is_fullscreen,
+        window_state,
         user_has_custom_window_padding_assignment(),
     )
 }
@@ -1263,9 +1341,17 @@ fn effective_vertical_padding_with_policy(
     show_tab_bar: bool,
     tab_bar_at_bottom: bool,
     tab_bar_height: usize,
-    is_edge_to_edge: bool,
+    window_state: WindowState,
     user_has_custom_padding: bool,
 ) -> (usize, usize) {
+    if window_state.contains(WindowState::HOTKEY_WINDOW) {
+        let padding = effective_window_padding(config, window_state);
+        return (
+            padding.top.evaluate_as_pixels(context) as usize,
+            padding.bottom.evaluate_as_pixels(context) as usize,
+        );
+    }
+    let is_edge_to_edge = window_state.contains(WindowState::MAXIMIZED);
     let base_top = config.window_padding.top.evaluate_as_pixels(context) as usize;
     let base_bottom = config.window_padding.bottom.evaluate_as_pixels(context) as usize;
     let default_top = config::WindowPadding::default()
@@ -1329,11 +1415,16 @@ fn effective_vertical_padding_with_policy(
 /// This is needed because the default is 0, but if the user has
 /// enabled the scroll bar then they will expect it to have a reasonable
 /// size unless they've specified differently.
-pub fn effective_right_padding(config: &Config, context: DimensionContext) -> usize {
-    if config.enable_scroll_bar && config.window_padding.right.is_zero() {
+pub fn effective_right_padding(
+    config: &Config,
+    context: DimensionContext,
+    window_state: WindowState,
+) -> usize {
+    let padding = effective_window_padding(config, window_state);
+    if config.enable_scroll_bar && padding.right.is_zero() {
         context.pixel_cell as usize
     } else {
-        config.window_padding.right.evaluate_as_pixels(context) as usize
+        padding.right.evaluate_as_pixels(context) as usize
     }
 }
 
@@ -1349,6 +1440,7 @@ mod tests {
         should_rebalance_top_tab_visible_bottom_gap, user_custom_window_padding_config_path,
         DeferredFontScalePtyResizeAction, RowsAndCols,
     };
+    use ::window::WindowState;
     use config::{Config, ConfigHandle, DimensionContext};
     use std::path::PathBuf;
 
@@ -1358,6 +1450,391 @@ mod tests {
             pixel_max: 800.0,
             pixel_cell: 16.0,
         }
+    }
+
+    #[test]
+    fn hotkey_layout_consumes_inherited_window_padding_without_chrome_gaps() {
+        let mut config = Config::default_config();
+        config.window_padding = config::WindowPadding {
+            left: config::Dimension::Pixels(21.0),
+            right: config::Dimension::Pixels(23.0),
+            top: config::Dimension::Pixels(7.0),
+            bottom: config::Dimension::Pixels(9.0),
+        };
+        let state = WindowState::HOTKEY_WINDOW;
+        let padding = super::effective_window_padding(&config, state);
+        assert_eq!(padding.left.evaluate_as_pixels(context()), 21.0);
+        assert_eq!(padding.right.evaluate_as_pixels(context()), 23.0);
+        assert_eq!(
+            effective_vertical_padding_with_policy(
+                &config,
+                context(),
+                false,
+                true,
+                24,
+                state,
+                false
+            ),
+            (7, 9),
+        );
+    }
+
+    #[test]
+    fn hotkey_font_size_persistence_does_not_modify_ordinary_state() {
+        assert_eq!(
+            super::font_size_state_name(WindowState::empty()),
+            ".kaku_font_size"
+        );
+        for state in [
+            WindowState::HOTKEY_WINDOW,
+            WindowState::HOTKEY_WINDOW | WindowState::MAXIMIZED,
+        ] {
+            assert_eq!(super::font_size_state_name(state), ".kaku_hotkey_font_size");
+        }
+        let source = include_str!("resize.rs")
+            .split("#[cfg(test)]")
+            .next()
+            .unwrap();
+        let adjustment = source.split("pub fn adjust_font_scale(").nth(1).unwrap();
+        let adjustment = adjustment
+            .split("pub fn decrease_font_size(")
+            .next()
+            .unwrap();
+        let persistence = adjustment
+            .split("persist_current_font_size(")
+            .nth(1)
+            .unwrap();
+        let persistence = persistence.split(");").next().unwrap();
+        assert!(persistence.contains("&self.config"));
+        assert!(persistence.contains("self.fonts.get_font_scale()"));
+        assert!(persistence.contains("self.window_state"));
+        assert!(source.contains("let file_name = font_size_state_file(window_state);"));
+    }
+
+    #[test]
+    fn font_size_persistence_roundtrip_isolates_drawer_and_ordinary() {
+        const FIXTURE_ROOT: &str = "KAKU_TEST_FONT_STATE_ROOT";
+        let Some(root) = std::env::var_os(FIXTURE_ROOT) else {
+            // Lazy config directories must initialize in an isolated process, not race other tests.
+            let dir = tempfile::tempdir().unwrap();
+            std::fs::create_dir(dir.path().join("home")).unwrap();
+            let output = std::process::Command::new(std::env::current_exe().unwrap())
+                .args([
+                    "--exact",
+                    "termwindow::resize::tests::font_size_persistence_roundtrip_isolates_drawer_and_ordinary",
+                    "--nocapture",
+                ])
+                .env(FIXTURE_ROOT, dir.path())
+                .env("HOME", dir.path().join("home"))
+                .env("XDG_CONFIG_HOME", dir.path().join("config"))
+                .env_remove("XDG_CONFIG_DIRS")
+                .output()
+                .unwrap();
+            let stdout = String::from_utf8_lossy(&output.stdout);
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            assert!(output.status.success(), "{}\n{}", stdout, stderr);
+            assert!(stdout.contains("1 passed"), "{}", stdout);
+            return;
+        };
+
+        let root = std::path::PathBuf::from(root);
+        assert_eq!(*config::HOME_DIR, root.join("home"));
+        assert_eq!(*config::CONFIG_DIRS, vec![root.join("config/kaku")]);
+        let ordinary_state = WindowState::empty();
+        let drawer_state = WindowState::HOTKEY_WINDOW;
+        let ordinary_file = super::font_size_state_file(ordinary_state);
+        let drawer_file = super::font_size_state_file(drawer_state);
+        for file in [&ordinary_file, &drawer_file] {
+            assert_eq!(file.parent().unwrap(), root.join("config/kaku"));
+        }
+
+        let mut base = Config::default_config();
+        base.font_size = 16.0;
+        config::use_this_configuration(base);
+        let base = config::configuration();
+        super::persist_current_font_size(&base, 1.25, ordinary_state);
+        let ordinary_contents = std::fs::read_to_string(&ordinary_file).unwrap();
+        assert_eq!(ordinary_contents, "20.000\n");
+        super::persist_current_font_size(&base, 1.5, drawer_state);
+        assert_eq!(
+            std::fs::read_to_string(&ordinary_file).unwrap(),
+            ordinary_contents,
+            "drawer writes must not overwrite ordinary zoom"
+        );
+        assert_eq!(std::fs::read_to_string(&drawer_file).unwrap(), "24.000\n");
+        assert_eq!(
+            super::load_persisted_font_scale(&base, ordinary_state),
+            Some(1.25)
+        );
+        assert_eq!(
+            super::load_persisted_font_scale(&base, drawer_state),
+            Some(1.5)
+        );
+
+        let mut changed_base = Config::default_config();
+        changed_base.font_size = 20.0;
+        config::use_this_configuration(changed_base.clone());
+        let inherited = config::configuration();
+        assert_eq!(
+            super::load_persisted_font_scale(&inherited, ordinary_state),
+            Some(1.0)
+        );
+        assert_eq!(
+            super::load_persisted_font_scale(&inherited, drawer_state),
+            Some(1.2)
+        );
+        changed_base.macos_global_hotkey_appearance.font_size = Some(18.0);
+        config::use_this_configuration(changed_base);
+        let explicit = config::configuration();
+        assert_eq!(
+            super::load_persisted_font_scale(&explicit, drawer_state),
+            None,
+            "explicit drawer font size must ignore persisted zoom"
+        );
+        assert_eq!(
+            super::load_persisted_font_scale(&explicit, ordinary_state),
+            Some(1.0)
+        );
+        assert_eq!(std::fs::read_to_string(&drawer_file).unwrap(), "24.000\n");
+        let mut cleared_override = Config::default_config();
+        cleared_override.font_size = 20.0;
+        config::use_this_configuration(cleared_override);
+        assert_eq!(
+            super::load_persisted_font_scale(&config::configuration(), drawer_state),
+            Some(1.2)
+        );
+
+        super::persist_current_font_size(&base, 1.0, drawer_state);
+        assert!(!drawer_file.exists());
+        assert_eq!(
+            std::fs::read_to_string(&ordinary_file).unwrap(),
+            ordinary_contents
+        );
+        super::persist_current_font_size(&base, 1.5, drawer_state);
+        super::persist_current_font_size(&base, 1.0, ordinary_state);
+        assert!(!ordinary_file.exists());
+        assert_eq!(std::fs::read_to_string(&drawer_file).unwrap(), "24.000\n");
+        for value in ["NaN", "0", "257", "invalid"] {
+            std::fs::write(&drawer_file, value).unwrap();
+            assert_eq!(super::load_persisted_font_scale(&base, drawer_state), None);
+        }
+    }
+
+    #[test]
+    fn screen_change_layout_refreshes_even_with_same_dimensions_and_state() {
+        for dimensions_unchanged in [false, true] {
+            for window_state_unchanged in [false, true] {
+                assert!(super::resize_needs_layout_refresh(
+                    dimensions_unchanged,
+                    window_state_unchanged,
+                    true,
+                ));
+                assert_eq!(
+                    super::resize_needs_layout_refresh(
+                        dimensions_unchanged,
+                        window_state_unchanged,
+                        false,
+                    ),
+                    !dimensions_unchanged || !window_state_unchanged,
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn screen_change_layout_refresh_guard_is_used_before_loading_os_parameters() {
+        let source = include_str!("resize.rs");
+        let resize = source
+            .split("pub fn resize(")
+            .nth(1)
+            .unwrap()
+            .split("fn flush_all_pane_pty_sizes(")
+            .next()
+            .unwrap();
+        let guard = resize
+            .find("if !resize_needs_layout_refresh(")
+            .expect("resize must use the tested layout-refresh decision");
+        let refresh = resize.find("self.load_os_parameters()").unwrap();
+        assert!(guard < refresh);
+        let guarded_noop = &resize[guard..refresh];
+        assert!(guarded_noop.contains(
+            "dimensions_unchanged,\n            self.window_state == normalized_window_state,\n            screen_changed,"
+        ));
+        assert!(guarded_noop.contains("return;"));
+        assert!(!resize[..guard]
+            .contains("if dimensions_unchanged && self.window_state == normalized_window_state"));
+        assert!(guarded_noop.contains("if was_live_resizing && !live_resizing"));
+        assert!(guarded_noop.contains("self.flush_pending_pty_resize()"));
+        assert!(guarded_noop.contains("self.schedule_silent_config_reload(window)"));
+    }
+
+    #[test]
+    fn hotkey_padding_is_independent_of_ordinary_layout_heuristics() {
+        let mut config = Config::default();
+        config.window_padding = config::WindowPadding {
+            left: config::Dimension::Pixels(40.0),
+            right: config::Dimension::Pixels(50.0),
+            top: config::Dimension::Pixels(40.0),
+            bottom: config::Dimension::Pixels(30.0),
+        };
+        let ordinary_config = config.clone();
+        config.window_padding = config::WindowPadding {
+            left: config::Dimension::Pixels(3.0),
+            right: config::Dimension::Pixels(5.0),
+            top: config::Dimension::Pixels(2.0),
+            bottom: config::Dimension::Pixels(4.0),
+        };
+        for state in [
+            WindowState::HOTKEY_WINDOW,
+            WindowState::HOTKEY_WINDOW | WindowState::MAXIMIZED,
+        ] {
+            for show in [false, true] {
+                for bottom_tab in [false, true] {
+                    for custom in [false, true] {
+                        assert_eq!(
+                            super::effective_vertical_padding_with_policy(
+                                &config,
+                                context(),
+                                show,
+                                bottom_tab,
+                                24,
+                                state,
+                                custom
+                            ),
+                            (2, 4)
+                        );
+                    }
+                }
+            }
+            assert_eq!(
+                super::effective_window_padding(&config, state)
+                    .left
+                    .evaluate_as_pixels(context()),
+                3.0
+            );
+            assert_eq!(super::effective_right_padding(&config, context(), state), 5);
+        }
+        assert_eq!(
+            super::effective_window_padding(&ordinary_config, WindowState::empty())
+                .left
+                .evaluate_as_pixels(context()),
+            40.0
+        );
+        assert_eq!(
+            super::effective_right_padding(&ordinary_config, context(), WindowState::empty()),
+            50
+        );
+        assert_eq!(
+            super::effective_vertical_padding_with_policy(
+                &ordinary_config,
+                context(),
+                false,
+                false,
+                0,
+                WindowState::empty(),
+                true
+            ),
+            (40, 30)
+        );
+    }
+
+    #[test]
+    fn hotkey_padding_supports_zero_and_units_without_visual_gaps() {
+        let mut config = Config::default();
+        config.window_padding = config::WindowPadding {
+            left: config::Dimension::Cells(1.0),
+            right: config::Dimension::Percent(0.01),
+            top: config::Dimension::Points(3.0),
+            bottom: config::Dimension::Pixels(0.0),
+        };
+        let context = DimensionContext {
+            dpi: 192.0,
+            ..context()
+        };
+        assert_eq!(
+            super::effective_vertical_padding_with_policy(
+                &config,
+                context,
+                true,
+                true,
+                24,
+                WindowState::HOTKEY_WINDOW,
+                false
+            ),
+            (8, 0)
+        );
+        assert_eq!(
+            super::effective_window_padding(&config, WindowState::HOTKEY_WINDOW)
+                .left
+                .evaluate_as_pixels(context),
+            16.0
+        );
+        assert_eq!(
+            super::effective_right_padding(&config, context, WindowState::HOTKEY_WINDOW),
+            8
+        );
+    }
+
+    #[test]
+    fn hotkey_zero_padding_stays_zero_without_scrollbar() {
+        let mut config = Config::default();
+        config.window_padding = config::WindowPadding {
+            left: config::Dimension::Pixels(0.0),
+            right: config::Dimension::Pixels(0.0),
+            top: config::Dimension::Pixels(0.0),
+            bottom: config::Dimension::Pixels(0.0),
+        };
+        for show in [false, true] {
+            for bottom in [false, true] {
+                assert_eq!(
+                    super::effective_vertical_padding_with_policy(
+                        &config,
+                        context(),
+                        show,
+                        bottom,
+                        24,
+                        WindowState::HOTKEY_WINDOW,
+                        false
+                    ),
+                    (0, 0)
+                );
+            }
+        }
+        assert_eq!(
+            super::effective_window_padding(&config, WindowState::HOTKEY_WINDOW)
+                .left
+                .evaluate_as_pixels(context()),
+            0.0
+        );
+        assert_eq!(
+            super::effective_right_padding(&config, context(), WindowState::HOTKEY_WINDOW),
+            0
+        );
+        config.enable_scroll_bar = true;
+        assert_eq!(
+            super::effective_right_padding(&config, context(), WindowState::HOTKEY_WINDOW),
+            16
+        );
+    }
+
+    #[test]
+    fn hotkey_percentage_padding_uses_stable_window_bounds() {
+        let percent = config::Dimension::Percent(0.1);
+        for cells_before_or_after_resize in [1000, 800, 640] {
+            let ctx = DimensionContext {
+                pixel_max: super::padding_pixel_max(
+                    WindowState::HOTKEY_WINDOW,
+                    1000,
+                    cells_before_or_after_resize,
+                ),
+                ..context()
+            };
+            assert_eq!(percent.evaluate_as_pixels(ctx), 100.0);
+        }
+        assert_eq!(
+            super::padding_pixel_max(WindowState::empty(), 1000, 800),
+            800.0
+        );
     }
 
     fn base_vertical_padding(config: &ConfigHandle) -> (usize, usize) {
@@ -1455,7 +1932,11 @@ mod tests {
             show_tab_bar,
             tab_bar_at_bottom,
             tab_bar_height,
-            is_fullscreen,
+            if is_fullscreen {
+                WindowState::MAXIMIZED
+            } else {
+                WindowState::empty()
+            },
             false,
         )
     }
@@ -1474,7 +1955,11 @@ mod tests {
             show_tab_bar,
             tab_bar_at_bottom,
             tab_bar_height,
-            is_fullscreen,
+            if is_fullscreen {
+                WindowState::MAXIMIZED
+            } else {
+                WindowState::empty()
+            },
             true,
         )
     }
@@ -1722,29 +2207,56 @@ mod tests {
     #[test]
     fn normalize_fullscreen_on_unfocused_top_tab_resize_even_with_dim_change() {
         assert!(should_normalize_fullscreen_state_on_resize(
-            false, // top-tab
-            true,  // was fullscreen
-            false, // transient incoming non-fullscreen
-            false, // unfocused
-            false, // dimensions changed
+            false,                  // top-tab
+            true,                   // was fullscreen
+            WindowState::default(), // transient incoming non-fullscreen
+            false,                  // unfocused
+            false,                  // dimensions changed
         ));
     }
 
     #[test]
     fn normalize_fullscreen_on_focused_top_tab_requires_same_dimensions() {
         assert!(should_normalize_fullscreen_state_on_resize(
-            false, true, false, true, true
+            false,
+            true,
+            WindowState::default(),
+            true,
+            true
         ));
         assert!(!should_normalize_fullscreen_state_on_resize(
-            false, true, false, true, false
+            false,
+            true,
+            WindowState::default(),
+            true,
+            false
         ));
     }
 
     #[test]
     fn normalize_fullscreen_disabled_for_bottom_tab() {
         assert!(!should_normalize_fullscreen_state_on_resize(
-            true, true, false, false, true
+            true,
+            true,
+            WindowState::default(),
+            false,
+            true
         ));
+    }
+
+    #[test]
+    fn hotkey_drawer_never_keeps_the_ordinary_windows_fullscreen_state() {
+        for focused in [false, true] {
+            for same_dimensions in [false, true] {
+                assert!(!should_normalize_fullscreen_state_on_resize(
+                    false,
+                    true,
+                    WindowState::HOTKEY_WINDOW,
+                    focused,
+                    same_dimensions,
+                ));
+            }
+        }
     }
 
     #[test]

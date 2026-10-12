@@ -4,13 +4,13 @@ use crate::macos::{nsstring, nsstring_to_str};
 use crate::menu::{Menu, MenuItem};
 use crate::{ApplicationEvent, Connection, KeyCode, Modifiers};
 use cocoa::appkit::{
-    CGFloat, NSApp, NSApplicationActivateIgnoringOtherApps, NSApplicationTerminateReply,
-    NSEventModifierFlags, NSFilenamesPboardType, NSRunningApplication, NSStringPboardType,
+    CGFloat, NSApp, NSApplicationTerminateReply, NSEventModifierFlags, NSFilenamesPboardType,
+    NSStringPboardType,
 };
 use cocoa::base::{id, nil};
 use cocoa::foundation::{NSInteger, NSRect, NSUInteger};
 use config::keyassignment::KeyAssignment;
-use config::WindowCloseConfirmation;
+use config::{MacosGlobalHotkeyMode, WindowCloseConfirmation};
 use core_foundation::base::{CFTypeID, TCFType};
 use core_foundation::data::{CFData, CFDataGetBytePtr, CFDataRef};
 use core_foundation::string::{CFStringRef, UniChar};
@@ -18,7 +18,7 @@ use core_foundation::{declare_TCFType, impl_TCFType};
 use objc::declare::ClassDecl;
 use objc::runtime::{Class, Object, Sel, BOOL, NO, YES};
 use objc::*;
-use std::cell::RefCell;
+use std::cell::{Cell, RefCell};
 use std::convert::TryFrom;
 use std::ffi::c_void;
 use std::path::Path;
@@ -122,6 +122,7 @@ unsafe extern "C" {
 
 thread_local! {
     static LAST_OPEN_UNTITLED_SPAWN: RefCell<Option<Instant>> = RefCell::new(None);
+    static HOTKEY_WINDOW_ID: Cell<Option<usize>> = Cell::new(None);
 }
 
 lazy_static::lazy_static! {
@@ -238,7 +239,9 @@ fn schedule_open_untitled_spawn() {
 
         let has_window = {
             let windows = conn.windows.borrow();
-            windows.values().next().is_some()
+            windows
+                .values()
+                .any(|window| !window.borrow().is_dedicated_hotkey())
         };
         if has_window {
             return;
@@ -459,81 +462,94 @@ fn ensure_hotkey_handler_installed(state: &mut GlobalHotKeyState) -> bool {
     true
 }
 
+fn hotkey_target_window_id(remembered: Option<usize>, windows: &[usize]) -> Option<usize> {
+    remembered.filter(|id| windows.contains(id))
+}
+
+pub(crate) fn register_hotkey_window(id: usize) {
+    HOTKEY_WINDOW_ID.with(|remembered| remembered.set(Some(id)));
+}
+
+pub(crate) fn take_hotkey_window() -> Option<usize> {
+    HOTKEY_WINDOW_ID.with(|remembered| remembered.take())
+}
+
+fn ordinary_hotkey_target_window_id(windows: &[(usize, bool, bool, bool)]) -> Option<usize> {
+    let ordinary: Vec<_> = windows
+        .iter()
+        .filter(|(_, dedicated, _, _)| !dedicated)
+        .collect();
+    ordinary
+        .iter()
+        .find(|(_, _, key, _)| *key)
+        .or_else(|| ordinary.iter().find(|(_, _, _, main)| *main))
+        .or_else(|| ordinary.first())
+        .map(|(id, _, _, _)| *id)
+}
+
+fn toggle_ordinary_hotkey_window(conn: &Connection) {
+    let windows: Vec<_> = conn
+        .windows
+        .borrow()
+        .iter()
+        .map(|(id, window)| {
+            let window = window.borrow();
+            (
+                *id,
+                window.is_dedicated_hotkey(),
+                window.is_key_window(),
+                window.is_main_window(),
+            )
+        })
+        .collect();
+    let target = ordinary_hotkey_target_window_id(&windows).and_then(|id| conn.window_by_id(id));
+    if let Some(target) = target {
+        let mut target = target.borrow_mut();
+        if target.ordinary_global_hotkey_should_hide() {
+            target.hide_ordinary_global_hotkey_window();
+        } else {
+            target.show_ordinary_global_hotkey_window();
+        }
+    } else {
+        conn.dispatch_app_event(ApplicationEvent::PerformKeyAssignment(
+            KeyAssignment::SpawnWindow,
+        ));
+    }
+}
+
 fn toggle_hotkey_window() {
     let Some(conn) = Connection::get() else {
         log::warn!("global hotkey pressed before GUI connection is ready");
         return;
     };
 
-    let is_active: BOOL = unsafe { msg_send![NSApp(), isActive] };
-    if is_active == YES {
-        // [NSApp hide:] is a no-op when a window is in native fullscreen.
-        // Instead, directly order out each window so it disappears without
-        // leaving fullscreen. The window keeps its fullscreen state and will
-        // restore on the next hotkey press via makeKeyAndOrderFront:.
-        let has_fullscreen = {
-            let windows = conn.windows.borrow();
-            let mut any_fs = false;
-            for window in windows.values() {
-                let mut inner = window.borrow_mut();
-                if inner.is_fullscreen() {
-                    any_fs = true;
-                    inner.order_out();
-                }
-            }
-            any_fs
-        };
-        if has_fullscreen {
-            // Deactivate the app so macOS switches to the next app.
-            unsafe {
-                let () = msg_send![NSApp(), hide: NSApp()];
-            }
-        } else {
-            conn.hide_application();
-        }
+    if config::configuration().macos_global_hotkey_mode == MacosGlobalHotkeyMode::Ordinary {
+        toggle_ordinary_hotkey_window(&conn);
         return;
     }
 
     let existing_windows: Vec<_> = {
         let windows = conn.windows.borrow();
-        windows.values().cloned().collect()
+        windows.keys().copied().collect()
     };
 
-    if !existing_windows.is_empty() {
-        let target_window = existing_windows
-            .iter()
-            .find(|window| window.borrow().is_key_window())
-            .cloned()
-            .or_else(|| {
-                existing_windows
-                    .iter()
-                    .find(|window| window.borrow().is_main_window())
-                    .cloned()
-            })
-            .or_else(|| existing_windows.first().cloned());
-
-        if let Some(target_window) = target_window {
-            target_window.borrow_mut().prepare_for_global_hotkey_show();
-            unsafe {
-                let () = msg_send![NSApp(), unhide: NSApp()];
-                let current_app = NSRunningApplication::currentApplication(nil);
-                current_app.activateWithOptions_(NSApplicationActivateIgnoringOtherApps);
-            }
-            let mut target_window = target_window.borrow_mut();
-            target_window.focus();
-            target_window.restore_after_global_hotkey_show();
-            return;
-        }
-
-        unsafe {
-            let () = msg_send![NSApp(), unhide: NSApp()];
-            let current_app = NSRunningApplication::currentApplication(nil);
-            current_app.activateWithOptions_(NSApplicationActivateIgnoringOtherApps);
+    let target_id = HOTKEY_WINDOW_ID.with(|remembered| {
+        let id = hotkey_target_window_id(remembered.get(), &existing_windows);
+        remembered.set(id);
+        id
+    });
+    if let Some(target_window) = target_id.and_then(|id| conn.window_by_id(id)) {
+        // Keep toggling the same terminal even after the panel loses key/main.
+        // Store only its ID; closing it must not keep the terminal alive.
+        let mut target_window = target_window.borrow_mut();
+        // Nonactivating panels can be key while Kaku is not the active app.
+        if target_window.global_hotkey_should_hide() {
+            target_window.hide_global_hotkey_window();
+        } else {
+            target_window.show_global_hotkey_window();
         }
     } else {
-        conn.dispatch_app_event(ApplicationEvent::PerformKeyAssignment(
-            KeyAssignment::SpawnWindow,
-        ));
+        conn.dispatch_app_event(ApplicationEvent::SpawnHotkeyWindow);
     }
 }
 
@@ -968,6 +984,143 @@ mod tests {
     use std::path::PathBuf;
     use std::time::{SystemTime, UNIX_EPOCH};
 
+    #[test]
+    fn hotkey_options_ordinary_mode_has_a_separate_route() {
+        let source = include_str!("app.rs");
+        let toggle = source
+            .split("fn toggle_hotkey_window()")
+            .nth(1)
+            .unwrap()
+            .split("extern \"C\" fn global_hotkey_event_handler")
+            .next()
+            .unwrap();
+        assert!(toggle.contains("macos_global_hotkey_mode"));
+        assert!(toggle.contains("MacosGlobalHotkeyMode::Ordinary"));
+        assert!(toggle.contains("toggle_ordinary_hotkey_window"));
+        let ordinary = source
+            .split("fn toggle_ordinary_hotkey_window(")
+            .nth(1)
+            .unwrap()
+            .split("fn toggle_hotkey_window()")
+            .next()
+            .unwrap();
+        assert!(ordinary.contains("is_dedicated_hotkey()"));
+        assert!(ordinary.contains("ordinary_hotkey_target_window_id(&windows)"));
+        assert!(ordinary.contains("show_ordinary_global_hotkey_window()"));
+        assert!(ordinary.contains("hide_ordinary_global_hotkey_window()"));
+        assert!(ordinary.contains("KeyAssignment::SpawnWindow"));
+        assert!(!ordinary.contains("SpawnHotkeyWindow"));
+        assert!(!ordinary.contains("hide_application()"));
+        let native = include_str!("window.rs");
+        let hide = native
+            .split("pub(crate) fn hide_ordinary_global_hotkey_window(")
+            .nth(1)
+            .unwrap()
+            .split("pub(crate) fn is_key_window(")
+            .next()
+            .unwrap();
+        assert!(hide.contains("if !self.dedicated_hotkey"));
+        assert!(hide.contains("order_out_after_fullscreen_exit()"));
+        assert!(hide.contains("!self.defer_hotkey_visibility(false)"));
+        assert!(!hide.contains("orderOut:"));
+        let show = native
+            .split("pub(crate) fn show_ordinary_global_hotkey_window(")
+            .nth(1)
+            .unwrap()
+            .split("pub(crate) fn hide_ordinary_global_hotkey_window(")
+            .next()
+            .unwrap();
+        assert!(show.contains("if self.dedicated_hotkey"));
+        assert!(show.contains("order_out_on_fullscreen_exit.set(false)"));
+        assert!(show.contains("self.focus()"));
+        assert!(show.contains("self.defer_hotkey_visibility(true)"));
+        assert!(!show.contains("prepare_global_hotkey_panel"));
+        assert!(!show.contains("setFrame"));
+        assert!(!show.contains("setStyleMask"));
+        let replay = native
+            .rsplit("fn dispatch_pending_hotkey_visibility(")
+            .next()
+            .unwrap()
+            .split("fn cancel_pending_perform_requests(")
+            .next()
+            .unwrap();
+        assert!(replay.contains("if !inner.dedicated_hotkey"));
+        assert!(replay.contains("inner.show_ordinary_global_hotkey_window()"));
+        assert!(replay.contains("inner.hide_ordinary_global_hotkey_window()"));
+    }
+
+    #[test]
+    fn hotkey_options_ordinary_selection_excludes_drawer_and_keeps_key_main_priority() {
+        assert_eq!(
+            ordinary_hotkey_target_window_id(&[(42, true, true, true)]),
+            None
+        );
+        assert_eq!(
+            ordinary_hotkey_target_window_id(&[
+                (42, true, true, true),
+                (7, false, false, true),
+                (3, false, true, false),
+            ]),
+            Some(3)
+        );
+        assert_eq!(
+            ordinary_hotkey_target_window_id(&[
+                (42, true, true, true),
+                (7, false, false, true),
+                (3, false, false, false),
+            ]),
+            Some(7)
+        );
+        assert_eq!(
+            ordinary_hotkey_target_window_id(&[
+                (42, true, true, true),
+                (3, false, false, false),
+                (7, false, false, false),
+            ]),
+            Some(3)
+        );
+        assert_eq!(ordinary_hotkey_target_window_id(&[]), None);
+    }
+
+    #[test]
+    fn hotkey_lifecycle_target_survives_hide_and_other_window_focus() {
+        let windows = [1, 2];
+        assert_eq!(hotkey_target_window_id(Some(1), &windows), Some(1));
+        assert_eq!(hotkey_target_window_id(Some(3), &windows), None);
+        assert_eq!(hotkey_target_window_id(None, &windows), None);
+        assert_eq!(hotkey_target_window_id(Some(1), &[]), None);
+    }
+
+    #[test]
+    fn dock_reopen_never_focuses_or_reuses_the_dedicated_hotkey_window() {
+        let source = include_str!("app.rs");
+        let reopen = source
+            .split("extern \"C\" fn application_open_untitled_file(")
+            .nth(1)
+            .unwrap()
+            .split("extern \"C\" fn kaku_perform_key_assignment")
+            .next()
+            .unwrap();
+        assert!(reopen.contains("!window.borrow().is_dedicated_hotkey()"));
+        let schedule = source
+            .split("fn schedule_open_untitled_spawn()")
+            .nth(1)
+            .unwrap()
+            .split("#[derive(Default)]")
+            .next()
+            .unwrap();
+        assert!(schedule.contains("!window.borrow().is_dedicated_hotkey()"));
+        let toggle = source
+            .split("fn toggle_hotkey_window()")
+            .nth(1)
+            .unwrap()
+            .split("extern \"C\" fn global_hotkey_event_handler")
+            .next()
+            .unwrap();
+        assert!(toggle.contains("ApplicationEvent::SpawnHotkeyWindow"));
+        assert!(!toggle.contains("KeyAssignment::SpawnWindow"));
+    }
+
     fn unique_test_path(name: &str) -> PathBuf {
         let nanos = SystemTime::now()
             .duration_since(UNIX_EPOCH)
@@ -1078,7 +1231,11 @@ extern "C" fn application_open_untitled_file(
         if launched == YES {
             let existing_windows: Vec<_> = {
                 let windows = conn.windows.borrow();
-                windows.values().cloned().collect()
+                windows
+                    .values()
+                    .filter(|window| !window.borrow().is_dedicated_hotkey())
+                    .cloned()
+                    .collect()
             };
             if !existing_windows.is_empty() {
                 LAST_OPEN_UNTITLED_SPAWN.with(|last| {

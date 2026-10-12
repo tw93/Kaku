@@ -23,11 +23,72 @@ use wezterm_toast_notification::*;
 
 pub const SET_DEFAULT_TERMINAL_EVENT: &str = "set-default-terminal";
 
+fn workspace_has_ordinary_windows(
+    windows: &[MuxWindowId],
+    is_hotkey: impl Fn(MuxWindowId) -> bool,
+) -> bool {
+    windows.iter().any(|id| !is_hotkey(*id))
+}
+
+fn ordinary_window_for_service(
+    windows: &[MuxWindowId],
+    is_hotkey: impl Fn(MuxWindowId) -> bool,
+) -> Option<MuxWindowId> {
+    windows.iter().copied().filter(|id| !is_hotkey(*id)).max()
+}
+
+fn ordinary_snapshot_focus(
+    current: Option<MuxWindowId>,
+    remembered: Option<MuxWindowId>,
+    windows: &[MuxWindowId],
+    is_available: impl Fn(MuxWindowId) -> bool,
+) -> Option<MuxWindowId> {
+    current
+        .filter(|id| is_available(*id))
+        .or_else(|| remembered.filter(|id| is_available(*id)))
+        .or_else(|| windows.iter().copied().find(|id| is_available(*id)))
+}
+
+#[cfg(target_os = "macos")]
+#[derive(Default)]
+struct HotkeyWindowState {
+    mux_window_id: Option<MuxWindowId>,
+    pending: bool,
+    visible: bool,
+}
+
+#[cfg(target_os = "macos")]
+impl HotkeyWindowState {
+    fn request_spawn(&mut self) -> bool {
+        self.visible = !self.visible;
+        if self.pending {
+            return false;
+        }
+        self.pending = true;
+        true
+    }
+
+    fn creation_failed(&mut self, retain_session: bool) {
+        self.pending = false;
+        self.visible = false;
+        if !retain_session {
+            self.mux_window_id = None;
+        }
+    }
+
+    fn native_window_destroyed(&mut self) {
+        self.visible = false;
+    }
+}
+
 pub struct GuiFrontEnd {
     connection: Rc<Connection>,
     switching_workspaces: RefCell<bool>,
     spawned_mux_window: RefCell<HashSet<MuxWindowId>>,
     known_windows: RefCell<BTreeMap<Window, MuxWindowId>>,
+    last_focused_ordinary_window: RefCell<Option<MuxWindowId>>,
+    #[cfg(target_os = "macos")]
+    hotkey_window: RefCell<HotkeyWindowState>,
     client_id: Arc<ClientId>,
     config_subscription: RefCell<Option<ConfigSubscription>>,
     /// Global count of unread bell events across all windows
@@ -579,6 +640,9 @@ impl GuiFrontEnd {
             switching_workspaces: RefCell::new(false),
             spawned_mux_window: RefCell::new(HashSet::new()),
             known_windows: RefCell::new(BTreeMap::new()),
+            last_focused_ordinary_window: RefCell::new(None),
+            #[cfg(target_os = "macos")]
+            hotkey_window: RefCell::new(HotkeyWindowState::default()),
             client_id: client_id.clone(),
             config_subscription: RefCell::new(None),
             unread_bell_count: RefCell::new(0),
@@ -838,8 +902,9 @@ impl GuiFrontEnd {
             let mux = Mux::get();
             let workspace = mux.active_workspace();
             let window_id = if prefer_existing_window {
-                let mut windows = mux.iter_windows_in_workspace(&workspace);
-                windows.pop()
+                ordinary_window_for_service(&mux.iter_windows_in_workspace(&workspace), |id| {
+                    front_end().is_hotkey_window(id)
+                })
             } else {
                 None
             };
@@ -996,8 +1061,97 @@ impl GuiFrontEnd {
         }
     }
 
+    #[cfg(target_os = "macos")]
+    fn spawn_hotkey_window() {
+        let fe = front_end();
+        if !fe.hotkey_window.borrow_mut().request_spawn() {
+            return;
+        }
+        let mux = Mux::get();
+        let existing = fe
+            .hotkey_window
+            .borrow()
+            .mux_window_id
+            .filter(|id| mux.get_window(*id).is_some());
+        let reusing_session = existing.is_some();
+        let builder = if reusing_session {
+            None
+        } else {
+            Some(mux.new_empty_window(Some(mux.active_workspace().clone()), None))
+        };
+        let id = existing.unwrap_or_else(|| **builder.as_ref().unwrap());
+        fe.hotkey_window.borrow_mut().mux_window_id = Some(id);
+        // Claim the ID before any await or WindowCreated notification. Workspace
+        // reconciliation must never materialize this as an ordinary window.
+        fe.spawned_mux_window.borrow_mut().insert(id);
+        log::debug!("creating dedicated hotkey terminal mux_window_id={id}");
+        promise::spawn::spawn(async move {
+            let _activity = mux::activity::Activity::new();
+            let result: anyhow::Result<()> = async {
+                if !reusing_session {
+                    let config = fast_config_snapshot();
+                    let size = config.initial_size(
+                        config.dpi.unwrap_or_else(|| ::window::default_dpi()) as u32,
+                        None,
+                    );
+                    let domain =
+                        mux.resolve_spawn_tab_domain(None, &SpawnTabDomain::DefaultDomain)?;
+                    if domain.state() == mux::domain::DomainState::Detached {
+                        domain.attach(Some(id)).await?;
+                    }
+                    domain
+                        .spawn(&mux, size, None, None, config.default_encoding, id)
+                        .await?;
+                }
+                TermWindow::new_window(id).await
+            }
+            .await;
+            if let Err(err) = result {
+                log::error!("Failed to create dedicated hotkey terminal: {err:#}");
+                Window::discard_hotkey_window().await;
+                if let Some(builder) = builder {
+                    builder.cancel();
+                }
+                fe.spawned_mux_window.borrow_mut().remove(&id);
+                fe.hotkey_window
+                    .borrow_mut()
+                    .creation_failed(reusing_session);
+            } else {
+                fe.hotkey_window.borrow_mut().pending = false;
+                drop(builder);
+            }
+        })
+        .detach();
+    }
+
+    pub fn is_hotkey_window(&self, id: MuxWindowId) -> bool {
+        #[cfg(target_os = "macos")]
+        {
+            self.hotkey_window.borrow().mux_window_id == Some(id)
+        }
+        #[cfg(not(target_os = "macos"))]
+        {
+            let _ = id;
+            false
+        }
+    }
+
+    pub fn workspace_has_ordinary_windows(&self, workspace: &str) -> bool {
+        workspace_has_ordinary_windows(&Mux::get().iter_windows_in_workspace(workspace), |id| {
+            self.is_hotkey_window(id)
+        })
+    }
+
+    #[cfg(target_os = "macos")]
+    pub fn hotkey_window_initial_visibility(&self, id: MuxWindowId) -> Option<bool> {
+        let state = self.hotkey_window.borrow();
+        (state.mux_window_id == Some(id)).then_some(state.visible)
+    }
+
     fn app_event_handler(event: ApplicationEvent) {
         match event {
+            #[cfg(target_os = "macos")]
+            ApplicationEvent::SpawnHotkeyWindow => Self::spawn_hotkey_window(),
             ApplicationEvent::OpenCommandScript(file_name) => {
                 Self::spawn_open_command_script(file_name, false);
             }
@@ -1151,7 +1305,7 @@ impl GuiFrontEnd {
         let mux = Mux::get();
         let workspace = mux.active_workspace_for_client(&self.client_id);
 
-        if mux.is_workspace_empty(&workspace) {
+        if !self.workspace_has_ordinary_windows(&workspace) {
             // We don't want to silently kill off things that might
             // be running in other workspaces, so let's pick one
             // and activate it
@@ -1160,7 +1314,7 @@ impl GuiFrontEnd {
                 return promise.get_future().unwrap();
             }
             for workspace in mux.iter_workspaces() {
-                if !mux.is_workspace_empty(&workspace) {
+                if self.workspace_has_ordinary_windows(&workspace) {
                     mux.set_active_workspace_for_client(&self.client_id, &workspace);
                     log::debug!("using {} instead, as it is not empty", workspace);
                     break;
@@ -1172,6 +1326,7 @@ impl GuiFrontEnd {
         log::debug!("workspace is {}, fixup windows", workspace);
 
         let mut mux_windows = mux.iter_windows_in_workspace(&workspace);
+        mux_windows.retain(|id| !self.is_hotkey_window(*id));
 
         // First, repurpose existing windows.
         // Note that both iter_windows_in_workspace and self.known_windows have a
@@ -1182,6 +1337,19 @@ impl GuiFrontEnd {
         let mut unused = BTreeMap::new();
 
         for (window, window_id) in known_windows.into_iter() {
+            if self.is_hotkey_window(window_id) {
+                if mux.get_window(window_id).is_some() {
+                    windows.insert(window, window_id);
+                } else {
+                    window.close();
+                    self.spawned_mux_window.borrow_mut().remove(&window_id);
+                    #[cfg(target_os = "macos")]
+                    {
+                        *self.hotkey_window.borrow_mut() = HotkeyWindowState::default();
+                    }
+                }
+                continue;
+            }
             if let Some(idx) = mux_windows.iter().position(|&id| id == window_id) {
                 // it already points to the desired mux window
                 windows.insert(window, window_id);
@@ -1275,7 +1443,19 @@ impl GuiFrontEnd {
     }
 
     pub fn forget_known_window(&self, window: &Window) {
-        self.known_windows.borrow_mut().remove(window);
+        let removed = self.known_windows.borrow_mut().remove(window);
+        if removed.is_some() && *self.last_focused_ordinary_window.borrow() == removed {
+            self.last_focused_ordinary_window.borrow_mut().take();
+        }
+        #[cfg(target_os = "macos")]
+        if removed.is_some_and(|id| self.is_hotkey_window(id)) {
+            self.hotkey_window.borrow_mut().native_window_destroyed();
+            self.spawned_mux_window
+                .borrow_mut()
+                .remove(&removed.unwrap());
+        }
+        #[cfg(not(target_os = "macos"))]
+        let _ = removed;
         if !self.is_switching_workspace() {
             self.reconcile_workspace();
         }
@@ -1333,6 +1513,29 @@ impl GuiFrontEnd {
         mux.resolve_focused_pane(&self.client_id)
             .map(|(_, window_id, _, _)| window_id)
             .or_else(|| self.gui_windows().first().map(|w| w.mux_window_id))
+    }
+
+    pub(crate) fn focused_ordinary_mux_window_id(&self) -> Option<MuxWindowId> {
+        let mux = Mux::get();
+        let windows: Vec<_> = self.gui_windows().iter().map(|w| w.mux_window_id).collect();
+        ordinary_snapshot_focus(
+            self.focused_mux_window_id(),
+            *self.last_focused_ordinary_window.borrow(),
+            &windows,
+            |id| {
+                !self.is_hotkey_window(id)
+                    && mux.get_window(id).is_some()
+                    && self.has_mux_window(id)
+                    && !crate::session_restore::is_window_logically_closed(id)
+            },
+        )
+    }
+
+    pub(crate) fn record_window_focus(&self, id: MuxWindowId) {
+        // Snapshot focus is separate from the mux focus used for panel input.
+        if !self.is_hotkey_window(id) {
+            *self.last_focused_ordinary_window.borrow_mut() = Some(id);
+        }
     }
 }
 
@@ -1418,6 +1621,312 @@ pub fn try_new() -> Result<Rc<GuiFrontEnd>, Error> {
 mod tests {
     use super::{kaku_config_command, shell_quote_program};
     use std::path::Path;
+
+    #[test]
+    fn composition_service_chooses_highest_ordinary_id() {
+        assert_eq!(
+            super::ordinary_window_for_service(&[3, 7, 42], |id| id == 42),
+            Some(7)
+        );
+        assert_eq!(
+            super::ordinary_window_for_service(&[3, 7], |_| false),
+            Some(7)
+        );
+        assert_eq!(
+            super::ordinary_window_for_service(&[3, 7, 42], |id| id == 7),
+            Some(42)
+        );
+    }
+
+    #[test]
+    fn composition_service_drawer_only_opens_an_ordinary_window() {
+        assert_eq!(
+            super::ordinary_window_for_service(&[42], |id| id == 42),
+            None
+        );
+        assert_eq!(super::ordinary_window_for_service(&[], |_| false), None);
+    }
+
+    #[test]
+    fn composition_snapshot_keeps_ordinary_focus_while_drawer_has_mux_focus() {
+        assert_eq!(
+            super::ordinary_snapshot_focus(Some(42), Some(7), &[3, 7, 42], |id| id != 42),
+            Some(7)
+        );
+        assert_eq!(
+            super::ordinary_snapshot_focus(Some(7), Some(3), &[3, 7], |_| true),
+            Some(7)
+        );
+    }
+
+    #[test]
+    fn composition_snapshot_rejects_closed_or_destroyed_focus_identities() {
+        for available in [vec![3, 42], vec![3, 7, 42]] {
+            assert_eq!(
+                super::ordinary_snapshot_focus(Some(42), Some(7), &available, |id| id == 3),
+                Some(3)
+            );
+        }
+        assert_eq!(
+            super::ordinary_snapshot_focus(Some(42), Some(7), &[42], |_| false),
+            None
+        );
+        assert_eq!(
+            super::ordinary_snapshot_focus(None, None, &[3, 7], |_| true),
+            Some(3)
+        );
+    }
+
+    #[test]
+    fn composition_production_paths_use_ordinary_selection_and_native_focus() {
+        let source = include_str!("frontend.rs")
+            .split("#[cfg(test)]")
+            .next()
+            .unwrap();
+        let service = source
+            .split("fn spawn_open_command_script(")
+            .nth(1)
+            .unwrap()
+            .split("fn activate_tab_for_tty(")
+            .next()
+            .unwrap();
+        assert!(service
+            .contains("ordinary_window_for_service(&mux.iter_windows_in_workspace(&workspace)"));
+        assert!(service.contains("front_end().is_hotkey_window(id)"));
+        let focus = source
+            .split("pub(crate) fn focused_ordinary_mux_window_id(")
+            .nth(1)
+            .unwrap()
+            .split("pub(crate) fn record_window_focus(")
+            .next()
+            .unwrap();
+        assert!(focus.contains("ordinary_snapshot_focus("));
+        assert!(focus.contains("self.last_focused_ordinary_window.borrow()"));
+        assert!(focus.contains("!self.is_hotkey_window(id)"));
+        assert!(focus.contains("mux.get_window(id).is_some()"));
+        assert!(focus.contains("self.has_mux_window(id)"));
+        assert!(focus.contains("!crate::session_restore::is_window_logically_closed(id)"));
+        let record = source
+            .split("pub(crate) fn record_window_focus(")
+            .nth(1)
+            .unwrap();
+        assert!(record.contains("if !self.is_hotkey_window(id)"));
+        assert!(!record.contains("record_focus_for_"));
+        assert!(!record.contains("focus_pane_and_containing_tab"));
+        let term = include_str!("termwindow/mod.rs");
+        let gain = term
+            .split("fn focus_changed(")
+            .nth(1)
+            .unwrap()
+            .split("if !self.config.tab_bar_at_bottom")
+            .next()
+            .unwrap();
+        assert!(gain.contains("if focused {"));
+        assert!(
+            gain.find("forget_logically_closed(self.mux_window_id)")
+                .unwrap()
+                < gain
+                    .find("front_end().record_window_focus(self.mux_window_id)")
+                    .unwrap()
+        );
+    }
+
+    #[test]
+    fn drawer_only_workspace_is_empty_for_ordinary_window_navigation() {
+        for windows in [vec![], vec![42]] {
+            assert!(!super::workspace_has_ordinary_windows(&windows, |id| id == 42));
+        }
+        for windows in [vec![7], vec![7, 42], vec![42, 7]] {
+            assert!(super::workspace_has_ordinary_windows(&windows, |id| id == 42));
+        }
+        assert!(super::workspace_has_ordinary_windows(&[42], |_| false));
+    }
+
+    #[test]
+    fn workspace_fallback_and_explicit_switch_ignore_dedicated_hotkey() {
+        let source = include_str!("frontend.rs")
+            .split("#[cfg(test)]")
+            .next()
+            .unwrap();
+        let reconcile = source
+            .split("pub fn reconcile_workspace(")
+            .nth(1)
+            .unwrap()
+            .split("fn has_mux_window(")
+            .next()
+            .unwrap();
+        assert!(reconcile.contains("!self.workspace_has_ordinary_windows(&workspace)"));
+        assert!(reconcile.contains("if self.workspace_has_ordinary_windows(&workspace)"));
+        let term = include_str!("termwindow/mod.rs");
+        let switch = term
+            .split("SwitchToWorkspace { name, spawn } =>")
+            .nth(1)
+            .unwrap()
+            .split("DetachDomain(domain) =>")
+            .next()
+            .unwrap();
+        assert!(switch.contains("!front_end().workspace_has_ordinary_windows(&name)"));
+    }
+
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn pending_hotkey_requests_toggle_visibility_without_duplicate_spawns() {
+        let mut state = super::HotkeyWindowState::default();
+        assert!(state.request_spawn());
+        assert!(state.visible);
+        assert!(state.pending);
+        state.mux_window_id = Some(42);
+        assert!(!state.request_spawn());
+        assert!(!state.visible);
+        assert_eq!(state.mux_window_id, Some(42));
+        assert!(!state.request_spawn());
+        assert!(state.visible);
+    }
+
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn hotkey_recreation_retains_the_live_session_and_failure_allows_retry() {
+        let mut state = super::HotkeyWindowState {
+            mux_window_id: Some(42),
+            pending: false,
+            visible: true,
+        };
+        state.native_window_destroyed();
+        assert_eq!(state.mux_window_id, Some(42));
+        assert!(state.request_spawn());
+        assert!(state.visible);
+        state.creation_failed(true);
+        assert_eq!(state.mux_window_id, Some(42));
+        assert!(!state.pending);
+        assert!(state.request_spawn());
+        state.creation_failed(false);
+        assert_eq!(state.mux_window_id, None);
+        assert!(!state.visible);
+        assert!(state.request_spawn());
+        assert!(state.visible);
+    }
+
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn dedicated_hotkey_is_claimed_before_spawn_and_excluded_from_workspace_reuse() {
+        let source = include_str!("frontend.rs")
+            .split("#[cfg(test)]")
+            .next()
+            .unwrap();
+        let spawn = source
+            .split("fn spawn_hotkey_window()")
+            .nth(1)
+            .unwrap()
+            .split("pub fn is_hotkey_window")
+            .next()
+            .unwrap();
+        assert!(
+            spawn.find("mux_window_id = Some(id)").unwrap() < spawn.find("domain.attach(").unwrap()
+        );
+        assert!(
+            spawn
+                .find("spawned_mux_window.borrow_mut().insert(id)")
+                .unwrap()
+                < spawn.find("TermWindow::new_window(id)").unwrap()
+        );
+        assert!(spawn.contains("builder.cancel()"));
+        let reconcile = source
+            .split("pub fn reconcile_workspace(")
+            .nth(1)
+            .unwrap()
+            .split("fn has_mux_window(")
+            .next()
+            .unwrap();
+        assert!(reconcile.contains("mux_windows.retain(|id| !self.is_hotkey_window(*id))"));
+        assert!(
+            reconcile
+                .find("if self.is_hotkey_window(window_id)")
+                .unwrap()
+                < reconcile.find("unused.insert(window, window_id)").unwrap()
+        );
+        let term = include_str!("termwindow/mod.rs");
+        let show = term
+            .split("window.show() start")
+            .nth(1)
+            .unwrap()
+            .split("window.show() done")
+            .next()
+            .unwrap();
+        assert!(show.contains("hotkey_window_initial_visibility(mux_window_id)"));
+        assert!(show.contains("window.initialize_hotkey_window(visible)?"));
+        assert!(show.contains("else {\n            window.show()"));
+    }
+
+    #[test]
+    fn added_tabs_do_not_resize_other_windows_or_enlarge_the_hotkey_drawer() {
+        let term = include_str!("termwindow/mod.rs");
+        let handler = term
+            .split("MuxNotification::TabAddedToWindow { window_id, tab_id }")
+            .nth(1)
+            .unwrap()
+            .split("MuxNotification::PaneOutput")
+            .next()
+            .unwrap();
+        assert!(
+            handler.find("window_id != self.mux_window_id").unwrap()
+                < handler.find("mux.get_tab(tab_id)").unwrap()
+        );
+        assert!(
+            handler
+                .find("is_hotkey_window(self.mux_window_id)")
+                .unwrap()
+                < handler.find("size.rows.max(tab_size.rows)").unwrap()
+        );
+        assert!(handler.contains("tab.resize(self.terminal_size)"));
+        // Ordinary windows retain the existing remote-tab enlargement policy.
+        assert!(handler.contains("self.set_window_size(size, window)?"));
+    }
+
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn hotkey_creation_failure_closes_the_panel_before_releasing_pending() {
+        let source = include_str!("frontend.rs")
+            .split("#[cfg(test)]")
+            .next()
+            .unwrap();
+        let spawn = source
+            .split("fn spawn_hotkey_window()")
+            .nth(1)
+            .unwrap()
+            .split("pub fn is_hotkey_window")
+            .next()
+            .unwrap();
+        assert!(
+            spawn.find("Window::discard_hotkey_window().await").unwrap()
+                < spawn.find("creation_failed(").unwrap()
+        );
+    }
+
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn hotkey_native_teardown_preserves_the_session_identity_for_recreation() {
+        let source = include_str!("frontend.rs")
+            .split("#[cfg(test)]")
+            .next()
+            .unwrap();
+        let forget = source
+            .split("pub fn forget_known_window(")
+            .nth(1)
+            .unwrap()
+            .split("fn update_unread_bell_badge(")
+            .next()
+            .unwrap();
+        assert!(forget.contains("native_window_destroyed()"));
+        assert!(!forget.contains("HotkeyWindowState::default()"));
+        let spawn = source
+            .split("fn spawn_hotkey_window()")
+            .nth(1)
+            .unwrap()
+            .split("pub fn is_hotkey_window")
+            .next()
+            .unwrap();
+        assert!(spawn.contains("if !reusing_session"));
+    }
 
     #[test]
     fn initial_menubar_is_built_synchronously_without_appkit_windows_menu() {

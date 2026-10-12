@@ -7,6 +7,22 @@ use window::color::LinearRgba;
 const INTEGRATED_BUTTONS_TOP_TAB_INSET_POINTS: f32 = 3.0;
 const INTEGRATED_BUTTONS_TOP_CLEARANCE_POINTS: f32 = 16.0;
 
+pub(crate) fn content_border_top(
+    window_state: ::window::WindowState,
+    top_tab_bar_visible: bool,
+    border_top: usize,
+) -> usize {
+    // Fullscreen and drawer borders can include safe area above the tab bar.
+    if top_tab_bar_visible
+        && !window_state
+            .intersects(::window::WindowState::FULL_SCREEN | ::window::WindowState::HOTKEY_WINDOW)
+    {
+        0
+    } else {
+        border_top
+    }
+}
+
 fn integrated_buttons_top_inset_pixels(dpi: f32, top_tab_bar_visible: bool) -> usize {
     let points = if top_tab_bar_visible {
         INTEGRATED_BUTTONS_TOP_TAB_INSET_POINTS
@@ -22,11 +38,12 @@ fn integrated_buttons_top_inset_pixels(dpi: f32, top_tab_bar_visible: bool) -> u
 
 pub(crate) fn integrated_buttons_top_inset(
     config: &Config,
-    is_fullscreen: bool,
+    window_state: ::window::WindowState,
     top_tab_bar_visible: bool,
     dpi: f32,
 ) -> usize {
-    if !is_fullscreen
+    if !window_state
+        .intersects(::window::WindowState::FULL_SCREEN | ::window::WindowState::HOTKEY_WINDOW)
         && config
             .window_decorations
             .contains(::window::WindowDecorations::INTEGRATED_BUTTONS)
@@ -78,7 +95,7 @@ impl crate::TermWindow {
             let top_tab_bar_visible = self.show_tab_bar && !self.config.tab_bar_at_bottom;
             let integrated_top_inset = integrated_buttons_top_inset(
                 &self.config,
-                is_fullscreen,
+                self.effective_layout_window_state(),
                 top_tab_bar_visible,
                 self.dimensions.dpi as f32,
             )
@@ -297,10 +314,9 @@ impl crate::TermWindow {
             &self.render_metrics,
         );
 
-        let is_fullscreen = self.layout_is_effective_fullscreen();
         let extra_top = integrated_buttons_top_inset(
             &self.config,
-            is_fullscreen,
+            self.effective_layout_window_state(),
             self.show_tab_bar && !self.config.tab_bar_at_bottom,
             self.dimensions.dpi as f32,
         );
@@ -317,21 +333,122 @@ mod tests {
     use super::*;
 
     #[test]
+    fn fullscreen_top_tab_content_keeps_notch_safe_area() {
+        for state in [
+            ::window::WindowState::FULL_SCREEN,
+            ::window::WindowState::FULL_SCREEN | ::window::WindowState::ALWAYS_ON_TOP,
+        ] {
+            assert_eq!(content_border_top(state, true, 64), 64);
+            assert_eq!(content_border_top(state, false, 64), 64);
+        }
+    }
+
+    #[test]
+    fn fullscreen_top_tab_content_does_not_add_external_display_clearance() {
+        for state in [
+            ::window::WindowState::FULL_SCREEN,
+            ::window::WindowState::HOTKEY_WINDOW,
+            ::window::WindowState::empty(),
+        ] {
+            for visible in [false, true] {
+                assert_eq!(content_border_top(state, visible, 0), 0);
+            }
+        }
+    }
+
+    #[test]
+    fn fullscreen_first_row_starts_below_notch_and_top_tab_bar() {
+        let safe_area = 64;
+        let tab_bar_height = 56;
+        let padding_top = 19;
+        let content_top = tab_bar_height
+            + padding_top
+            + content_border_top(::window::WindowState::FULL_SCREEN, true, safe_area);
+        assert_eq!(content_top, 139);
+        assert!(content_top >= safe_area + tab_bar_height);
+        assert_eq!(
+            tab_bar_height
+                + padding_top
+                + content_border_top(::window::WindowState::empty(), true, safe_area),
+            75
+        );
+        assert_eq!(
+            tab_bar_height
+                + padding_top
+                + content_border_top(::window::WindowState::HOTKEY_WINDOW, true, safe_area),
+            content_top
+        );
+    }
+
+    #[test]
+    fn hotkey_top_tab_content_keeps_notch_safe_area() {
+        assert_eq!(
+            content_border_top(::window::WindowState::HOTKEY_WINDOW, true, 64),
+            64
+        );
+        assert_eq!(
+            content_border_top(::window::WindowState::HOTKEY_WINDOW, false, 64),
+            64
+        );
+        assert_eq!(
+            content_border_top(::window::WindowState::empty(), true, 64),
+            0
+        );
+        assert_eq!(
+            content_border_top(::window::WindowState::empty(), false, 64),
+            64
+        );
+        assert_eq!(
+            content_border_top(::window::WindowState::HOTKEY_WINDOW, true, 0),
+            0
+        );
+    }
+
+    #[test]
+    fn hotkey_drawer_does_not_reserve_ordinary_traffic_light_clearance() {
+        let mut config = Config::default_config();
+        config.window_decorations =
+            ::window::WindowDecorations::INTEGRATED_BUTTONS | ::window::WindowDecorations::RESIZE;
+        for dpi in [72.0, 144.0, 192.0] {
+            for visible in [false, true] {
+                assert_eq!(
+                    integrated_buttons_top_inset(
+                        &config,
+                        ::window::WindowState::HOTKEY_WINDOW,
+                        visible,
+                        dpi
+                    ),
+                    0
+                );
+            }
+        }
+    }
+
+    #[test]
     fn integrated_buttons_top_inset_is_state_sensitive() {
         let mut config = Config::default_config();
         config.window_decorations =
             ::window::WindowDecorations::INTEGRATED_BUTTONS | ::window::WindowDecorations::RESIZE;
 
-        assert_eq!(integrated_buttons_top_inset(&config, false, true, 144.0), 6);
         assert_eq!(
-            integrated_buttons_top_inset(&config, false, false, 144.0),
+            integrated_buttons_top_inset(&config, ::window::WindowState::empty(), true, 144.0),
+            6
+        );
+        assert_eq!(
+            integrated_buttons_top_inset(&config, ::window::WindowState::empty(), false, 144.0),
             32
         );
-        assert_eq!(integrated_buttons_top_inset(&config, true, true, 144.0), 0);
+        assert_eq!(
+            integrated_buttons_top_inset(&config, ::window::WindowState::FULL_SCREEN, true, 144.0),
+            0
+        );
 
         config.window_decorations =
             ::window::WindowDecorations::TITLE | ::window::WindowDecorations::RESIZE;
-        assert_eq!(integrated_buttons_top_inset(&config, false, true, 144.0), 0);
+        assert_eq!(
+            integrated_buttons_top_inset(&config, ::window::WindowState::empty(), true, 144.0),
+            0
+        );
     }
 
     #[test]

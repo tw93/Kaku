@@ -121,6 +121,7 @@ impl UserData for GuiWin {
                 pixel_height: usize,
                 dpi: usize,
                 is_full_screen: bool,
+                is_hotkey_window: bool,
             }
             impl_lua_conversion_dynamic!(Dims);
 
@@ -129,6 +130,7 @@ impl UserData for GuiWin {
                 pixel_height: dims.pixel_height,
                 dpi: dims.dpi,
                 is_full_screen: window_state.contains(WindowState::FULL_SCREEN),
+                is_hotkey_window: window_state.contains(WindowState::HOTKEY_WINDOW),
                 // FIXME: expose other states here
             };
             Ok(dims)

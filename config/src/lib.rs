@@ -1561,6 +1561,16 @@ pub fn overridden_config(overrides: &wezterm_dynamic::Value) -> Result<ConfigHan
     CONFIG.overridden(overrides)
 }
 
+/// Load the hotkey appearance layer before explicit window overrides.
+pub fn hotkey_config(overrides: &wezterm_dynamic::Value) -> Result<ConfigHandle, Error> {
+    let generation = CONFIG.inner.lock().unwrap().generation;
+    let loaded = Config::load_hotkey_with_overrides(overrides);
+    Ok(ConfigHandle {
+        config: Arc::new(loaded.config?),
+        generation,
+    })
+}
+
 pub fn reload() {
     CONFIG.reload();
 }

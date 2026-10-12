@@ -154,12 +154,14 @@ bitflags! {
         const ALWAYS_ON_TOP = 1<<4;
         /// Always on bottom (docked) window
         const ALWAYS_ON_BOTTOM = 1<<5;
+        /// A hotkey drawer, not a transient fullscreen resize.
+        const HOTKEY_WINDOW = 1<<6;
     }
 }
 
 impl WindowState {
     pub fn can_resize(self) -> bool {
-        !self.intersects(Self::FULL_SCREEN | Self::MAXIMIZED)
+        !self.intersects(Self::FULL_SCREEN | Self::MAXIMIZED | Self::HOTKEY_WINDOW)
     }
 
     pub fn can_paint(self) -> bool {
@@ -527,6 +529,21 @@ mod tests {
     use super::*;
     use std::cell::RefCell;
     use std::rc::Rc;
+
+    #[test]
+    fn hotkey_drawer_font_scaling_keeps_fixed_window_geometry() {
+        assert!(WindowState::default().can_resize());
+        assert!(WindowState::ALWAYS_ON_TOP.can_resize());
+        for extra in [
+            WindowState::default(),
+            WindowState::ALWAYS_ON_TOP,
+            WindowState::HIDDEN,
+        ] {
+            assert!(!(WindowState::HOTKEY_WINDOW | extra).can_resize());
+        }
+        assert!(!WindowState::FULL_SCREEN.can_resize());
+        assert!(!WindowState::MAXIMIZED.can_resize());
+    }
 
     #[test]
     fn window_event_sender_queues_reentrant_dispatch() {

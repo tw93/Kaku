@@ -68,6 +68,9 @@ pub enum ApplicationEvent {
     ActivatePaneById(usize),
     /// The system requests focusing a tab by tab id.
     ActivateTabById(usize),
+    /// Create the dedicated terminal used by the macOS global hotkey.
+    #[cfg(target_os = "macos")]
+    SpawnHotkeyWindow,
     PerformKeyAssignment(KeyAssignment),
 }
 

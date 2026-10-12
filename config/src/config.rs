@@ -502,6 +502,40 @@ pub struct Config {
     #[dynamic(default = "default_macos_global_hotkey")]
     pub macos_global_hotkey: Option<KeyNoAction>,
 
+    /// Reveal the global hotkey window on the display containing the mouse.
+    /// When false, keep using AppKit's main display.
+    #[dynamic(default)]
+    pub macos_global_hotkey_follow_mouse: bool,
+
+    /// Omitted sides inherit window_padding; the display safe area is added separately.
+    #[dynamic(default)]
+    pub macos_global_hotkey_padding: Option<HotkeyWindowPadding>,
+
+    #[dynamic(try_from = "Option<MacosGlobalHotkeyAppearance>", default)]
+    pub macos_global_hotkey_appearance: MacosGlobalHotkeyAppearance,
+
+    #[dynamic(default)]
+    pub macos_global_hotkey_mode: MacosGlobalHotkeyMode,
+
+    #[dynamic(
+        default = "default_hotkey_height_percent",
+        validate = "validate_hotkey_height_percent"
+    )]
+    pub macos_global_hotkey_height_percent: f64,
+
+    #[dynamic(
+        default = "default_hotkey_animation_duration_ms",
+        validate = "validate_hotkey_animation_duration_ms"
+    )]
+    pub macos_global_hotkey_animation_duration_ms: u64,
+
+    #[dynamic(default = "default_true")]
+    pub macos_global_hotkey_hide_on_focus_loss: bool,
+
+    /// None inherits macos_fullscreen_extend_behind_notch.
+    #[dynamic(default)]
+    pub macos_global_hotkey_extend_behind_notch: Option<bool>,
+
     #[dynamic(default)]
     pub treat_left_ctrlalt_as_altgr: bool,
 
@@ -1195,6 +1229,17 @@ impl Config {
     }
 
     pub fn load_with_overrides(overrides: &wezterm_dynamic::Value) -> LoadedConfig {
+        Self::load_with_window_overrides(overrides, false)
+    }
+
+    pub(crate) fn load_hotkey_with_overrides(overrides: &wezterm_dynamic::Value) -> LoadedConfig {
+        Self::load_with_window_overrides(overrides, true)
+    }
+
+    fn load_with_window_overrides(
+        overrides: &wezterm_dynamic::Value,
+        hotkey: bool,
+    ) -> LoadedConfig {
         // Note that the directories crate has methods for locating project
         // specific config directories, but only returns one of them, not
         // multiple.  In addition, it spawns a lot of subprocesses,
@@ -1241,7 +1286,7 @@ impl Config {
                 break;
             }
 
-            match Self::try_load(path_item, overrides) {
+            match Self::try_load(path_item, overrides, hotkey) {
                 Err(err) => {
                     return LoadedConfig {
                         config: Err(err),
@@ -1261,7 +1306,12 @@ impl Config {
         std::env::remove_var("KAKU_CONFIG_FILE");
         std::env::remove_var("KAKU_CONFIG_DIR");
 
-        match Self::try_default() {
+        let default = if hotkey {
+            Self::try_default_hotkey(overrides)
+        } else {
+            Self::try_default()
+        };
+        match default {
             Err(err) => LoadedConfig {
                 config: Err(err),
                 file_name: None,
@@ -1285,6 +1335,21 @@ impl Config {
             warnings,
         };
         Ok(loaded)
+    }
+
+    fn try_default_hotkey(overrides: &wezterm_dynamic::Value) -> anyhow::Result<LoadedConfig> {
+        let lua = make_lua_context(Path::new(""))?;
+        let (config, warnings) = wezterm_dynamic::Error::capture_warnings(|| {
+            let raw = mlua::Value::Table(lua.create_table()?);
+            let raw = Self::apply_overrides_to(&lua, raw)?;
+            Self::finish_hotkey_config(&lua, raw, overrides, None)
+        });
+        Ok(LoadedConfig {
+            config: Ok(config?),
+            file_name: None,
+            lua: Some(lua),
+            warnings,
+        })
     }
 
     /// Runtime signature embedded in every cache entry.
@@ -1401,6 +1466,7 @@ impl Config {
     fn try_load(
         path_item: &PathPossibility,
         overrides: &wezterm_dynamic::Value,
+        hotkey: bool,
     ) -> anyhow::Result<Option<LoadedConfig>> {
         let p = path_item.path.as_path();
         log::trace!("consider config: {}", p.display());
@@ -1505,6 +1571,11 @@ impl Config {
                 }
 
                 let config = Config::apply_overrides_to(&lua, config)?;
+                let config = if hotkey {
+                    Self::apply_hotkey_to(&lua, config, overrides)?
+                } else {
+                    config
+                };
                 let config = Config::apply_overrides_obj_to(&lua, config, overrides)?;
                 let t3 = std::time::Instant::now();
                 let cfg = Config::from_lua(config, &lua).with_context(|| {
@@ -1570,6 +1641,84 @@ impl Config {
         }
     }
 
+    fn apply_hotkey_to<'l>(
+        lua: &'l mlua::Lua,
+        config: mlua::Value<'l>,
+        overrides: &wezterm_dynamic::Value,
+    ) -> anyhow::Result<mlua::Value<'l>> {
+        // Runtime hooks may replace or clear the hotkey layer itself. Plain
+        // window fields are applied later, so they retain highest priority.
+        let mut layer = wezterm_dynamic::Object::default();
+        if let wezterm_dynamic::Value::Object(overrides) = overrides {
+            for key in [
+                "macos_global_hotkey_padding",
+                "macos_global_hotkey_appearance",
+            ] {
+                if let Some(value) = overrides.get_by_str(key) {
+                    layer.insert(wezterm_dynamic::Value::String(key.into()), value.clone());
+                }
+            }
+        }
+        let config =
+            Self::apply_overrides_obj_to(lua, config, &wezterm_dynamic::Value::Object(layer))?;
+        let get: mlua::Function = lua
+            .load("return function(config, key) return config[key] end")
+            .eval()?;
+        let options = wezterm_dynamic::FromDynamicOptions {
+            unknown_fields: wezterm_dynamic::UnknownFieldAction::Deny,
+            ..Default::default()
+        };
+        let appearance = luahelper::lua_value_to_dynamic(
+            get.call((config.clone(), "macos_global_hotkey_appearance"))?,
+        )?;
+        let appearance = Option::<MacosGlobalHotkeyAppearance>::from_dynamic(&appearance, options)?
+            .unwrap_or_default();
+        let wezterm_dynamic::Value::Object(mut fields) = appearance.to_dynamic() else {
+            unreachable!("typed appearance is an object")
+        };
+        fields.retain(|_, value| !matches!(value, wezterm_dynamic::Value::Null));
+
+        if let Some(colors) = &appearance.colors {
+            let base = luahelper::lua_value_to_dynamic(get.call((config.clone(), "colors"))?)?;
+            let base = Option::<Palette>::from_dynamic(&base, options)?.unwrap_or_default();
+            fields.insert(
+                wezterm_dynamic::Value::String("colors".into()),
+                base.overlay_with(colors).to_dynamic(),
+            );
+        }
+
+        let padding = luahelper::lua_value_to_dynamic(
+            get.call((config.clone(), "macos_global_hotkey_padding"))?,
+        )?;
+        if let Some(padding) = Option::<HotkeyWindowPadding>::from_dynamic(&padding, options)? {
+            let base =
+                luahelper::lua_value_to_dynamic(get.call((config.clone(), "window_padding"))?)?;
+            let base = if matches!(base, wezterm_dynamic::Value::Null) {
+                WindowPadding::default()
+            } else {
+                WindowPadding::from_dynamic(&base, options)?
+            };
+            fields.insert(
+                wezterm_dynamic::Value::String("window_padding".into()),
+                padding.resolve(&base).to_dynamic(),
+            );
+        }
+        Self::apply_overrides_obj_to(lua, config, &wezterm_dynamic::Value::Object(fields))
+    }
+
+    fn finish_hotkey_config(
+        lua: &mlua::Lua,
+        raw: mlua::Value,
+        overrides: &wezterm_dynamic::Value,
+        config_path: Option<&Path>,
+    ) -> anyhow::Result<Config> {
+        let raw = Self::apply_hotkey_to(lua, raw, overrides)?;
+        let raw = Self::apply_overrides_obj_to(lua, raw, overrides)?;
+        let config = Self::from_lua(raw, lua)?;
+        config.check_consistency()?;
+        Ok(config.compute_extra_defaults(config_path))
+    }
+
     pub(crate) fn apply_overrides_to<'l>(
         lua: &'l mlua::Lua,
         mut config: mlua::Value<'l>,
@@ -1608,6 +1757,10 @@ impl Config {
 
     /// Check for logical conflicts in the config
     pub fn check_consistency(&self) -> anyhow::Result<()> {
+        validate_hotkey_height_percent(&self.macos_global_hotkey_height_percent)
+            .map_err(anyhow::Error::msg)?;
+        validate_hotkey_animation_duration_ms(&self.macos_global_hotkey_animation_duration_ms)
+            .map_err(anyhow::Error::msg)?;
         self.check_domain_consistency()?;
         Ok(())
     }
@@ -2267,6 +2420,644 @@ mod tests {
     use super::default_hyperlink_rules;
     use std::sync::Arc;
     use termwiz::hyperlink::{Hyperlink, Rule, RuleMatch};
+
+    fn hotkey_fixture(
+        source: &str,
+        overrides: &wezterm_dynamic::Value,
+        hotkey: bool,
+    ) -> super::Config {
+        static NEXT: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(0);
+        let path = std::env::temp_dir().join(format!(
+            "kaku-hotkey-config-{}-{}.lua",
+            std::process::id(),
+            NEXT.fetch_add(1, std::sync::atomic::Ordering::Relaxed)
+        ));
+        std::fs::write(&path, source).unwrap();
+        let loaded = super::Config::try_load(
+            &super::PathPossibility::required(path.clone()),
+            overrides,
+            hotkey,
+        );
+        let _ = std::fs::remove_file(super::Config::bytecode_cache_path(&path));
+        std::fs::remove_file(path).unwrap();
+        loaded.unwrap().unwrap().config.unwrap()
+    }
+
+    fn hotkey_overrides(source: &str) -> wezterm_dynamic::Value {
+        let lua = mlua::Lua::new();
+        luahelper::lua_value_to_dynamic(lua.load(source).eval().unwrap()).unwrap()
+    }
+
+    fn assert_hotkey_padding(config: &super::Config, expected: [f32; 4]) {
+        let context = crate::DimensionContext {
+            dpi: 192.0,
+            pixel_max: 800.0,
+            pixel_cell: 16.0,
+        };
+        let p = &config.window_padding;
+        assert_eq!(
+            [p.left, p.right, p.top, p.bottom].map(|d| d.evaluate_as_pixels(context)),
+            expected
+        );
+    }
+
+    #[test]
+    fn hotkey_inheritance_missing_nil_and_empty_inherit_base() {
+        use wezterm_dynamic::ToDynamic;
+        for padding in [
+            "",
+            "macos_global_hotkey_padding = nil,",
+            "macos_global_hotkey_padding = {},",
+        ] {
+            let config = hotkey_fixture(&format!(
+                "return {{window_padding={{left='21px',right='22px',top='23px',bottom='24px'}}, {padding}}}"
+            ), &wezterm_dynamic::Value::Null, true);
+            assert_hotkey_padding(&config, [21.0, 22.0, 23.0, 24.0]);
+            if padding.is_empty() {
+                let wezterm_dynamic::Value::Object(fields) = config.to_dynamic() else {
+                    panic!("object")
+                };
+                assert_eq!(
+                    fields.get(&wezterm_dynamic::Value::String(
+                        "macos_global_hotkey_padding".into()
+                    )),
+                    Some(&wezterm_dynamic::Value::Null)
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn hotkey_inheritance_partial_nil_zero_preserves_units() {
+        let config = hotkey_fixture(
+            "return {window_padding={left='21px',right='1%',top='3pt',bottom='2cell'}, macos_global_hotkey_padding={left=0,top=nil}}",
+            &wezterm_dynamic::Value::Null, true);
+        assert_hotkey_padding(&config, [0.0, 8.0, 8.0, 32.0]);
+        let config = hotkey_fixture(
+            "return {window_padding={left='21px',right='22px',top='23px',bottom='24px'}, macos_global_hotkey_padding={left='2cell',right='1%',top='3pt',bottom='0px'}}",
+            &wezterm_dynamic::Value::Null, true);
+        assert_hotkey_padding(&config, [32.0, 8.0, 8.0, 0.0]);
+    }
+
+    #[test]
+    fn hotkey_inheritance_ordinary_is_unchanged() {
+        let config = hotkey_fixture(
+            "return {window_padding={left=21,right=22,top=23,bottom=24},macos_global_hotkey_padding={left=0}}",
+            &wezterm_dynamic::Value::Null, false);
+        assert_hotkey_padding(&config, [21.0, 22.0, 23.0, 24.0]);
+    }
+
+    #[test]
+    fn hotkey_inheritance_clear_and_reload_recompute_base() {
+        for (left, override_value, expected) in
+            [(21, "{left=0}", 0.0), (21, "nil", 21.0), (31, "{}", 31.0)]
+        {
+            let config = hotkey_fixture(&format!(
+                "return {{window_padding={{left={left},right=22,top=23,bottom=24}},macos_global_hotkey_padding={override_value}}}"
+            ), &wezterm_dynamic::Value::Null, true);
+            assert_hotkey_padding(&config, [expected, 22.0, 23.0, 24.0]);
+        }
+    }
+
+    #[test]
+    fn hotkey_inheritance_appearance_and_palette_derive_once() {
+        use wezterm_dynamic::ToDynamic;
+        let source = "return {font_size=13,color_scheme='Kaku Dark',window_background_image='bg.png',macos_global_hotkey_appearance={font_size=19,color_scheme='Kaku Light',colors={cursor_bg='#123456'},enable_tab_bar=false}}";
+        let ordinary = hotkey_fixture(source, &wezterm_dynamic::Value::Null, false);
+        for _ in 0..3 {
+            let hotkey = hotkey_fixture(source, &wezterm_dynamic::Value::Null, true);
+            assert_eq!(ordinary.font_size, 13.0);
+            assert_eq!(hotkey.font_size, 19.0);
+            assert!(!hotkey.enable_tab_bar);
+            assert_eq!(hotkey.color_scheme.as_deref(), Some("Kaku Light"));
+            assert_ne!(
+                hotkey.resolved_palette.to_dynamic(),
+                ordinary.resolved_palette.to_dynamic()
+            );
+            let light = hotkey_fixture(
+                "return {color_scheme='Kaku Light',colors={cursor_bg='#123456'}}",
+                &wezterm_dynamic::Value::Null,
+                false,
+            );
+            assert_eq!(
+                hotkey.resolved_palette.to_dynamic(),
+                light.resolved_palette.to_dynamic()
+            );
+            assert_eq!(hotkey.font_rules.len(), ordinary.font_rules.len());
+            assert_eq!(hotkey.background.len(), ordinary.background.len());
+        }
+    }
+
+    #[test]
+    fn hotkey_inheritance_explicit_window_overrides_win() {
+        let config = hotkey_fixture(
+            "return {font_size=13,window_padding={left=21,right=22,top=23,bottom=24},macos_global_hotkey_padding={left=0},macos_global_hotkey_appearance={font_size=19,enable_tab_bar=false}}",
+            &hotkey_overrides("return {font_size=27,enable_tab_bar=true,window_padding={left=1,right=2,top=3,bottom=4}}"), true);
+        assert_eq!(config.font_size, 27.0);
+        assert!(config.enable_tab_bar);
+        assert_hotkey_padding(&config, [1.0, 2.0, 3.0, 4.0]);
+    }
+
+    #[test]
+    fn hotkey_inheritance_default_fallback_applies_window_overrides() {
+        let loaded = super::Config::try_default_hotkey(&hotkey_overrides(
+            "return {font_size=27,window_padding={left=1,right=2,top=3,bottom=4}}",
+        ))
+        .unwrap();
+        let config = loaded.config.unwrap();
+        assert_eq!(config.font_size, 27.0);
+        assert_hotkey_padding(&config, [1.0, 2.0, 3.0, 4.0]);
+    }
+
+    #[test]
+    fn hotkey_inheritance_runtime_layers_and_plain_fields_have_ordered_priority() {
+        let source = "return {font_size=13,window_padding={left=21,right=22,top=23,bottom=24},macos_global_hotkey_padding={left=16,top=8},macos_global_hotkey_appearance={font_size=17,enable_tab_bar=false}}";
+        let layer = hotkey_overrides("return {macos_global_hotkey_padding={left=0},macos_global_hotkey_appearance={font_size=19}}" );
+        let config = hotkey_fixture(source, &layer, true);
+        assert_hotkey_padding(&config, [0.0, 22.0, 23.0, 24.0]);
+        assert_eq!(config.font_size, 19.0);
+        assert!(config.enable_tab_bar);
+        let overrides = hotkey_overrides("return {macos_global_hotkey_padding={left=0},macos_global_hotkey_appearance={font_size=19,enable_tab_bar=false},font_size=27,enable_tab_bar=true,window_padding={left=1,right=2,top=3,bottom=4}}" );
+        let config = hotkey_fixture(source, &overrides, true);
+        assert_hotkey_padding(&config, [1.0, 2.0, 3.0, 4.0]);
+        assert_eq!(config.font_size, 27.0);
+        assert!(config.enable_tab_bar);
+        let ordinary = hotkey_fixture(source, &layer, false);
+        assert_hotkey_padding(&ordinary, [21.0, 22.0, 23.0, 24.0]);
+        assert_eq!(ordinary.font_size, 13.0);
+    }
+
+    #[test]
+    fn hotkey_inheritance_runtime_empty_and_null_layers_restore_base() {
+        use wezterm_dynamic::Value;
+        let source = "return {font_size=13,window_padding={left=21,right=22,top=23,bottom=24},macos_global_hotkey_padding={left=16,top=8},macos_global_hotkey_appearance={font_size=17}}";
+        for cleared in [Value::Null, Value::Object(Default::default())] {
+            let mut fields = wezterm_dynamic::Object::default();
+            fields.insert(
+                Value::String("macos_global_hotkey_padding".into()),
+                cleared.clone(),
+            );
+            fields.insert(
+                Value::String("macos_global_hotkey_appearance".into()),
+                cleared,
+            );
+            let config = hotkey_fixture(source, &Value::Object(fields), true);
+            assert_hotkey_padding(&config, [21.0, 22.0, 23.0, 24.0]);
+            assert_eq!(config.font_size, 13.0);
+            assert!(config.macos_global_hotkey_appearance.font_size.is_none());
+        }
+        let inherited = hotkey_fixture(source, &Value::Null, true);
+        assert_hotkey_padding(&inherited, [16.0, 22.0, 8.0, 24.0]);
+        assert_eq!(inherited.font_size, 17.0);
+    }
+
+    #[test]
+    fn hotkey_inheritance_partial_colors_overlay_base_before_new_scheme_derivation() {
+        use wezterm_dynamic::ToDynamic;
+        let source = "return {color_scheme='Kaku Dark',colors={foreground='#112233',selection_bg='#abcdef'},macos_global_hotkey_appearance={color_scheme='Kaku Light',colors={cursor_bg='#445566'}}}";
+        let expected = hotkey_fixture("return {color_scheme='Kaku Light',colors={foreground='#112233',selection_bg='#abcdef',cursor_bg='#445566'}}", &wezterm_dynamic::Value::Null,false);
+        for _ in 0..3 {
+            let config = hotkey_fixture(source, &wezterm_dynamic::Value::Null, true);
+            assert_eq!(
+                config.colors.as_ref().unwrap().to_dynamic(),
+                expected.colors.as_ref().unwrap().to_dynamic()
+            );
+            assert_eq!(
+                config.resolved_palette.to_dynamic(),
+                expected.resolved_palette.to_dynamic()
+            );
+        }
+        let config = hotkey_fixture(source,&hotkey_overrides("return {macos_global_hotkey_appearance={color_scheme='Kaku Light',colors={cursor_bg='#445566'}}}"),true);
+        assert_eq!(
+            config.resolved_palette.to_dynamic(),
+            expected.resolved_palette.to_dynamic()
+        );
+    }
+
+    #[test]
+    fn hotkey_inheritance_all_typed_appearance_fields_apply_and_nil_is_empty() {
+        use wezterm_dynamic::{ToDynamic, Value};
+        let fields = "font=wezterm.font('Menlo'),font_rules={},font_size=19,line_height=1.4,color_scheme='Kaku Light',colors={cursor_bg='#112233'},window_background_opacity=0.7,text_background_opacity=0.8,macos_window_background_blur=12,window_frame={border_left_width='3px'},enable_tab_bar=false,hide_tab_bar_if_only_one_tab=false,tab_bar_at_bottom=true,use_fancy_tab_bar=false,enable_scroll_bar=true";
+        let expected = hotkey_fixture(
+            &format!("local wezterm=require('wezterm');return {{{fields}}}"),
+            &Value::Null,
+            false,
+        );
+        let hotkey = hotkey_fixture(&format!("local wezterm=require('wezterm');return {{macos_global_hotkey_appearance={{{fields}}}}}"),&Value::Null,true);
+        let Value::Object(actual) = hotkey.to_dynamic() else {
+            panic!("object")
+        };
+        let Value::Object(expected) = expected.to_dynamic() else {
+            panic!("object")
+        };
+        assert_eq!(
+            super::MacosGlobalHotkeyAppearance::possible_field_names().len(),
+            15
+        );
+        for key in super::MacosGlobalHotkeyAppearance::possible_field_names() {
+            assert_eq!(actual.get_by_str(key), expected.get_by_str(key), "{key}");
+        }
+        for layer in ["nil", "{}"] {
+            let config = hotkey_fixture(
+                &format!("return {{font_size=13,macos_global_hotkey_appearance={layer}}}"),
+                &Value::Null,
+                true,
+            );
+            assert_eq!(config.font_size, 13.0);
+            assert!(config.macos_global_hotkey_appearance.font_size.is_none());
+        }
+    }
+
+    #[test]
+    fn hotkey_inheritance_whitelist_rejects_nonappearance_fields() {
+        let lua = mlua::Lua::new();
+        for field in [
+            "keys={}",
+            "default_prog={'sh'}",
+            "window_padding={left=0}",
+            "macos_global_hotkey_follow_mouse=true",
+        ] {
+            let raw = lua
+                .load(format!(
+                    "return {{macos_global_hotkey_appearance={{{field}}}}}"
+                ))
+                .eval()
+                .unwrap();
+            assert!(
+                super::Config::finish_hotkey_config(&lua, raw, &wezterm_dynamic::Value::Null, None)
+                    .is_err(),
+                "accepted {}",
+                field
+            );
+        }
+    }
+
+    #[test]
+    fn global_hotkey_behavior_defaults_validation_and_roundtrip() {
+        use wezterm_dynamic::{FromDynamic, ToDynamic, Value};
+        let defaults = super::Config::default();
+        assert_eq!(
+            defaults.macos_global_hotkey_mode,
+            super::MacosGlobalHotkeyMode::Drawer
+        );
+        assert_eq!(defaults.macos_global_hotkey_height_percent, 100.0 / 3.0);
+        assert_eq!(defaults.macos_global_hotkey_animation_duration_ms, 200);
+        assert!(defaults.macos_global_hotkey_hide_on_focus_loss);
+        assert_eq!(defaults.macos_global_hotkey_extend_behind_notch, None);
+        for mode in ["Drawer", "Ordinary"] {
+            let value = hotkey_overrides(&format!("return {{macos_global_hotkey_mode='{mode}',macos_global_hotkey_height_percent=100,macos_global_hotkey_animation_duration_ms=0,macos_global_hotkey_hide_on_focus_loss=false,macos_global_hotkey_extend_behind_notch=false}}"));
+            let config = super::Config::from_dynamic(&value, Default::default()).unwrap();
+            config.check_consistency().unwrap();
+            assert_eq!(
+                config.macos_global_hotkey_mode.to_dynamic(),
+                Value::String(mode.into())
+            );
+            assert_eq!(config.macos_global_hotkey_extend_behind_notch, Some(false));
+            assert!(!config.macos_global_hotkey_hide_on_focus_loss);
+            let roundtrip =
+                super::Config::from_dynamic(&config.to_dynamic(), Default::default()).unwrap();
+            assert_eq!(roundtrip.to_dynamic(), config.to_dynamic());
+        }
+        for height in [0.0, -1.0, 100.1, f64::INFINITY, f64::NEG_INFINITY, f64::NAN] {
+            let mut fields = wezterm_dynamic::Object::default();
+            fields.insert(
+                Value::String("macos_global_hotkey_height_percent".into()),
+                Value::F64(height.into()),
+            );
+            assert!(
+                super::Config::from_dynamic(&Value::Object(fields), Default::default()).is_err(),
+                "accepted height {}",
+                height
+            );
+        }
+        for height in [0.1, 100.0 / 3.0, 100.0] {
+            let mut config = super::Config::default();
+            config.macos_global_hotkey_height_percent = height;
+            assert!(config.check_consistency().is_ok());
+        }
+        for duration in [0, 200, 10_000, 10_001] {
+            let mut fields = wezterm_dynamic::Object::default();
+            fields.insert(
+                Value::String("macos_global_hotkey_animation_duration_ms".into()),
+                Value::U64(duration),
+            );
+            assert_eq!(
+                super::Config::from_dynamic(&Value::Object(fields), Default::default()).is_ok(),
+                duration <= 10_000
+            );
+        }
+    }
+
+    #[test]
+    fn hotkey_inheritance_loader_and_public_api_wiring() {
+        let source = include_str!("config.rs");
+        let loader = source
+            .split_once("    fn try_load(\n")
+            .unwrap()
+            .1
+            .split_once("    pub(crate) fn apply_overrides_obj_to")
+            .unwrap()
+            .0;
+        let cli = loader
+            .find("Config::apply_overrides_to(&lua, config)")
+            .unwrap();
+        let hotkey = loader
+            .find("Self::apply_hotkey_to(&lua, config, overrides)")
+            .unwrap();
+        let window = loader
+            .find("Config::apply_overrides_obj_to(&lua, config, overrides)")
+            .unwrap();
+        let parse = loader.find("Config::from_lua(config, &lua)").unwrap();
+        let derive = loader.find("cfg.compute_extra_defaults(Some(p))").unwrap();
+        assert!(cli < hotkey && hotkey < window && window < parse && parse < derive);
+        let api = include_str!("lib.rs")
+            .split_once("pub fn hotkey_config(")
+            .unwrap()
+            .1
+            .split_once("pub fn reload()")
+            .unwrap()
+            .0;
+        assert!(api.contains("Config::load_hotkey_with_overrides(overrides)"));
+        assert!(source.contains("Self::load_with_window_overrides(overrides, true)"));
+        assert!(source.contains("Self::try_default_hotkey(overrides)"));
+    }
+
+    #[test]
+    fn global_hotkey_follow_mouse_defaults_to_false_and_accepts_boolean() {
+        use wezterm_dynamic::{FromDynamic, ToDynamic, Value};
+
+        assert!(!super::Config::default().macos_global_hotkey_follow_mouse);
+        for enabled in [false, true] {
+            let mut fields = wezterm_dynamic::Object::default();
+            fields.insert(
+                Value::String("macos_global_hotkey_follow_mouse".into()),
+                Value::Bool(enabled),
+            );
+            let config =
+                super::Config::from_dynamic(&Value::Object(fields), Default::default()).unwrap();
+            assert_eq!(config.macos_global_hotkey_follow_mouse, enabled);
+            let roundtrip =
+                super::Config::from_dynamic(&config.to_dynamic(), Default::default()).unwrap();
+            assert_eq!(roundtrip.macos_global_hotkey_follow_mouse, enabled);
+        }
+    }
+
+    #[test]
+    fn bundled_lua_with_hotkey_follow_mouse_compiles() {
+        let source = include_str!("../../assets/macos/Kaku.app/Contents/Resources/kaku.lua");
+        mlua::Lua::new()
+            .load(source)
+            .into_function()
+            .expect("bundled Lua must stay within the parser's locals/register limits");
+    }
+
+    #[test]
+    fn bundled_resize_hook_preserves_hotkey_overrides_and_ordinary_cleanup() {
+        let source = include_str!("../../assets/macos/Kaku.app/Contents/Resources/kaku.lua");
+        let start = source.find("local resize_state_by_window =").unwrap();
+        let end = start
+            + source[start..]
+                .find("local function extract_path_from_cwd")
+                .unwrap();
+        // Execute the shipped hook, without loading unrelated startup or filesystem hooks.
+        let fixture = format!(
+            r#"
+            {}
+            os.clock = function() return 10 end
+            local padding = {{ left = '16px', right = '16px', top = '8px', bottom = '8px' }}
+            local appearance = {{ font_size = 20, window_background_opacity = 0.85 }}
+            local window = {{
+              dims = {{ pixel_width = 3456, pixel_height = 746, is_hotkey_window = true }},
+              reads = 0, writes = 0,
+              overrides = {{
+                window_padding = padding,
+                hide_tab_bar_if_only_one_tab = false,
+                window_content_alignment = {{ horizontal = 'Center' }},
+                macos_global_hotkey_appearance = appearance,
+                font_size = 18,
+              }},
+            }}
+            function window:get_dimensions() return self.dims end
+            function window:is_focused() return true end
+            function window:get_config_overrides()
+              assert(not self.dims.is_hotkey_window, 'drawer overrides must not be read')
+              self.reads = self.reads + 1
+              return self.overrides
+            end
+            function window:set_config_overrides(overrides)
+              self.writes = self.writes + 1
+              self.overrides = overrides
+            end
+            for _, fullscreen in ipairs({{ false, true }}) do
+              update_window_config(window, fullscreen, nil)
+              window.dims.pixel_height = window.dims.pixel_height + 1
+              update_window_config(window, fullscreen, nil)
+              assert(window.reads == 0 and window.writes == 0)
+              assert(window.overrides.window_padding == padding)
+              assert(window.overrides.hide_tab_bar_if_only_one_tab == false)
+              assert(window.overrides.window_content_alignment.horizontal == 'Center')
+              assert(window.overrides.macos_global_hotkey_appearance == appearance)
+              assert(window.overrides.font_size == 18)
+            end
+            for _, fullscreen in ipairs({{ false, true }}) do
+              window.dims.is_hotkey_window = false
+              window.overrides.window_padding = padding
+              window.overrides.hide_tab_bar_if_only_one_tab = false
+              window.overrides.window_content_alignment = {{ horizontal = 'Center' }}
+              local writes = window.writes
+              update_window_config(window, fullscreen, nil)
+              assert(window.writes == writes + 1)
+              assert(window.overrides.window_padding == nil)
+              assert(window.overrides.hide_tab_bar_if_only_one_tab == nil)
+              assert(window.overrides.window_content_alignment == nil)
+              assert(window.overrides.macos_global_hotkey_appearance == appearance)
+              assert(window.overrides.font_size == 18)
+              update_window_config(window, fullscreen, nil)
+              window.dims.pixel_height = window.dims.pixel_height + 1
+              update_window_config(window, fullscreen, nil)
+              assert(window.writes == writes + 1)
+            end
+            "#,
+            &source[start..end]
+        );
+        mlua::Lua::new().load(&fixture).exec().unwrap();
+    }
+
+    #[test]
+    fn bundled_reload_hook_preserves_hotkey_and_updates_ordinary_theme() {
+        let source = include_str!("../../assets/macos/Kaku.app/Contents/Resources/kaku.lua");
+        let start = source.find("wezterm.on('window-config-reloaded',").unwrap();
+        let end = start
+            + source[start..]
+                .find("config.bold_brightens_ansi_colors =")
+                .unwrap();
+        let fixture = format!(
+            r#"
+            local reload, syncs, layouts = nil, 0, 0
+            local wezterm = {{ on = function(event, callback)
+              assert(event == 'window-config-reloaded')
+              reload = callback
+            end }}
+            local config = {{ color_scheme = 'Kaku Dark', window_frame = {{}} }}
+            local window_font_theme = {{}}
+            local window_has_managed_font_override = {{}}
+            local window_has_managed_window_frame_override = {{}}
+            local user_has_custom_font, user_has_custom_font_rules = false, false
+            local user_has_custom_window_frame = false
+            local function resolve_kaku_color_scheme(scheme) return scheme end
+            local function sync_claude_code_theme() syncs = syncs + 1 end
+            local function build_font_config(light) return {{ light = light }}, {{ light }} end
+            local function window_frame_matches_theme(frame, scheme)
+              return frame.scheme == scheme
+            end
+            local function build_managed_window_frame(scheme) return {{ scheme = scheme }} end
+            local function update_window_config() layouts = layouts + 1 end
+            {}
+            local function window(hotkey)
+              local w = {{ writes = 0, overrides = {{
+                font = 'original-font', font_rules = 'original-rules',
+                window_frame = {{ scheme = 'original-frame' }},
+                font_size = 20, window_padding = {{ bottom = '8px' }},
+              }} }}
+              function w:get_dimensions() return {{ is_hotkey_window = hotkey }} end
+              function w:get_config_overrides()
+                assert(not hotkey, 'drawer reload must not read overrides')
+                return self.overrides
+              end
+              function w:set_config_overrides(overrides)
+                self.writes = self.writes + 1
+                self.overrides = overrides
+              end
+              return w
+            end
+            local drawer, ordinary = window(true), window(false)
+            local frame, padding = drawer.overrides.window_frame, drawer.overrides.window_padding
+            reload(drawer, nil)
+            assert(drawer.writes == 0 and syncs == 0 and layouts == 0)
+            reload(ordinary, nil)
+            assert(ordinary.writes == 1 and syncs == 1 and layouts == 1)
+            assert(ordinary.overrides.font.light == false)
+            assert(ordinary.overrides.font_rules[1] == false)
+            assert(ordinary.overrides.window_frame.scheme == 'Kaku Dark')
+            reload(ordinary, nil)
+            assert(ordinary.writes == 1)
+            config.color_scheme = 'Kaku Light'
+            reload(ordinary, nil)
+            assert(ordinary.writes == 2 and ordinary.overrides.font.light == true)
+            assert(ordinary.overrides.window_frame.scheme == 'Kaku Light')
+            user_has_custom_font, user_has_custom_window_frame = true, true
+            reload(ordinary, nil)
+            assert(ordinary.writes == 3)
+            assert(ordinary.overrides.font == nil and ordinary.overrides.font_rules == nil)
+            assert(ordinary.overrides.window_frame == nil)
+            assert(ordinary.overrides.font_size == 20)
+            assert(ordinary.overrides.window_padding.bottom == '8px')
+            local previous_syncs, previous_layouts = syncs, layouts
+            reload(drawer, nil)
+            assert(drawer.writes == 0 and syncs == previous_syncs and layouts == previous_layouts)
+            assert(drawer.overrides.font == 'original-font')
+            assert(drawer.overrides.font_rules == 'original-rules')
+            assert(drawer.overrides.window_frame == frame and drawer.overrides.window_padding == padding)
+            assert(drawer.overrides.font_size == 20)
+            "#,
+            &source[start..end]
+        );
+        mlua::Lua::new().load(&fixture).exec().unwrap();
+    }
+
+    #[test]
+    fn global_hotkey_padding_preserves_explicit_compact_padding() {
+        let source = "return {window_padding={left=21,right=22,top=23,bottom=24},macos_global_hotkey_padding={left='16px',right='16px',top='8px',bottom='8px'}}";
+        let hotkey = hotkey_fixture(source, &wezterm_dynamic::Value::Null, true);
+        let ordinary = hotkey_fixture(source, &wezterm_dynamic::Value::Null, false);
+        assert_hotkey_padding(&hotkey, [16.0, 16.0, 8.0, 8.0]);
+        assert_hotkey_padding(&ordinary, [21.0, 22.0, 23.0, 24.0]);
+    }
+
+    #[test]
+    fn global_hotkey_padding_accepts_custom_units_and_roundtrips() {
+        use wezterm_dynamic::{FromDynamic, ToDynamic, Value};
+
+        let mut padding = wezterm_dynamic::Object::default();
+        for (side, unit) in [
+            ("left", "2cell"),
+            ("right", "1%"),
+            ("top", "3pt"),
+            ("bottom", "0px"),
+        ] {
+            padding.insert(Value::String(side.into()), Value::String(unit.into()));
+        }
+        let mut fields = wezterm_dynamic::Object::default();
+        fields.insert(
+            Value::String("macos_global_hotkey_padding".into()),
+            Value::Object(padding),
+        );
+        let config =
+            super::Config::from_dynamic(&Value::Object(fields), Default::default()).unwrap();
+        let roundtrip =
+            super::Config::from_dynamic(&config.to_dynamic(), Default::default()).unwrap();
+        let context = crate::DimensionContext {
+            dpi: 192.0,
+            pixel_max: 800.0,
+            pixel_cell: 16.0,
+        };
+        for config in [config, roundtrip] {
+            let padding = config
+                .macos_global_hotkey_padding
+                .unwrap()
+                .resolve(&config.window_padding);
+            assert_eq!(padding.left.evaluate_as_pixels(context), 32.0);
+            assert_eq!(padding.right.evaluate_as_pixels(context), 8.0);
+            assert_eq!(padding.top.evaluate_as_pixels(context), 8.0);
+            assert_eq!(padding.bottom.evaluate_as_pixels(context), 0.0);
+            assert_eq!(
+                config.window_padding.to_dynamic(),
+                super::Config::default().window_padding.to_dynamic()
+            );
+        }
+    }
+
+    #[test]
+    fn global_hotkey_padding_partial_override_inherits_other_sides() {
+        use wezterm_dynamic::{FromDynamic, Value};
+        let defaults = super::Config::default().window_padding;
+        for side in ["left", "right", "top", "bottom"] {
+            let mut padding = wezterm_dynamic::Object::default();
+            padding.insert(Value::String(side.into()), Value::String("0px".into()));
+            let mut fields = wezterm_dynamic::Object::default();
+            fields.insert(
+                Value::String("macos_global_hotkey_padding".into()),
+                Value::Object(padding),
+            );
+            let config =
+                super::Config::from_dynamic(&Value::Object(fields), Default::default()).unwrap();
+            let context = crate::DimensionContext {
+                dpi: 96.0,
+                pixel_max: 800.0,
+                pixel_cell: 20.0,
+            };
+            let padding = config
+                .macos_global_hotkey_padding
+                .unwrap()
+                .resolve(&config.window_padding);
+            for (name, actual, default) in [
+                ("left", padding.left, defaults.left),
+                ("right", padding.right, defaults.right),
+                ("top", padding.top, defaults.top),
+                ("bottom", padding.bottom, defaults.bottom),
+            ] {
+                assert_eq!(
+                    actual.evaluate_as_pixels(context),
+                    if side == name {
+                        0.0
+                    } else {
+                        default.evaluate_as_pixels(context)
+                    },
+                    "overriding {side} changed {name}"
+                );
+            }
+        }
+    }
 
     #[test]
     fn half_intensity_font_rules_keep_base_weight() {
@@ -3080,6 +3871,78 @@ pub struct WindowPadding {
     pub bottom: Dimension,
 }
 
+/// A missing side inherits the ordinary window's padding, including its unit.
+#[derive(Debug, Clone, Copy, Default, FromDynamic, ToDynamic)]
+pub struct HotkeyWindowPadding {
+    #[dynamic(try_from = "crate::units::OptPixelUnit", default)]
+    pub left: Option<Dimension>,
+    #[dynamic(try_from = "crate::units::OptPixelUnit", default)]
+    pub right: Option<Dimension>,
+    #[dynamic(try_from = "crate::units::OptPixelUnit", default)]
+    pub top: Option<Dimension>,
+    #[dynamic(try_from = "crate::units::OptPixelUnit", default)]
+    pub bottom: Option<Dimension>,
+}
+
+impl HotkeyWindowPadding {
+    pub fn resolve(&self, base: &WindowPadding) -> WindowPadding {
+        WindowPadding {
+            left: self.left.unwrap_or(base.left),
+            right: self.right.unwrap_or(base.right),
+            top: self.top.unwrap_or(base.top),
+            bottom: self.bottom.unwrap_or(base.bottom),
+        }
+    }
+}
+
+/// Only window appearance can be overridden; session and input settings stay shared.
+#[derive(Debug, Clone, Default, FromDynamic, ToDynamic)]
+pub struct MacosGlobalHotkeyAppearance {
+    #[dynamic(default)]
+    pub font: Option<TextStyle>,
+    #[dynamic(default)]
+    pub font_rules: Option<Vec<StyleRule>>,
+    #[dynamic(default)]
+    pub font_size: Option<f64>,
+    #[dynamic(default)]
+    pub line_height: Option<f64>,
+    #[dynamic(default)]
+    pub color_scheme: Option<String>,
+    #[dynamic(default)]
+    pub colors: Option<Palette>,
+    #[dynamic(default)]
+    pub window_background_opacity: Option<f32>,
+    #[dynamic(default)]
+    pub text_background_opacity: Option<f32>,
+    #[dynamic(default)]
+    pub macos_window_background_blur: Option<i64>,
+    #[dynamic(default)]
+    pub window_frame: Option<WindowFrameConfig>,
+    #[dynamic(default)]
+    pub enable_tab_bar: Option<bool>,
+    #[dynamic(default)]
+    pub hide_tab_bar_if_only_one_tab: Option<bool>,
+    #[dynamic(default)]
+    pub tab_bar_at_bottom: Option<bool>,
+    #[dynamic(default)]
+    pub use_fancy_tab_bar: Option<bool>,
+    #[dynamic(default)]
+    pub enable_scroll_bar: Option<bool>,
+}
+
+impl From<Option<MacosGlobalHotkeyAppearance>> for MacosGlobalHotkeyAppearance {
+    fn from(appearance: Option<Self>) -> Self {
+        appearance.unwrap_or_default()
+    }
+}
+
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, FromDynamic, ToDynamic)]
+pub enum MacosGlobalHotkeyMode {
+    #[default]
+    Drawer,
+    Ordinary,
+}
+
 impl Default for WindowPadding {
     fn default() -> Self {
         Self {
@@ -3433,6 +4296,33 @@ fn default_macos_global_hotkey() -> Option<KeyNoAction> {
         key: DeferredKeyCode::try_from("K").expect("default global hotkey key to parse"),
         mods: Modifiers::CTRL | Modifiers::ALT | Modifiers::SUPER,
     })
+}
+
+fn default_hotkey_height_percent() -> f64 {
+    100.0 / 3.0
+}
+
+fn validate_hotkey_height_percent(value: &f64) -> Result<(), String> {
+    if !value.is_finite() || *value <= 0.0 || *value > 100.0 {
+        Err(
+            "macos_global_hotkey_height_percent must be finite and greater than 0 through 100"
+                .into(),
+        )
+    } else {
+        Ok(())
+    }
+}
+
+fn default_hotkey_animation_duration_ms() -> u64 {
+    200
+}
+
+fn validate_hotkey_animation_duration_ms(value: &u64) -> Result<(), String> {
+    if *value > 10_000 {
+        Err("macos_global_hotkey_animation_duration_ms must not exceed 10000".into())
+    } else {
+        Ok(())
+    }
 }
 
 fn default_colr_rasterizer() -> FontRasterizerSelection {

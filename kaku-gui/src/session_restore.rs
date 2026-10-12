@@ -584,14 +584,14 @@ fn cwd_for_restore(domain_name: &str, working_dir: Option<&SerdeUrl>) -> Option<
 }
 
 fn focused_window_id() -> Option<MuxWindowId> {
-    frontend::try_front_end()
-        .and_then(|fe| fe.focused_mux_window_id())
-        .or_else(|| {
-            let mux = Mux::get();
-            let mut windows = mux.iter_windows();
-            windows.sort();
-            windows.pop()
-        })
+    match frontend::try_front_end() {
+        Some(fe) => fe.focused_ordinary_mux_window_id(),
+        None => Mux::get()
+            .iter_windows()
+            .into_iter()
+            .filter(|id| !is_window_logically_closed(*id))
+            .max(),
+    }
 }
 
 // ---------- Pristine state + logically-closed window tracking ----------
@@ -650,7 +650,7 @@ pub fn forget_logically_closed(window_id: MuxWindowId) {
     }
 }
 
-fn is_window_logically_closed(window_id: MuxWindowId) -> bool {
+pub(crate) fn is_window_logically_closed(window_id: MuxWindowId) -> bool {
     logically_closed().lock().contains(&window_id)
 }
 
@@ -882,7 +882,14 @@ fn write_json_atomic<T: Serialize>(file_name: &std::path::Path, value: &T) -> an
 
 // ---------- Save entry points ----------
 
+fn is_hotkey_window(window_id: MuxWindowId) -> bool {
+    frontend::try_front_end().is_some_and(|fe| fe.is_hotkey_window(window_id))
+}
+
 pub fn save_closed_window_snapshot(window_id: MuxWindowId) -> anyhow::Result<()> {
+    if is_hotkey_window(window_id) {
+        return Ok(());
+    }
     if is_window_trivial(window_id) {
         return Ok(());
     }
@@ -945,7 +952,7 @@ pub fn save_session_snapshot() -> anyhow::Result<()> {
     let mut windows = Vec::new();
     let mut snapshot_errors = false;
     for id in window_ids {
-        if is_window_logically_closed(id) {
+        if is_window_logically_closed(id) || is_hotkey_window(id) {
             continue;
         }
         match build_snapshot_for_window(id, Some(&content_dir)) {
@@ -1399,8 +1406,9 @@ pub fn restore_previous_window_from_menu(current_window_id: Option<MuxWindowId>)
                     // fresh window beside it. `restore_window` no longer
                     // does this check internally (it would race with
                     // shell-startup output and miscompute emptiness).
-                    let reuse_target =
-                        current_window_id.filter(|window_id| is_window_empty(*window_id));
+                    let reuse_target = current_window_id.filter(|window_id| {
+                        !is_hotkey_window(*window_id) && is_window_empty(*window_id)
+                    });
                     let content_dir_path = if closed.content_dir.is_empty() {
                         None
                     } else {
@@ -1448,7 +1456,7 @@ pub async fn try_restore_on_startup() -> anyhow::Result<bool> {
             let preexisting_empty = Mux::get()
                 .iter_windows()
                 .into_iter()
-                .find(|id| is_window_empty(*id));
+                .find(|id| !is_hotkey_window(*id) && is_window_empty(*id));
             let outcome = restore_session(session, preexisting_empty).await?;
             record_startup_restore_outcome(outcome);
             if !outcome.is_complete() {
@@ -1470,6 +1478,25 @@ pub async fn try_restore_on_startup() -> anyhow::Result<bool> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn composition_session_snapshot_uses_the_ordinary_focus_resolver() {
+        let source = include_str!("session_restore.rs")
+            .split("#[cfg(test)]")
+            .next()
+            .unwrap();
+        let focus = source
+            .split("fn focused_window_id()")
+            .nth(1)
+            .unwrap()
+            .split("// ---------- Pristine state")
+            .next()
+            .unwrap();
+        assert!(focus.contains("Some(fe) => fe.focused_ordinary_mux_window_id()"));
+        assert!(focus.contains("!is_window_logically_closed(*id)"));
+        assert!(!focus.contains("fe.focused_mux_window_id()"));
+        assert!(source.contains("is_focused: focused_window_id() == Some(window_id)"));
+    }
 
     #[test]
     fn only_the_session_owner_refreshes_the_snapshot_while_running() {
@@ -1822,6 +1849,37 @@ mod tests {
         assert!(should_remove_empty_session_file(true, false));
         assert!(!should_remove_empty_session_file(false, false));
         assert!(!should_remove_empty_session_file(true, true));
+    }
+
+    #[test]
+    fn hotkey_sessions_are_neither_saved_nor_reused_for_ordinary_restore() {
+        let source = include_str!("session_restore.rs")
+            .split("#[cfg(test)]")
+            .next()
+            .unwrap();
+        let closed = source
+            .split("pub fn save_closed_window_snapshot(")
+            .nth(1)
+            .unwrap()
+            .split("pub fn save_session_snapshot()")
+            .next()
+            .unwrap();
+        assert!(
+            closed.find("if is_hotkey_window(window_id)").unwrap()
+                < closed.find("build_snapshot_for_window").unwrap()
+        );
+        let session = source
+            .split("pub fn save_session_snapshot()")
+            .nth(1)
+            .unwrap()
+            .split("async fn")
+            .next()
+            .unwrap();
+        assert!(
+            session.find("is_hotkey_window(id)").unwrap()
+                < session.find("match build_snapshot_for_window").unwrap()
+        );
+        assert_eq!(source.matches("!is_hotkey_window(*").count(), 2);
     }
 
     #[test]

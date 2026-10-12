@@ -195,13 +195,12 @@ impl crate::TermWindow {
             tab_bar_height
         };
         let border = self.get_os_border();
-        // When tab bar is at top, it covers the titlebar area, so don't add
-        // border.top which includes the integrated buttons inset.
-        let effective_border_top = if self.show_tab_bar && !self.config.tab_bar_at_bottom {
-            0.0
-        } else {
-            border.top.get() as f32
-        };
+        // A top tab bar covers ordinary titlebar clearance, not the drawer's notch safe area.
+        let effective_border_top = super::borders::content_border_top(
+            self.window_state,
+            self.show_tab_bar && !self.config.tab_bar_at_bottom,
+            border.top.get(),
+        ) as f32;
         let top_pixel_y = top_bar_height + padding_top + effective_border_top;
 
         let cursor = pos.pane.get_cursor_position();
