@@ -184,6 +184,61 @@ Kaku's notification permission may not be granted. Go to System Settings > Notif
 config.macos_global_hotkey = { key = 'j', mods = 'CMD|OPT|CTRL' }
 ```
 
+By default (`macos_global_hotkey_mode = 'Drawer'`), the hotkey creates a dedicated terminal session on first use, then shows or hides that same session. Ordinary windows and their running tasks are not moved or hidden. The top-down drawer starts at the screen's top edge, covers the menu bar, and spans the display width and one third of its height. It has no native title bar, traffic-light buttons, or window-rounded corners. Opening Kaku from the Dock opens ordinary windows, not the drawer. The drawer is not restored as an ordinary window after restarting Kaku, and its geometry does not overwrite ordinary window geometry. Use `macos_global_hotkey_mode = 'Ordinary'` to toggle the selected ordinary window instead of invoking the dedicated drawer: Kaku selects the key ordinary window, then the main ordinary window, then the first available ordinary window, or creates one if none exists. This mode does not hide the entire application or toggle every window.
+
+To reveal the hotkey window on the display containing the mouse pointer:
+
+```lua
+config.macos_global_hotkey_follow_mouse = true
+```
+
+This defaults to `false`, preserving AppKit's main-display behavior. The display is chosen each time the hotkey reveals the window; moving the pointer does not move a visible window, and hiding it does not move it to another display. If no display contains the pointer, Kaku falls back to the main display.
+
+### Inherited appearance and drawer overrides
+
+The drawer inherits the ordinary base configuration, including font, theme, opacity, blur, tab bar, scrollbar, and `window_padding`. This is configuration inheritance, not a copy of a particular ordinary window's live session, position, fullscreen state, or font zoom. Ordinary title-bar spacing does not apply to the drawer.
+
+Set only the appearance fields you want to differ:
+
+```lua
+config.macos_global_hotkey_appearance = {
+  font_size = 16,
+  window_background_opacity = 0.85,
+  macos_window_background_blur = 28,
+  hide_tab_bar_if_only_one_tab = true,
+}
+```
+
+Supported appearance fields are `font`, `font_rules`, `font_size`, `line_height`, `color_scheme`, `colors`, `window_background_opacity`, `text_background_opacity`, `macos_window_background_blur`, `window_frame`, `enable_tab_bar`, `hide_tab_bar_if_only_one_tab`, `tab_bar_at_bottom`, `use_fancy_tab_bar`, and `enable_scroll_bar`. Omitted fields, or fields set to `nil`, inherit the base configuration. Explicit `false` and `0` are overrides, not inheritance markers. Color overrides preserve unspecified base color fields; font rules and window frames use their usual replacement semantics.
+
+Drawer content padding can be overridden one side at a time. For example, to use compact padding without changing ordinary windows:
+
+```lua
+config.macos_global_hotkey_padding = {
+  left = '16px', right = '16px', top = '8px', bottom = '8px',
+}
+```
+
+These values are an example, not separate product defaults. Omitted sides inherit the corresponding `window_padding` side, so `{ top = 0 }` changes only the top. Set `macos_global_hotkey_padding = nil` to restore inheritance. The same units as `window_padding` are supported (`px`, `pt`, `%`, `cell`); percentages are evaluated against the current drawer's full dimensions. Zero disables that side's content padding (an enabled scrollbar still reserves one cell when right padding is zero).
+
+Base configuration reloads update inherited fields, and removing an override restores inheritance. Explicit per-window overrides from `window:set_config_overrides()` take precedence over the drawer appearance layer. Drawer font zoom is stored separately from ordinary-window zoom; an explicit drawer `font_size` takes precedence over saved drawer zoom when the window is created. Changing the configured drawer font size resets its live zoom without changing ordinary-window zoom.
+
+### Drawer behavior
+
+These behaviors have drawer-specific defaults rather than inheriting ordinary-window geometry:
+
+```lua
+config.macos_global_hotkey_height_percent = 100 / 3
+config.macos_global_hotkey_animation_duration_ms = 200
+config.macos_global_hotkey_hide_on_focus_loss = true
+-- Inherit macos_fullscreen_extend_behind_notch unless explicitly set:
+-- config.macos_global_hotkey_extend_behind_notch = false
+```
+
+Height is a percentage of the physical display frame in the range `(0, 100]`. The drawer remains full-width and top-aligned. Animation duration is in milliseconds, from 0 (no animation) to 10000; the macOS Reduce Motion setting always disables animation. Turning off focus-loss hiding pins the drawer until you hide it with the hotkey.
+
+On a notched display, Kaku adds the current display's safe-area height above the content; external displays without a notch get no extra menu-bar clearance. This safe area is separate from configured top padding, including when top is zero. `macos_global_hotkey_extend_behind_notch = false` enables notch clearance independently of ordinary fullscreen windows; `true` disables it. When omitted, it inherits `macos_fullscreen_extend_behind_notch`. Moving the drawer to another display or unplugging it recalculates the safe area. None of these settings changes the system menu bar or display configuration.
+
 ## QR codes and terminal graphics look vertically stretched.
 
 Kaku's default `line_height = 1.28` favors comfortable text spacing. Terminal graphics built from characters, such as QR codes, `neofetch` logos, and TUI bar charts, scale with the row height, so they render about 28% taller than in terminals with no extra line spacing. This is a typography trade-off, not a rendering bug: block characters must fill the whole cell so TUI borders and progress bars stay seamless.
