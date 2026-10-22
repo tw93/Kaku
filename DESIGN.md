@@ -23,7 +23,7 @@ Serif-first, matching the family. English pages use Charter with Georgia / Palat
 
 ## Components
 
-Buttons are pill-shaped (999px radius), at least 44px tall, with a filled slate primary and a slate outline secondary, so a hero pair reads as one color (a green outline beside the slate fill clashed, 2026-10-18). Cards are parchment blocks with hairline borders and no decorative shadows. Terminal windows keep dark chrome but no extra visual effects.
+Buttons are pill-shaped (999px radius), at least 44px tall, with a filled slate primary and a slate outline secondary, so a hero pair reads as one color (a green outline beside the slate fill clashed, 2026-10-18). The hero pair leads with `GitHub` (filled, the repository) and keeps `Download for Mac` / `下载 Mac 版` as the secondary, straight to the dmg (maintainer 2026-10-22): Kaku is free and open source, so most visitors read the README before installing; the install guide stays reachable from the nav's Docs, and the one-word label is the maintainer's call over the family's verb-plus-object rule. Cards are parchment blocks with hairline borders and no decorative shadows. Terminal windows keep dark chrome but no extra visual effects.
 
 ## Layout
 
