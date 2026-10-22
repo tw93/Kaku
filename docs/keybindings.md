@@ -69,7 +69,7 @@ All keybindings use macOS-native modifier keys. `Opt` = Option/Alt, `Ctrl` = Con
 | Clear screen + scrollback | `Cmd + K` |
 | Open Settings panel | `Cmd + ,` (type to filter model lists inside the panel) |
 | Open Command Palette | `Cmd + Shift + P` |
-| Open AI panel | `Cmd + Shift + A` |
+| Open AI settings | `Cmd + Shift + A` |
 | Open AI Chat | `Cmd + L` |
 | Apply Kaku Assistant suggestion | `Cmd + Shift + E` |
 | Restore previous window snapshot | `Cmd + Opt + Shift + T` |

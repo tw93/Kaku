@@ -69,7 +69,7 @@
 | 清屏 + 清回滚缓冲 | `Cmd + K` |
 | 打开设置面板 | `Cmd + ,`（在面板里输入可过滤模型列表） |
 | 打开 Command Palette | `Cmd + Shift + P` |
-| 打开 AI 面板 | `Cmd + Shift + A` |
+| 打开 AI 设置 | `Cmd + Shift + A` |
 | 打开 AI Chat | `Cmd + L` |
 | 应用 Kaku Assistant 建议 | `Cmd + Shift + E` |
 | 恢复上次窗口快照 | `Cmd + Opt + Shift + T` |
