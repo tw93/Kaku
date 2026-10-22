@@ -7,6 +7,14 @@
     <description>Guides and notes on Mac terminals, Claude Code, Codex and shell setup, and how Kaku is built.</description>
     <language>en</language>
     <item>
+      <title>Claude Code Slash Commands: The Ones That Matter and How to Write Your Own</title>
+      <link>https://kaku.fun/blog/claude-code-slash-commands</link>
+      <guid isPermaLink="true">https://kaku.fun/blog/claude-code-slash-commands</guid>
+      <pubDate>Thu, 22 Oct 2026 09:00:00 +0800</pubDate>
+      <dc:creator>Tw93</dc:creator>
+      <description>The Claude Code slash commands worth knowing, their keyboard shortcuts, and how to write custom commands with arguments, plus three to copy.</description>
+    </item>
+    <item>
       <title>Claude Code Permissions: Modes, Rules and --dangerously-skip-permissions</title>
       <link>https://kaku.fun/blog/claude-code-permissions</link>
       <guid isPermaLink="true">https://kaku.fun/blog/claude-code-permissions</guid>

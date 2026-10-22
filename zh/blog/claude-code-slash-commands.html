@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Claude Code 斜杠命令：常用命令和自定义命令写法 · Kaku 博客</title>
+  <meta name="description" content="Claude Code 常用斜杠命令、配套快捷键，以及带参数的自定义命令写法和三个可抄的例子。">
+  <meta property="og:title" content="Claude Code 斜杠命令：常用命令和自定义命令写法 · Kaku 博客">
+  <meta property="og:description" content="Claude Code 常用斜杠命令、配套快捷键，以及带参数的自定义命令写法和三个可抄的例子。">
+  <meta property="og:type" content="article">
+  <meta property="og:image" content="https://kaku.fun/img/blog/cards/claude-code-slash-commands.webp">
+  <meta property="og:image:width" content="1600">
+  <meta property="og:image:height" content="900">
+  <meta property="og:image:alt" content="Claude Code 斜杠命令：常用命令和自定义命令写法">
+  <meta property="og:url" content="https://kaku.fun/zh/blog/claude-code-slash-commands">
+  <meta property="article:published_time" content="2026-10-22">
+  <meta property="article:modified_time" content="2026-10-22">
+  <meta property="article:author" content="Tw93">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://kaku.fun/img/blog/cards/claude-code-slash-commands.webp">
+  <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-kaku-32.png"><link rel="icon" type="image/png" sizes="192x192" href="/img/favicon-kaku-192.png"><link rel="apple-touch-icon" href="/img/favicon-kaku-180.png">
+  <link rel="canonical" href="https://kaku.fun/zh/blog/claude-code-slash-commands"><link rel="alternate" type="application/rss+xml" title="Kaku releases" href="https://kaku.fun/feed.xml">
+  <link rel="alternate" type="application/rss+xml" title="Kaku 博客" href="https://kaku.fun/zh/blog/feed.xml">
+  <link rel="alternate" hreflang="en" href="https://kaku.fun/blog/claude-code-slash-commands">
+  <link rel="alternate" hreflang="zh-CN" href="https://kaku.fun/zh/blog/claude-code-slash-commands">
+  <link rel="alternate" hreflang="x-default" href="https://kaku.fun/blog/claude-code-slash-commands">
+  <link rel="alternate" type="text/markdown" href="https://kaku.fun/zh/blog/claude-code-slash-commands.md">
+  <link rel="stylesheet" href="/styles.css">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Kaku",
+          "item": "https://kaku.fun/zh"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "博客",
+          "item": "https://kaku.fun/zh/blog"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Claude Code 斜杠命令：常用命令和自定义命令写法",
+          "item": "https://kaku.fun/zh/blog/claude-code-slash-commands"
+        }
+      ]
+    },
+    {
+      "@type": "BlogPosting",
+      "@id": "https://kaku.fun/zh/blog/claude-code-slash-commands#article",
+      "headline": "Claude Code 斜杠命令：常用命令和自定义命令写法",
+      "description": "Claude Code 常用斜杠命令、配套快捷键，以及带参数的自定义命令写法和三个可抄的例子。",
+      "url": "https://kaku.fun/zh/blog/claude-code-slash-commands",
+      "mainEntityOfPage": "https://kaku.fun/zh/blog/claude-code-slash-commands",
+      "datePublished": "2026-10-22",
+      "dateModified": "2026-10-22",
+      "inLanguage": "zh-CN",
+      "articleSection": "Claude Code 与 Codex",
+      "image": "https://kaku.fun/img/blog/cards/claude-code-slash-commands.webp",
+      "timeRequired": "PT7M",
+      "author": {
+        "@type": "Person",
+        "name": "Tw93",
+        "url": "https://tw93.fun",
+        "sameAs": [
+          "https://x.com/HiTw93",
+          "https://github.com/tw93"
+        ]
+      },
+      "publisher": {
+        "@id": "https://kaku.fun/#organization"
+      },
+      "isPartOf": {
+        "@id": "https://kaku.fun/zh/blog#blog"
+      },
+      "about": {
+        "@id": "https://kaku.fun/#software"
+      },
+      "encoding": {
+        "@type": "MediaObject",
+        "encodingFormat": "text/markdown",
+        "contentUrl": "https://kaku.fun/zh/blog/claude-code-slash-commands.md"
+      }
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "自定义斜杠命令放在哪",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "项目的放在 .claude/commands/，所有项目通用的放在 ~/.claude/commands/，.claude/skills/ 下的 skill 目录创建的是同一种命令，也是文档更推荐的格式。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "斜杠命令和 skill 现在是一回事吗",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "大体上是，两者都创建一个 /name 命令，行为一样，skill 多了辅助文件和调用控制，同名时 skill 优先于命令文件。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "怎么看到所有命令",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "输入 / 再用字母过滤，或者运行 /help，有些命令在你输入完整名字之前不会出现在菜单里。"
+          }
+        }
+      ]
+    }
+  ]
+}
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">跳到内容</a>
+  <nav class="site-nav" aria-label="主导航"><div class="wide nav-inner"><a class="brand" href="/zh"><strong>Kaku</strong></a><div class="nav-links"><a href="/zh/docs">文档</a><a href="/zh/compare">对比</a><a href="/zh/changelog">更新日志</a><a href="/zh/blog" aria-current="page">博客</a></div><div class="nav-actions"><details class="lang-switch"><summary class="lang-trigger" aria-label="切换语言"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/></svg><span class="lang-current-code" aria-hidden="true">中</span><span class="lang-current-name">简体中文</span></summary><div class="lang-menu"><a class="lang-option" aria-current="page" href="/zh/blog/claude-code-slash-commands" hreflang="zh-CN">简体中文</a><a class="lang-option" href="/blog/claude-code-slash-commands" hreflang="en">English</a></div></details><script src="/navigation.js" defer></script><a class="nav-icon" href="https://github.com/tw93/Kaku" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a><a class="nav-icon" href="https://x.com/HiTw93" target="_blank" rel="noopener noreferrer" aria-label="X"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a></div></div></nav>
+  <main id="main-content" class="docs-page blog-page">
+    <header class="page-hero doc-hero blog-hero"><div class="wide"><nav class="blog-crumb" aria-label="Breadcrumb"><a href="/zh/blog">博客</a></nav><h1>Claude Code 斜杠命令：常用命令和自定义命令写法</h1><p class="blog-meta"><span><a href="/zh/blog#topic-agents">Claude Code 与 Codex</a></span><span>发布于 <time datetime="2026-10-22">2026年10月22日</time></span><span>约 7 分钟</span></p></div></header>
+    <section class="section">
+      <div class="wide">
+        <article class="doc-content blog-article">
+          <figure class="blog-cover" aria-hidden="true"><img src="/img/blog/cards/claude-code-slash-commands.webp" width="1600" height="900" alt="" fetchpriority="high"></figure>
+<p>在 Claude Code 会话里输入 <code>/</code> 就能看到所有命令，接着打字母可以过滤。日常最常用的是管上下文的 <code>/clear</code> 和 <code>/compact</code>，管模型的 <code>/model</code> 和 <code>/effort</code>，管会话的 <code>/resume</code> 和 <code>/rewind</code>，看费用的 <code>/usage</code>，管规则的 <code>/permissions</code> 和 <code>/hooks</code>，管 <code>CLAUDE.md</code> 的 <code>/init</code> 和 <code>/memory</code>，以及管服务器的 <code>/mcp</code>。想加自己的命令，就把一个 Markdown 文件存成项目里的 <code>.claude/commands/&lt;name&gt;.md</code>，或者所有项目通用的 <code>~/.claude/commands/&lt;name&gt;.md</code>，Claude Code 会把它变成 <code>/&lt;name&gt;</code>。自定义命令后来已经并进了 skill，新写的东西更适合用 skill 的格式。</p>
+<h2 id="值得记住的命令">值得记住的命令</h2>
+<p>下面这份清单对照的是<a href="https://code.claude.com/docs/en/commands" target="_blank" rel="noopener noreferrer">命令参考</a>（2026 年 10 月 19 日读的）。参考页有一百多条，不是每个命令对每个用户都会出现，取决于平台、套餐和环境。命令只有在放在消息开头时才会运行，后面的文字成为它的参数。</p>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/clear [name]</code></td>
+<td>用空上下文开一个新对话，带名字可以在 <code>/resume</code> 选择器里标记旧对话</td>
+</tr>
+<tr>
+<td><code>/compact [instructions]</code></td>
+<td>把对话总结一遍来释放空间，后面的说明告诉它保留什么</td>
+</tr>
+<tr>
+<td><code>/context</code></td>
+<td>用网格显示什么在占用上下文窗口，并给出建议</td>
+</tr>
+<tr>
+<td><code>/model [model]</code></td>
+<td>切换模型并存为新会话的默认值，在选择器里按 <code>s</code> 只对当前会话生效</td>
+</tr>
+<tr>
+<td><code>/effort [level]</code></td>
+<td>设置 effort 级别，从 <code>low</code> 到 <code>max</code>，或 <code>auto</code></td>
+</tr>
+<tr>
+<td><code>/resume [session]</code></td>
+<td>按名字或 ID 回到之前的对话，或打开选择器</td>
+</tr>
+<tr>
+<td><code>/rewind</code></td>
+<td>把代码和对话回滚到某个检查点，别名是 <code>/checkpoint</code> 和 <code>/undo</code></td>
+</tr>
+<tr>
+<td><code>/usage</code></td>
+<td>会话费用、套餐限额和活动，<code>/cost</code> 和 <code>/stats</code> 是别名</td>
+</tr>
+<tr>
+<td><code>/permissions</code></td>
+<td>查看和编辑 allow、ask、deny 规则，见<a href="/zh/blog/claude-code-permissions">权限</a></td>
+</tr>
+<tr>
+<td><code>/memory</code></td>
+<td>编辑 <code>CLAUDE.md</code>，开关自动记忆</td>
+</tr>
+<tr>
+<td><code>/init</code></td>
+<td>给项目生成一份起步的 <code>CLAUDE.md</code></td>
+</tr>
+<tr>
+<td><code>/mcp</code></td>
+<td>管理 MCP 服务器，有 <code>reconnect</code>、<code>enable</code>、<code>disable</code> 几种写法，见 <a href="/zh/blog/claude-code-mcp-servers">MCP 服务器</a></td>
+</tr>
+<tr>
+<td><code>/hooks</code></td>
+<td>查看 hook 配置，见 <a href="/zh/blog/claude-code-hooks">hooks</a></td>
+</tr>
+<tr>
+<td><code>/plan [description]</code></td>
+<td>进入计划模式，可以直接带上任务，见<a href="/zh/blog/claude-code-plan-mode">计划模式</a></td>
+</tr>
+<tr>
+<td><code>/diff</code></td>
+<td>查看工作区的改动，包括 Claude 的编辑</td>
+</tr>
+<tr>
+<td><code>/code-review</code></td>
+<td>审查当前 diff 或某个 PR 编号，<code>/review</code> 是别名，<code>/security-review</code> 查安全漏洞</td>
+</tr>
+<tr>
+<td><code>/btw [question]</code></td>
+<td>问一个旁支问题，不加进对话</td>
+</tr>
+<tr>
+<td><code>/agents</code></td>
+<td>只会打印一段提示，让你叫 Claude 创建或管理 subagent，或直接编辑 <code>.claude/agents/</code>，见 <a href="/zh/blog/claude-code-subagents">subagent</a></td>
+</tr>
+<tr>
+<td><code>/statusline</code></td>
+<td>配置状态栏，见<a href="/zh/blog/claude-code-statusline">状态栏</a></td>
+</tr>
+<tr>
+<td><code>/doctor</code></td>
+<td>检查安装和设置，并给出修复建议</td>
+</tr>
+</tbody>
+</table>
+<p>其中有两个命令的含义随时间变过。<code>/agents</code> 以前会打开一个交互式管理界面，当前版本只打印那段提示，<code>/cost</code> 现在只是 <code>/usage</code> 的别名，所以如果老教程里的界面你看不到，先查参考页，别急着以为出了问题。</p>
+<h2 id="搭配命令的快捷键">搭配命令的快捷键</h2>
+<p><a href="https://code.claude.com/docs/en/interactive-mode" target="_blank" rel="noopener noreferrer">交互模式页面</a>列出了所有快捷键，下面这些能省掉一次打命令：</p>
+<table>
+<thead>
+<tr>
+<th>快捷键</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Shift+Tab</code></td>
+<td>循环切换权限模式，比如 Manual、accept edits、plan 和 auto</td>
+</tr>
+<tr>
+<td>macOS 上的 <code>Option+P</code></td>
+<td>不清空输入就切换模型</td>
+</tr>
+<tr>
+<td><code>Esc</code></td>
+<td>打断 Claude，已做的工作保留</td>
+</tr>
+<tr>
+<td><code>Esc</code> + <code>Esc</code></td>
+<td>清掉输入草稿，输入为空时打开回退菜单</td>
+</tr>
+<tr>
+<td><code>Ctrl+R</code></td>
+<td>反向搜索命令历史</td>
+</tr>
+<tr>
+<td><code>Ctrl+G</code></td>
+<td>用默认文本编辑器编辑提示词</td>
+</tr>
+<tr>
+<td><code>Ctrl+O</code></td>
+<td>切换对话记录视图</td>
+</tr>
+<tr>
+<td><code>Ctrl+B</code></td>
+<td>把正在跑的 Bash 命令和 agent 放到后台，在 tmux 里要按两次</td>
+</tr>
+<tr>
+<td>开头的 <code>!</code></td>
+<td>shell 模式，直接跑命令并把输出给 Claude 看</td>
+</tr>
+<tr>
+<td><code>@</code></td>
+<td>文件路径自动补全</td>
+</tr>
+</tbody>
+</table>
+<p><code>Option+P</code> 要求 Option 键以 Meta 的形式到达终端，Kaku 默认让左 Option 发送 Meta，右 Option 输入组合字符，所以在 Kaku 里不用改任何设置就能用。长提示词想分行，在 Kaku 里按 <code>Shift+Enter</code> 或 <code>Cmd+Enter</code>。</p>
+<h2 id="用-markdown-文件写自定义命令">用 Markdown 文件写自定义命令</h2>
+<p>文档明确说自定义命令已经并进 skill，<code>.claude/commands/deploy.md</code> 这个文件和 <code>.claude/skills/deploy/SKILL.md</code> 这个 skill 都会创建 <code>/deploy</code>，行为也一样，已有的命令文件继续可用。skill 多了放辅助文件的目录和对谁能调用的细致控制，所以新东西用 skill，见 <a href="/zh/blog/claude-code-skills">Claude Code skills</a>，不过只想存一段提示词的话，命令文件仍然是最短的办法。</p>
+<p>名字怎么来：</p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>命令</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.claude/commands/deploy.md</code></td>
+<td><code>/deploy</code></td>
+</tr>
+<tr>
+<td><code>.claude/commands/frontend/component.md</code></td>
+<td><code>/frontend:component</code></td>
+</tr>
+<tr>
+<td><code>.claude/skills/deploy/SKILL.md</code></td>
+<td><code>/deploy</code>，或 <code>name</code> 指定的名字</td>
+</tr>
+</tbody>
+</table>
+<p>作用范围跟着位置走，仓库里 <code>.claude/</code> 下的文件对这个仓库的会话生效，提交进去团队也能用，<code>~/.claude/</code> 下的文件对这台机器上你所有的项目生效，skill 和命令文件重名时 skill 优先。</p>
+<p>命令文件接受和 skill 一样的 frontmatter，只是不含 <code>name</code> 和 <code>paths</code>，最常用的字段有这些：</p>
+<ul>
+<li><code>description</code> 说明它做什么，显示在 <code>/</code> 菜单里。</li>
+<li><code>argument-hint</code> 在自动补全时提示参数，比如 <code>[issue-number]</code>。</li>
+<li><code>allowed-tools</code> 让 Claude 在命令运行期间不用询问就能用列出的工具。</li>
+<li><code>disable-model-invocation: true</code> 阻止 Claude 自己调用它，适合有副作用的操作。</li>
+</ul>
+<p>skill 文档对 <code>allowed-tools</code> 还有两点提醒，命令文件同样适用。一是授权只在执行这条命令的那一轮有效，你发出下一条消息就失效，命令正文倒会一直留在上下文里。二是这个字段不受工作区信任的约束，提交在仓库里的命令文件可以给自己预先批准工具，所以 clone 下来别人的项目，先看看 <code>.claude/commands/</code> 里各个文件的 <code>allowed-tools</code> 写了什么，再在里面跑 Claude Code。</p>
+<h2 id="参数">参数</h2>
+<p>命令名后面写的内容会替换文件里的 <code>$ARGUMENTS</code>。要按位置取，<code>$ARGUMENTS[0]</code> 或更短的 <code>$0</code> 是第一个参数，<code>$1</code> 是第二个，多个词的值要用引号括起来，所以 <code>/migrate "hello world" second</code> 里 <code>$0</code> 就是 <code>hello world</code>。文件里如果一个占位符都没有，Claude Code 会在末尾追加 <code>ARGUMENTS: &lt;你的输入&gt;</code>，保证 Claude 仍然看到你输入了什么。</p>
+<p>写成感叹号加反引号命令的一行，比如 <code>!`git diff HEAD`</code>，会在 Claude 看到文件之前先运行，并替换成命令的输出，这样模型拿到的是实时数据，不用去猜。</p>
+<h2 id="三个可以直接抄的命令">三个可以直接抄的命令</h2>
+<p><code>.claude/commands/fix-issue.md</code>，用 <code>/fix-issue 123</code> 运行：</p>
+<pre><code class="language-markdown">---
+description: Fix a GitHub issue by number
+argument-hint: [issue-number]
+allowed-tools: Bash(gh *)
+disable-model-invocation: true
+---
+
+Fix GitHub issue $ARGUMENTS. Start with <span class="tok-s">`gh issue view $ARGUMENTS`</span>, find the
+cause, make the smallest fix and run the tests.</code></pre>
+<p><code>.claude/commands/summarize-changes.md</code>，用 <code>/summarize-changes</code> 运行：</p>
+<pre><code class="language-markdown">---
+description: Summarize uncommitted changes and flag risks
+---
+
+## Current changes
+
+!<span class="tok-s">`git diff HEAD`</span>
+
+## Instructions
+
+Summarize the changes above in two or three bullet points, then list risks such as
+missing error handling, hardcoded values or tests that need updating. If the diff
+is empty, say there are no uncommitted changes.</code></pre>
+<p><code>~/.claude/commands/migrate.md</code>，个人命令，用 <code>/migrate SearchBar JavaScript TypeScript</code> 运行：</p>
+<pre><code class="language-markdown">---
+description: Migrate a component between frameworks
+argument-hint: [component] [from] [to]
+---
+
+Migrate the $0 component from $1 to $2. Keep behavior identical and list any
+places where the two differ.</code></pre>
+<p>每个都跑一遍看结果。如果命令没出现在 <code>/</code> 菜单里，检查文件名，以及开头的 <code>---</code> 是不是文件的第一行，只有那种情况下 Claude Code 才会读 frontmatter，认不出的字段名会被忽略而且不报错。通过 <code>--add-dir</code> 加进来的目录里，<code>.claude/commands/</code> 下的文件不会被监视，改了要重启会话。</p>
+<h2 id="常见问题">常见问题</h2>
+<h3 id="自定义斜杠命令放在哪">自定义斜杠命令放在哪</h3>
+<p>项目的放在 <code>.claude/commands/</code>，所有项目通用的放在 <code>~/.claude/commands/</code>，<code>.claude/skills/</code> 下的 skill 目录创建的是同一种命令，也是文档更推荐的格式。</p>
+<h3 id="斜杠命令和-skill-现在是一回事吗">斜杠命令和 skill 现在是一回事吗</h3>
+<p>大体上是，两者都创建一个 <code>/name</code> 命令，行为一样，skill 多了辅助文件和调用控制，同名时 skill 优先于命令文件。</p>
+<h3 id="怎么看到所有命令">怎么看到所有命令</h3>
+<p>输入 <code>/</code> 再用字母过滤，或者运行 <code>/help</code>，有些命令在你输入完整名字之前不会出现在菜单里。</p>
+          <aside class="blog-cta"><img class="blog-cta-icon" src="/img/kaku-mark.png" width="40" height="40" alt=""><p>Kaku 是一个免费开源的 Mac 终端。</p><a class="btn btn-primary" href="/zh/docs">安装 Kaku</a></aside>
+          <nav class="blog-related" aria-label="继续阅读"><h2 class="blog-related-title">继续阅读</h2><ul class="blog-related-list"><li><a href="/zh/blog/install-claude-code-mac"><span class="blog-related-cat">Claude Code 与 Codex</span><span class="blog-related-name">在 Mac 上安装和更新 Claude Code</span><span class="blog-related-meta"><time datetime="2026-10-02">2026年10月2日</time> · 约 6 分钟</span></a></li><li><a href="/zh/blog/claude-code-permissions"><span class="blog-related-cat">Claude Code 与 Codex</span><span class="blog-related-name">Claude Code 权限：模式、规则和跳过确认</span><span class="blog-related-meta"><time datetime="2026-10-21">2026年10月21日</time> · 约 8 分钟</span></a></li><li><a href="/zh/blog/claude-md-memory"><span class="blog-related-cat">Claude Code 与 Codex</span><span class="blog-related-name">CLAUDE.md 怎么写：记忆文件、加载顺序和该写什么</span><span class="blog-related-meta"><time datetime="2026-10-20">2026年10月20日</time> · 约 9 分钟</span></a></li></ul></nav>
+        </article>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer"><div class="wide foot"><div class="foot-brand"><p class="name">Kaku · <span class="foot-mark" lang="zh-Hant">書</span></p><p class="foot-sub">快速、开箱即用、AI 友好的 Mac 终端</p></div><div class="foot-links"><div><b>产品</b><a href="/zh/docs">文档</a><a href="/zh/changelog">更新日志</a><a href="/zh/roadmap">路线图</a><a href="/zh/compare">对比</a><a href="/zh/blog">博客</a></div><div><b>项目</b><a href="/zh/about">关于</a><a href="/zh/privacy">隐私</a><a href="https://github.com/tw93/Kaku">GitHub</a><a href="https://github.com/tw93/Kaku/issues">问题反馈</a></div><div><b>联系</b><a href="/zh/contact">联系我们</a><a href="https://x.com/HiTw93">X</a></div></div></div></footer>
+</body>
+</html>

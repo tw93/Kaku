@@ -7,6 +7,14 @@
     <description>关于 Mac 终端、Claude Code、Codex、shell 配置的指南，以及 Kaku 是怎么做出来的。</description>
     <language>zh-CN</language>
     <item>
+      <title>Claude Code 斜杠命令：常用命令和自定义命令写法</title>
+      <link>https://kaku.fun/zh/blog/claude-code-slash-commands</link>
+      <guid isPermaLink="true">https://kaku.fun/zh/blog/claude-code-slash-commands</guid>
+      <pubDate>Thu, 22 Oct 2026 09:00:00 +0800</pubDate>
+      <dc:creator>Tw93</dc:creator>
+      <description>Claude Code 常用斜杠命令、配套快捷键，以及带参数的自定义命令写法和三个可抄的例子。</description>
+    </item>
+    <item>
       <title>Claude Code 权限：模式、规则和跳过确认</title>
       <link>https://kaku.fun/zh/blog/claude-code-permissions</link>
       <guid isPermaLink="true">https://kaku.fun/zh/blog/claude-code-permissions</guid>

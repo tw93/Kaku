@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Claude Code Slash Commands: The Ones That Matter and How to Write Your Own · Kaku Blog</title>
+  <meta name="description" content="The Claude Code slash commands worth knowing, their keyboard shortcuts, and how to write custom commands with arguments, plus three to copy.">
+  <meta property="og:title" content="Claude Code Slash Commands: The Ones That Matter and How to Write Your Own · Kaku Blog">
+  <meta property="og:description" content="The Claude Code slash commands worth knowing, their keyboard shortcuts, and how to write custom commands with arguments, plus three to copy.">
+  <meta property="og:type" content="article">
+  <meta property="og:image" content="https://kaku.fun/img/blog/cards/claude-code-slash-commands.webp">
+  <meta property="og:image:width" content="1600">
+  <meta property="og:image:height" content="900">
+  <meta property="og:image:alt" content="Claude Code Slash Commands: The Ones That Matter and How to Write Your Own">
+  <meta property="og:url" content="https://kaku.fun/blog/claude-code-slash-commands">
+  <meta property="article:published_time" content="2026-10-22">
+  <meta property="article:modified_time" content="2026-10-22">
+  <meta property="article:author" content="Tw93">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://kaku.fun/img/blog/cards/claude-code-slash-commands.webp">
+  <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-kaku-32.png"><link rel="icon" type="image/png" sizes="192x192" href="/img/favicon-kaku-192.png"><link rel="apple-touch-icon" href="/img/favicon-kaku-180.png">
+  <link rel="canonical" href="https://kaku.fun/blog/claude-code-slash-commands"><link rel="alternate" type="application/rss+xml" title="Kaku releases" href="https://kaku.fun/feed.xml">
+  <link rel="alternate" type="application/rss+xml" title="Kaku Blog" href="https://kaku.fun/blog/feed.xml">
+  <link rel="alternate" hreflang="en" href="https://kaku.fun/blog/claude-code-slash-commands">
+  <link rel="alternate" hreflang="zh-CN" href="https://kaku.fun/zh/blog/claude-code-slash-commands">
+  <link rel="alternate" hreflang="x-default" href="https://kaku.fun/blog/claude-code-slash-commands">
+  <link rel="alternate" type="text/markdown" href="https://kaku.fun/blog/claude-code-slash-commands.md">
+  <link rel="stylesheet" href="/styles.css">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Kaku",
+          "item": "https://kaku.fun/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Blog",
+          "item": "https://kaku.fun/blog"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Claude Code Slash Commands: The Ones That Matter and How to Write Your Own",
+          "item": "https://kaku.fun/blog/claude-code-slash-commands"
+        }
+      ]
+    },
+    {
+      "@type": "BlogPosting",
+      "@id": "https://kaku.fun/blog/claude-code-slash-commands#article",
+      "headline": "Claude Code Slash Commands: The Ones That Matter and How to Write Your Own",
+      "description": "The Claude Code slash commands worth knowing, their keyboard shortcuts, and how to write custom commands with arguments, plus three to copy.",
+      "url": "https://kaku.fun/blog/claude-code-slash-commands",
+      "mainEntityOfPage": "https://kaku.fun/blog/claude-code-slash-commands",
+      "datePublished": "2026-10-22",
+      "dateModified": "2026-10-22",
+      "inLanguage": "en",
+      "articleSection": "Claude Code and Codex",
+      "image": "https://kaku.fun/img/blog/cards/claude-code-slash-commands.webp",
+      "timeRequired": "PT7M",
+      "author": {
+        "@type": "Person",
+        "name": "Tw93",
+        "url": "https://tw93.fun",
+        "sameAs": [
+          "https://x.com/HiTw93",
+          "https://github.com/tw93"
+        ]
+      },
+      "publisher": {
+        "@id": "https://kaku.fun/#organization"
+      },
+      "isPartOf": {
+        "@id": "https://kaku.fun/blog#blog"
+      },
+      "about": {
+        "@id": "https://kaku.fun/#software"
+      },
+      "encoding": {
+        "@type": "MediaObject",
+        "encodingFormat": "text/markdown",
+        "contentUrl": "https://kaku.fun/blog/claude-code-slash-commands.md"
+      }
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Where do custom slash commands go?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "In .claude/commands/ for a project, or ~/.claude/commands/ for every project. A skill folder under .claude/skills/ creates the same kind of command and is the format the docs prefer."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Are slash commands and skills the same thing now?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Mostly. Both create a /name command and work the same way. Skills add supporting files and invocation control, and a skill wins over a command file of the same name."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How do I see all commands?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Type / and filter with letters, or run /help. Some commands are hidden from the menu until you type their full name."
+          }
+        }
+      ]
+    }
+  ]
+}
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <nav class="site-nav" aria-label="Primary navigation"><div class="wide nav-inner"><a class="brand" href="/"><strong>Kaku</strong></a><div class="nav-links"><a href="/docs">Docs</a><a href="/compare">Compare</a><a href="/changelog">Changelog</a><a href="/blog" aria-current="page">Blog</a></div><div class="nav-actions"><details class="lang-switch"><summary class="lang-trigger" aria-label="Choose a language"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/></svg><span class="lang-current-code" aria-hidden="true">EN</span><span class="lang-current-name">English</span></summary><div class="lang-menu"><a class="lang-option" href="/zh/blog/claude-code-slash-commands" hreflang="zh-CN">简体中文</a><a class="lang-option" aria-current="page" href="/blog/claude-code-slash-commands" hreflang="en">English</a></div></details><script src="/navigation.js" defer></script><a class="nav-icon" href="https://github.com/tw93/Kaku" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a><a class="nav-icon" href="https://x.com/HiTw93" target="_blank" rel="noopener noreferrer" aria-label="X"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a></div></div></nav>
+  <main id="main-content" class="docs-page blog-page">
+    <header class="page-hero doc-hero blog-hero"><div class="wide"><nav class="blog-crumb" aria-label="Breadcrumb"><a href="/blog">Blog</a></nav><h1>Claude Code Slash Commands: The Ones That Matter and How to Write Your Own</h1><p class="blog-meta"><span><a href="/blog#topic-agents">Claude Code and Codex</a></span><span>Published <time datetime="2026-10-22">Oct 22, 2026</time></span><span>7 min read</span></p></div></header>
+    <section class="section">
+      <div class="wide">
+        <article class="doc-content blog-article">
+          <figure class="blog-cover" aria-hidden="true"><img src="/img/blog/cards/claude-code-slash-commands.webp" width="1600" height="900" alt="" fetchpriority="high"></figure>
+<p>Type <code>/</code> in a Claude Code session to see every command, then keep typing letters to filter. The ones that matter day to day are <code>/clear</code> and <code>/compact</code> for context, <code>/model</code> and <code>/effort</code> for the model, <code>/resume</code> and <code>/rewind</code> for sessions, <code>/usage</code> for cost, <code>/permissions</code> and <code>/hooks</code> for rules, <code>/init</code> and <code>/memory</code> for <code>CLAUDE.md</code>, and <code>/mcp</code> for servers. To add your own, save a Markdown file as <code>.claude/commands/&lt;name&gt;.md</code> in a project or <code>~/.claude/commands/&lt;name&gt;.md</code> for every project, and Claude Code turns it into <code>/&lt;name&gt;</code>. Custom commands have since been merged into skills, which is the format to prefer for new work.</p>
+<h2 id="the-commands-worth-knowing">The commands worth knowing</h2>
+<p>This list follows the <a href="https://code.claude.com/docs/en/commands" target="_blank" rel="noopener noreferrer">commands reference</a>, read on 19 October 2026. The reference has over a hundred entries, and not every command shows for every user, since availability depends on platform, plan and environment. A command only runs when it starts your message, and the text after it becomes its arguments.</p>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/clear [name]</code></td>
+<td>Start a new conversation with empty context. A name labels the old one in the <code>/resume</code> picker</td>
+</tr>
+<tr>
+<td><code>/compact [instructions]</code></td>
+<td>Summarize the conversation to free space. Instructions tell it what to keep</td>
+</tr>
+<tr>
+<td><code>/context</code></td>
+<td>Show what is filling the context window as a grid, with suggestions</td>
+</tr>
+<tr>
+<td><code>/model [model]</code></td>
+<td>Switch model and save it as the default for new sessions. Press <code>s</code> on a row in the picker to switch for this session only</td>
+</tr>
+<tr>
+<td><code>/effort [level]</code></td>
+<td>Set the effort level, from <code>low</code> to <code>max</code>, or <code>auto</code></td>
+</tr>
+<tr>
+<td><code>/resume [session]</code></td>
+<td>Return to an earlier conversation by name or ID, or open the picker</td>
+</tr>
+<tr>
+<td><code>/rewind</code></td>
+<td>Roll code and conversation back to a checkpoint. Aliases are <code>/checkpoint</code> and <code>/undo</code></td>
+</tr>
+<tr>
+<td><code>/usage</code></td>
+<td>Session cost, plan limits and activity. <code>/cost</code> and <code>/stats</code> are aliases</td>
+</tr>
+<tr>
+<td><code>/permissions</code></td>
+<td>View and edit allow, ask and deny rules, see the <a href="/blog/claude-code-permissions">permissions</a></td>
+</tr>
+<tr>
+<td><code>/memory</code></td>
+<td>Edit <code>CLAUDE.md</code> files and toggle auto memory</td>
+</tr>
+<tr>
+<td><code>/init</code></td>
+<td>Generate a starter <code>CLAUDE.md</code> for the project</td>
+</tr>
+<tr>
+<td><code>/mcp</code></td>
+<td>Manage MCP servers, with <code>reconnect</code>, <code>enable</code> and <code>disable</code> forms, see <a href="/blog/claude-code-mcp-servers">MCP servers</a></td>
+</tr>
+<tr>
+<td><code>/hooks</code></td>
+<td>View hook configuration, see <a href="/blog/claude-code-hooks">hooks</a></td>
+</tr>
+<tr>
+<td><code>/plan [description]</code></td>
+<td>Enter plan mode, optionally with a task already attached, see <a href="/blog/claude-code-plan-mode">plan mode</a></td>
+</tr>
+<tr>
+<td><code>/diff</code></td>
+<td>Review the working tree changes, including Claude's edits</td>
+</tr>
+<tr>
+<td><code>/code-review</code></td>
+<td>Review the current diff, or a PR number. <code>/review</code> is an alias and <code>/security-review</code> checks for vulnerabilities</td>
+</tr>
+<tr>
+<td><code>/btw [question]</code></td>
+<td>Ask a side question without adding it to the conversation</td>
+</tr>
+<tr>
+<td><code>/agents</code></td>
+<td>Prints a reminder to ask Claude to create or manage subagents, or to edit <code>.claude/agents/</code>. See <a href="/blog/claude-code-subagents">subagents</a></td>
+</tr>
+<tr>
+<td><code>/statusline</code></td>
+<td>Configure the status line, see <a href="/blog/claude-code-statusline">status line</a></td>
+</tr>
+<tr>
+<td><code>/doctor</code></td>
+<td>Check installation and settings, and propose fixes</td>
+</tr>
+</tbody>
+</table>
+<p>Two of these changed meaning over time. <code>/agents</code> used to open an interactive manager, and on current versions it only prints that reminder. <code>/cost</code> is now just an alias for <code>/usage</code>. If an older tutorial shows a screen you do not get, check the reference before assuming something is broken.</p>
+<h2 id="keyboard-shortcuts-that-pair-with-them">Keyboard shortcuts that pair with them</h2>
+<p>The <a href="https://code.claude.com/docs/en/interactive-mode" target="_blank" rel="noopener noreferrer">interactive mode page</a> lists the shortcuts. These are the ones that save typing a command:</p>
+<table>
+<thead>
+<tr>
+<th>Shortcut</th>
+<th>Does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Shift+Tab</code></td>
+<td>Cycle permission modes, such as Manual, accept edits, plan and auto</td>
+</tr>
+<tr>
+<td><code>Option+P</code> on macOS</td>
+<td>Switch model without clearing your prompt</td>
+</tr>
+<tr>
+<td><code>Esc</code></td>
+<td>Interrupt Claude, keeping the work done so far</td>
+</tr>
+<tr>
+<td><code>Esc</code> + <code>Esc</code></td>
+<td>Clear a typed draft, or open the rewind menu on an empty prompt</td>
+</tr>
+<tr>
+<td><code>Ctrl+R</code></td>
+<td>Reverse search of your command history</td>
+</tr>
+<tr>
+<td><code>Ctrl+G</code></td>
+<td>Edit the prompt in your default text editor</td>
+</tr>
+<tr>
+<td><code>Ctrl+O</code></td>
+<td>Toggle the transcript viewer</td>
+</tr>
+<tr>
+<td><code>Ctrl+B</code></td>
+<td>Background running Bash commands and agents. Inside tmux, press it twice</td>
+</tr>
+<tr>
+<td><code>!</code> at the start</td>
+<td>Shell mode, run a command and show its output to Claude</td>
+</tr>
+<tr>
+<td><code>@</code></td>
+<td>Autocomplete a file path</td>
+</tr>
+</tbody>
+</table>
+<p><code>Option+P</code> needs the Option key to reach the terminal as Meta. Kaku sends Meta from the left Option key by default and types composed characters from the right one, so it works there with no change. A long prompt can span lines with <code>Shift+Enter</code> or <code>Cmd+Enter</code> in Kaku.</p>
+<h2 id="custom-commands-as-markdown-files">Custom commands as Markdown files</h2>
+<p>The docs state that custom commands have been merged into skills: a file at <code>.claude/commands/deploy.md</code> and a skill at <code>.claude/skills/deploy/SKILL.md</code> both create <code>/deploy</code> and work the same way. Existing command files keep working. Skills add a folder for supporting files and finer control over who can invoke them, so use one for new work, as <a href="/blog/claude-code-skills">Claude Code skills</a> explains. A command file is still the shortest way to save one prompt.</p>
+<p>How the name is chosen:</p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Command</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.claude/commands/deploy.md</code></td>
+<td><code>/deploy</code></td>
+</tr>
+<tr>
+<td><code>.claude/commands/frontend/component.md</code></td>
+<td><code>/frontend:component</code></td>
+</tr>
+<tr>
+<td><code>.claude/skills/deploy/SKILL.md</code></td>
+<td><code>/deploy</code>, or whatever <code>name</code> sets</td>
+</tr>
+</tbody>
+</table>
+<p>Scope follows location. A file under <code>.claude/</code> in a repository applies to sessions in that repository, and committing it shares it with the team. A file under <code>~/.claude/</code> applies to all your projects on that machine. If a skill and a command file share a name, the skill wins.</p>
+<p>A command file accepts the same frontmatter as a skill except <code>name</code> and <code>paths</code>. The fields you will use most:</p>
+<ul>
+<li><code>description</code> says what it does, shown in the <code>/</code> menu.</li>
+<li><code>argument-hint</code> shows expected arguments during autocomplete, such as <code>[issue-number]</code>.</li>
+<li><code>allowed-tools</code> lets Claude use listed tools without asking while the command runs.</li>
+<li><code>disable-model-invocation: true</code> stops Claude from running it on its own, which suits anything with side effects.</li>
+</ul>
+<p>The skills docs, which command files follow, add two cautions about <code>allowed-tools</code>. The grant lasts only for the turn that runs the command and clears when you send your next message, while the command text stays in context. And workspace trust does not gate it, so a command file checked into a repository can pre-approve tools for itself: read the <code>allowed-tools</code> lines in a cloned project's <code>.claude/commands/</code> before running Claude Code there.</p>
+<h2 id="arguments">Arguments</h2>
+<p>Whatever follows the command name replaces <code>$ARGUMENTS</code> in the file. For positions, <code>$ARGUMENTS[0]</code> or the shorter <code>$0</code> is the first argument, and <code>$1</code> the second. Wrap multi-word values in quotes, so <code>/migrate "hello world" second</code> makes <code>$0</code> equal <code>hello world</code>. If the file has no placeholder at all, Claude Code appends <code>ARGUMENTS: &lt;your input&gt;</code> to the end so Claude still sees what you typed.</p>
+<p>A line written as an exclamation mark and a backtick command, such as <code>!`git diff HEAD`</code>, runs before Claude sees the file and is replaced with the command's output. That gives the model live data instead of asking it to guess.</p>
+<h2 id="three-commands-to-copy">Three commands to copy</h2>
+<p><code>.claude/commands/fix-issue.md</code>, run as <code>/fix-issue 123</code>:</p>
+<pre><code class="language-markdown">---
+description: Fix a GitHub issue by number
+argument-hint: [issue-number]
+allowed-tools: Bash(gh *)
+disable-model-invocation: true
+---
+
+Fix GitHub issue $ARGUMENTS. Start with <span class="tok-s">`gh issue view $ARGUMENTS`</span>, find the
+cause, make the smallest fix and run the tests.</code></pre>
+<p><code>.claude/commands/summarize-changes.md</code>, run as <code>/summarize-changes</code>:</p>
+<pre><code class="language-markdown">---
+description: Summarize uncommitted changes and flag risks
+---
+
+## Current changes
+
+!<span class="tok-s">`git diff HEAD`</span>
+
+## Instructions
+
+Summarize the changes above in two or three bullet points, then list risks such as
+missing error handling, hardcoded values or tests that need updating. If the diff
+is empty, say there are no uncommitted changes.</code></pre>
+<p><code>~/.claude/commands/migrate.md</code>, a personal command run as <code>/migrate SearchBar JavaScript TypeScript</code>:</p>
+<pre><code class="language-markdown">---
+description: Migrate a component between frameworks
+argument-hint: [component] [from] [to]
+---
+
+Migrate the $0 component from $1 to $2. Keep behavior identical and list any
+places where the two differ.</code></pre>
+<p>Run each once and check the result. If a command does not appear in the <code>/</code> menu, check the file name and that the opening <code>---</code> is the very first line of the file. Claude Code reads frontmatter only in that case, and ignores field names it does not recognize without an error. Command files in a directory added with <code>--add-dir</code> are not watched, so restart the session after editing them.</p>
+<h2 id="faq">FAQ</h2>
+<h3 id="where-do-custom-slash-commands-go">Where do custom slash commands go?</h3>
+<p>In <code>.claude/commands/</code> for a project, or <code>~/.claude/commands/</code> for every project. A skill folder under <code>.claude/skills/</code> creates the same kind of command and is the format the docs prefer.</p>
+<h3 id="are-slash-commands-and-skills-the-same-thing-now">Are slash commands and skills the same thing now?</h3>
+<p>Mostly. Both create a <code>/name</code> command and work the same way. Skills add supporting files and invocation control, and a skill wins over a command file of the same name.</p>
+<h3 id="how-do-i-see-all-commands">How do I see all commands?</h3>
+<p>Type <code>/</code> and filter with letters, or run <code>/help</code>. Some commands are hidden from the menu until you type their full name.</p>
+          <aside class="blog-cta"><img class="blog-cta-icon" src="/img/kaku-mark.png" width="40" height="40" alt=""><p>Kaku is a free, open-source Mac terminal.</p><a class="btn btn-primary" href="/docs">Install Kaku</a></aside>
+          <nav class="blog-related" aria-label="Keep reading"><h2 class="blog-related-title">Keep reading</h2><ul class="blog-related-list"><li><a href="/blog/install-claude-code-mac"><span class="blog-related-cat">Claude Code and Codex</span><span class="blog-related-name">Install Claude Code on Mac: Installer, Homebrew and Updates</span><span class="blog-related-meta"><time datetime="2026-10-02">Oct 2, 2026</time> · 6 min read</span></a></li><li><a href="/blog/claude-code-permissions"><span class="blog-related-cat">Claude Code and Codex</span><span class="blog-related-name">Claude Code Permissions: Modes, Rules and --dangerously-skip-permissions</span><span class="blog-related-meta"><time datetime="2026-10-21">Oct 21, 2026</time> · 8 min read</span></a></li><li><a href="/blog/claude-md-memory"><span class="blog-related-cat">Claude Code and Codex</span><span class="blog-related-name">CLAUDE.md Explained: Memory Files, Load Order and What to Write</span><span class="blog-related-meta"><time datetime="2026-10-20">Oct 20, 2026</time> · 8 min read</span></a></li></ul></nav>
+        </article>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer"><div class="wide foot"><div class="foot-brand"><p class="name">Kaku · <span class="foot-mark" lang="zh-Hant">書</span></p><p class="foot-sub">A fast, AI-friendly terminal for your Mac.</p></div><div class="foot-links"><div><b>Product</b><a href="/docs">Docs</a><a href="/changelog">Changelog</a><a href="/roadmap">Roadmap</a><a href="/compare">Compare</a><a href="/blog">Blog</a></div><div><b>Project</b><a href="/about">About</a><a href="/privacy">Privacy</a><a href="https://github.com/tw93/Kaku">GitHub</a><a href="https://github.com/tw93/Kaku/issues">Issues</a></div><div><b>Connect</b><a href="/contact">Contact</a><a href="https://x.com/HiTw93">X</a></div></div></div></footer>
+</body>
+</html>

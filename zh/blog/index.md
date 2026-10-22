@@ -6,6 +6,7 @@
 
 在终端里安装、配置和使用 AI 编程助手。
 
+- [Claude Code 斜杠命令：常用命令和自定义命令写法](https://kaku.fun/zh/blog/claude-code-slash-commands.md) (2026-10-22): Claude Code 常用斜杠命令、配套快捷键，以及带参数的自定义命令写法和三个可抄的例子。
 - [Claude Code 权限：模式、规则和跳过确认](https://kaku.fun/zh/blog/claude-code-permissions.md) (2026-10-21): Claude Code 的权限模式、allow/ask/deny 规则，bypass 的风险，一份更稳的配置，以及拦命令的 hook。
 - [CLAUDE.md 怎么写：记忆文件、加载顺序和该写什么](https://kaku.fun/zh/blog/claude-md-memory.md) (2026-10-20): Claude Code 从哪读 CLAUDE.md，文件怎么叠加，引用和 rules，该写什么，以及和 AGENTS.md 的关系。
 - [配置 Claude Code 的 MCP 服务器](https://kaku.fun/zh/blog/claude-code-mcp-servers.md) (2026-10-19): 用 claude mcp add 接 HTTP 或 stdio，分清 local、project、user，密钥放环境变量。
