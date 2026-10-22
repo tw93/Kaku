@@ -3,7 +3,7 @@
   "version": "1.0",
   "name": "kaku",
   "title": "Kaku",
-  "description": "Capability index for Kaku, an AI-friendly Mac terminal with sensible defaults, ready out of the box. Kaku is a local desktop application with no network API: every capability below is exercised through the local `kaku` command or the app itself, and each links to the markdown documentation that backs it.",
+  "description": "Capability index for Kaku, a modern Mac terminal that looks good, runs fast, and works with AI out of the box. Kaku is a local desktop application with no network API: every capability below is exercised through the local `kaku` command or the app itself, and each links to the markdown documentation that backs it.",
   "homepage": "https://kaku.fun",
   "documentation": "https://kaku.fun/llms.txt",
   "repository": "https://github.com/tw93/Kaku",

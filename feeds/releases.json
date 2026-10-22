@@ -6,6 +6,54 @@
   "source": "https://github.com/tw93/Kaku/releases",
   "releases": [
     {
+      "version": "0.26.1",
+      "tag": "V0.26.1",
+      "name": "V0.26.1 Steady",
+      "codename": "Steady",
+      "publishedAt": "2026-10-22T04:58:13Z",
+      "url": "https://kaku.fun/changelog#v0.26.1",
+      "urlZh": "https://kaku.fun/zh/changelog#v0.26.1",
+      "github": "https://github.com/tw93/Kaku/releases/tag/V0.26.1",
+      "items": [
+        {
+          "label": "Updates",
+          "text": "Restart to Update installs the new version and opens it again, instead of quitting and coming back on the old one. If V0.26.0 still reopens unchanged, run `kaku update` in a Kaku tab once."
+        },
+        {
+          "label": "Remote Images",
+          "text": "Hovering an image path on the remote page previews large pictures too, scaled on the Mac first so they show quickly."
+        },
+        {
+          "label": "Remote Page",
+          "text": "Ctrl+Cmd+F fills the screen (F11 off the Mac), switching tabs no longer flashes wrong letters, rows no longer repeat after leaving full screen, the keyboard on phones and tablets no longer pops up when switching tabs, and offline notices fit on one line."
+        },
+        {
+          "label": "Notifications",
+          "text": "Closing the update notification no longer starts the update, only its own button does."
+        }
+      ],
+      "itemsZh": [
+        {
+          "label": "更新",
+          "text": "重启以更新会装好新版本并重新打开，不再退出后回到旧版本。V0.26.0 如果仍回到旧版本，在 Kaku 标签里运行一次 `kaku update` 即可。"
+        },
+        {
+          "label": "远程图片",
+          "text": "远程网页上悬停图片路径时，大图也能预览，Mac 先缩小再传，出现得更快。"
+        },
+        {
+          "label": "远程网页",
+          "text": "Ctrl+Cmd+F 进入全屏，Mac 以外用 F11，切换标签时不再闪出错字，退出全屏后不再出现重复行，手机和平板切换标签时不再弹出键盘，离线提示缩短为一行。"
+        },
+        {
+          "label": "通知",
+          "text": "关闭更新通知不再开始更新，只有点它的按钮才会。"
+        }
+      ],
+      "download": "https://github.com/tw93/Kaku/releases/download/V0.26.1/Kaku.dmg",
+      "thanks": "Special thanks to @sanchesfree for their contribution to this release."
+    },
+    {
       "version": "0.26.0",
       "tag": "V0.26.0",
       "name": "V0.26.0 Bridge",

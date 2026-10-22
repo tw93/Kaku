@@ -379,6 +379,9 @@ button, input { font: inherit; }
   line-height: 1.4;
   letter-spacing: 0;
 }
+/* Chinese wraps at its commas, so a phone never splits 够快 or 对 AI 友好. */
+html:lang(zh) .hero-sub { word-break: keep-all; }
+html:lang(zh) .hero-sub span { white-space: nowrap; }
 .hero-actions {
   display: flex;
   flex-wrap: wrap;

@@ -1,6 +1,6 @@
 # Kaku Docs
 
-> Scoped index for the Kaku documentation section. Kaku is an AI-friendly Mac terminal with sensible defaults, ready out of the box, derived from WezTerm, MIT licensed, with no account and no telemetry. Site-wide index: https://kaku.fun/llms.txt
+> Scoped index for the Kaku documentation section. Kaku is a modern Mac terminal that looks good, runs fast, and works with AI out of the box, derived from WezTerm, MIT licensed, with no account and no telemetry. Site-wide index: https://kaku.fun/llms.txt
 
 Every page below has a markdown twin at the same URL with `.md` appended, served as `text/markdown`. Fetch those rather than the HTML when you only need the prose.
 

@@ -5,8 +5,25 @@
 <link>https://kaku.fun/changelog</link>
 <description>Stable Kaku releases. Nightly builds are not included.</description>
 <language>en</language>
-<lastBuildDate>Tue, 20 Oct 2026 15:19:32 +0000</lastBuildDate>
+<lastBuildDate>Thu, 22 Oct 2026 04:58:13 +0000</lastBuildDate>
 <atom:link href="https://kaku.fun/feed.xml" rel="self" type="application/rss+xml"/>
+<item>
+<title>V0.26.1 Steady</title>
+<link>https://kaku.fun/changelog#v0.26.1</link>
+<guid isPermaLink="true">https://kaku.fun/changelog#v0.26.1</guid>
+<pubDate>Thu, 22 Oct 2026 04:58:13 +0000</pubDate>
+<description><![CDATA[<h2>Changelog</h2><ol>
+<li><b>Updates</b>: Restart to Update installs the new version and opens it again, instead of quitting and coming back on the old one. If V0.26.0 still reopens unchanged, run <code>kaku update</code> in a Kaku tab once.</li>
+<li><b>Remote Images</b>: Hovering an image path on the remote page previews large pictures too, scaled on the Mac first so they show quickly.</li>
+<li><b>Remote Page</b>: Ctrl+Cmd+F fills the screen (F11 off the Mac), switching tabs no longer flashes wrong letters, rows no longer repeat after leaving full screen, the keyboard on phones and tablets no longer pops up when switching tabs, and offline notices fit on one line.</li>
+<li><b>Notifications</b>: Closing the update notification no longer starts the update, only its own button does.</li>
+</ol><h2>更新日志</h2><ol>
+<li><b>更新</b>：重启以更新会装好新版本并重新打开，不再退出后回到旧版本。V0.26.0 如果仍回到旧版本，在 Kaku 标签里运行一次 <code>kaku update</code> 即可。</li>
+<li><b>远程图片</b>：远程网页上悬停图片路径时，大图也能预览，Mac 先缩小再传，出现得更快。</li>
+<li><b>远程网页</b>：Ctrl+Cmd+F 进入全屏，Mac 以外用 F11，切换标签时不再闪出错字，退出全屏后不再出现重复行，手机和平板切换标签时不再弹出键盘，离线提示缩短为一行。</li>
+<li><b>通知</b>：关闭更新通知不再开始更新，只有点它的按钮才会。</li>
+</ol><p>Special thanks to @sanchesfree for their contribution to this release.</p>]]></description>
+</item>
 <item>
 <title>V0.26.0 Bridge</title>
 <link>https://kaku.fun/changelog#v0.26.0</link>

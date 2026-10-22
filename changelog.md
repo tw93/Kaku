@@ -2,6 +2,19 @@
 
 Stable Kaku releases, newest first. Nightly builds stay on GitHub. Subscribe with [RSS](https://kaku.fun/feed.xml).
 
+## V0.26.1 Steady 2026-10-22
+
+1. **Updates**: Restart to Update installs the new version and opens it again, instead of quitting and coming back on the old one. If V0.26.0 still reopens unchanged, run `kaku update` in a Kaku tab once.
+2. **Remote Images**: Hovering an image path on the remote page previews large pictures too, scaled on the Mac first so they show quickly.
+3. **Remote Page**: Ctrl+Cmd+F fills the screen (F11 off the Mac), switching tabs no longer flashes wrong letters, rows no longer repeat after leaving full screen, the keyboard on phones and tablets no longer pops up when switching tabs, and offline notices fit on one line.
+4. **Notifications**: Closing the update notification no longer starts the update, only its own button does.
+
+[GitHub](https://github.com/tw93/Kaku/releases/tag/V0.26.1) · [DMG](https://github.com/tw93/Kaku/releases/download/V0.26.1/Kaku.dmg)
+
+Special thanks to @sanchesfree for their contribution to this release.
+
+---
+
 ## V0.26.0 Bridge 2026-10-20
 
 1. **Remote Page**: The web page draws with your Mac's fonts, shows the agent title, previews an image path when you hover it, and picks up a new version on its own after reconnecting.

@@ -1,6 +1,6 @@
 # Kaku
 
-> Kaku is an AI-friendly Mac terminal with sensible defaults, ready out of the box: quick tabs and panes, preset defaults, a curated shell suite, and a built-in AI assistant. Open source, MIT licensed, no account required.
+> Kaku is a modern Mac terminal that looks good, runs fast, and works with AI out of the box: quick tabs and panes, preset defaults, a curated shell suite, and a built-in AI assistant. Open source, MIT licensed, no account required.
 
 
 Kaku is a macOS-native terminal emulator derived from WezTerm and tuned for AI-assisted terminal work. It ships practical defaults on day one (JetBrains Mono, macOS font rendering, dark and light themes), fast tabs and split panes that use native macOS shortcuts, a curated shell suite (Lazygit, Yazi, remote files, z, completion, syntax highlighting), and a built-in assistant that drafts a fix when a command fails and turns plain language into commands. It uses WezTerm's Lua configuration system for terminal customization. You configure your own AI service. Kaku does not provide or relay it, requires no Kaku account, and collects no usage analytics. macOS only for now. Author: Tw93 (also known for Pake and Mole).

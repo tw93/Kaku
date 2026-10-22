@@ -1,11 +1,11 @@
 # Kaku: an AI-friendly Mac terminal
 
-> Kaku is an AI-friendly Mac terminal with sensible defaults, ready out of the box. It is open source (MIT), needs no account, and connects to the AI service you configure yourself. This file is a complete, citable summary for language models and answer engines.
+> Kaku is a modern Mac terminal that looks good, runs fast, and works with AI out of the box. It is open source (MIT), needs no account, and connects to the AI service you configure yourself. This file is a complete, citable summary for language models and answer engines.
 
 Homepage: https://kaku.fun
 Source: https://github.com/tw93/Kaku
 Author: Tw93 (also created Pake and Mole)
-Latest version: 0.26.0
+Latest version: 0.26.1
 Platform: macOS only (Windows and Linux are not supported yet)
 License: MIT
 

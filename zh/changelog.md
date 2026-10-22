@@ -2,6 +2,19 @@
 
 Kaku 正式版更新，从新到旧。Nightly 仍在 GitHub，可以用 [RSS](https://kaku.fun/feed.xml) 订阅。
 
+## V0.26.1 Steady 2026-10-22
+
+1. **更新**：重启以更新会装好新版本并重新打开，不再退出后回到旧版本。V0.26.0 如果仍回到旧版本，在 Kaku 标签里运行一次 `kaku update` 即可。
+2. **远程图片**：远程网页上悬停图片路径时，大图也能预览，Mac 先缩小再传，出现得更快。
+3. **远程网页**：Ctrl+Cmd+F 进入全屏，Mac 以外用 F11，切换标签时不再闪出错字，退出全屏后不再出现重复行，手机和平板切换标签时不再弹出键盘，离线提示缩短为一行。
+4. **通知**：关闭更新通知不再开始更新，只有点它的按钮才会。
+
+[GitHub](https://github.com/tw93/Kaku/releases/tag/V0.26.1) · [DMG](https://github.com/tw93/Kaku/releases/download/V0.26.1/Kaku.dmg)
+
+Special thanks to @sanchesfree for their contribution to this release.
+
+---
+
 ## V0.26.0 Bridge 2026-10-20
 
 1. **远程网页**：网页使用 Mac 上的字体，显示 Agent 标题，悬停图片路径即可预览，重连后自动换上新版本。

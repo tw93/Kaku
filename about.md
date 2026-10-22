@@ -1,6 +1,6 @@
 # About Kaku
 
-An AI-friendly Mac terminal with sensible defaults, developed and maintained by Tw93.
+A modern Mac terminal that looks good, runs fast, and works with AI out of the box, developed and maintained by Tw93.
 
 ## What Kaku is
 
