@@ -143,59 +143,59 @@
           <figure class="blog-cover" aria-hidden="true"><img src="/img/blog/cards/shell-integration-osc.webp" width="1600" height="900" alt="" fetchpriority="high"></figure>
 <p>在本机的 Mac 上，Kaku 里新开一个标签会落在当前目录，因为终端能读到这个窗格所属进程组的工作目录，停在提示符时那个进程就是 shell 自己。OSC 序列是另一路报告，shell 写出一段很短的转义序列，终端认识它就把数据留下，序列本身不会印出来。Kaku 0.25.0 里，fish 会自己发 OSC 7 报目录，再发 OSC 133 给提示符做标记，zsh 的集成发的是给助手用的 OSC 1337 用户变量，并不发 OSC 7 和 OSC 133。通知走 OSC 9 和 OSC 777，跟这套 shell 集成是两条路，Claude Code 和 Codex 该怎么设写在<a href="/zh/blog/claude-code-notifications">通知那篇</a>里。</p>
 <h2 id="终端拿到序列之后做什么">终端拿到序列之后做什么</h2>
-<p>一段 OSC 以 ESC 和 <code>]</code> 开头，后面是编号，参数用分号隔开，结尾是 BEL（<code>\a</code>）或 ST（<code>ESC \</code>）。终端会把整段吃掉。如果回滚里能看见 <code>]7;file://</code> 这种字，说明 ESC 这个字节在 Kaku 读到之前就丢了，剩下的就成了普通文本。</p>
-<p>Kaku 把每一种序列记在窗格上。OSC 7 写下工作目录，有它的时候优先于从进程读到的目录。OSC 133 把后面的格子标成提示符、输入或输出，也可以记下退出码。OSC 1337 存一个带名字的变量。OSC 9 和 OSC 777 在窗口处于后台时变成一条 macOS 通知。OSC 8 把一段文字标成链接，<code>Cmd + Click</code> 会打开它。</p>
+<p>一段 OSC 以 ESC 和 <code>]</code> 开头，后面是编号，参数用分号隔开，结尾是 BEL（<code>\a</code>）或 ST（<code>ESC \</code>）。终端会把整段吃掉。如果回滚里能看见 <code>]7;file://</code> 这种字，说明 ESC 这个字节在 Kaku 读到之前就丢了，剩下的就成了普通<span class="nobr">文本。</span></p>
+<p>Kaku 把每一种序列记在窗格上。OSC 7 写下工作目录，有它的时候优先于从进程读到的目录。OSC 133 把后面的格子标成提示符、输入或输出，也可以记下退出码。OSC 1337 存一个带名字的变量。OSC 9 和 OSC 777 在窗口处于后台时变成一条 macOS 通知。OSC 8 把一段文字标成链接，<code>Cmd + Click</code> 会打<span class="nobr">开它。</span></p>
 <figure class="blog-diagram"><picture><source media="(max-width: 640px)" srcset="/img/blog/shell-integration-osc-mobile.webp" width="340" height="576"><img src="/img/blog/shell-integration-osc.webp" width="884" height="514" loading="lazy" alt="Kaku 把 OSC 7 记成新标签页要用的工作目录，OSC 133 记成提示符区域，OSC 1337 交给助手钩子，OSC 9、OSC 777 和 OSC 8 变成通知或可点击的链接"></picture><figcaption>终端把每一种序列记成窗格上的状态，本机上如果一直没有 OSC 7，目录还可以从进程本身读到。</figcaption></figure>
 
-<p>OSC 7 报的是当前目录，<a href="https://iterm2.com/documentation-escape-codes.html" target="_blank" rel="noopener noreferrer">iTerm2 的文档</a>把它写成 file URL，形如 <code>file://hostname/path</code>，等同于它自己的 RemoteHost 加 CurrentDir。<a href="https://wezterm.org/shell-integration.html" target="_blank" rel="noopener noreferrer">WezTerm</a>用这个 URL 决定新标签开在哪，Kaku 也一样。三项继承开关默认都开着，<a href="/zh/docs/configuration">配置页</a>上是同一段。</p>
+<p>OSC 7 报的是当前目录，<a href="https://iterm2.com/documentation-escape-codes.html" target="_blank" rel="noopener noreferrer">iTerm2 的文档</a>把它写成 file URL，形如 <code>file://hostname/path</code>，等同于它自己的 RemoteHost 加 CurrentDir。<a href="https://wezterm.org/shell-integration.html" target="_blank" rel="noopener noreferrer">WezTerm</a>用这个 URL 决定新标签开在哪，Kaku 也一样。三项继承开关默认都开着，<a href="/zh/docs/configuration">配置页</a>上是同<span class="nobr">一段。</span></p>
 <pre><code class="language-lua">config.window_inherit_working_directory = <span class="tok-b">true</span>
 config.tab_inherit_working_directory = <span class="tok-b">true</span>
 config.split_pane_inherit_working_directory = <span class="tok-b">true</span></code></pre>
-<p><code>Cmd + T</code> 在这个目录开新标签，<code>Cmd + D</code> 和 <code>Cmd + Shift + D</code> 在这里分屏，<code>Cmd + Shift + T</code> 把刚关掉的标签按它原来的目录重新打开。本机上如果还没有收到 OSC 7，Kaku 会问 macOS（<code>proc_pidinfo</code>），进程自己的目录就够用。SSH 过去之后，本机那个进程还停在你敲 <code>ssh</code> 的目录里。远程 shell 如果发了 OSC 7，记下的就换成远程路径，但新标签仍是本机的 shell，Kaku 只取 URL 里的路径部分，所以这个标签会去 Mac 上找同名路径。</p>
-<p>OSC 133 是 FinalTerm 的提示符标记，<a href="https://iterm2.com/documentation-escape-codes.html" target="_blank" rel="noopener noreferrer">iTerm2 的文档</a>写了四个。<code>133 ; A</code> 是提示符开始，<code>133 ; B</code> 是提示符结束、你开始输入，<code>133 ; C</code> 是命令输出开始，<code>133 ; D ; &lt;status&gt;</code> 是退出码，Kaku 在状态缺失时按 0 读。Kaku 基于 WezTerm，滚到上一个提示符区域的动作叫 <code>ScrollToPrompt</code>，<a href="https://wezterm.org/config/lua/keyassignment/ScrollToPrompt.html" target="_blank" rel="noopener noreferrer">WezTerm 默认没有绑键</a>，Kaku 0.25.0 也没有。iTerm2 自己的安装脚本会在每个提示符旁画一个标记，用 <code>Cmd + Shift + Up</code> 和 <code>Cmd + Shift + Down</code> 跳，Kaku 不安装那份脚本。</p>
-<p>OSC 1337 的 <code>SetUserVar</code> 是 iTerm2 的窗格变量，名字是明文，值是 base64。Kaku 的助手听的是这条通道上的 <code>kaku_last_cmd</code> 和 <code>kaku_last_exit_code</code>，命令失败之后可以给出一条修复，用 <code>Cmd + Shift + E</code> 贴回提示符。这和 OSC 133 不是一条通道。<code>Cmd + L</code> 打开聊天时，还可以带上上一条命令最多 51 行输出，但要 C 已经记下输出从哪一行开始，并且 D 已经记下一个非零退出码，下一次 <code>133 ; A</code> 会把这两项都清掉。fish 会在下一次提示符发 A，却从不发 D，zsh 的文件两个都不发，所以这份集成装上之后，那 51 行是空的。</p>
-<p>OSC 9 是 iTerm2 的单行通知，写成 <code>9 ; message</code>。OSC 777 是 <code>777 ; notify ; title ; body</code>，<a href="https://wezterm.org/config/lua/config/notification_handling.html" target="_blank" rel="noopener noreferrer">WezTerm 的文档</a>用的就是这个形式。<code>9 ;</code> 后面如果跟着数字，比如 <code>9 ; 4</code>，那是 ConEmu 的进度命令，Kaku 不当成通知。OSC 8 来自<a href="https://gist.github.com/egmontkob/eb114294efbcd5adb1944c9f3cb5feda" target="_blank" rel="noopener noreferrer">这份 VTE 和 iTerm2 的提议</a>，<code>8 ; ; URL</code> 和结尾的 <code>8 ; ;</code> 之间的文字会变成链接，哪怕这些字本身不是 URL，<code>Cmd + Click</code> 打开它。裸的 URL，以及 <code>src/main.rs:42</code> 这种路径，没有 OSC 8 也能点开。</p>
+<p><code>Cmd + T</code> 在这个目录开新标签，<code>Cmd + D</code> 和 <code>Cmd + Shift + D</code> 在这里分屏，<code>Cmd + Shift + T</code> 把刚关掉的标签按它原来的目录重新打开。本机上如果还没有收到 OSC 7，Kaku 会问 macOS（<code>proc_pidinfo</code>），进程自己的目录就够用。SSH 过去之后，本机那个进程还停在你敲 <code>ssh</code> 的目录里。远程 shell 如果发了 OSC 7，记下的就换成远程路径，但新标签仍是本机的 shell，Kaku 只取 URL 里的路径部分，所以这个标签会去 Mac 上找同名<span class="nobr">路径。</span></p>
+<p>OSC 133 是 FinalTerm 的提示符标记，<a href="https://iterm2.com/documentation-escape-codes.html" target="_blank" rel="noopener noreferrer">iTerm2 的文档</a>写了四个。<code>133 ; A</code> 是提示符开始，<code>133 ; B</code> 是提示符结束、你开始输入，<code>133 ; C</code> 是命令输出开始，<code>133 ; D ; &lt;status&gt;</code> 是退出码，Kaku 在状态缺失时按 0 读。Kaku 基于 WezTerm，滚到上一个提示符区域的动作叫 <code>ScrollToPrompt</code>，<a href="https://wezterm.org/config/lua/keyassignment/ScrollToPrompt.html" target="_blank" rel="noopener noreferrer">WezTerm 默认没有绑键</a>，Kaku 0.25.0 也没有。iTerm2 自己的安装脚本会在每个提示符旁画一个标记，用 <code>Cmd + Shift + Up</code> 和 <code>Cmd + Shift + Down</code> 跳，Kaku 不安装那份<span class="nobr">脚本。</span></p>
+<p>OSC 1337 的 <code>SetUserVar</code> 是 iTerm2 的窗格变量，名字是明文，值是 base64。Kaku 的助手听的是这条通道上的 <code>kaku_last_cmd</code> 和 <code>kaku_last_exit_code</code>，命令失败之后可以给出一条修复，用 <code>Cmd + Shift + E</code> 贴回提示符。这和 OSC 133 不是一条通道。<code>Cmd + L</code> 打开聊天时，还可以带上上一条命令最多 51 行输出，但要 C 已经记下输出从哪一行开始，并且 D 已经记下一个非零退出码，下一次 <code>133 ; A</code> 会把这两项都清掉。fish 会在下一次提示符发 A，却从不发 D，zsh 的文件两个都不发，所以这份集成装上之后，那 51 行是<span class="nobr">空的。</span></p>
+<p>OSC 9 是 iTerm2 的单行通知，写成 <code>9 ; message</code>。OSC 777 是 <code>777 ; notify ; title ; body</code>，<a href="https://wezterm.org/config/lua/config/notification_handling.html" target="_blank" rel="noopener noreferrer">WezTerm 的文档</a>用的就是这个形式。<code>9 ;</code> 后面如果跟着数字，比如 <code>9 ; 4</code>，那是 ConEmu 的进度命令，Kaku 不当成通知。OSC 8 来自<a href="https://gist.github.com/egmontkob/eb114294efbcd5adb1944c9f3cb5feda" target="_blank" rel="noopener noreferrer">这份 VTE 和 iTerm2 的提议</a>，<code>8 ; ; URL</code> 和结尾的 <code>8 ; ;</code> 之间的文字会变成链接，哪怕这些字本身不是 URL，<code>Cmd + Click</code> 打开它。裸的 URL，以及 <code>src/main.rs:42</code> 这种路径，没有 OSC 8 也能<span class="nobr">点开。</span></p>
 <h2 id="kaku-怎么接上-shell">Kaku 怎么接上 shell</h2>
-<p><code>kaku init</code> 会写一份托管文件，再让 shell 去加载它。zsh 会在 <code>~/.zshrc</code> 末尾加上两行，一行把 <code>~/.config/kaku/zsh/bin</code> 放进 <code>PATH</code>，另一行是这样。</p>
+<p><code>kaku init</code> 会写一份托管文件，再让 shell 去加载它。zsh 会在 <code>~/.zshrc</code> 末尾加上两行，一行把 <code>~/.config/kaku/zsh/bin</code> 放进 <code>PATH</code>，另一行是<span class="nobr">这样。</span></p>
 <pre><code class="language-bash">[[ -f <span class="tok-s">"</span>$HOME<span class="tok-s">/.config/kaku/zsh/kaku.zsh"</span> ]] &amp;&amp; <span class="tok-b">source</span> <span class="tok-s">"</span>$HOME<span class="tok-s">/.config/kaku/zsh/kaku.zsh"</span> <span class="tok-c"># Kaku Shell Integration
 </span></code></pre>
 <p>fish 写的是 <code>~/.config/fish/conf.d/kaku.fish</code>，里面再 source <code>~/.config/kaku/fish/kaku.fish</code>。<code>kaku doctor</code> 会检查这份集成在不在。Starship 和 Smart Tab 只在 Kaku 里启动（<code>TERM_PROGRAM=Kaku</code>，或者从 Kaku 的 shell 里拉起的 tmux）。这些文件还加载的插件，写在<a href="/zh/blog/zsh-without-oh-my-zsh">不用 Oh My Zsh 的 zsh 配置</a>里。</p>
-<p>fish 在 <code>fish_prompt</code> 里发 OSC 7，内容是 <code>file://</code> 接上主机名再接上 <code>$PWD</code>，同时发 OSC <code>133 ; A</code>。它在 <code>fish_preexec</code> 里发 OSC <code>133 ; C</code>，不发 B 和 D。两个 shell 都只在 Kaku 的窗格里发 OSC 1337 用户变量，因为启动时会设置 <code>WEZTERM_PANE</code>。<code>TERM</code> 保持 <code>xterm-256color</code>，所以远程主机没有 <code>kaku</code> 这份 terminfo 也能连上。变量的值不是命令原文，hook 从 <code>~/.config/kaku/ai_inline_capability</code> 读出一个 token，用冒号接上正文，再做 base64。没有这个 token，<code>SetUserVar</code> 不会去发起助手请求。<code>KAKU_AUTO_DISABLE</code> 会把这些 hook 关掉。在 tmux 里，printf 会套上 tmux 的 passthrough 包装，仍然要打开 <code>allow-passthrough</code> 才出得去。</p>
-<p>zsh 的文件在 <code>preexec</code> 和 <code>precmd</code> 里发这些用户变量，不发 OSC 7 和 OSC 133。应用包里还有一份 <code>kaku.sh</code>，是给 bash 和 zsh 用的 WezTerm 脚本，它会发 OSC 7、完整的 A/B/C/D 标记，以及 <code>WEZTERM_PROG</code>。<code>kaku init</code> 不会 source 它，它会在每次提示符前改写 <code>PS1</code>，把标记加进去。</p>
+<p>fish 在 <code>fish_prompt</code> 里发 OSC 7，内容是 <code>file://</code> 接上主机名再接上 <code>$PWD</code>，同时发 OSC <code>133 ; A</code>。它在 <code>fish_preexec</code> 里发 OSC <code>133 ; C</code>，不发 B 和 D。两个 shell 都只在 Kaku 的窗格里发 OSC 1337 用户变量，因为启动时会设置 <code>WEZTERM_PANE</code>。<code>TERM</code> 保持 <code>xterm-256color</code>，所以远程主机没有 <code>kaku</code> 这份 terminfo 也能连上。变量的值不是命令原文，hook 从 <code>~/.config/kaku/ai_inline_capability</code> 读出一个 token，用冒号接上正文，再做 base64。没有这个 token，<code>SetUserVar</code> 不会去发起助手请求。<code>KAKU_AUTO_DISABLE</code> 会把这些 hook 关掉。在 tmux 里，printf 会套上 tmux 的 passthrough 包装，仍然要打开 <code>allow-passthrough</code> 才出<span class="nobr">得去。</span></p>
+<p>zsh 的文件在 <code>preexec</code> 和 <code>precmd</code> 里发这些用户变量，不发 OSC 7 和 OSC 133。应用包里还有一份 <code>kaku.sh</code>，是给 bash 和 zsh 用的 WezTerm 脚本，它会发 OSC 7、完整的 A/B/C/D 标记，以及 <code>WEZTERM_PROG</code>。<code>kaku init</code> 不会 source 它，它会在每次提示符前改写 <code>PS1</code>，把标记加<span class="nobr">进去。</span></p>
 <h2 id="用-printf-检查">用 printf 检查</h2>
-<p>先看目录，从还没待在 <code>/tmp</code> 的 zsh 里执行下面这行，fish 会在下一个提示符发自己的 OSC 7，把测试值盖掉。</p>
+<p>先看目录，从还没待在 <code>/tmp</code> 的 zsh 里执行下面这行，fish 会在下一个提示符发自己的 OSC 7，把测试值<span class="nobr">盖掉。</span></p>
 <pre><code class="language-bash"><span class="tok-b">printf</span> <span class="tok-s">'\033]7;file://%s/tmp\033\\'</span> <span class="tok-s">"</span><span class="tok-k">$(</span>hostname<span class="tok-k">)</span><span class="tok-s">"</span></code></pre>
-<p>按 <code>Cmd + T</code>，再跑 <code>pwd</code>，应该打出 <code>/tmp</code>。zsh 自己不发 OSC 7，这个路径会一直留着，直到下一条 OSC 7 到来。发一条值不是 URL 的 OSC 7，解析失败就会把它清掉，新标签又跟着 shell 进程走。</p>
+<p>按 <code>Cmd + T</code>，再跑 <code>pwd</code>，应该打出 <code>/tmp</code>。zsh 自己不发 OSC 7，这个路径会一直留着，直到下一条 OSC 7 到来。发一条值不是 URL 的 OSC 7，解析失败就会把它清掉，新标签又跟着 shell 进<span class="nobr">程走。</span></p>
 <pre><code class="language-bash"><span class="tok-b">printf</span> <span class="tok-s">'\033]7;x\033\\'</span></code></pre>
-<p>再看提示符标记，Kaku 会在你保存 <code>~/.config/kaku/kaku.lua</code> 时重新加载，追加一条绑定就行，如果给 <code>config.keys</code> 赋一张新表，默认绑定会全部丢掉。</p>
+<p>再看提示符标记，Kaku 会在你保存 <code>~/.config/kaku/kaku.lua</code> 时重新加载，追加一条绑定就行，如果给 <code>config.keys</code> 赋一张新表，默认绑定会全部<span class="nobr">丢掉。</span></p>
 <pre><code class="language-lua"><span class="tok-b">table.insert</span>(config.keys, {
   key = <span class="tok-s">'UpArrow'</span>,
   mods = <span class="tok-s">'SHIFT'</span>,
   action = wezterm.action.<span class="tok-f">ScrollToPrompt</span>(-<span class="tok-n">1</span>),
 })</code></pre>
-<p>打两个标记再跳。</p>
+<p>打两个标记<span class="nobr">再跳。</span></p>
 <pre><code class="language-bash"><span class="tok-b">printf</span> <span class="tok-s">'\033]133;A\a'</span>; <span class="tok-b">echo</span> first
 <span class="tok-b">printf</span> <span class="tok-s">'\033]133;A\a'</span>; <span class="tok-b">echo</span> second</code></pre>
-<p>往上滚到 <code>first</code> 离开屏幕顶端，按 <code>Shift + Up</code>，视口会回到那个标记。fish 本来就会在每个提示符发 A，所以这颗键在 fish 里能在真正的提示符之间跳。zsh 里它只会落到确实发出过的标记上。</p>
-<p>通知要等窗口放到后台再跑。</p>
+<p>往上滚到 <code>first</code> 离开屏幕顶端，按 <code>Shift + Up</code>，视口会回到那个标记。fish 本来就会在每个提示符发 A，所以这颗键在 fish 里能在真正的提示符之间跳。zsh 里它只会落到确实发出过的标<span class="nobr">记上。</span></p>
+<p>通知要等窗口放到后台<span class="nobr">再跑。</span></p>
 <pre><code class="language-bash"><span class="tok-b">printf</span> <span class="tok-s">'\e]9;%s\a'</span> <span class="tok-s">"OSC 9"</span>
 <span class="tok-b">printf</span> <span class="tok-s">'\e]777;notify;%s;%s\a'</span> <span class="tok-s">"Build"</span> <span class="tok-s">"OSC 777"</span></code></pre>
-<p><code>notification_handling</code> 的默认值是 <code>AlwaysShow</code>，在 Kaku 里仍然要求窗口没有焦点。</p>
-<p>文字本身不是 URL 的链接可以这样发。</p>
+<p><code>notification_handling</code> 的默认值是 <code>AlwaysShow</code>，在 Kaku 里仍然要求窗口没有<span class="nobr">焦点。</span></p>
+<p>文字本身不是 URL 的链接可以这<span class="nobr">样发。</span></p>
 <pre><code class="language-bash"><span class="tok-b">printf</span> <span class="tok-s">'\e]8;;https://kaku.fun\e\\Kaku\e]8;;\e\\\n'</span></code></pre>
-<p>在 Kaku 这个词上 <code>Cmd + Click</code>，会打开网站。</p>
+<p>在 Kaku 这个词上 <code>Cmd + Click</code>，会打开<span class="nobr">网站。</span></p>
 <h2 id="不生效时怎么看">不生效时怎么看</h2>
-<p>tmux 自己解析转义序列，只把套了 passthrough 包装的那些转出去，而且要 <code>~/.tmux.conf</code> 里有 <code>set -g allow-passthrough on</code>。改完用 <code>tmux source-file ~/.tmux.conf</code> 重新加载。Kaku 的 hook 会给 OSC 1337 用户变量套上这层包装，fish 的 OSC 7、OSC 133 和上面那几条 printf 没有套，在 tmux 里就停在 tmux 那一层。Kaku 写的 <code>~/.config/kaku/tmux/kaku.tmux.conf</code> 打开了鼠标，并保留 <code>KAKU_SESSION</code>，没有打开 passthrough。<a href="/zh/blog/tmux-alternative-mac">在 Mac 上用 tmux</a>仍然适合那种断了 SSH 也要活着的会话，多出来的就是这一行。</p>
-<p>空敲一次回车不会把上一次失败再报一遍，退出码只在真正跑过一条命令之后才发送。Ctrl+C 和退出码 0 不会来要修复。<code>Shift + Up</code> 如果没反应，视口上方就没有提示符区域，zsh 在有人打出 OSC 133 A 之前通常就是这样。</p>
+<p>tmux 自己解析转义序列，只把套了 passthrough 包装的那些转出去，而且要 <code>~/.tmux.conf</code> 里有 <code>set -g allow-passthrough on</code>。改完用 <code>tmux source-file ~/.tmux.conf</code> 重新加载。Kaku 的 hook 会给 OSC 1337 用户变量套上这层包装，fish 的 OSC 7、OSC 133 和上面那几条 printf 没有套，在 tmux 里就停在 tmux 那一层。Kaku 写的 <code>~/.config/kaku/tmux/kaku.tmux.conf</code> 打开了鼠标，并保留 <code>KAKU_SESSION</code>，没有打开 passthrough。<a href="/zh/blog/tmux-alternative-mac">在 Mac 上用 tmux</a>仍然适合那种断了 SSH 也要活着的会话，多出来的就是这<span class="nobr">一行。</span></p>
+<p>空敲一次回车不会把上一次失败再报一遍，退出码只在真正跑过一条命令之后才发送。Ctrl+C 和退出码 0 不会来要修复。<code>Shift + Up</code> 如果没反应，视口上方就没有提示符区域，zsh 在有人打出 OSC 133 A 之前通常就是<span class="nobr">这样。</span></p>
 <h2 id="常见问题">常见问题</h2>
 <h3 id="新标签会跟着-ssh-里的远程目录走吗">新标签会跟着 SSH 里的远程目录走吗？</h3>
-<p>不会。新标签是你 Mac 上的本机 shell，远程 shell 发了 OSC 7 时，Kaku 只留下 URL 里的路径部分，新标签会去 Mac 上找同名路径，没有 OSC 7 就开在 <code>ssh</code> 进程所在的目录。</p>
+<p>不会。新标签是你 Mac 上的本机 shell，远程 shell 发了 OSC 7 时，Kaku 只留下 URL 里的路径部分，新标签会去 Mac 上找同名路径，没有 OSC 7 就开在 <code>ssh</code> 进程所在的<span class="nobr">目录。</span></p>
 <h3 id="为什么屏幕上会出现-133a">为什么屏幕上会出现 <code>]133;A</code>？</h3>
-<p>ESC 这个字节在 Kaku 读到之前就丢了，剩下的字符就按普通文本印了出来。</p>
+<p>ESC 这个字节在 Kaku 读到之前就丢了，剩下的字符就按普通文本印了<span class="nobr">出来。</span></p>
 <h3 id="别的程序打一段-osc-1337能触发助手的修复吗">别的程序打一段 OSC 1337，能触发助手的修复吗？</h3>
-<p>hook 发送 <code>kaku_last_cmd</code> 时，会把 <code>~/.config/kaku/ai_inline_capability</code> 里的 token 加在命令前面。别的程序打出来的序列没有这个 token，文件不存在时 hook 什么都不发。</p>
+<p>hook 发送 <code>kaku_last_cmd</code> 时，会把 <code>~/.config/kaku/ai_inline_capability</code> 里的 token 加在命令前面。别的程序打出来的序列没有这个 token，文件不存在时 hook 什么都<span class="nobr">不发。</span></p>
 <h3 id="iterm2-的-install-shell-integration-是同一套吗">iTerm2 的 Install Shell Integration 是同一套吗？</h3>
-<p>iTerm2 菜单里的安装会放上它自己的脚本，还会记下命令历史，并能用 scp 下载，Kaku 没有这个菜单，在 Kaku 里跳提示符用的是上面的 <code>ScrollToPrompt</code> 绑定。</p>
+<p>iTerm2 菜单里的安装会放上它自己的脚本，还会记下命令历史，并能用 scp 下载，Kaku 没有这个菜单，在 Kaku 里跳提示符用的是上面的 <code>ScrollToPrompt</code> <span class="nobr">绑定。</span></p>
           <aside class="blog-cta"><img class="blog-cta-icon" src="/img/kaku-mark.png" width="40" height="40" alt=""><p>Kaku 是一个免费开源的 Mac 终端。</p><a class="btn btn-primary" href="/zh/docs">安装 Kaku</a></aside>
           <nav class="blog-related" aria-label="继续阅读"><h2 class="blog-related-title">继续阅读</h2><ul class="blog-related-list"><li><a href="/zh/blog/best-terminal-for-mac"><span class="blog-related-cat">终端</span><span class="blog-related-name">2026 年 Mac 上的终端怎么选</span><span class="blog-related-meta"><time datetime="2026-09-21">2026年9月21日</time> · 约 5 分钟</span></a></li><li><a href="/zh/blog/how-terminal-emulators-work"><span class="blog-related-cat">终端</span><span class="blog-related-name">终端模拟器是怎么工作的</span><span class="blog-related-meta"><time datetime="2026-10-16">2026年10月16日</time> · 约 10 分钟</span></a></li><li><a href="/zh/blog/mac-terminal-shortcuts"><span class="blog-related-cat">终端</span><span class="blog-related-name">Mac 终端里最省时间的快捷键</span><span class="blog-related-meta"><time datetime="2026-10-13">2026年10月13日</time> · 约 9 分钟</span></a></li></ul></nav>
         </article>

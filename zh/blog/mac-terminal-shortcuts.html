@@ -149,9 +149,9 @@
       <div class="wide">
         <article class="doc-content blog-article">
           <figure class="blog-cover" aria-hidden="true"><img src="/img/blog/cards/mac-terminal-shortcuts.webp" width="1600" height="900" alt="" fetchpriority="high"></figure>
-<p>Mac 终端里真正省时间的快捷键分在两层，一层归终端 App 管，开标签、分屏、搜索输出和翻看回滚内容都在这里，Terminal.app、Ghostty 和 Kaku 各有一套。另一层归 shell 管，也就是 Ctrl + A、Ctrl + E、Ctrl + W、Ctrl + U、Ctrl + K、Ctrl + R 和用 Alt 按词移动这些行编辑键，只要把 Option 设成 Meta，换到哪个终端里都一样能用。</p>
+<p>Mac 终端里真正省时间的快捷键分在两层，一层归终端 App 管，开标签、分屏、搜索输出和翻看回滚内容都在这里，Terminal.app、Ghostty 和 Kaku 各有一套。另一层归 shell 管，也就是 Ctrl + A、Ctrl + E、Ctrl + W、Ctrl + U、Ctrl + K、Ctrl + R 和用 Alt 按词移动这些行编辑键，只要把 Option 设成 Meta，换到哪个终端里都一样<span class="nobr">能用。</span></p>
 <h2 id="在哪个终端里都能用的行编辑">在哪个终端里都能用的行编辑</h2>
-<p>zsh 和 bash 默认都是 emacs 模式，所以命令行上怎么移动、怎么删字，跟外面套的是哪个终端没有关系。下面这张表是 macOS 上两个 shell 的默认绑定，可以用 <code>zsh -fc 'bindkey'</code> 和 <code>bash -ic 'bind -p'</code> 自己核对：</p>
+<p>zsh 和 bash 默认都是 emacs 模式，所以命令行上怎么移动、怎么删字，跟外面套的是哪个终端没有关系。下面这张表是 macOS 上两个 shell 的默认绑定，可以用 <code>zsh -fc 'bindkey'</code> 和 <code>bash -ic 'bind -p'</code> 自己<span class="nobr">核对：</span></p>
 <table>
 <thead>
 <tr>
@@ -203,27 +203,27 @@
 </tbody>
 </table>
 <p>两个 shell 在两个键上不一样。一个是 <code>Ctrl + U</code>，zsh 里它是 <code>kill-whole-line</code>，光标后面的字也会一起删掉，bash 的 <code>unix-line-discard</code> 只删到光标为止。另一个是 <code>Ctrl + W</code>，zsh 里它是 <code>backward-kill-word</code>，词由字母、数字和 <code>$WORDCHARS</code> 里的字符组成。这个变量默认带着 <code>/</code>，所以一整段路径按一下就没了，把 <code>/</code> 从里面去掉之后就能一段一段删，bash 的 <code>unix-word-rubout</code> 则是简单地删到上一个空格。两边来回切的话，其他差别可以看 <a href="/zh/blog/zsh-vs-bash">zsh 和 bash 的区别</a>。</p>
-<p>删掉的内容其实没丢，一条很长的命令敲到一半想先跑点别的，按 <code>Ctrl + U</code> 把它收起来，跑完再按 <code>Ctrl + Y</code> 就能原样贴回来，相当于给命令行临时找了个地方先放一放。</p>
+<p>删掉的内容其实没丢，一条很长的命令敲到一半想先跑点别的，按 <code>Ctrl + U</code> 把它收起来，跑完再按 <code>Ctrl + Y</code> 就能原样贴回来，相当于给命令行临时找了个地方先放<span class="nobr">一放。</span></p>
 <h2 id="option-当-meta为什么-mac-上-alt-b-和-alt-f-不灵">Option 当 Meta，为什么 Mac 上 Alt + B 和 Alt + F 不灵</h2>
-<p>Mac 键盘上其实没有 Alt 键，Option 加字母默认是用来打特殊字符的，美式布局下 Option + B 打出来的是 <code>∫</code>，而不是往回跳一个词。所以在终端把 Option 当成 Meta 发出去之前，上面表里所有 <code>Alt</code> 开头的行都只会打出一堆怪字符，每个终端的开关放在不同地方。</p>
-<p><strong>Terminal.app</strong>，在 Terminal &gt; Settings &gt; Profiles &gt; Keyboard 里勾上 Use Option as Meta key，或者直接按 <code>Cmd + Option + O</code> 给当前窗口切换。Apple 的<a href="https://support.apple.com/guide/terminal/keyboard-shortcuts-trmlshtcts/mac" target="_blank" rel="noopener noreferrer">快捷键列表</a>里也写了，用 Option + D 往后删一个词，得先打开这个选项才行。</p>
-<p><strong>iTerm2</strong>，在 Settings &gt; Profiles &gt; Keys 里把 Left Option key 设成 Esc+，<a href="https://iterm2.com/documentation-preferences-profiles-keys.html" target="_blank" rel="noopener noreferrer">iTerm2 文档</a>说大多数人选它就对了。</p>
-<p><strong>Ghostty</strong>，对应的是 <a href="https://ghostty.org/docs/config/reference#macos-option-as-alt" target="_blank" rel="noopener noreferrer"><code>macos-option-as-alt</code></a>，可以填 <code>true</code>、<code>false</code>、<code>left</code> 或 <code>right</code>。不设的时候它看键盘布局决定，美式标准和美式国际布局下是 <code>true</code>，其他布局都是 <code>false</code>，所以用德语、法语这类布局的人得自己写上：</p>
+<p>Mac 键盘上其实没有 Alt 键，Option 加字母默认是用来打特殊字符的，美式布局下 Option + B 打出来的是 <code>∫</code>，而不是往回跳一个词。所以在终端把 Option 当成 Meta 发出去之前，上面表里所有 <code>Alt</code> 开头的行都只会打出一堆怪字符，每个终端的开关放在不同<span class="nobr">地方。</span></p>
+<p><strong>Terminal.app</strong>，在 Terminal &gt; Settings &gt; Profiles &gt; Keyboard 里勾上 Use Option as Meta key，或者直接按 <code>Cmd + Option + O</code> 给当前窗口切换。Apple 的<a href="https://support.apple.com/guide/terminal/keyboard-shortcuts-trmlshtcts/mac" target="_blank" rel="noopener noreferrer">快捷键列表</a>里也写了，用 Option + D 往后删一个词，得先打开这个选项<span class="nobr">才行。</span></p>
+<p><strong>iTerm2</strong>，在 Settings &gt; Profiles &gt; Keys 里把 Left Option key 设成 Esc+，<a href="https://iterm2.com/documentation-preferences-profiles-keys.html" target="_blank" rel="noopener noreferrer">iTerm2 文档</a>说大多数人选它就<span class="nobr">对了。</span></p>
+<p><strong>Ghostty</strong>，对应的是 <a href="https://ghostty.org/docs/config/reference#macos-option-as-alt" target="_blank" rel="noopener noreferrer"><code>macos-option-as-alt</code></a>，可以填 <code>true</code>、<code>false</code>、<code>left</code> 或 <code>right</code>。不设的时候它看键盘布局决定，美式标准和美式国际布局下是 <code>true</code>，其他布局都是 <code>false</code>，所以用德语、法语这类布局的人得自己<span class="nobr">写上：</span></p>
 <pre><code>macos-option-as-alt = left
 </code></pre>
 <p>只把左边的 Option 当 Alt，右边那个就还能用来打带音标的字母和各种符号，平时要写英文以外语言的人会很需要这一点。Ghostty 其他常用的配置可以看 <a href="/zh/blog/ghostty-config">Ghostty 配置</a>。</p>
-<p><strong>WezTerm 和 Kaku</strong>，用的是 <code>send_composed_key_when_left_alt_is_pressed</code> 和 <code>send_composed_key_when_right_alt_is_pressed</code> 这两个键，哪一个设成 <code>false</code>，对应那一侧的 Option 就会被当成 Alt 发出去。</p>
+<p><strong>WezTerm 和 Kaku</strong>，用的是 <code>send_composed_key_when_left_alt_is_pressed</code> 和 <code>send_composed_key_when_right_alt_is_pressed</code> 这两个键，哪一个设成 <code>false</code>，对应那一侧的 Option 就会被当成 Alt 发<span class="nobr">出去。</span></p>
 <h2 id="搜历史命令">搜历史命令</h2>
-<p>最值得学会的一个快捷键是 <code>Ctrl + R</code>，它会往回增量搜索历史记录，zsh 里叫 <code>history-incremental-search-backward</code>，bash 里叫 <code>reverse-search-history</code>。敲几个字母就能找到以前跑过的命令，再按一次 <code>Ctrl + R</code> 往更早的匹配翻，看到想要的直接回车执行，不想要了就按 <code>Ctrl + G</code>，命令行会恢复成搜索前的样子。</p>
-<p>另一种常见的设置是按上方向键做前缀搜索，比如先敲 <code>git push</code> 再按上键，就只会在以这几个字开头的命令里翻。zsh 自带这两个 widget 但默认没有绑上，在 <code>~/.zshrc</code> 里加下面几行就能打开：</p>
+<p>最值得学会的一个快捷键是 <code>Ctrl + R</code>，它会往回增量搜索历史记录，zsh 里叫 <code>history-incremental-search-backward</code>，bash 里叫 <code>reverse-search-history</code>。敲几个字母就能找到以前跑过的命令，再按一次 <code>Ctrl + R</code> 往更早的匹配翻，看到想要的直接回车执行，不想要了就按 <code>Ctrl + G</code>，命令行会恢复成搜索前的<span class="nobr">样子。</span></p>
+<p>另一种常见的设置是按上方向键做前缀搜索，比如先敲 <code>git push</code> 再按上键，就只会在以这几个字开头的命令里翻。zsh 自带这两个 widget 但默认没有绑上，在 <code>~/.zshrc</code> 里加下面几行就能<span class="nobr">打开：</span></p>
 <pre><code class="language-bash">autoload -U up-line-or-beginning-search down-line-or-beginning-search
 zle -N up-line-or-beginning-search
 zle -N down-line-or-beginning-search
 bindkey <span class="tok-s">'^[[A'</span> up-line-or-beginning-search
 bindkey <span class="tok-s">'^[[B'</span> down-line-or-beginning-search</code></pre>
-<p>fzf 可以把 <code>Ctrl + R</code> 换成一个对整份历史做模糊匹配的列表。</p>
+<p>fzf 可以把 <code>Ctrl + R</code> 换成一个对整份历史做模糊匹配的<span class="nobr">列表。</span></p>
 <h2 id="terminalapp-的快捷键">Terminal.app 的快捷键</h2>
-<p>Apple 公开了完整的列表，下面挑的是每天都会用到的那些：</p>
+<p>Apple 公开了完整的列表，下面挑的是每天都会用到的<span class="nobr">那些：</span></p>
 <table>
 <thead>
 <tr>
@@ -270,15 +270,15 @@ bindkey <span class="tok-s">'^[[B'</span> down-line-or-beginning-search</code></
 </tr>
 </tbody>
 </table>
-<p>里面最容易被忽略的是标记，用 <code>Cmd + Return</code> 运行命令时会顺手给这一行打上标记，之后按 <code>Cmd + Up</code> 和 <code>Cmd + Down</code> 就能在标记之间跳，一大段输出不用再拿触控板一路往上找开头在哪。这份列表里没有在拆分面板之间切换的快捷键，如果想要好几个 shell 并排、还能用键盘来回切和调大小，<a href="/zh/blog/best-terminal-for-mac">Mac 上该选哪个终端</a>那篇比较过几个选择。</p>
+<p>里面最容易被忽略的是标记，用 <code>Cmd + Return</code> 运行命令时会顺手给这一行打上标记，之后按 <code>Cmd + Up</code> 和 <code>Cmd + Down</code> 就能在标记之间跳，一大段输出不用再拿触控板一路往上找开头在哪。这份列表里没有在拆分面板之间切换的快捷键，如果想要好几个 shell 并排、还能用键盘来回切和调大小，<a href="/zh/blog/best-terminal-for-mac">Mac 上该选哪个终端</a>那篇比较过几个<span class="nobr">选择。</span></p>
 <h2 id="用-option-加方向键按词移动">用 Option 加方向键按词移动</h2>
-<p>Option + Left 和 Option + Right 按词跳，是大家从 Mac 输入框里带过来的习惯，Apple 也把它列成了 Terminal.app 的默认行为，但不是每个终端都会给这两个键发 shell 认得的序列。按下去如果没动，反而打出了 <code>[1;3D</code> 或 <code>;3D</code> 这样的字符，就说明终端发的方向键编码在 shell 里没有对应的绑定，要么在终端里把这两个键改成发 <code>Esc b</code> 和 <code>Esc f</code>，要么在 zsh 里把这两个编码绑上：</p>
+<p>Option + Left 和 Option + Right 按词跳，是大家从 Mac 输入框里带过来的习惯，Apple 也把它列成了 Terminal.app 的默认行为，但不是每个终端都会给这两个键发 shell 认得的序列。按下去如果没动，反而打出了 <code>[1;3D</code> 或 <code>;3D</code> 这样的字符，就说明终端发的方向键编码在 shell 里没有对应的绑定，要么在终端里把这两个键改成发 <code>Esc b</code> 和 <code>Esc f</code>，要么在 zsh 里把这两个编码<span class="nobr">绑上：</span></p>
 <pre><code class="language-bash">bindkey <span class="tok-s">'^[[1;3D'</span> backward-word
 bindkey <span class="tok-s">'^[[1;3C'</span> forward-word</code></pre>
-<p>在 Terminal.app 里，按住 Option 再移动鼠标指针，可以把插入点直接放到命令行上任意位置。</p>
+<p>在 Terminal.app 里，按住 Option 再移动鼠标指针，可以把插入点直接放到命令行上任意<span class="nobr">位置。</span></p>
 <h2 id="kaku-里的快捷键">Kaku 里的快捷键</h2>
-<p>Kaku 自带的配置把左边的 Option 当成 Meta，右边的 Option 留给打组合字符，所以 <code>Alt + B</code>、<code>Alt + F</code> 和 <code>Alt + .</code> 第一次打开就能用，不用去设置里找。它还把 Option + Left 和 Option + Right 映射成 <code>Alt + B</code> 和 <code>Alt + F</code>，Cmd + Left 和 Cmd + Right 映射成 <code>Ctrl + A</code> 和 <code>Ctrl + E</code>，Option + Backspace 映射成 <code>Ctrl + W</code>，Cmd + Backspace 映射成 <code>Ctrl + U</code>。Kaku 的 zsh 集成又把 <code>Ctrl + U</code> 改绑到了 <code>backward-kill-line</code>，所以 Cmd + Backspace 跟 Mac 输入框里一样只删到行首，不会把整行都删掉。上下方向键默认也是前缀搜索，如果 atuin 这类工具已经占了上键，Kaku 就不去动它。</p>
-<p>标签、分屏、搜索和 AI 这几块的默认快捷键如下，都是对着自带的按键表和<a href="/zh/docs/keybindings">快捷键文档</a>核对过的：</p>
+<p>Kaku 自带的配置把左边的 Option 当成 Meta，右边的 Option 留给打组合字符，所以 <code>Alt + B</code>、<code>Alt + F</code> 和 <code>Alt + .</code> 第一次打开就能用，不用去设置里找。它还把 Option + Left 和 Option + Right 映射成 <code>Alt + B</code> 和 <code>Alt + F</code>，Cmd + Left 和 Cmd + Right 映射成 <code>Ctrl + A</code> 和 <code>Ctrl + E</code>，Option + Backspace 映射成 <code>Ctrl + W</code>，Cmd + Backspace 映射成 <code>Ctrl + U</code>。Kaku 的 zsh 集成又把 <code>Ctrl + U</code> 改绑到了 <code>backward-kill-line</code>，所以 Cmd + Backspace 跟 Mac 输入框里一样只删到行首，不会把整行都删掉。上下方向键默认也是前缀搜索，如果 atuin 这类工具已经占了上键，Kaku 就不去<span class="nobr">动它。</span></p>
+<p>标签、分屏、搜索和 AI 这几块的默认快捷键如下，都是对着自带的按键表和<a href="/zh/docs/keybindings">快捷键文档</a>核对<span class="nobr">过的：</span></p>
 <table>
 <thead>
 <tr>
@@ -337,18 +337,18 @@ bindkey <span class="tok-s">'^[[1;3C'</span> forward-word</code></pre>
 </tr>
 </tbody>
 </table>
-<p>跟 agent 一起干活时最好用的是放大那个键，一个窗格跑 Claude Code，另一个窗格跑测试，要看一大段 diff 的时候按 <code>Cmd + Shift + Enter</code> 让 agent 那边占满整个窗口，看完再按一次就回到分屏。标签一多，Tab Navigator 可以按名字筛，比数到底是 <code>Cmd + 6</code> 还是 <code>Cmd + 7</code> 省事得多。想加自己的快捷键，就在 <code>~/.config/kaku/kaku.lua</code> 里往 <code>config.keys</code> 后面追加，不要整张表重新赋值，否则 Kaku 自带的那些默认快捷键会一起被清掉。</p>
+<p>跟 agent 一起干活时最好用的是放大那个键，一个窗格跑 Claude Code，另一个窗格跑测试，要看一大段 diff 的时候按 <code>Cmd + Shift + Enter</code> 让 agent 那边占满整个窗口，看完再按一次就回到分屏。标签一多，Tab Navigator 可以按名字筛，比数到底是 <code>Cmd + 6</code> 还是 <code>Cmd + 7</code> 省事得多。想加自己的快捷键，就在 <code>~/.config/kaku/kaku.lua</code> 里往 <code>config.keys</code> 后面追加，不要整张表重新赋值，否则 Kaku 自带的那些默认快捷键会一起被<span class="nobr">清掉。</span></p>
 <h2 id="常见问题">常见问题</h2>
 <h3 id="为什么按-option-b-打出来的是-而不是往回跳一个词">为什么按 Option + B 打出来的是 ∫，而不是往回跳一个词？</h3>
-<p>因为终端把 Option 当成了打字符的键发出去，所以只要在 Terminal.app 里勾上 Use Option as Meta key，在 Ghostty 里设 <code>macos-option-as-alt</code>，在 WezTerm 里把 <code>send_composed_key_when_left_alt_is_pressed</code> 设成 <code>false</code> 就好，Kaku 默认已经给左边的 Option 这样设了。</p>
+<p>因为终端把 Option 当成了打字符的键发出去，所以只要在 Terminal.app 里勾上 Use Option as Meta key，在 Ghostty 里设 <code>macos-option-as-alt</code>，在 WezTerm 里把 <code>send_composed_key_when_left_alt_is_pressed</code> 设成 <code>false</code> 就好，Kaku 默认已经给左边的 Option 这样<span class="nobr">设了。</span></p>
 <h3 id="ctrl-u-在-zsh-和-bash-里有什么不同">Ctrl + U 在 zsh 和 bash 里有什么不同？</h3>
-<p>zsh 里会删掉整行，光标后面的字也一起删，bash 里只从光标删到行首，两边删掉的内容都能用 <code>Ctrl + Y</code> 贴回来。</p>
+<p>zsh 里会删掉整行，光标后面的字也一起删，bash 里只从光标删到行首，两边删掉的内容都能用 <code>Ctrl + Y</code> 贴<span class="nobr">回来。</span></p>
 <h3 id="在-mac-上怎么搜以前跑过的命令">在 Mac 上怎么搜以前跑过的命令？</h3>
-<p>按 <code>Ctrl + R</code> 再敲命令里的一部分，继续按 <code>Ctrl + R</code> 往更早的匹配翻，回车执行，<code>Ctrl + G</code> 取消，这是 shell 自己的功能，所以在哪个终端里都能用。</p>
+<p>按 <code>Ctrl + R</code> 再敲命令里的一部分，继续按 <code>Ctrl + R</code> 往更早的匹配翻，回车执行，<code>Ctrl + G</code> 取消，这是 shell 自己的功能，所以在哪个终端里都<span class="nobr">能用。</span></p>
 <h3 id="有没有清屏的快捷键">有没有清屏的快捷键？</h3>
-<p>Terminal.app 里 <code>Cmd + K</code> 是清除到开头，Kaku 里 <code>Cmd + K</code> 会把屏幕和滚动区一起清掉。<code>Ctrl + L</code> 是 shell 自带的 <code>clear-screen</code>，在哪个终端里都能用，它会把提示符重新画到屏幕顶上。</p>
+<p>Terminal.app 里 <code>Cmd + K</code> 是清除到开头，Kaku 里 <code>Cmd + K</code> 会把屏幕和滚动区一起清掉。<code>Ctrl + L</code> 是 shell 自带的 <code>clear-screen</code>，在哪个终端里都能用，它会把提示符重新画到屏幕<span class="nobr">顶上。</span></p>
 <h3 id="既想打带音标的字符又想把-option-当-meta可以吗">既想打带音标的字符，又想把 Option 当 Meta，可以吗？</h3>
-<p>可以，只让一侧的 Option 当 Meta 就行，Ghostty 里写 <code>macos-option-as-alt = left</code>，WezTerm 和 Kaku 里分别设左右两个 <code>send_composed_key</code> 选项，Kaku 默认就是左边当 Meta、右边打字符这样分的。</p>
+<p>可以，只让一侧的 Option 当 Meta 就行，Ghostty 里写 <code>macos-option-as-alt = left</code>，WezTerm 和 Kaku 里分别设左右两个 <code>send_composed_key</code> 选项，Kaku 默认就是左边当 Meta、右边打字符这样<span class="nobr">分的。</span></p>
           <aside class="blog-cta"><img class="blog-cta-icon" src="/img/kaku-mark.png" width="40" height="40" alt=""><p>Kaku 是一个免费开源的 Mac 终端。</p><a class="btn btn-primary" href="/zh/docs">安装 Kaku</a></aside>
           <nav class="blog-related" aria-label="继续阅读"><h2 class="blog-related-title">继续阅读</h2><ul class="blog-related-list"><li><a href="/zh/blog/best-terminal-for-mac"><span class="blog-related-cat">终端</span><span class="blog-related-name">2026 年 Mac 上的终端怎么选</span><span class="blog-related-meta"><time datetime="2026-09-21">2026年9月21日</time> · 约 5 分钟</span></a></li><li><a href="/zh/blog/ghostty-config"><span class="blog-related-cat">终端</span><span class="blog-related-name">Ghostty 配置指南，Mac 上值得改的几项设置</span><span class="blog-related-meta"><time datetime="2026-10-10">2026年10月10日</time> · 约 8 分钟</span></a></li><li><a href="/zh/blog/how-terminal-emulators-work"><span class="blog-related-cat">终端</span><span class="blog-related-name">终端模拟器是怎么工作的</span><span class="blog-related-meta"><time datetime="2026-10-16">2026年10月16日</time> · 约 10 分钟</span></a></li></ul></nav>
         </article>

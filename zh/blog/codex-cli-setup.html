@@ -141,9 +141,9 @@
       <div class="wide">
         <article class="doc-content blog-article">
           <figure class="blog-cover" aria-hidden="true"><img src="/img/blog/cards/codex-cli-setup.webp" width="1600" height="900" alt="" fetchpriority="high"></figure>
-<p>在 Mac 上配好 Codex CLI 只要三条命令，<code>brew install --cask codex</code> 装上，<code>codex login</code> 登录，再进到项目目录里跑 <code>codex</code>。常用的用户设置在 <code>~/.codex/config.toml</code> 里，用哪个模型，不用问你就能做多少事，需要你的时候怎么提醒你，都能在这里配置。内容按 2026 年 10 月的 Codex CLI 0.163.0 核对过。</p>
+<p>在 Mac 上配好 Codex CLI 只要三条命令，<code>brew install --cask codex</code> 装上，<code>codex login</code> 登录，再进到项目目录里跑 <code>codex</code>。常用的用户设置在 <code>~/.codex/config.toml</code> 里，用哪个模型，不用问你就能做多少事，需要你的时候怎么提醒你，都能在这里配置。内容按 2026 年 10 月的 Codex CLI 0.163.0 核<span class="nobr">对过。</span></p>
 <h2 id="安装">安装</h2>
-<p>官方给了三种装法，挑一个就行：</p>
+<p>官方给了三种装法，挑一个<span class="nobr">就行：</span></p>
 <pre><code class="language-bash"><span class="tok-c"># Homebrew
 </span>brew install --cask codex
 
@@ -152,32 +152,32 @@
 
 <span class="tok-c"># npm
 </span>npm install -g @openai/codex</code></pre>
-<p>装完用 <code>codex --version</code> 确认版本，以后升级直接用当初安装它的那个工具。哪里看着不对就跑 <code>codex doctor</code>，它会把安装、配置、登录和运行环境一起查一遍。</p>
+<p>装完用 <code>codex --version</code> 确认版本，以后升级直接用当初安装它的那个工具。哪里看着不对就跑 <code>codex doctor</code>，它会把安装、配置、登录和运行环境一起查<span class="nobr">一遍。</span></p>
 <h2 id="登录">登录</h2>
-<p><code>codex login</code> 会打开浏览器，用 ChatGPT 账号登录，套餐里带 Codex 的话这是最省事的。想用 API key 的话，别直接贴在命令行里，不然会留在 shell 历史里，从环境变量用管道传进去：</p>
+<p><code>codex login</code> 会打开浏览器，用 ChatGPT 账号登录，套餐里带 Codex 的话这是最省事的。想用 API key 的话，别直接贴在命令行里，不然会留在 shell 历史里，从环境变量用管道传<span class="nobr">进去：</span></p>
 <pre><code class="language-bash">printenv OPENAI_API_KEY | codex login --with-api-key</code></pre>
-<p>没有浏览器的机器上用 <code>codex login --device-auth</code>，它会给一个代码，拿到另一台设备上输入。使用文件存储时，凭据存在 <code>CODEX_HOME</code> 下的 <code>auth.json</code>，默认就是 <code>~/.codex/auth.json</code>，也可以通过 <a href="https://learn.chatgpt.com/docs/config-file/config-reference" target="_blank" rel="noopener noreferrer"><code>cli_auth_credentials_store</code></a> 选择系统钥匙串或只存在内存里。<code>codex login status</code> 可以看当前是哪个账号，<code>codex logout</code> 退出。</p>
+<p>没有浏览器的机器上用 <code>codex login --device-auth</code>，它会给一个代码，拿到另一台设备上输入。使用文件存储时，凭据存在 <code>CODEX_HOME</code> 下的 <code>auth.json</code>，默认就是 <code>~/.codex/auth.json</code>，也可以通过 <a href="https://learn.chatgpt.com/docs/config-file/config-reference" target="_blank" rel="noopener noreferrer"><code>cli_auth_credentials_store</code></a> 选择系统钥匙串或只存在内存里。<code>codex login status</code> 可以看当前是哪个账号，<code>codex logout</code> <span class="nobr">退出。</span></p>
 <h2 id="设置从哪里来">设置从哪里来</h2>
-<p>Codex 的设置是一层层叠起来的，离这一次运行越近的那层优先。</p>
+<p>Codex 的设置是一层层叠起来的，离这一次运行越近的那层<span class="nobr">优先。</span></p>
 <figure class="blog-diagram"><picture><source media="(max-width: 640px)" srcset="/img/blog/codex-config-layers-mobile.webp" width="340" height="378"><img src="/img/blog/codex-config-layers.webp" width="502" height="412" loading="lazy" alt="Codex 设置的四层，从上到下是命令行参数、项目配置、用户配置和内置默认值"></picture><figcaption>命令行参数压过项目配置，项目配置压过用户配置。</figcaption></figure>
 
 <ul>
-<li><strong>内置默认值</strong>，其他地方都没设的时候才用。</li>
-<li><strong><code>~/.codex/config.toml</code></strong> 是用户配置，对每个会话都生效。</li>
-<li><strong>仓库里的 <code>.codex/config.toml</code></strong> 只对这个项目生效，会覆盖用户配置。</li>
-<li><strong>命令行参数</strong>，比如 <code>-m</code>、<code>-s</code>、<code>-a</code> 和 <code>-c key=value</code>，只管这一次运行，优先级最高。</li>
+<li><strong>内置默认值</strong>，其他地方都没设的时候<span class="nobr">才用。</span></li>
+<li><strong><code>~/.codex/config.toml</code></strong> 是用户配置，对每个会话都<span class="nobr">生效。</span></li>
+<li><strong>仓库里的 <code>.codex/config.toml</code></strong> 只对这个项目生效，会覆盖用户<span class="nobr">配置。</span></li>
+<li><strong>命令行参数</strong>，比如 <code>-m</code>、<code>-s</code>、<code>-a</code> 和 <code>-c key=value</code>，只管这一次运行，优先级<span class="nobr">最高。</span></li>
 </ul>
-<p><code>-c</code> 能接配置文件里的任意一个键，嵌套的表用点号连起来，所以 <code>codex -c tui.notification_method=osc9</code> 可以先试一下某个设置，满意了再写进文件。另外还有命名的 profile，<code>codex -p work</code> 会把 <code>~/.codex/work.config.toml</code> 叠在用户配置上面。</p>
+<p><code>-c</code> 能接配置文件里的任意一个键，嵌套的表用点号连起来，所以 <code>codex -c tui.notification_method=osc9</code> 可以先试一下某个设置，满意了再写进文件。另外还有命名的 profile，<code>codex -p work</code> 会把 <code>~/.codex/work.config.toml</code> 叠在用户配置<span class="nobr">上面。</span></p>
 <h2 id="最值得先改的几个设置">最值得先改的几个设置</h2>
-<p>一份很短的用户配置就够大多数人用了：</p>
+<p>一份很短的用户配置就够大多数人<span class="nobr">用了：</span></p>
 <pre><code class="language-toml">model_reasoning_effort = <span class="tok-s">"medium"</span>
 approval_policy = <span class="tok-s">"on-request"</span>
 sandbox_mode = <span class="tok-s">"workspace-write"</span>
 
 <span class="tok-k">[tui]</span>
 notification_method = <span class="tok-s">"osc9"</span></code></pre>
-<p><code>model</code> 不写就用默认的，要写的话填会话里 <code>/model</code> 列出来的名字，这个列表跟账号有关，<code>/model</code> 也能直接切换当前会话的模型，不用改文件。</p>
-<p>决定 Codex 能自己做多少事的是下面两个设置，改之前值得先弄明白：</p>
+<p><code>model</code> 不写就用默认的，要写的话填会话里 <code>/model</code> 列出来的名字，这个列表跟账号有关，<code>/model</code> 也能直接切换当前会话的模型，不用改<span class="nobr">文件。</span></p>
+<p>决定 Codex 能自己做多少事的是下面两个设置，改之前值得先弄<span class="nobr">明白：</span></p>
 <table>
 <thead>
 <tr>
@@ -199,19 +199,19 @@ notification_method = <span class="tok-s">"osc9"</span></code></pre>
 </tr>
 </tbody>
 </table>
-<p>先用 <code>workspace-write</code> 配 <code>on-request</code> 比较稳妥，<code>danger-full-access</code> 配 <code>never</code> 等于两道防线都拆了，那是给本来就隔离好的机器用的，不是给你天天用的笔记本。</p>
+<p>先用 <code>workspace-write</code> 配 <code>on-request</code> 比较稳妥，<code>danger-full-access</code> 配 <code>never</code> 等于两道防线都拆了，那是给本来就隔离好的机器用的，不是给你天天用的笔<span class="nobr">记本。</span></p>
 <h2 id="通知">通知</h2>
-<p>Codex 默认在做完或者等你批准时响一下终端铃声，而且只在终端没获得焦点时响，这一声能不能变成桌面通知要看终端。Kaku 会把后台窗口里的铃声变成通知，设成 <code>notification_method = "osc9"</code> 之后，通知里显示的是 Codex 自己写的消息，而不是笼统的一句。<code>tui.notification_condition = "always"</code> 则是终端在前台也提醒。</p>
-<p>如果什么都没收到，可以看这篇<a href="/zh/blog/claude-code-notifications">通知指南</a>，里面讲了会挡住通知的 macOS 权限和 tmux 设置。</p>
+<p>Codex 默认在做完或者等你批准时响一下终端铃声，而且只在终端没获得焦点时响，这一声能不能变成桌面通知要看终端。Kaku 会把后台窗口里的铃声变成通知，设成 <code>notification_method = "osc9"</code> 之后，通知里显示的是 Codex 自己写的消息，而不是笼统的一句。<code>tui.notification_condition = "always"</code> 则是终端在前台也<span class="nobr">提醒。</span></p>
+<p>如果什么都没收到，可以看这篇<a href="/zh/blog/claude-code-notifications">通知指南</a>，里面讲了会挡住通知的 macOS 权限和 tmux <span class="nobr">设置。</span></p>
 <h2 id="接着上次的会话">接着上次的会话</h2>
-<p>Codex 会把每个交互式会话都记下来，关掉终端也不会丢：</p>
+<p>Codex 会把每个交互式会话都记下来，关掉终端也不<span class="nobr">会丢：</span></p>
 <pre><code class="language-bash">codex resume          <span class="tok-c"># 从最近的会话里挑一个
 </span>codex resume --last   <span class="tok-c"># 直接接上最近一次
 </span>codex fork --last     <span class="tok-c"># 从最近一次分叉出去，原来那个不动
 </span></code></pre>
-<p>终端这一侧是另一回事，在 Kaku 里重启之后，原来开着的标签和分屏会回来，之前跑着 Codex 的窗格还会保留最后一屏，接上之前能先看到每个会话停在哪里。</p>
+<p>终端这一侧是另一回事，在 Kaku 里重启之后，原来开着的标签和分屏会回来，之前跑着 Codex 的窗格还会保留最后一屏，接上之前能先看到每个会话停在<span class="nobr">哪里。</span></p>
 <h2 id="在-kaku-里用同一个-codex-登录">在 Kaku 里用同一个 Codex 登录</h2>
-<p>Kaku 自带的助手负责 <code>#</code> 生成命令和 <code>Cmd + L</code> 对话，它不需要你再准备一个 API key，可以直接跟着现有的 Codex 连接走。运行 <code>kaku ai</code>，选 Kaku Assistant，把 Auth Type 设成 <code>codex</code>，Kaku 就会去读用户级的 Codex 配置，包括 ChatGPT 登录或 API key，以及选中的服务商。同一个界面里的 Codex 那一项也能看到 Codex 自己的模型和登录状态。</p>
+<p>Kaku 自带的助手负责 <code>#</code> 生成命令和 <code>Cmd + L</code> 对话，它不需要你再准备一个 API key，可以直接跟着现有的 Codex 连接走。运行 <code>kaku ai</code>，选 Kaku Assistant，把 Auth Type 设成 <code>codex</code>，Kaku 就会去读用户级的 Codex 配置，包括 ChatGPT 登录或 API key，以及选中的服务商。同一个界面里的 Codex 那一项也能看到 Codex 自己的模型和登录<span class="nobr">状态。</span></p>
 <h2 id="常见问题">常见问题</h2>
 <h3 id="codex-cli-免费吗">Codex CLI 免费吗？</h3>
 <p>CLI 本身是开源的，但要用起来，需要套餐里带 Codex 的 ChatGPT 账号，或者按用量计费的 OpenAI API key。</p>
@@ -220,7 +220,7 @@ notification_method = <span class="tok-s">"osc9"</span></code></pre>
 <h3 id="codex-cli-怎么换模型">Codex CLI 怎么换模型？</h3>
 <p>会话里用 <code>/model</code>，只换一次就用 <code>codex -m &lt;模型名&gt;</code>，想每次都用就在 <code>~/.codex/config.toml</code> 里设 <code>model</code>。</p>
 <h3 id="关掉终端之后怎么接着-codex-的会话">关掉终端之后怎么接着 Codex 的会话？</h3>
-<p>在同一个项目里跑 <code>codex resume --last</code>，或者用 <code>codex resume</code> 从列表里挑。</p>
+<p>在同一个项目里跑 <code>codex resume --last</code>，或者用 <code>codex resume</code> 从列表<span class="nobr">里挑。</span></p>
           <aside class="blog-cta"><img class="blog-cta-icon" src="/img/kaku-mark.png" width="40" height="40" alt=""><p>Kaku 是一个免费开源的 Mac 终端。</p><a class="btn btn-primary" href="/zh/docs">安装 Kaku</a></aside>
           <nav class="blog-related" aria-label="继续阅读"><h2 class="blog-related-title">继续阅读</h2><ul class="blog-related-list"><li><a href="/zh/blog/install-claude-code-mac"><span class="blog-related-cat">Claude Code 与 Codex</span><span class="blog-related-name">在 Mac 上安装和更新 Claude Code</span><span class="blog-related-meta"><time datetime="2026-10-02">2026年10月2日</time> · 约 6 分钟</span></a></li><li><a href="/zh/blog/claude-code-agent-teams"><span class="blog-related-cat">Claude Code 与 Codex</span><span class="blog-related-name">Claude Code agent teams 怎么打开，在 Kaku 里显示在哪</span><span class="blog-related-meta"><time datetime="2026-09-26">2026年9月26日</time> · 约 10 分钟</span></a></li><li><a href="/zh/blog/claude-code-remote"><span class="blog-related-cat">Claude Code 与 Codex</span><span class="blog-related-name">远程使用 Claude Code，接上正在跑的会话的三种办法</span><span class="blog-related-meta"><time datetime="2026-09-30">2026年9月30日</time> · 约 5 分钟</span></a></li></ul></nav>
         </article>

@@ -133,26 +133,26 @@
       <div class="wide">
         <article class="doc-content blog-article">
           <figure class="blog-cover" aria-hidden="true"><img src="/img/blog/cards/claude-code-mcp-servers.webp" width="1600" height="900" alt="" fetchpriority="high"></figure>
-<p>用 <code>claude mcp add</code> 把服务器加进来，在 Claude 调用它的工具之前先批准。远程服务填一个 HTTP 地址，本机程序是放在 <code>--</code> 后面的 stdio 命令。local 和 user 写在这台机器的 <code>~/.claude.json</code> 里，项目用的 <code>.mcp.json</code> 会跟着仓库提交，token 放在环境变量里，不要写进那个文件。</p>
-<p>下面的命令以 Claude Code 的 <a href="https://code.claude.com/docs/en/mcp" target="_blank" rel="noopener noreferrer">MCP 文档</a> 为准，2026 年 10 月核对过。<a href="https://modelcontextprotocol.io/" target="_blank" rel="noopener noreferrer">MCP</a> 是这些服务器使用的开放协议。</p>
+<p>用 <code>claude mcp add</code> 把服务器加进来，在 Claude 调用它的工具之前先批准。远程服务填一个 HTTP 地址，本机程序是放在 <code>--</code> 后面的 stdio 命令。local 和 user 写在这台机器的 <code>~/.claude.json</code> 里，项目用的 <code>.mcp.json</code> 会跟着仓库提交，token 放在环境变量里，不要写进那个<span class="nobr">文件。</span></p>
+<p>下面的命令以 Claude Code 的 <a href="https://code.claude.com/docs/en/mcp" target="_blank" rel="noopener noreferrer">MCP 文档</a> 为准，2026 年 10 月核对过。<a href="https://modelcontextprotocol.io/" target="_blank" rel="noopener noreferrer">MCP</a> 是这些服务器使用的开放<span class="nobr">协议。</span></p>
 <h2 id="服务器是怎么连上的">服务器是怎么连上的</h2>
 <p>Claude Code 在这条链路里是 MCP 的 host，它给每个服务器单独开一个 client，连接由这个 client 维持，两边交换 JSON-RPC。连上之后 Claude Code 会问服务器提供什么，其中包括 <code>tools/list</code>、<code>prompts/list</code> 和 <code>resources/list</code>。工具是 Claude 可以调用的函数，资源是你用 <code>@</code> 附上去的数据，提示词出现在 <code>/</code> 菜单里，形式是 <code>/servername:promptname (MCP)</code>。</p>
-<p>stdio 在本机起一个进程，走这个进程的标准输入和标准输出，Claude Code 会把 <code>CLAUDE_PROJECT_DIR</code> 设成项目根目录。远程服务在文档里推荐走 HTTP，JSON 里的 <code>streamable-http</code> 是 <code>http</code> 的别名，只有 <code>url</code>、没有 <code>type</code> 的条目会被当成 stdio，然后跳过。</p>
+<p>stdio 在本机起一个进程，走这个进程的标准输入和标准输出，Claude Code 会把 <code>CLAUDE_PROJECT_DIR</code> 设成项目根目录。远程服务在文档里推荐走 HTTP，JSON 里的 <code>streamable-http</code> 是 <code>http</code> 的别名，只有 <code>url</code>、没有 <code>type</code> 的条目会被当成 stdio，然后<span class="nobr">跳过。</span></p>
 <figure class="blog-diagram"><picture><source media="(max-width: 640px)" srcset="/img/blog/claude-code-mcp-servers-mobile.webp" width="340" height="440"><img src="/img/blog/claude-code-mcp-servers.webp" width="1102" height="246" loading="lazy" alt="Claude Code 为每个服务器开一个 MCP 客户端，客户端通过 stdin 和 stdout 连本地进程，或者通过 HTTP 连远程服务器，两者都回答 tools/list"></picture><figcaption>每个服务器单独配一个客户端，客户端用 stdio 或 HTTP 去取工具列表。</figcaption></figure>
 
 <h2 id="添加-http-和-stdio">添加 HTTP 和 stdio</h2>
-<p><a href="https://docs.github.com/en/copilot/how-tos/provide-context/use-mcp/set-up-the-github-mcp-server" target="_blank" rel="noopener noreferrer">GitHub 的远程 MCP 服务器</a> 地址是 <code>https://api.githubcopilot.com/mcp/</code>。Claude Code 文档里的例子用 header 传个人访问令牌，这条命令只把配置写进去，不检查令牌，占位符也能保存，真正连的时候才会失败。</p>
+<p><a href="https://docs.github.com/en/copilot/how-tos/provide-context/use-mcp/set-up-the-github-mcp-server" target="_blank" rel="noopener noreferrer">GitHub 的远程 MCP 服务器</a> 地址是 <code>https://api.githubcopilot.com/mcp/</code>。Claude Code 文档里的例子用 header 传个人访问令牌，这条命令只把配置写进去，不检查令牌，占位符也能保存，真正连的时候才会<span class="nobr">失败。</span></p>
 <pre><code class="language-bash">claude mcp add --transport http github https://api.githubcopilot.com/mcp/ <span class="tok-s">\
 </span>  --header <span class="tok-s">"Authorization: Bearer YOUR_GITHUB_PAT"</span></code></pre>
 <p>成功时打印的一行以 <code>Added</code> 开头。进会话后看 <code>/mcp</code> 是否连上，令牌不对会失败，状态里带 HTTP 状态码，比如 401。这个 header 存在保存下来的条目里，适合 local 或 user，要提交的文件改用 <code>${GITHUB_PAT}</code>。</p>
 <p>Sentry 是文档里不带 header 的例子。在 <code>claude -p</code> 之前先登录，可以在 <code>/mcp</code> 里走浏览器，也可以在 shell 里跑 <code>claude mcp login sentry</code>。同一个范围里再加同名服务器，会报 <code>MCP server sentry already exists in local config</code>。</p>
 <pre><code class="language-bash">claude mcp add --transport http sentry https://mcp.sentry.dev/mcp</code></pre>
-<p>文档里的 Airtable 例子是 stdio。<code>--env</code> 和服务器名之间要再放一个选项，进程本身连同它自己的参数放在 <code>--</code> 后面。</p>
+<p>文档里的 Airtable 例子是 stdio。<code>--env</code> 和服务器名之间要再放一个选项，进程本身连同它自己的参数放在 <code>--</code> <span class="nobr">后面。</span></p>
 <pre><code class="language-bash">claude mcp add --env AIRTABLE_API_KEY=YOUR_KEY --transport stdio airtable <span class="tok-s">\
 </span>  -- npx -y airtable-mcp-server</code></pre>
-<p>少了 <code>--</code>，<code>--port</code> 这种参数会被 Claude Code 当成自己的选项。名字只能包含字母、数字、连字符和下划线。</p>
+<p>少了 <code>--</code>，<code>--port</code> 这种参数会被 Claude Code 当成自己的选项。名字只能包含字母、数字、连字符和下<span class="nobr">划线。</span></p>
 <h2 id="localproject-和-user">local、project 和 user</h2>
-<p>不写 <code>--scope</code> 就是 local。它按项目路径记在 <code>~/.claude.json</code> 里，换一个检出就看不到，和项目目录里的 <code>.claude/settings.local.json</code> 各管各的。</p>
+<p>不写 <code>--scope</code> 就是 local。它按项目路径记在 <code>~/.claude.json</code> 里，换一个检出就看不到，和项目目录里的 <code>.claude/settings.local.json</code> 各管<span class="nobr">各的。</span></p>
 <table>
 <thead>
 <tr>
@@ -183,8 +183,8 @@
 </tr>
 </tbody>
 </table>
-<p><code>--scope user</code> 或 <code>--scope project</code> 指定范围，比如 <code>claude mcp add --transport http sentry --scope user https://mcp.sentry.dev/mcp</code>。同一台服务器在几处都定义了，只连一次，用优先级最高的那一整条配置，不把几个范围的字段拼在一起，顺序是 local，然后 project，然后 user，然后插件，然后 claude.ai 的 connector。三个范围之间按名字判重，插件和 connector 按 URL 或命令判重。Claude Code v2.1.259 及以后，组织下发的 <code>managedMcpServers</code> 排在这张名单之上。桌面应用的 Code 标签里，同名的 stdio 如果 user 和 <code>.mcp.json</code> 都有，加载的是 user 那条。</p>
-<p>提交进仓库的 GitHub 服务器把令牌留在环境变量里。</p>
+<p><code>--scope user</code> 或 <code>--scope project</code> 指定范围，比如 <code>claude mcp add --transport http sentry --scope user https://mcp.sentry.dev/mcp</code>。同一台服务器在几处都定义了，只连一次，用优先级最高的那一整条配置，不把几个范围的字段拼在一起，顺序是 local，然后 project，然后 user，然后插件，然后 claude.ai 的 connector。三个范围之间按名字判重，插件和 connector 按 URL 或命令判重。Claude Code v2.1.259 及以后，组织下发的 <code>managedMcpServers</code> 排在这张名单之上。桌面应用的 Code 标签里，同名的 stdio 如果 user 和 <code>.mcp.json</code> 都有，加载的是 user <span class="nobr">那条。</span></p>
+<p>提交进仓库的 GitHub 服务器把令牌留在环境变<span class="nobr">量里。</span></p>
 <pre><code class="language-json">{
   "mcpServers": {
     "github": {
@@ -196,14 +196,14 @@
     }
   }
 }</code></pre>
-<p><code>${VAR}</code> 和 <code>${VAR:-default}</code> 可以写在 <code>command</code>、<code>args</code>、<code>env</code>、<code>url</code> 和 <code>headers</code> 里。没有默认值时服务器照样加载，发出去的是字面量 <code>${VAR}</code>，<code>claude mcp list</code> 会点出变量名，列表和 <code>/mcp</code> 显示这个名字，不显示解开之后的密钥。<code>ANTHROPIC_API_KEY</code>、<code>ANTHROPIC_AUTH_TOKEN</code>、<code>AWS_BEARER_TOKEN_BEDROCK</code>、<code>HTTPS_PROXY</code> 和 <code>NPM_TOKEN</code> 写进远程 URL 或 header 时会被当成空。连 <code>:-default</code> 也不生效，对方多半回 401。要给服务器用，先抄到一个你自己起的变量名里。</p>
+<p><code>${VAR}</code> 和 <code>${VAR:-default}</code> 可以写在 <code>command</code>、<code>args</code>、<code>env</code>、<code>url</code> 和 <code>headers</code> 里。没有默认值时服务器照样加载，发出去的是字面量 <code>${VAR}</code>，<code>claude mcp list</code> 会点出变量名，列表和 <code>/mcp</code> 显示这个名字，不显示解开之后的密钥。<code>ANTHROPIC_API_KEY</code>、<code>ANTHROPIC_AUTH_TOKEN</code>、<code>AWS_BEARER_TOKEN_BEDROCK</code>、<code>HTTPS_PROXY</code> 和 <code>NPM_TOKEN</code> 写进远程 URL 或 header 时会被当成空。连 <code>:-default</code> 也不生效，对方多半回 401。要给服务器用，先抄到一个你自己起的变量<span class="nobr">名里。</span></p>
 <h2 id="查看批准和删除">查看、批准和删除</h2>
 <pre><code class="language-bash">claude mcp list
 claude mcp get github
 claude mcp remove github</code></pre>
-<p><code>Failed to connect</code> 表示那一台服务器没有连上，list 命令自己是成功的。<code>claude mcp get</code> 把同一段说明打在 <code>Issue:</code> 那一行，密钥和展开后的 URL 不会出现。<code>Connection error</code> 不附细节，因为异常文本里可能带着 URL。<code>Needs authentication</code> 还差登录。</p>
-<p><code>.mcp.json</code> 里的服务器会停在 <code>Pending approval</code>，直到你在这个目录里跑 <code>claude</code> 并接受它。<code>claude mcp reset-project-choices</code> 清掉这些选择。<code>claude -p</code>、Agent SDK 和云端会话没有这道提示，项目服务器会直接加载，除非你另行拦住。提交在仓库里的 <code>enableAllProjectMcpServers</code> 或 <code>enabledMcpjsonServers</code> 在工作区被信任之前不起作用。<code>disabledMcpjsonServers</code> 在任何权限模式下都拒绝这台项目服务器。在 <code>/mcp</code> 里把一台关掉，写的是另一份名单 <code>disabledMcpServers</code>，配置还在，只是不再连接。</p>
-<p>删掉一台远程服务器时，Claude Code 也会删掉为它存的 OAuth 令牌和客户端注册。同一个名字在两个范围里指向不同地址时，给 <code>claude mcp remove</code> 加上 <code>--scope</code>，另一条才会留下来。</p>
+<p><code>Failed to connect</code> 表示那一台服务器没有连上，list 命令自己是成功的。<code>claude mcp get</code> 把同一段说明打在 <code>Issue:</code> 那一行，密钥和展开后的 URL 不会出现。<code>Connection error</code> 不附细节，因为异常文本里可能带着 URL。<code>Needs authentication</code> 还差<span class="nobr">登录。</span></p>
+<p><code>.mcp.json</code> 里的服务器会停在 <code>Pending approval</code>，直到你在这个目录里跑 <code>claude</code> 并接受它。<code>claude mcp reset-project-choices</code> 清掉这些选择。<code>claude -p</code>、Agent SDK 和云端会话没有这道提示，项目服务器会直接加载，除非你另行拦住。提交在仓库里的 <code>enableAllProjectMcpServers</code> 或 <code>enabledMcpjsonServers</code> 在工作区被信任之前不起作用。<code>disabledMcpjsonServers</code> 在任何权限模式下都拒绝这台项目服务器。在 <code>/mcp</code> 里把一台关掉，写的是另一份名单 <code>disabledMcpServers</code>，配置还在，只是不再<span class="nobr">连接。</span></p>
+<p>删掉一台远程服务器时，Claude Code 也会删掉为它存的 OAuth 令牌和客户端注册。同一个名字在两个范围里指向不同地址时，给 <code>claude mcp remove</code> 加上 <code>--scope</code>，另一条才会留<span class="nobr">下来。</span></p>
 <h2 id="工具调用还要再批一次">工具调用还要再批一次</h2>
 <p>批准服务器和批准它的工具是两件事。默认的 Manual 模式会在每个工具第一次使用时提问。工具全名是 <code>mcp__&lt;server&gt;__&lt;tool&gt;</code>，服务器名里的点和空格会变成 <code>_</code>，注册成 <code>github</code> 的 <code>list_issues</code> 就是 <code>mcp__github__list_issues</code>。<code>mcp__github</code> 和 <code>mcp__github__*</code> 都匹配这台服务器的全部工具。allow 规则里的 <code>*</code> 只能出现在 <code>mcp__&lt;server&gt;__</code> 后面，写成 <code>mcp__*</code> 的 allow 会被跳过，什么都不批准。同样的 <code>mcp__*</code> 作为 deny，会把所有 MCP 工具从 Claude 能看到的上下文里拿掉。先看 deny，再看 ask，最后才是 allow。</p>
 <pre><code class="language-json">{
@@ -211,28 +211,28 @@ claude mcp remove github</code></pre>
     "allow": [<span class="tok-s">"mcp__github__*"</span>]
   }
 }</code></pre>
-<p>每台机器都用的规则放在 <code>~/.claude/settings.json</code>，只给这个项目的放在 <code>.claude/settings.json</code>。<code>/permissions</code> 会标出每条规则来自哪个文件。<code>acceptEdits</code> 自动放行的是文件修改和常见的文件系统命令，不包括 MCP 工具。<code>bypassPermissions</code> 会跳过普通的 MCP 提问，同时也会跳过大多数别的提问。工具在 <code>tools/list</code> 里把 <code>_meta["anthropic/requiresUserInteraction"]</code> 设为 <code>true</code> 时，每次调用仍要提问，没有不再询问这一项。<code>bypassPermissions</code> 里也一样。</p>
-<p><a href="/zh/blog/claude-code-subagents">subagent</a> 的 <code>tools</code>、<a href="/zh/blog/claude-code-skills">skill</a> 的 <code>allowed-tools</code> 和 <a href="/zh/blog/claude-code-hooks">hook</a> 的 matcher 都要写这个全名。</p>
+<p>每台机器都用的规则放在 <code>~/.claude/settings.json</code>，只给这个项目的放在 <code>.claude/settings.json</code>。<code>/permissions</code> 会标出每条规则来自哪个文件。<code>acceptEdits</code> 自动放行的是文件修改和常见的文件系统命令，不包括 MCP 工具。<code>bypassPermissions</code> 会跳过普通的 MCP 提问，同时也会跳过大多数别的提问。工具在 <code>tools/list</code> 里把 <code>_meta["anthropic/requiresUserInteraction"]</code> 设为 <code>true</code> 时，每次调用仍要提问，没有不再询问这一项。<code>bypassPermissions</code> 里也<span class="nobr">一样。</span></p>
+<p><a href="/zh/blog/claude-code-subagents">subagent</a> 的 <code>tools</code>、<a href="/zh/blog/claude-code-skills">skill</a> 的 <code>allowed-tools</code> 和 <a href="/zh/blog/claude-code-hooks">hook</a> 的 matcher 都要写这个<span class="nobr">全名。</span></p>
 <h2 id="服务器起不来的时候">服务器起不来的时候</h2>
 <p>你自己写的 header 返回 401 时，不会改走 OAuth，改 header。Sentry 则是登录没做完，用 <code>/mcp</code> 或 <code>claude mcp login sentry</code>。</p>
-<p>stdio 进程马上退出的话，把 <code>--</code> 后面的命令拿到普通 shell 里跑一遍，看它自己的报错。Claude Code 不会自动重连 stdio。远程服务器掉线会重试，认证失败不会。<code>/mcp reconnect all</code> 在 Claude Code v2.1.284 及以后会重试失败的那些行。</p>
+<p>stdio 进程马上退出的话，把 <code>--</code> 后面的命令拿到普通 shell 里跑一遍，看它自己的报错。Claude Code 不会自动重连 stdio。远程服务器掉线会重试，认证失败不会。<code>/mcp reconnect all</code> 在 Claude Code v2.1.284 及以后会重试失败的那<span class="nobr">些行。</span></p>
 <p><code>MCP_TIMEOUT=10000 claude</code> 给启动留 10 秒。服务器上的 <code>"timeout"</code> 以毫秒计，限制的是每一次工具调用，小于 1000 的值会被忽略。<code>claude mcp add</code> 拒绝这些保留名，<code>workspace</code>、<code>claude-in-chrome</code>、<code>computer-use</code>、<code>Claude Preview</code> 和 <code>Claude Browser</code>。</p>
 <h2 id="工具一多上下文怎么算">工具一多，上下文怎么算</h2>
-<p>当前的 Claude 模型默认开着 tool search。会话开始时先加载工具名和服务器说明，Claude 去搜的时候才加载完整定义，没有按服务器计算的工具数量上限。<code>ENABLE_TOOL_SEARCH=false</code>、指向非 Anthropic 主机的 <code>ANTHROPIC_BASE_URL</code>，以及早于 Opus 4 和 Sonnet 4 的模型，会一开始就把全部定义放进提示词。<code>"alwaysLoad": true</code> 让某一台服务器也这样加载。</p>
-<p>单次结果超过 10000 token 会警告，默认上限是 25000 token，超过之后写到 <code>~/.claude/projects/</code> 下的 <code>tool-results</code>，对话里留下文件路径。<code>MAX_MCP_OUTPUT_TOKENS</code> 提高的是这个上限，警告线不动。</p>
+<p>当前的 Claude 模型默认开着 tool search。会话开始时先加载工具名和服务器说明，Claude 去搜的时候才加载完整定义，没有按服务器计算的工具数量上限。<code>ENABLE_TOOL_SEARCH=false</code>、指向非 Anthropic 主机的 <code>ANTHROPIC_BASE_URL</code>，以及早于 Opus 4 和 Sonnet 4 的模型，会一开始就把全部定义放进提示词。<code>"alwaysLoad": true</code> 让某一台服务器也这样<span class="nobr">加载。</span></p>
+<p>单次结果超过 10000 token 会警告，默认上限是 25000 token，超过之后写到 <code>~/.claude/projects/</code> 下的 <code>tool-results</code>，对话里留下文件路径。<code>MAX_MCP_OUTPUT_TOKENS</code> 提高的是这个上限，警告线<span class="nobr">不动。</span></p>
 <h2 id="在-kaku-里跑">在 Kaku 里跑</h2>
 <p>Kaku 0.25.0 不会替你添加 MCP 服务器。<code>kaku ai</code> 改的是 <code>~/.claude/settings.json</code> 里 Claude Code 的 Model，写成 <code>model</code>。Base URL 和 API Key 只有在文件里已经有 <code>env.ANTHROPIC_BASE_URL</code> 或令牌时才出现，保存为 <code>env.ANTHROPIC_BASE_URL</code> 和 <code>env.ANTHROPIC_AUTH_TOKEN</code>。Auth 只显示、不能在这里改。这个面板不碰 <code>~/.claude.json</code> 和 <code>.mcp.json</code>，也不会自己往 agent 里加 hook 或指令。面板做什么写在 <a href="/zh/docs/ai-coding">Kaku 里的 AI 编程</a>。</p>
-<p><code>ANTHROPIC_AUTH_TOKEN</code> 不会被展开进远程 MCP 的 header，从 <code>kaku ai</code> 存下来的密钥要先抄到别的变量名，<code>.mcp.json</code> 才能引用。claude.ai 的 connector 只在订阅登录下加载，<code>ANTHROPIC_API_KEY</code>、<code>ANTHROPIC_AUTH_TOKEN</code> 或 <code>apiKeyHelper</code> 是当前凭证时不会去拉。<code>/status</code> 能看到现在用的是哪一种。</p>
+<p><code>ANTHROPIC_AUTH_TOKEN</code> 不会被展开进远程 MCP 的 header，从 <code>kaku ai</code> 存下来的密钥要先抄到别的变量名，<code>.mcp.json</code> 才能引用。claude.ai 的 connector 只在订阅登录下加载，<code>ANTHROPIC_API_KEY</code>、<code>ANTHROPIC_AUTH_TOKEN</code> 或 <code>apiKeyHelper</code> 是当前凭证时不会去拉。<code>/status</code> 能看到现在用的是哪<span class="nobr">一种。</span></p>
 <p><code>Cmd + T</code> 开一个标签，<code>Cmd + D</code> 或 <code>Cmd + Shift + D</code> 在旁边放一个 shell，<code>Cmd + Shift + Enter</code> 放大当前窗格。关掉窗格之前会先问一句。会话结束时，stdio 服务器会收到 <code>SIGINT</code>，100 毫秒后如果还在就收到 <code>SIGTERM</code>，再过 400 毫秒是 <code>SIGKILL</code>。Claude Code 打印出来的文件路径可以用 <code>Cmd + Click</code> 打开。Claude Code 2.1.295 及以后会把正在干活、正在等你、已经做完这三种状态报告给 Kaku 0.25.0，不用额外设置，<code>preferredNotifChannel</code> 保持 <code>auto</code>。</p>
 <h2 id="什么时候不必接一台服务器">什么时候不必接一台服务器</h2>
-<p>Claude Code 自己就能读仓库、改文件、跑 shell，再把一个文件系统服务器指到同一份检出，多出来的主要是一个进程。<a href="/zh/blog/claude-code-skills">skill</a> 适合一份要反复用的检查清单，必须拦住某条命令时用 <a href="/zh/blog/claude-code-hooks">hook</a>。MCP 管的是连到别的系统，比如 GitHub 或 Sentry。别的客户端写的安装说明，落到 Claude Code 上仍是三种样子，一个 URL，一条放在 <code>--</code> 后面的启动命令，或者去掉外层包装之后交给 <code>claude mcp add-json</code> 的一条 <code>mcpServers</code> 配置。</p>
+<p>Claude Code 自己就能读仓库、改文件、跑 shell，再把一个文件系统服务器指到同一份检出，多出来的主要是一个进程。<a href="/zh/blog/claude-code-skills">skill</a> 适合一份要反复用的检查清单，必须拦住某条命令时用 <a href="/zh/blog/claude-code-hooks">hook</a>。MCP 管的是连到别的系统，比如 GitHub 或 Sentry。别的客户端写的安装说明，落到 Claude Code 上仍是三种样子，一个 URL，一条放在 <code>--</code> 后面的启动命令，或者去掉外层包装之后交给 <code>claude mcp add-json</code> 的一条 <code>mcpServers</code> <span class="nobr">配置。</span></p>
 <h2 id="常见问题">常见问题</h2>
 <h3 id="能把-claude-desktop-里的服务器导入过来吗">能把 Claude Desktop 里的服务器导入过来吗？</h3>
-<p>在 macOS 和 WSL 上，<code>claude mcp add-from-claude-desktop</code> 会读那份配置并让你挑选。名字里只要出现字母、数字、连字符、下划线以外的字符就会被跳过。重名的会存成 <code>server_1</code> 这样的后缀。</p>
+<p>在 macOS 和 WSL 上，<code>claude mcp add-from-claude-desktop</code> 会读那份配置并让你挑选。名字里只要出现字母、数字、连字符、下划线以外的字符就会被跳过。重名的会存成 <code>server_1</code> 这样的<span class="nobr">后缀。</span></p>
 <h3 id="mcp-里列着claude-却调不到是什么原因">/mcp 里列着，Claude 却调不到，是什么原因？</h3>
-<p>全名超过 128 个字符的工具不会放进请求，放进去的话 API 会把整次请求拒绝掉。在 <code>/mcp</code> 里选中这个工具可以看到全名。</p>
+<p>全名超过 128 个字符的工具不会放进请求，放进去的话 API 会把整次请求拒绝掉。在 <code>/mcp</code> 里选中这个工具可以看到<span class="nobr">全名。</span></p>
 <h3 id="服务器会中途停下来问我填表吗">服务器会中途停下来问我填表吗？</h3>
-<p>会。elicitation 自己弹出对话框，不用额外配置。Form 模式是服务器定义的字段，URL 模式会问要不要打开浏览器。</p>
+<p>会。elicitation 自己弹出对话框，不用额外配置。Form 模式是服务器定义的字段，URL 模式会问要不要打开浏<span class="nobr">览器。</span></p>
           <aside class="blog-cta"><img class="blog-cta-icon" src="/img/kaku-mark.png" width="40" height="40" alt=""><p>Kaku 是一个免费开源的 Mac 终端。</p><a class="btn btn-primary" href="/zh/docs">安装 Kaku</a></aside>
           <nav class="blog-related" aria-label="继续阅读"><h2 class="blog-related-title">继续阅读</h2><ul class="blog-related-list"><li><a href="/zh/blog/install-claude-code-mac"><span class="blog-related-cat">Claude Code 与 Codex</span><span class="blog-related-name">在 Mac 上安装和更新 Claude Code</span><span class="blog-related-meta"><time datetime="2026-10-02">2026年10月2日</time> · 约 6 分钟</span></a></li><li><a href="/zh/blog/claude-code-subagents"><span class="blog-related-cat">Claude Code 与 Codex</span><span class="blog-related-name">Claude Code subagents 是什么，什么时候用</span><span class="blog-related-meta"><time datetime="2026-10-11">2026年10月11日</time> · 约 10 分钟</span></a></li><li><a href="/zh/blog/claude-md-memory"><span class="blog-related-cat">Claude Code 与 Codex</span><span class="blog-related-name">CLAUDE.md 怎么写：记忆文件、加载顺序和该写什么</span><span class="blog-related-meta"><time datetime="2026-10-20">2026年10月20日</time> · 约 9 分钟</span></a></li></ul></nav>
         </article>

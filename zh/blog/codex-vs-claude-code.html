@@ -201,11 +201,11 @@
 </tbody>
 </table>
 <p>原生安装的 Claude Code 会自己更新，Homebrew 装的不会，<code>claude-code</code> 是稳定版 cask，大概落后一周，<code>claude-code@latest</code> 才是最新的。<code>claude</code> 进了 <code>PATH</code> 之后，<code>claude --version</code> 会打印版本号，设置文件是严格的 JSON。</p>
-<p>项目里的 <code>.codex/config.toml</code> 只有在你信任这个项目之后才加载，而且它设不了通知，所以 <code>notification_method</code> 只能留在 <code>~/.codex/config.toml</code>。<code>approval_policy = "untrusted"</code> 不支持，<code>on-failure</code> 已经废弃，文档还说不要把权限 profile（<code>:read-only</code>、<code>:workspace</code>、<code>:danger-full-access</code>）和 <code>sandbox_mode</code> 混在一起用。</p>
+<p>项目里的 <code>.codex/config.toml</code> 只有在你信任这个项目之后才加载，而且它设不了通知，所以 <code>notification_method</code> 只能留在 <code>~/.codex/config.toml</code>。<code>approval_policy = "untrusted"</code> 不支持，<code>on-failure</code> 已经废弃，文档还说不要把权限 profile（<code>:read-only</code>、<code>:workspace</code>、<code>:danger-full-access</code>）和 <code>sandbox_mode</code> 混在一<span class="nobr">起用。</span></p>
 <pre><code class="language-toml">model = <span class="tok-s">"gpt-6.1-sol"</span>
 sandbox_mode = <span class="tok-s">"workspace-write"</span>
 approval_policy = <span class="tok-s">"on-request"</span></code></pre>
-<p>Claude Code 放行 lint 和测试、同时挡住 <code>.env</code> 的例子，写在 <code>~/.claude/settings.json</code> 里：</p>
+<p>Claude Code 放行 lint 和测试、同时挡住 <code>.env</code> 的例子，写在 <code>~/.claude/settings.json</code>&nbsp;里：</p>
 <pre><code class="language-json">{
   "permissions": {
     "allow": [
@@ -218,35 +218,35 @@ approval_policy = <span class="tok-s">"on-request"</span></code></pre>
     ]
   }
 }</code></pre>
-<p><code>/status</code> 能确认加载了什么，<code>.claude/settings.json</code> 提交进仓库给整个团队用，个人的覆盖放在 <code>.claude/settings.local.json</code>，这几个文件里的 <code>permissions.allow</code> 会合并。<code>ANTHROPIC_MODEL</code> 覆盖 <code>model</code>，<code>--model</code> 在这一次会话里又同时覆盖这两者。</p>
+<p><code>/status</code> 能确认加载了什么，<code>.claude/settings.json</code> 提交进仓库给整个团队用，个人的覆盖放在 <code>.claude/settings.local.json</code>，这几个文件里的 <code>permissions.allow</code> 会合并。<code>ANTHROPIC_MODEL</code> 覆盖 <code>model</code>，<code>--model</code> 在这一次会话里又同时覆盖这<span class="nobr">两者。</span></p>
 <h2 id="账号和价格">账号和价格</h2>
-<p>按 OpenAI 的<a href="https://developers.openai.com/codex/pricing" target="_blank" rel="noopener noreferrer">价格页</a>，每个 ChatGPT 方案都包含 Codex，不过 Free 和 Go 只列了桌面 App，CLI、IDE 扩展和网页从 Plus 起才有，用 OpenAI 的 API key 也行，按 API 价格计费，不含 GitHub 代码审查和 Slack 这类云端功能。</p>
+<p>按 OpenAI 的<a href="https://developers.openai.com/codex/pricing" target="_blank" rel="noopener noreferrer">价格页</a>，每个 ChatGPT 方案都包含 Codex，不过 Free 和 Go 只列了桌面 App，CLI、IDE 扩展和网页从 Plus 起才有，用 OpenAI 的 API key 也行，按 API 价格计费，不含 GitHub 代码审查和 Slack 这类云端<span class="nobr">功能。</span></p>
 <p>Plus 和 Pro 用完包含的额度还可以再买，额度用完时正在跑的那一轮允许跑完，前提是用量合理，各档价格和每个模型的用量上限都在<a href="https://developers.openai.com/codex/pricing" target="_blank" rel="noopener noreferrer">价格页</a>上。</p>
 <p>Claude Code 用的是 <a href="https://claude.com/pricing" target="_blank" rel="noopener noreferrer">Claude 订阅</a>（Pro、Max、Team 或 Enterprise），或者按用量计费的 <a href="https://platform.claude.com/" target="_blank" rel="noopener noreferrer">Anthropic Console</a> 账号。终端、VS Code 和 JetBrains 也支持第三方提供方，桌面 App 要付费订阅，更多在 <a href="https://code.claude.com/" target="_blank" rel="noopener noreferrer">code.claude.com</a>。</p>
 <h2 id="各自适合干什么">各自适合干什么</h2>
-<p><code>codex exec</code> 是给脚本和 CI 用的非交互命令，<code>/review</code> 检查未提交的改动、某一次提交或者一个基准分支，不动工作区。<code>/init</code> 会写出 <code>AGENTS.md</code>，skills 存可以重复用的指令，plugins 接外部工具。</p>
-<p>Claude Code 这些事都从 <code>claude</code> 这一条命令进去，<code>claude -p</code> 接一次性的提示词，也接管道：</p>
+<p><code>codex exec</code> 是给脚本和 CI 用的非交互命令，<code>/review</code> 检查未提交的改动、某一次提交或者一个基准分支，不动工作区。<code>/init</code> 会写出 <code>AGENTS.md</code>，skills 存可以重复用的指令，plugins 接外部<span class="nobr">工具。</span></p>
+<p>Claude Code 这些事都从 <code>claude</code> 这一条命令进去，<code>claude -p</code> 接一次性的提示词，也接<span class="nobr">管道：</span></p>
 <pre><code class="language-bash">git diff main --name-only | claude -p <span class="tok-s">"review these changed files for security issues"</span></code></pre>
-<p>项目根目录的 <a href="https://code.claude.com/docs/en/memory" target="_blank" rel="noopener noreferrer"><code>CLAUDE.md</code></a> 每次会话开始都会读，skills 是 <code>/review-pr</code> 这类大家共用的命令。返回 deny 的 <code>PreToolUse</code> hook 在 <code>bypassPermissions</code> 模式下、加了 <code>--dangerously-skip-permissions</code> 时照样能挡住工具。Claude Code 还会跑 prompt hook 和 agent hook，Codex 跑的是 command hook 和 MCP tool hook，prompt 和 agent 这两类处理器解析完就跳过不跑。</p>
-<p><a href="/zh/blog/claude-code-plan-mode">plan mode</a> 在你批准之前拦住源码修改，已经能用 bypass permissions 的交互式终端是例外，<a href="/zh/blog/claude-code-hooks">hook</a> 在任何模式下都能挡住一次工具调用。</p>
+<p>项目根目录的 <a href="https://code.claude.com/docs/en/memory" target="_blank" rel="noopener noreferrer"><code>CLAUDE.md</code></a> 每次会话开始都会读，skills 是 <code>/review-pr</code> 这类大家共用的命令。返回 deny 的 <code>PreToolUse</code> hook 在 <code>bypassPermissions</code> 模式下、加了 <code>--dangerously-skip-permissions</code> 时照样能挡住工具。Claude Code 还会跑 prompt hook 和 agent hook，Codex 跑的是 command hook 和 MCP tool hook，prompt 和 agent 这两类处理器解析完就跳过<span class="nobr">不跑。</span></p>
+<p><a href="/zh/blog/claude-code-plan-mode">plan mode</a> 在你批准之前拦住源码修改，已经能用 bypass permissions 的交互式终端是例外，<a href="/zh/blog/claude-code-hooks">hook</a> 在任何模式下都能挡住一次工具<span class="nobr">调用。</span></p>
 <h2 id="一个仓库两个-agent">一个仓库，两个 agent</h2>
 <p>共用的指令可以放在 <code>AGENTS.md</code>，Codex 用 <code>/init</code> 生成它，仓库里已经有这份文件的话，Claude Code 可以拿它代替 <code>CLAUDE.md</code>，你自己加的 <code>CLAUDE.md</code> 在 Claude Code 会话开始时照样会加载。<code>model_instructions_file</code> 替换的是 Codex 的内置指令，不是 <code>AGENTS.md</code>。</p>
 <p>两个都可以改同一份检出，Claude Code 在 <code>--worktree</code>、<code>isolation: "worktree"</code> 和后台会话（<code>WorktreeCreate</code>）这几种情况下会开一个 git worktree。清理写在 <a href="/zh/blog/claude-code-git-worktrees">git worktrees</a> 那篇，Codex CLI 没有对应的参数。安装可以看 <a href="/zh/blog/codex-cli-setup">Codex CLI 配置</a>和<a href="/zh/blog/install-claude-code-mac">安装 Claude Code</a>。</p>
 <h2 id="在-kaku-里并排">在 Kaku 里并排</h2>
-<p><a href="/zh/docs/ai-coding">Kaku</a> 把这两个 CLI 当普通程序来跑，<code>kaku ai</code> 能配置 Claude Code、Codex 和其他外部工具，显示套餐用量，只在你在那里改了某项设置时才写这一项，不会自己去加 hooks 或指令。</p>
-<p><code>Cmd + D</code> 左右分屏，<code>Cmd + Shift + D</code> 上下分屏，<code>Cmd + Shift + Enter</code> 把你正在看的窗格放大。前台正跑着 Claude Code、Codex 或其他要跑很久的程序时，关窗格或标签会先问一声。重启之后，这些窗格留着最后一屏。</p>
-<p>Codex 在 Kaku 里不用设通知，它会响终端铃声，Kaku 在后台时会把铃声变成一条通知。想看到 Codex 自己写的文字，就在 <code>~/.codex/config.toml</code> 里设好方式：</p>
+<p><a href="/zh/docs/ai-coding">Kaku</a> 把这两个 CLI 当普通程序来跑，<code>kaku ai</code> 能配置 Claude Code、Codex 和其他外部工具，显示套餐用量，只在你在那里改了某项设置时才写这一项，不会自己去加 hooks 或<span class="nobr">指令。</span></p>
+<p><code>Cmd + D</code> 左右分屏，<code>Cmd + Shift + D</code> 上下分屏，<code>Cmd + Shift + Enter</code> 把你正在看的窗格放大。前台正跑着 Claude Code、Codex 或其他要跑很久的程序时，关窗格或标签会先问一声。重启之后，这些窗格留着最后<span class="nobr">一屏。</span></p>
+<p>Codex 在 Kaku 里不用设通知，它会响终端铃声，Kaku 在后台时会把铃声变成一条通知。想看到 Codex 自己写的文字，就在 <code>~/.codex/config.toml</code> 里设好<span class="nobr">方式：</span></p>
 <pre><code class="language-toml"><span class="tok-k">[tui]</span>
 notification_method = <span class="tok-s">"osc9"</span></code></pre>
 <p><code>auto</code> 是默认值，<code>osc9</code> 带一行文字，<code>bel</code> 就是铃声，<code>tui.notification_condition</code> 是 <code>unfocused</code>，除非你设成 <code>always</code>。</p>
-<p>Kaku 0.25.0 及以上配 Claude Code 2.1.295 及以上不用任何设置，更早的版本要在 <code>~/.claude/settings.json</code> 里设 <code>"preferredNotifChannel": "ghostty"</code>，原因写在 <a href="/zh/blog/claude-code-notifications">Claude Code 通知</a>那篇。还是什么都没有的话，点 Kaku &gt; Notification Settings，在系统设置里打开允许通知。</p>
+<p>Kaku 0.25.0 及以上配 Claude Code 2.1.295 及以上不用任何设置，更早的版本要在 <code>~/.claude/settings.json</code> 里设 <code>"preferredNotifChannel": "ghostty"</code>，原因写在 <a href="/zh/blog/claude-code-notifications">Claude Code 通知</a>那篇。还是什么都没有的话，点 Kaku &gt; Notification Settings，在系统设置里打开允许<span class="nobr">通知。</span></p>
 <h2 id="常见问题">常见问题</h2>
 <h3 id="能不能在一个仓库里同时跑两个">能不能在一个仓库里同时跑两个？</h3>
-<p>能，共用的指令放进 <code>AGENTS.md</code>，Codex 用 <code>/init</code> 写出它，Claude Code 可以拿它代替 <code>CLAUDE.md</code>。两个不该改同一批文件时，Claude Code 会话用 <code>--worktree</code> 启动，在 Kaku 里 <code>Cmd + D</code> 就能把两个 CLI 放进相邻的窗格。</p>
+<p>能，共用的指令放进 <code>AGENTS.md</code>，Codex 用 <code>/init</code> 写出它，Claude Code 可以拿它代替 <code>CLAUDE.md</code>。两个不该改同一批文件时，Claude Code 会话用 <code>--worktree</code> 启动，在 Kaku 里 <code>Cmd + D</code> 就能把两个 CLI 放进相邻的<span class="nobr">窗格。</span></p>
 <h3 id="哪个更便宜">哪个更便宜？</h3>
-<p>每个 ChatGPT 方案都包含 Codex，但 Free 和 Go 只列了桌面 App，CLI 从每月 $20 的 Plus 起才有，用 OpenAI 的 API key 也行。Claude Code 要 Pro、Max、Team 或 Enterprise 订阅，或者一个 Console 账号，具体以 <a href="https://developers.openai.com/codex/pricing" target="_blank" rel="noopener noreferrer">Codex 价格页</a>和 <a href="https://claude.com/pricing" target="_blank" rel="noopener noreferrer">claude.com/pricing</a> 上的为准，用之前再看一眼。</p>
+<p>每个 ChatGPT 方案都包含 Codex，但 Free 和 Go 只列了桌面 App，CLI 从每月 $20 的 Plus 起才有，用 OpenAI 的 API key 也行。Claude Code 要 Pro、Max、Team 或 Enterprise 订阅，或者一个 Console 账号，具体以 <a href="https://developers.openai.com/codex/pricing" target="_blank" rel="noopener noreferrer">Codex 价格页</a>和 <a href="https://claude.com/pricing" target="_blank" rel="noopener noreferrer">claude.com/pricing</a> 上的为准，用之前再看<span class="nobr">一眼。</span></p>
 <h3 id="为什么只有一个会提醒我">为什么只有一个会提醒我？</h3>
-<p>在 Kaku 里窗口处于后台时，Codex 的铃声本来就会变成通知。Kaku 0.25.0 及以上配 Claude Code 2.1.295 及以上不用任何设置，更早的版本要设 <code>"preferredNotifChannel": "ghostty"</code>，原因写在 <a href="/zh/blog/claude-code-notifications">Claude Code 通知</a>那篇，Kaku 还要打开允许通知。</p>
+<p>在 Kaku 里窗口处于后台时，Codex 的铃声本来就会变成通知。Kaku 0.25.0 及以上配 Claude Code 2.1.295 及以上不用任何设置，更早的版本要设 <code>"preferredNotifChannel": "ghostty"</code>，原因写在 <a href="/zh/blog/claude-code-notifications">Claude Code 通知</a>那篇，Kaku 还要打开允许<span class="nobr">通知。</span></p>
 <h3 id="两个都有-hooks-和-mcp-吗">两个都有 hooks 和 MCP 吗？</h3>
 <p>都有，Codex 用 <code>features.hooks</code> 配 <code>hooks.json</code> 或 <code>[hooks]</code>，服务器用 <code>codex mcp</code> 管。Claude Code 用 <code>settings.json</code> 里的 <code>hooks</code> 对象，MCP 服务器存在 <code>~/.claude.json</code>，两边共有的事件名包括 <code>PreToolUse</code>、<code>PostToolUse</code>、<code>SessionStart</code> 和 <code>Stop</code>。</p>
           <aside class="blog-cta"><img class="blog-cta-icon" src="/img/kaku-mark.png" width="40" height="40" alt=""><p>Kaku 是一个免费开源的 Mac 终端。</p><a class="btn btn-primary" href="/zh/docs">安装 Kaku</a></aside>

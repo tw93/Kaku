@@ -149,61 +149,61 @@
       <div class="wide">
         <article class="doc-content blog-article">
           <figure class="blog-cover" aria-hidden="true"><img src="/img/blog/cards/ghostty-config.webp" width="1600" height="900" alt="" fetchpriority="high"></figure>
-<p>Ghostty 在 Mac 上读的是一个纯文本文件，路径是 <code>~/.config/ghostty/config.ghostty</code>，1.2.3 之前的版本叫 <code>~/.config/ghostty/config</code>，里面一行一个 <code>key = value</code>，改完按 <code>Cmd + Shift + ,</code> 就能重新加载，想看全部选项和说明，跑一下 <code>ghostty +show-config --default --docs</code> 就行。Ghostty 不写配置也能直接用，所以真正值得改的其实就那几项跟个人口味有关的，字体、主题、窗口外观、快捷键、Option 键和 quick terminal，下面按这个顺序一项项讲。</p>
+<p>Ghostty 在 Mac 上读的是一个纯文本文件，路径是 <code>~/.config/ghostty/config.ghostty</code>，1.2.3 之前的版本叫 <code>~/.config/ghostty/config</code>，里面一行一个 <code>key = value</code>，改完按 <code>Cmd + Shift + ,</code> 就能重新加载，想看全部选项和说明，跑一下 <code>ghostty +show-config --default --docs</code> 就行。Ghostty 不写配置也能直接用，所以真正值得改的其实就那几项跟个人口味有关的，字体、主题、窗口外观、快捷键、Option 键和 quick terminal，下面按这个顺序一项<span class="nobr">项讲。</span></p>
 <h2 id="配置文件放在哪">配置文件放在哪</h2>
-<p>按 2026 年 10 月的<a href="https://ghostty.org/docs/config" target="_blank" rel="noopener noreferrer">官方配置文档</a>，macOS 上 Ghostty 会去两个地方找配置：</p>
+<p>按 2026 年 10 月的<a href="https://ghostty.org/docs/config" target="_blank" rel="noopener noreferrer">官方配置文档</a>，macOS 上 Ghostty 会去两个地方找<span class="nobr">配置：</span></p>
 <pre><code class="language-text">~/.config/ghostty/config.ghostty
 ~/Library/Application Support/com.mitchellh.ghostty/config.ghostty</code></pre>
-<p>第一个是 XDG 路径，设了 <code>$XDG_CONFIG_HOME</code> 就跟着它走，两个文件可以同时存在，Ghostty 先读 XDG 那份再读 macOS 那份，所以同一个 key 写在 <code>Application Support</code> 里的会生效。大多数人只留 <code>~/.config/ghostty/</code> 下面这一份，放进 dotfiles 管理也方便，两个都没有的话就跑默认值，而默认值里已经带了 JetBrains Mono 和内置的 Nerd Font 图标。</p>
+<p>第一个是 XDG 路径，设了 <code>$XDG_CONFIG_HOME</code> 就跟着它走，两个文件可以同时存在，Ghostty 先读 XDG 那份再读 macOS 那份，所以同一个 key 写在 <code>Application Support</code> 里的会生效。大多数人只留 <code>~/.config/ghostty/</code> 下面这一份，放进 dotfiles 管理也方便，两个都没有的话就跑默认值，而默认值里已经带了 JetBrains Mono 和内置的 Nerd Font <span class="nobr">图标。</span></p>
 <h2 id="语法和重新加载">语法和重新加载</h2>
-<p>每一行就是 key、等号、value，注释用 <code>#</code> 开头而且得单独占一行，key 全是小写并且区分大小写，value 加不加引号都行，等号后面留空就是把这个 key 恢复成默认值：</p>
+<p>每一行就是 key、等号、value，注释用 <code>#</code> 开头而且得单独占一行，key 全是小写并且区分大小写，value 加不加引号都行，等号后面留空就是把这个 key 恢复成默<span class="nobr">认值：</span></p>
 <pre><code class="language-ini"><span class="tok-c"># ~/.config/ghostty/config.ghostty</span>
 font-family = <span class="tok-s">"JetBrains Mono"</span>
 background = <span class="tok-s">282c34</span>
 font-family =</code></pre>
-<p>每个 key 同时也是命令行参数，比如 <code>ghostty --font-family="JetBrains Mono"</code>，想试一个值又不想动文件的时候很顺手。配置多了可以用 <code>config-file</code> 拆开，相对路径按当前文件所在目录算，前面加个 <code>?</code> 表示这个文件可有可无，拿来放每台机器各自不同的设置正合适：</p>
+<p>每个 key 同时也是命令行参数，比如 <code>ghostty --font-family="JetBrains Mono"</code>，想试一个值又不想动文件的时候很顺手。配置多了可以用 <code>config-file</code> 拆开，相对路径按当前文件所在目录算，前面加个 <code>?</code> 表示这个文件可有可无，拿来放每台机器各自不同的设置正<span class="nobr">合适：</span></p>
 <pre><code class="language-ini">config-file = <span class="tok-s">?local.ghostty</span></code></pre>
-<p>有一点容易踩坑，<code>config-file</code> 是在当前文件读完之后才处理的，所以被引入的文件会盖掉写在 <code>config-file</code> 那行后面的同名设置。</p>
-<p>按 <code>Cmd + Shift + ,</code> 就能重新加载配置，想换键就去绑 <code>reload_config</code> 这个 action，不过有些选项重载后只对新开的窗口和标签生效，还有几个要整个退出重开才行，官方参考文档在每个选项下面都写了是哪种情况。</p>
+<p>有一点容易踩坑，<code>config-file</code> 是在当前文件读完之后才处理的，所以被引入的文件会盖掉写在 <code>config-file</code> 那行后面的同名<span class="nobr">设置。</span></p>
+<p>按 <code>Cmd + Shift + ,</code> 就能重新加载配置，想换键就去绑 <code>reload_config</code> 这个 action，不过有些选项重载后只对新开的窗口和标签生效，还有几个要整个退出重开才行，官方参考文档在每个选项下面都写了是哪种<span class="nobr">情况。</span></p>
 <h2 id="字体和主题">字体和主题</h2>
-<p><code>ghostty +list-fonts</code> 会列出 Ghostty 能识别的字体名，<code>font-family</code> 写多行就是一条回退链，第一行是主字体，后面几行负责补主字体里没有的字符：</p>
+<p><code>ghostty +list-fonts</code> 会列出 Ghostty 能识别的字体名，<code>font-family</code> 写多行就是一条回退链，第一行是主字体，后面几行负责补主字体里没有的<span class="nobr">字符：</span></p>
 <pre><code class="language-ini">font-family = <span class="tok-s">"JetBrains Mono"</span>
 font-size = <span class="tok-s">14</span></code></pre>
 <p>因为重复写是往后追加，主题或者引入的文件里可能藏着你不知道的字体，稳妥的做法是先写一行 <code>font-family = ""</code> 把列表清空再重新设。粗体和斜体默认从同一个字体家族里找，除非你单独设了 <code>font-family-bold</code> 或 <code>font-family-italic</code>，<code>font-size</code> 的单位是 point，可以写 <code>13.5</code> 这样的半号。Ghostty 已经内置了 Nerd Font 图标，只有想给图标换一种字形时，才需要再加一行 <code>font-family</code> 指向 Symbols Nerd Font Mono 这类图标字体，这种情况可以看 <a href="/zh/blog/nerd-fonts-mac">Nerd Fonts 那篇</a>。</p>
-<p>主题是跟着 App 一起装好的，<code>ghostty +list-themes</code> 能看到全部，想跟着 macOS 的深色浅色自动切换，一行里把两个都写上：</p>
+<p>主题是跟着 App 一起装好的，<code>ghostty +list-themes</code> 能看到全部，想跟着 macOS 的深色浅色自动切换，一行里把两个都<span class="nobr">写上：</span></p>
 <pre><code class="language-ini">theme = <span class="tok-s">light:Rose Pine Dawn,dark:Rose Pine</span></code></pre>
-<p>这种写法里 light 和 dark 两半都得有，顺序无所谓，自己做的主题放进 <code>~/.config/ghostty/themes/</code>，配置里再写 <code>background</code>、<code>foreground</code> 或 <code>palette</code> 会盖掉主题里的颜色。主题文件本身也是一份配置，什么选项都能设，所以来路不明的主题文件别随手往里放。</p>
+<p>这种写法里 light 和 dark 两半都得有，顺序无所谓，自己做的主题放进 <code>~/.config/ghostty/themes/</code>，配置里再写 <code>background</code>、<code>foreground</code> 或 <code>palette</code> 会盖掉主题里的颜色。主题文件本身也是一份配置，什么选项都能设，所以来路不明的主题文件别随手往<span class="nobr">里放。</span></p>
 <h2 id="窗口边距标题栏和边框">窗口边距、标题栏和边框</h2>
-<p>边距的单位是 point，会跟着屏幕缩放：</p>
+<p>边距的单位是 point，会跟着屏幕<span class="nobr">缩放：</span></p>
 <pre><code class="language-ini">window-padding-x = <span class="tok-s">12</span>
 window-padding-y = <span class="tok-s">8,4</span>
 window-padding-balance = <span class="tok-s">true</span></code></pre>
-<p>写两个用逗号隔开的数就是分别设左右或者上下，<code>window-padding-balance</code> 会把凑不满一整格的那点余量平均分到四条边上，边距改完只对新开的窗口和标签生效，已经开着的不会变。</p>
-<p>macOS 标题栏由 <code>macos-titlebar-style</code> 控制，有 <code>native</code>、默认的 <code>transparent</code>、把标签栏塞进标题栏的 <code>tabs</code> 和 <code>hidden</code> 四种，<code>hidden</code> 去掉标题栏但保留圆角边框，<code>window-decoration = none</code> 则是标题栏和边框一起去掉，在 macOS 上连标签也一并没了。想要半透明窗口，把 <code>background-opacity</code> 设成 <code>0.9</code> 左右再加一行 <code>background-blur = 20</code>，这个强度和写 <code>true</code> 是一样的，只是 macOS 上改透明度靠重载不管用，得把 Ghostty 整个退出再打开。</p>
+<p>写两个用逗号隔开的数就是分别设左右或者上下，<code>window-padding-balance</code> 会把凑不满一整格的那点余量平均分到四条边上，边距改完只对新开的窗口和标签生效，已经开着的不<span class="nobr">会变。</span></p>
+<p>macOS 标题栏由 <code>macos-titlebar-style</code> 控制，有 <code>native</code>、默认的 <code>transparent</code>、把标签栏塞进标题栏的 <code>tabs</code> 和 <code>hidden</code> 四种，<code>hidden</code> 去掉标题栏但保留圆角边框，<code>window-decoration = none</code> 则是标题栏和边框一起去掉，在 macOS 上连标签也一并没了。想要半透明窗口，把 <code>background-opacity</code> 设成 <code>0.9</code> 左右再加一行 <code>background-blur = 20</code>，这个强度和写 <code>true</code> 是一样的，只是 macOS 上改透明度靠重载不管用，得把 Ghostty 整个退出再<span class="nobr">打开。</span></p>
 <h2 id="快捷键">快捷键</h2>
-<p>一条绑定写成 <code>keybind = trigger=action</code>，修饰键有 <code>shift</code>、<code>ctrl</code>、<code>alt</code>（也可以写 <code>opt</code>）和 <code>super</code>（也可以写 <code>cmd</code>），需要参数的 action 用冒号接上：</p>
+<p>一条绑定写成 <code>keybind = trigger=action</code>，修饰键有 <code>shift</code>、<code>ctrl</code>、<code>alt</code>（也可以写 <code>opt</code>）和 <code>super</code>（也可以写 <code>cmd</code>），需要参数的 action 用冒号<span class="nobr">接上：</span></p>
 <pre><code class="language-ini">keybind = <span class="tok-s">cmd+shift+d=new_split:right</span>
 keybind = <span class="tok-s">ctrl+a&gt;n=new_window</span>
 keybind = <span class="tok-s">cmd+k=unbind</span></code></pre>
 <p>第二行是一个按键序列，先按 <code>ctrl+a</code> 松开再按 <code>n</code>，Ghostty 会一直等下一个键，没有超时，第三行的 <code>unbind</code> 是把默认绑定拿掉，让这个键原样传给终端里跑着的程序。默认绑定用 <code>ghostty +list-keybinds --default</code> 查，全部 action 用 <code>ghostty +list-actions</code> 查，细节在<a href="https://ghostty.org/docs/config/keybind" target="_blank" rel="noopener noreferrer">快捷键文档</a>里。</p>
-<p>trigger 前面还能加前缀改变行为，<code>global:</code> 让快捷键在 Ghostty 不在前台时也能用，macOS 上要先给它辅助功能权限，<code>unconsumed:</code> 执行 action 的同时把按键继续传给程序，<code>performable:</code> 只在 action 真能执行时才吃掉按键，比如 <code>performable:cmd+c=copy_to_clipboard</code> 在没选中文字时就当没绑过。<code>keybind = clear</code> 要慎用，它会把这一行之前的绑定全部清空，默认的也算在内。</p>
+<p>trigger 前面还能加前缀改变行为，<code>global:</code> 让快捷键在 Ghostty 不在前台时也能用，macOS 上要先给它辅助功能权限，<code>unconsumed:</code> 执行 action 的同时把按键继续传给程序，<code>performable:</code> 只在 action 真能执行时才吃掉按键，比如 <code>performable:cmd+c=copy_to_clipboard</code> 在没选中文字时就当没绑过。<code>keybind = clear</code> 要慎用，它会把这一行之前的绑定全部清空，默认的也算<span class="nobr">在内。</span></p>
 <h2 id="option-当-alt-用以及-shell-集成">Option 当 Alt 用，以及 shell 集成</h2>
-<p>Mac 上的 Option 键配合字母会打出 <code>∫</code> 这类字符，而不是当 Alt 用，于是 shell 和编辑器里那些 Alt 快捷键就失灵了，<code>macos-option-as-alt</code> 管的就是这件事：</p>
+<p>Mac 上的 Option 键配合字母会打出 <code>∫</code> 这类字符，而不是当 Alt 用，于是 shell 和编辑器里那些 Alt 快捷键就失灵了，<code>macos-option-as-alt</code> 管的就是这<span class="nobr">件事：</span></p>
 <pre><code class="language-ini">macos-option-as-alt = <span class="tok-s">left</span></code></pre>
-<p>写 <code>true</code> 是两个 Option 都当 Alt，写 <code>left</code> 或 <code>right</code> 只改一边，另一边还能留着打带音标的字母。不设的时候默认值看键盘布局，U.S. Standard 和 U.S. International 是 <code>true</code>，其他布局都是 <code>false</code>，用别的布局的人经常就卡在这里。</p>
-<p>shell 集成默认是开的，<code>shell-integration = detect</code> 会自动识别 bash、elvish、fish、nushell 和 zsh，它负责上报当前目录，让新标签和新分屏开在同一个文件夹里，给提示符打标记供 <code>jump_to_prompt</code> 跳转，停在提示符时关窗口也不再弹确认。具体开哪些功能由 <code>shell-integration-features</code> 决定，写成逗号分隔的列表，前面加 <code>no-</code> 就是关掉：</p>
+<p>写 <code>true</code> 是两个 Option 都当 Alt，写 <code>left</code> 或 <code>right</code> 只改一边，另一边还能留着打带音标的字母。不设的时候默认值看键盘布局，U.S. Standard 和 U.S. International 是 <code>true</code>，其他布局都是 <code>false</code>，用别的布局的人经常就卡在<span class="nobr">这里。</span></p>
+<p>shell 集成默认是开的，<code>shell-integration = detect</code> 会自动识别 bash、elvish、fish、nushell 和 zsh，它负责上报当前目录，让新标签和新分屏开在同一个文件夹里，给提示符打标记供 <code>jump_to_prompt</code> 跳转，停在提示符时关窗口也不再弹确认。具体开哪些功能由 <code>shell-integration-features</code> 决定，写成逗号分隔的列表，前面加 <code>no-</code> 就是<span class="nobr">关掉：</span></p>
 <pre><code class="language-ini">shell-integration-features = <span class="tok-s">no-cursor,ssh-terminfo</span></code></pre>
-<p><code>ssh-terminfo</code> 会在缺少 Ghostty terminfo 的远程机器上自动装上，<code>ssh-env</code> 则是在远程机器上退回 <code>xterm-256color</code>，这两个都是 1.2.0 才加的。</p>
+<p><code>ssh-terminfo</code> 会在缺少 Ghostty terminfo 的远程机器上自动装上，<code>ssh-env</code> 则是在远程机器上退回 <code>xterm-256color</code>，这两个都是 1.2.0 才<span class="nobr">加的。</span></p>
 <h2 id="quick-terminal">Quick terminal</h2>
-<p>quick terminal 是一个从屏幕边上滑出来、盖在当前 App 上面的终端窗口，它没有默认快捷键，要自己用 <code>global:</code> 前缀把 <code>toggle_quick_terminal</code> 绑上：</p>
+<p>quick terminal 是一个从屏幕边上滑出来、盖在当前 App 上面的终端窗口，它没有默认快捷键，要自己用 <code>global:</code> 前缀把 <code>toggle_quick_terminal</code> <span class="nobr">绑上：</span></p>
 <pre><code class="language-ini">keybind = <span class="tok-s">global:ctrl+backquote=toggle_quick_terminal</span>
 quick-terminal-position = <span class="tok-s">top</span>
 quick-terminal-size = <span class="tok-s">40%</span>
 quick-terminal-screen = <span class="tok-s">mouse</span></code></pre>
 <p><code>backquote</code> 是数字 <code>1</code> 左边那个键在 W3C 规范里的名字，位置可以选 <code>top</code>、<code>bottom</code>、<code>left</code>、<code>right</code> 或 <code>center</code>，macOS 上改位置要重启才生效。macOS 上 <code>quick-terminal-autohide</code> 默认是 <code>true</code>，窗口一失去焦点就收起来，想让它一直开着就设成 <code>false</code>。</p>
 <h2 id="把-ghostty-的配置搬到-kaku">把 Ghostty 的配置搬到 Kaku</h2>
-<p>Kaku 用 Lua 配置，文件在 <code>~/.config/kaku/kaku.lua</code>，它先加载自带的默认配置再叠上你写的那几行，保存后会自动重新加载，上面有好几项已经默认配好了。字体默认是 JetBrains Mono，中文回退到 PingFang SC，打包在 App 里的 Symbols Nerd Font Mono 不管你换什么字体都排在后面当回退。左 Option 发 Meta、右 Option 照常打组合字符，相当于 Ghostty 的 <code>macos-option-as-alt = left</code>，<code>Cmd + Opt + Ctrl + K</code> 从屏幕顶部拉下一个 Kaku 窗口，用起来跟 quick terminal 差不多，想换键改 <code>config.macos_global_hotkey</code>。新装的 Kaku 默认是 Kaku Dark，配置里没有 <code>config.color_scheme</code> 这一行时会跟着 macOS 的深浅色走，在 <code>kaku config</code> 里选 Auto 就是帮你设成这样。</p>
-<p>剩下的基本可以一行对一行地改过去：</p>
+<p>Kaku 用 Lua 配置，文件在 <code>~/.config/kaku/kaku.lua</code>，它先加载自带的默认配置再叠上你写的那几行，保存后会自动重新加载，上面有好几项已经默认配好了。字体默认是 JetBrains Mono，中文回退到 PingFang SC，打包在 App 里的 Symbols Nerd Font Mono 不管你换什么字体都排在后面当回退。左 Option 发 Meta、右 Option 照常打组合字符，相当于 Ghostty 的 <code>macos-option-as-alt = left</code>，<code>Cmd + Opt + Ctrl + K</code> 从屏幕顶部拉下一个 Kaku 窗口，用起来跟 quick terminal 差不多，想换键改 <code>config.macos_global_hotkey</code>。新装的 Kaku 默认是 Kaku Dark，配置里没有 <code>config.color_scheme</code> 这一行时会跟着 macOS 的深浅色走，在 <code>kaku config</code> 里选 Auto 就是帮你设成<span class="nobr">这样。</span></p>
+<p>剩下的基本可以一行对一行地改<span class="nobr">过去：</span></p>
 <pre><code class="language-lua"><span class="tok-c">-- font-family = "Fira Code"</span>
 config.font = wezterm.<span class="tok-f">font</span>(<span class="tok-s">"Fira Code"</span>)
 <span class="tok-c">-- font-size = 16</span>
@@ -220,15 +220,15 @@ config.window_padding = { left = <span class="tok-s">'12pt'</span>, right = <spa
 <p><code>window_padding</code> 用 <code>pt</code> 才和 Ghostty 的边距一个意思，直接写数字或者 <code>px</code> 是物理像素，在 Retina 屏上会显得小一圈。分屏那几条不用搬，<code>Cmd + D</code> 和 <code>Cmd + Shift + D</code> 本来就是分屏，另外记得用 <code>table.insert</code> 往 <code>config.keys</code> 里加，直接给它赋一个新表会把 Kaku 的默认快捷键全部冲掉。三种配置方式具体差在哪，可以看 <a href="/zh/blog/ghostty-vs-iterm2-vs-wezterm">Ghostty、iTerm2 和 WezTerm 的对比</a>。</p>
 <h2 id="常见问题">常见问题</h2>
 <h3 id="macos-上-ghostty-的配置文件在哪">macOS 上 Ghostty 的配置文件在哪？</h3>
-<p>在 <code>~/.config/ghostty/config.ghostty</code>，1.2.3 之前叫 <code>~/.config/ghostty/config</code>，Ghostty 还会读 <code>~/Library/Application Support/com.mitchellh.ghostty/config.ghostty</code>，而且是最后读，所以这份里的值优先。</p>
+<p>在 <code>~/.config/ghostty/config.ghostty</code>，1.2.3 之前叫 <code>~/.config/ghostty/config</code>，Ghostty 还会读 <code>~/Library/Application Support/com.mitchellh.ghostty/config.ghostty</code>，而且是最后读，所以这份里的值<span class="nobr">优先。</span></p>
 <h3 id="怎么重新加载-ghostty-配置">怎么重新加载 Ghostty 配置？</h3>
-<p>按 <code>Cmd + Shift + ,</code> 就行，不过边距只对新开的窗口和标签生效，<code>background-opacity</code> 和 <code>quick-terminal-position</code> 在 macOS 上要整个重启。</p>
+<p>按 <code>Cmd + Shift + ,</code> 就行，不过边距只对新开的窗口和标签生效，<code>background-opacity</code> 和 <code>quick-terminal-position</code> 在 macOS 上要整个<span class="nobr">重启。</span></p>
 <h3 id="ghostty-里怎么让-option-当-alt-用">Ghostty 里怎么让 Option 当 Alt 用？</h3>
 <p>两个键都要就设 <code>macos-option-as-alt = true</code>，只要一边就写 <code>left</code> 或 <code>right</code>，用 U.S. 布局的话默认本来就是 <code>true</code>。</p>
 <h3 id="怎么看-ghostty-的全部选项">怎么看 Ghostty 的全部选项？</h3>
 <p>跑 <code>ghostty +show-config --default --docs | less</code>，快捷键相关的用 <code>ghostty +list-keybinds --default</code> 和 <code>ghostty +list-actions</code>。</p>
 <h3 id="ghostty-的配置能直接拿到-kaku-里用吗">Ghostty 的配置能直接拿到 Kaku 里用吗？</h3>
-<p>不能直接用，Kaku 读的是 Lua 而不是 <code>key = value</code>，不过大部分选项在 <code>kaku.lua</code> 里都能对应成一行，字体回退、Option 键和下拉窗口这几样默认就已经配好了。</p>
+<p>不能直接用，Kaku 读的是 Lua 而不是 <code>key = value</code>，不过大部分选项在 <code>kaku.lua</code> 里都能对应成一行，字体回退、Option 键和下拉窗口这几样默认就已经配<span class="nobr">好了。</span></p>
           <aside class="blog-cta"><img class="blog-cta-icon" src="/img/kaku-mark.png" width="40" height="40" alt=""><p>Kaku 是一个免费开源的 Mac 终端。</p><a class="btn btn-primary" href="/zh/docs">安装 Kaku</a></aside>
           <nav class="blog-related" aria-label="继续阅读"><h2 class="blog-related-title">继续阅读</h2><ul class="blog-related-list"><li><a href="/zh/blog/best-terminal-for-mac"><span class="blog-related-cat">终端</span><span class="blog-related-name">2026 年 Mac 上的终端怎么选</span><span class="blog-related-meta"><time datetime="2026-09-21">2026年9月21日</time> · 约 5 分钟</span></a></li><li><a href="/zh/blog/nerd-fonts-mac"><span class="blog-related-cat">终端</span><span class="blog-related-name">Mac 上的 Nerd Font，装补丁字体还是用符号回退</span><span class="blog-related-meta"><time datetime="2026-10-08">2026年10月8日</time> · 约 6 分钟</span></a></li><li><a href="/zh/blog/mac-terminal-shortcuts"><span class="blog-related-cat">终端</span><span class="blog-related-name">Mac 终端里最省时间的快捷键</span><span class="blog-related-meta"><time datetime="2026-10-13">2026年10月13日</time> · 约 9 分钟</span></a></li></ul></nav>
         </article>

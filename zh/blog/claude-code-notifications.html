@@ -141,7 +141,7 @@
       <div class="wide">
         <article class="doc-content blog-article">
           <figure class="blog-cover" aria-hidden="true"><img src="/img/blog/cards/claude-code-notifications.webp" width="1600" height="900" alt="" fetchpriority="high"></figure>
-<p>如果 Claude Code 做完了或者在等你授权，却从来不提醒你，可以先看通知通道，它默认只在 iTerm2、Ghostty 和 Kitty 这三个终端里发桌面通知，其他终端里你不告诉它用哪个通道，它就一声不吭，只有 Kaku 0.25.0 及以上配 Claude Code 2.1.295 及以上不用任何设置。Codex 的默认行为正好相反，它会响终端铃声，有的终端会把铃声变成通知，有的只闪一下。这篇讲每种情况该改哪个设置，两者都会被卡住的 macOS 权限，以及从转义序列到通知中心中间发生了什么。</p>
+<p>如果 Claude Code 做完了或者在等你授权，却从来不提醒你，可以先看通知通道，它默认只在 iTerm2、Ghostty 和 Kitty 这三个终端里发桌面通知，其他终端里你不告诉它用哪个通道，它就一声不吭，只有 Kaku 0.25.0 及以上配 Claude Code 2.1.295 及以上不用任何设置。Codex 的默认行为正好相反，它会响终端铃声，有的终端会把铃声变成通知，有的只闪一下。这篇讲每种情况该改哪个设置，两者都会被卡住的 macOS 权限，以及从转义序列到通知中心中间发生了<span class="nobr">什么。</span></p>
 <h2 id="claude-code-的快速修法">Claude Code 的快速修法</h2>
 <p>打开 <code>~/.claude/settings.json</code>，把 <code>preferredNotifChannel</code> 设成你的终端认识的通道，Claude Code 接受的值有 <code>auto</code>、<code>terminal_bell</code>、<code>iterm2</code>、<code>iterm2_with_bell</code>、<code>kitty</code>、<code>ghostty</code> 和 <code>notifications_disabled</code>。</p>
 <table>
@@ -174,29 +174,29 @@
 </tr>
 </tbody>
 </table>
-<p>Kaku 0.25.0 及以上配 Claude Code 2.1.295 及以上版本什么都不用改，再设成 <code>ghostty</code> 反而会多出一条重复通知，更早的版本只需要改这一行：</p>
+<p>Kaku 0.25.0 及以上配 Claude Code 2.1.295 及以上版本什么都不用改，再设成 <code>ghostty</code> 反而会多出一条重复通知，更早的版本只需要改这<span class="nobr">一行：</span></p>
 <pre><code class="language-json">{ "preferredNotifChannel": <span class="tok-s">"ghostty"</span> }</code></pre>
-<p>版本用 <code>claude --version</code> 看，stable 渠道比 latest 晚几个版本，Homebrew 的 <code>claude-code</code> cask 跟的就是它，2026 年 10 月中旬还停在 2.1.292，所以用 stable 的话先留着这一行，等它到 2.1.295 再删。</p>
+<p>版本用 <code>claude --version</code> 看，stable 渠道比 latest 晚几个版本，Homebrew 的 <code>claude-code</code> cask 跟的就是它，2026 年 10 月中旬还停在 2.1.292，所以用 stable 的话先留着这一行，等它到 2.1.295 <span class="nobr">再删。</span></p>
 <h2 id="codex-的快速修法">Codex 的快速修法</h2>
-<p>Codex 在 Kaku 里不用改，它默认需要你的时候会响终端铃声，Kaku 会把后台窗口里的铃声变成一条通知，只是内容比较笼统，取的是上一条命令或者窗格标题。想看到 Codex 自己写的消息，就在 <code>~/.codex/config.toml</code> 里换成 OSC 9 序列：</p>
+<p>Codex 在 Kaku 里不用改，它默认需要你的时候会响终端铃声，Kaku 会把后台窗口里的铃声变成一条通知，只是内容比较笼统，取的是上一条命令或者窗格标题。想看到 Codex 自己写的消息，就在 <code>~/.codex/config.toml</code> 里换成 OSC 9 <span class="nobr">序列：</span></p>
 <pre><code class="language-toml"><span class="tok-k">[tui]</span>
 notification_method = <span class="tok-s">"osc9"</span></code></pre>
-<p><code>notification_method</code> 可以是 <code>auto</code>、<code>osc9</code> 或 <code>bel</code>，旁边还有两个值得知道的设置，<code>notifications</code> 控制开关，也可以只对某几类事件开，<code>notification_condition</code> 决定只在终端没获得焦点时提醒，也就是默认值，还是任何时候都提醒。</p>
-<p>Kaku 里 Claude Code 和 Codex 的其他设置，比如 <code>kaku ai</code>、几个 agent 分屏并排跑、重启后会话还在，写在 <a href="/zh/docs/ai-coding">AI 编程工具</a>那一页。</p>
+<p><code>notification_method</code> 可以是 <code>auto</code>、<code>osc9</code> 或 <code>bel</code>，旁边还有两个值得知道的设置，<code>notifications</code> 控制开关，也可以只对某几类事件开，<code>notification_condition</code> 决定只在终端没获得焦点时提醒，也就是默认值，还是任何时候都<span class="nobr">提醒。</span></p>
+<p>Kaku 里 Claude Code 和 Codex 的其他设置，比如 <code>kaku ai</code>、几个 agent 分屏并排跑、重启后会话还在，写在 <a href="/zh/docs/ai-coding">AI 编程工具</a>那<span class="nobr">一页。</span></p>
 <h2 id="一条都收不到的时候">一条都收不到的时候</h2>
-<p>设置没问题还是什么都没有，下一个要怀疑的就是 macOS。终端发出的通知是由终端这个 App 来显示的，所以得给终端本身授权，在系统设置 &gt; 通知里找到你的终端，打开允许通知，Kaku 里点 Kaku &gt; Notification Settings 就能直接跳到这一页。</p>
-<p>这个权限 macOS 只问一次，如果哪次点了不允许，之后它不会再问，后面的每条通知都会被悄无声息地丢掉。Kaku 会检查这种情况，有通知因此被丢掉时，下次你切回 Kaku 会提示一句。</p>
-<p>还有两个常见原因：</p>
+<p>设置没问题还是什么都没有，下一个要怀疑的就是 macOS。终端发出的通知是由终端这个 App 来显示的，所以得给终端本身授权，在系统设置 &gt; 通知里找到你的终端，打开允许通知，Kaku 里点 Kaku &gt; Notification Settings 就能直接跳到这<span class="nobr">一页。</span></p>
+<p>这个权限 macOS 只问一次，如果哪次点了不允许，之后它不会再问，后面的每条通知都会被悄无声息地丢掉。Kaku 会检查这种情况，有通知因此被丢掉时，下次你切回 Kaku 会提示<span class="nobr">一句。</span></p>
+<p>还有两个常见<span class="nobr">原因：</span></p>
 <ul>
-<li><strong>tmux。</strong> 通过 tmux passthrough 发送通知时，要在 <code>~/.tmux.conf</code> 里加上 <code>set -g allow-passthrough on</code>，再用 <code>tmux source-file ~/.tmux.conf</code> 重新加载，发送端也得给序列加上 tmux 的 passthrough 包装，<code>on</code> 只对可见窗格生效。</li>
-<li><strong>你正看着它。</strong> 大部分终端包括 Kaku 都不会对眼前这个窗口弹通知，Codex 默认也只在终端没获得焦点时提醒，测试时记得把窗口放到后台。</li>
+<li><strong>tmux。</strong> 通过 tmux passthrough 发送通知时，要在 <code>~/.tmux.conf</code> 里加上 <code>set -g allow-passthrough on</code>，再用 <code>tmux source-file ~/.tmux.conf</code> 重新加载，发送端也得给序列加上 tmux 的 passthrough 包装，<code>on</code> 只对可见窗格<span class="nobr">生效。</span></li>
+<li><strong>你正看着它。</strong> 大部分终端包括 Kaku 都不会对眼前这个窗口弹通知，Codex 默认也只在终端没获得焦点时提醒，测试时记得把窗口放到<span class="nobr">后台。</span></li>
 </ul>
 <h2 id="通知是怎么从-agent-走到-macos-的">通知是怎么从 agent 走到 macOS 的</h2>
-<p>Claude Code 和 Codex 都不直接跟通知中心打交道，它们往终端里写一小段转义序列，跟输出颜色是一个路子，接下来怎么处理由终端决定。</p>
+<p>Claude Code 和 Codex 都不直接跟通知中心打交道，它们往终端里写一小段转义序列，跟输出颜色是一个路子，接下来怎么处理由终端<span class="nobr">决定。</span></p>
 <figure class="blog-diagram"><picture><source media="(max-width: 640px)" srcset="/img/blog/claude-code-notifications-mobile.webp" width="340" height="496"><img src="/img/blog/claude-code-notifications.webp" width="654" height="368" loading="lazy" alt="Claude Code、Codex 和你自己的脚本把序列或铃声发给 Kaku，Kaku 只在处于后台时把它变成 macOS 通知"></picture><figcaption>不管从哪来，最后都是一段终端读得懂的序列，再由终端变成通知。</figcaption></figure>
 
-<p>常用的序列有几种，OSC 9 最早出自 iTerm2，只带一行文字，OSC 777 带标题和正文，单独一个铃声字符则什么内容都不带，只表示有事发生。Ghostty 和 Kaku 两种都认，Kitty 用的是自己的 OSC 99，各家不统一，这也是为什么 Claude Code 要维护一串通道而不是一个开关。Kaku 0.25.0 及以上还认 OSC 7501，也就是 Claude Code 2.1.295 及以上在等你、做完或出错时发出的状态报告，所以不用设通道。</p>
-<p>在 Kaku 里，OSC 9 和 OSC 777 的通知要经过 <code>notification_handling</code> 这项设置：</p>
+<p>常用的序列有几种，OSC 9 最早出自 iTerm2，只带一行文字，OSC 777 带标题和正文，单独一个铃声字符则什么内容都不带，只表示有事发生。Ghostty 和 Kaku 两种都认，Kitty 用的是自己的 OSC 99，各家不统一，这也是为什么 Claude Code 要维护一串通道而不是一个开关。Kaku 0.25.0 及以上还认 OSC 7501，也就是 Claude Code 2.1.295 及以上在等你、做完或出错时发出的状态报告，所以不用设<span class="nobr">通道。</span></p>
+<p>在 Kaku 里，OSC 9 和 OSC 777 的通知要经过 <code>notification_handling</code> 这项<span class="nobr">设置：</span></p>
 <pre><code class="language-lua"><span class="tok-c">-- 默认：只在 Kaku 窗口处于后台时提醒</span>
 config.notification_handling = <span class="tok-s">"AlwaysShow"</span>
 <span class="tok-c">-- 没在看的标签或窗格也提醒：</span>
@@ -204,22 +204,22 @@ config.notification_handling = <span class="tok-s">"AlwaysShow"</span>
 <span class="tok-c">-- config.notification_handling = "SuppressFromFocusedPane"</span>
 <span class="tok-c">-- 从不提醒：</span>
 <span class="tok-c">-- config.notification_handling = "NeverShow"</span></code></pre>
-<p>铃声不经过 <code>notification_handling</code>，只要 Kaku 窗口在后台，它就一定会变成通知，还会累加到 Dock 图标的角标上，通知消失了也能看出刚才有东西响过。</p>
+<p>铃声不经过 <code>notification_handling</code>，只要 Kaku 窗口在后台，它就一定会变成通知，还会累加到 Dock 图标的角标上，通知消失了也能看出刚才有东西<span class="nobr">响过。</span></p>
 <h2 id="给自己的脚本加通知">给自己的脚本加通知</h2>
-<p>既然通知只是一段序列，任何脚本都能发，长时间的构建或测试跑完时提醒一下很好用：</p>
+<p>既然通知只是一段序列，任何脚本都能发，长时间的构建或测试跑完时提醒一下很<span class="nobr">好用：</span></p>
 <pre><code class="language-bash"><span class="tok-c"># 一行文字（OSC 9）
 </span><span class="tok-b">printf</span> <span class="tok-s">'\e]9;%s\a'</span> <span class="tok-s">"Tests finished"</span>
 
 <span class="tok-c"># 标题加正文（OSC 777）
 </span><span class="tok-b">printf</span> <span class="tok-s">'\e]777;notify;%s;%s\a'</span> <span class="tok-s">"Build"</span> <span class="tok-s">"Release build finished"</span></code></pre>
-<p>这两个例子放在 tmux 外面跑，测试时把终端放到后台，要在 tmux 里用，还得给序列加上 passthrough 包装，并打开上面那项设置。</p>
+<p>这两个例子放在 tmux 外面跑，测试时把终端放到后台，要在 tmux 里用，还得给序列加上 passthrough 包装，并打开上面那项<span class="nobr">设置。</span></p>
 <h2 id="常见问题">常见问题</h2>
 <h3 id="为什么-claude-code-在-iterm2-里有通知在我的终端里没有">为什么 Claude Code 在 iTerm2 里有通知，在我的终端里没有？</h3>
 <p><code>preferredNotifChannel</code> 保持 <code>auto</code> 时，Claude Code 只给 iTerm2、Ghostty 和 Kitty 发桌面通知，把通道明确设上就行，0.25.0 之前的 Kaku 里用 <code>ghostty</code>，其他终端可以用 <code>terminal_bell</code>。</p>
 <h3 id="通过-ssh-跑的-claude-code-也能通知吗">通过 SSH 跑的 Claude Code 也能通知吗？</h3>
-<p>可以，序列会沿着 SSH 连接回到你 Mac 上的终端，由它弹出通知，前提是这个终端认识你选的通道。</p>
+<p>可以，序列会沿着 SSH 连接回到你 Mac 上的终端，由它弹出通知，前提是这个终端认识你选的<span class="nobr">通道。</span></p>
 <h3 id="能不能在-claude-等我的时候也放个声音">能不能在 Claude 等我的时候也放个声音？</h3>
-<p>可以，在 <code>~/.claude/settings.json</code> 里加一个 <a href="https://code.claude.com/docs/en/terminal-config#play-a-sound-with-a-notification-hook" target="_blank" rel="noopener noreferrer">Notification hook</a>，它会和自带的通知同时运行：</p>
+<p>可以，在 <code>~/.claude/settings.json</code> 里加一个 <a href="https://code.claude.com/docs/en/terminal-config#play-a-sound-with-a-notification-hook" target="_blank" rel="noopener noreferrer">Notification hook</a>，它会和自带的通知同时<span class="nobr">运行：</span></p>
 <pre><code class="language-json">{
   "hooks": {
     "Notification": [
@@ -228,7 +228,7 @@ config.notification_handling = <span class="tok-s">"AlwaysShow"</span>
   }
 }</code></pre>
 <h3 id="为什么正在看的窗口也会弹通知">为什么正在看的窗口也会弹通知？</h3>
-<p>有些终端每条都弹，Kaku 默认的 <code>AlwaysShow</code> 只在窗口处于后台时提醒，<code>Suppress</code> 开头的几个选项会把没在看的标签和窗格也算进去。</p>
+<p>有些终端每条都弹，Kaku 默认的 <code>AlwaysShow</code> 只在窗口处于后台时提醒，<code>Suppress</code> 开头的几个选项会把没在看的标签和窗格也算<span class="nobr">进去。</span></p>
           <aside class="blog-cta"><img class="blog-cta-icon" src="/img/kaku-mark.png" width="40" height="40" alt=""><p>Kaku 是一个免费开源的 Mac 终端。</p><a class="btn btn-primary" href="/zh/docs">安装 Kaku</a></aside>
           <nav class="blog-related" aria-label="继续阅读"><h2 class="blog-related-title">继续阅读</h2><ul class="blog-related-list"><li><a href="/zh/blog/install-claude-code-mac"><span class="blog-related-cat">Claude Code 与 Codex</span><span class="blog-related-name">在 Mac 上安装和更新 Claude Code</span><span class="blog-related-meta"><time datetime="2026-10-02">2026年10月2日</time> · 约 6 分钟</span></a></li><li><a href="/zh/blog/best-terminal-for-claude-code"><span class="blog-related-cat">Claude Code 与 Codex</span><span class="blog-related-name">Claude Code 用什么终端最好，真正影响体验的五件事</span><span class="blog-related-meta"><time datetime="2026-09-19">2026年9月19日</time> · 约 6 分钟</span></a></li><li><a href="/zh/blog/claude-code-plan-mode"><span class="blog-related-cat">Claude Code 与 Codex</span><span class="blog-related-name">Claude Code 的 plan mode 什么时候用、怎么用</span><span class="blog-related-meta"><time datetime="2026-09-23">2026年9月23日</time> · 约 8 分钟</span></a></li></ul></nav>
         </article>

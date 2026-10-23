@@ -123,7 +123,7 @@
           "name": "怎么显示 5 小时和 7 天的限额？",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "订阅了 claude.ai Pro 或 Max 的人，以及设了消费上限的 Claude apps gateway，第一次 API 响应之后才会有 rate_limits。five_hour.used_percentage 和 seven_day.used_percentage 从 0 到 100，resets_at 是 Unix 秒，窗口没有，或者已经过了 resets_at，对应字段就不出现，5 小时的百分比用 jq -r '.rate_limits.five_hour.used_percentage // empty' 读。"
+            "text": "订阅了 claude.ai Pro 或 Max 的人，以及设了消费上限的 Claude apps gateway，第一次 API 响应之后才会有 rate_limits。five_hour.used_percentage 和 seven_day.used_percentage 从 0 到 100，resets_at 是 Unix 秒，窗口没有，或者已经过了 resets_at，对应字段就不出现，5 小时的百分比用 jq -r '.rate_limits.five_hour.used_percentage // empty' 读。"
           }
         },
         {
@@ -149,9 +149,9 @@
       <div class="wide">
         <article class="doc-content blog-article">
           <figure class="blog-cover" aria-hidden="true"><img src="/img/blog/cards/claude-code-statusline.webp" width="1600" height="900" alt="" fetchpriority="high"></figure>
-<p>把 <code>~/.claude/settings.json</code> 里的 <code>statusLine</code> 设成一条 shell 命令就行，Claude Code 会把当前会话的 JSON 从 stdin 喂给它，再把脚本打到 stdout 的内容画在屏幕底部、页脚徽章上方的那一行，<code>/statusline</code> 也能生成脚本并把这项设置写进去。内容按 2026 年 10 月的<a href="https://code.claude.com/docs/zh-CN/statusline" target="_blank" rel="noopener noreferrer">状态栏文档</a>核对过。</p>
+<p>把 <code>~/.claude/settings.json</code> 里的 <code>statusLine</code> 设成一条 shell 命令就行，Claude Code 会把当前会话的 JSON 从 stdin 喂给它，再把脚本打到 stdout 的内容画在屏幕底部、页脚徽章上方的那一行，<code>/statusline</code> 也能生成脚本并把这项设置写进去。内容按 2026 年 10 月的<a href="https://code.claude.com/docs/zh-CN/statusline" target="_blank" rel="noopener noreferrer">状态栏文档</a>核<span class="nobr">对过。</span></p>
 <h2 id="配上状态栏">配上状态栏</h2>
-<p><code>/statusline</code> 会在 <code>~/.claude/</code> 下写一份脚本，并改你的设置，它问要不要改文件时，确认一下就行。</p>
+<p><code>/statusline</code> 会在 <code>~/.claude/</code> 下写一份脚本，并改你的设置，它问要不要改文件时，确认一下<span class="nobr">就行。</span></p>
 <pre><code class="language-text">/statusline show model name and context percentage with a progress bar</code></pre>
 <p>也可以自己改 <code>~/.claude/settings.json</code>，或者改<a href="https://code.claude.com/docs/zh-CN/settings#where-settings-live" target="_blank" rel="noopener noreferrer">项目设置</a>。<code>type</code> 是 <code>"command"</code>，<code>command</code> 是脚本路径或一行 shell 命令，<code>padding</code> 是额外缩进的字符数，默认 <code>0</code>。</p>
 <pre><code class="language-json">{
@@ -161,16 +161,16 @@
     "padding": <span class="tok-n">2</span>
   }
 }</code></pre>
-<p><code>PATH</code> 里有 <a href="https://jqlang.org/" target="_blank" rel="noopener noreferrer"><code>jq</code></a> 的话，不用单独放脚本：</p>
+<p><code>PATH</code> 里有 <a href="https://jqlang.org/" target="_blank" rel="noopener noreferrer"><code>jq</code></a> 的话，不用单独放<span class="nobr">脚本：</span></p>
 <pre><code class="language-json">{
   "statusLine": {
     "type": <span class="tok-s">"command"</span>,
     "command": <span class="tok-s">"jq -r '\"[\\(.model.display_name)] \\(.context_window.used_percentage // 0)% context\"'"</span>
   }
 }</code></pre>
-<p><code>refreshInterval</code> 还会每 N 秒再跑一次，最小是 <code>1</code>。<code>hideVimModeIndicator</code> 设成 <code>true</code> 时，只要脚本打出 <code>vim.mode</code>，内置的 <code>-- INSERT --</code> 就藏起来，<code>vim.mode</code> 的取值是 <code>NORMAL</code>、<code>INSERT</code>、<code>VISUAL</code> 或 <code>VISUAL LINE</code>，<code>vim</code> 这个对象只有开了 vim 模式才有。</p>
+<p><code>refreshInterval</code> 还会每 N 秒再跑一次，最小是 <code>1</code>。<code>hideVimModeIndicator</code> 设成 <code>true</code> 时，只要脚本打出 <code>vim.mode</code>，内置的 <code>-- INSERT --</code> 就藏起来，<code>vim.mode</code> 的取值是 <code>NORMAL</code>、<code>INSERT</code>、<code>VISUAL</code> 或 <code>VISUAL LINE</code>，<code>vim</code> 这个对象只有开了 vim 模式<span class="nobr">才有。</span></p>
 <p>保存文件会重新加载设置，并马上跑一次命令，想去掉这一行，用 <code>/statusline delete</code>、<code>/statusline clear</code> 或 <code>/statusline remove it</code>。</p>
-<p>设了状态栏之后，Claude Code 会藏起大部分页脚提示，包括 <code>esc to interrupt</code>、<code>? for shortcuts</code> 和 <code>hold space to speak</code>，帮助菜单和权限确认出现时，这一行也会藏起来。<a href="https://github.com/sirmalloc/ccstatusline" target="_blank" rel="noopener noreferrer">ccstatusline</a> 和 <a href="https://github.com/martinemde/starship-claude" target="_blank" rel="noopener noreferrer">starship-claude</a> 是两套现成配置。</p>
+<p>设了状态栏之后，Claude Code 会藏起大部分页脚提示，包括 <code>esc to interrupt</code>、<code>? for shortcuts</code> 和 <code>hold space to speak</code>，帮助菜单和权限确认出现时，这一行也会藏起来。<a href="https://github.com/sirmalloc/ccstatusline" target="_blank" rel="noopener noreferrer">ccstatusline</a> 和 <a href="https://github.com/martinemde/starship-claude" target="_blank" rel="noopener noreferrer">starship-claude</a> 是两套现成<span class="nobr">配置。</span></p>
 <h2 id="json-里有什么">JSON 里有什么</h2>
 <table>
 <thead>
@@ -216,12 +216,12 @@
 </table>
 <figure class="blog-diagram"><picture><source media="(max-width: 640px)" srcset="/img/blog/claude-code-statusline-mobile.webp" width="340" height="350"><img src="/img/blog/claude-code-statusline.webp" width="657" height="231" loading="lazy" alt="会话 JSON 从 stdin 进脚本，打出来的那一行显示在输入区下面"></picture><figcaption>分支不在这份 JSON 里，脚本自己去问 git。</figcaption></figure>
 
-<p><code>used_percentage</code> 把 <code>input_tokens</code>、<code>cache_creation_input_tokens</code> 和 <code>cache_read_input_tokens</code> 加在一起，不算 <code>output_tokens</code>，第一次 API 响应之前，<code>total_input_tokens</code> 和 <code>total_output_tokens</code> 都是 <code>0</code>。<code>current_usage</code> 在第一次调用前是 <code>null</code>，<code>/compact</code> 之后、下一次调用之前又是 <code>null</code>，百分比为 null 时 <code>// 0</code> 会换成 0。几条消息之后这一行还显示 <code>--</code>，就得重启会话。<code>/context</code> 显示的可能更高，因为它把那次响应之后新加的消息也估算进去了。</p>
+<p><code>used_percentage</code> 把 <code>input_tokens</code>、<code>cache_creation_input_tokens</code> 和 <code>cache_read_input_tokens</code> 加在一起，不算 <code>output_tokens</code>，第一次 API 响应之前，<code>total_input_tokens</code> 和 <code>total_output_tokens</code> 都是 <code>0</code>。<code>current_usage</code> 在第一次调用前是 <code>null</code>，<code>/compact</code> 之后、下一次调用之前又是 <code>null</code>，百分比为 null 时 <code>// 0</code> 会换成 0。几条消息之后这一行还显示 <code>--</code>，就得重启会话。<code>/context</code> 显示的可能更高，因为它把那次响应之后新加的消息也估算进<span class="nobr">去了。</span></p>
 <p><code>cost.total_cost_usd</code> 是客户端按标价估的，除非用了 <a href="https://code.claude.com/docs/zh-CN/settings-reference#modelpricing" target="_blank" rel="noopener noreferrer"><code>modelPricing</code></a> 这张表，数字和账单可能对不上。<code>/clear</code> 会把它重置成 $0，v2.1.211 之前这个总数会留下来。<code>total_duration_ms</code> 在恢复会话之后继续累加，会话没在跑的时间不算，<code>total_api_duration_ms</code> 是等 API 的时间。脚本本身不花 token。</p>
-<p>没有哪个字段是当前检出的分支，<code>workspace.git_worktree</code> 记的是 <code>git worktree add</code> 建出来的链接工作树的名字，<code>worktree.branch</code> 只在 worktree 会话里才有。</p>
+<p>没有哪个字段是当前检出的分支，<code>workspace.git_worktree</code> 记的是 <code>git worktree add</code> 建出来的链接工作树的名字，<code>worktree.branch</code> 只在 worktree 会话里<span class="nobr">才有。</span></p>
 <h2 id="模型上下文和-git-分支">模型、上下文和 git 分支</h2>
-<p>脚本打出模型、文件夹、上下文百分比和分支，对 <code>git diff --cached --numstat</code> 和 <code>git diff --numstat</code> 做 <code>wc -l</code>，数的是已跟踪文件的个数，每个文件占一行，前一个是暂存的，后一个是改过的。<code>\033[32m</code> 是绿色的 <code>+</code>，<code>\033[33m</code> 是黄色的 <code>~</code>，<code>\033[0m</code> 把颜色复位，这些要 <code>echo -e</code> 才上色。</p>
-<p>git 的结果缓存在 <code>/tmp/statusline-git-cache-$SESSION_ID</code>，5 秒内不重新跑，<code>session_id</code> 一次会话里不变，换成 <code>$$</code> 的话每次进程号都变，缓存永远用不上。<code>stat</code> 先跑 Linux 的 <code>stat -c %Y</code>，再跑 macOS 的 <code>stat -f %m</code>，在 Linux 上如果先跑 macOS 那种，它失败前会先打出一份文件系统报告。git 看的是脚本自己的目录，例子没有 <code>cd</code> 到 <code>workspace.current_dir</code>，<code>git branch --show-current</code> 为空就不显示分支。</p>
+<p>脚本打出模型、文件夹、上下文百分比和分支，对 <code>git diff --cached --numstat</code> 和 <code>git diff --numstat</code> 做 <code>wc -l</code>，数的是已跟踪文件的个数，每个文件占一行，前一个是暂存的，后一个是改过的。<code>\033[32m</code> 是绿色的 <code>+</code>，<code>\033[33m</code> 是黄色的 <code>~</code>，<code>\033[0m</code> 把颜色复位，这些要 <code>echo -e</code> 才<span class="nobr">上色。</span></p>
+<p>git 的结果缓存在 <code>/tmp/statusline-git-cache-$SESSION_ID</code>，5 秒内不重新跑，<code>session_id</code> 一次会话里不变，换成 <code>$$</code> 的话每次进程号都变，缓存永远用不上。<code>stat</code> 先跑 Linux 的 <code>stat -c %Y</code>，再跑 macOS 的 <code>stat -f %m</code>，在 Linux 上如果先跑 macOS 那种，它失败前会先打出一份文件系统报告。git 看的是脚本自己的目录，例子没有 <code>cd</code> 到 <code>workspace.current_dir</code>，<code>git branch --show-current</code> 为空就不显示<span class="nobr">分支。</span></p>
 <pre><code class="language-bash"><span class="tok-c">#!/bin/bash
 </span>input=<span class="tok-k">$(</span>cat<span class="tok-k">)</span>
 
@@ -265,37 +265,37 @@ IFS=<span class="tok-s">'|'</span> <span class="tok-b">read</span> -r BRANCH STA
 <span class="tok-k">fi</span></code></pre>
 <p><code>${DIR##*/}</code> 是文件夹名，<code>cut -d. -f1</code> 去掉小数，存成 <code>~/.claude/statusline.sh</code>，再 <code>chmod +x</code>。</p>
 <pre><code class="language-bash"><span class="tok-b">echo</span> <span class="tok-s">'{"model":{"display_name":"Opus"},"workspace":{"current_dir":"/home/user/project"},"context_window":{"used_percentage":25},"session_id":"test-session-abc"}'</span> | ./statusline.sh</code></pre>
-<p>得到的是 <code>[Opus] project | 25%</code>，脚本所在目录里 <code>git rev-parse --git-dir</code> 成功的话，后面还会带上分支。宽度用 <code>$COLUMNS</code> 和 <code>$LINES</code>，<code>tput cols</code> 看不到终端，因为 stdout 被接走了。</p>
+<p>得到的是 <code>[Opus] project | 25%</code>，脚本所在目录里 <code>git rev-parse --git-dir</code> 成功的话，后面还会带上分支。宽度用 <code>$COLUMNS</code> 和 <code>$LINES</code>，<code>tput cols</code> 看不到终端，因为 stdout 被接<span class="nobr">走了。</span></p>
 <h2 id="颜色和图标">颜色和图标</h2>
-<p>不到 70% 用绿色，70% 到 89% 用黄色，90% 起用红色（<code>\033[31m</code>），模型名用青色（<code>\033[36m</code>），脚本里每个 <code>echo</code> 在状态栏里各占一行。10 格宽的进度条，先用 <code>printf -v</code> 填一串空格，再用 <code>${var// /▓}</code> 和 <code>${var// /░}</code> 换成实心和空心，终端得认 ANSI 颜色。文档示例里的 emoji 和 Nerd Font 图标，正在用的字体里有这个字形才会画出来。</p>
-<p>可点击的文字是一段 OSC 8，先写 <code>\e]8;;URL\a</code>，接着是文字，再写 <code>\e]8;;\a</code> 结束，用 <code>printf '%b'</code> 打出来，macOS 上按住 <code>Cmd</code> 点。iTerm2、Kitty、WezTerm 认这个序列，Terminal.app 不认，点不了就设 <code>FORCE_HYPERLINK=1</code>。SSH 和 tmux 可能会把这段序列剥掉，没进全屏时，MCP 报错、自动更新和上下文不足的警告，也可能会把这一行截短。</p>
+<p>不到 70% 用绿色，70% 到 89% 用黄色，90% 起用红色（<code>\033[31m</code>），模型名用青色（<code>\033[36m</code>），脚本里每个 <code>echo</code> 在状态栏里各占一行。10 格宽的进度条，先用 <code>printf -v</code> 填一串空格，再用 <code>${var// /▓}</code> 和 <code>${var// /░}</code> 换成实心和空心，终端得认 ANSI 颜色。文档示例里的 emoji 和 Nerd Font 图标，正在用的字体里有这个字形才会画<span class="nobr">出来。</span></p>
+<p>可点击的文字是一段 OSC 8，先写 <code>\e]8;;URL\a</code>，接着是文字，再写 <code>\e]8;;\a</code> 结束，用 <code>printf '%b'</code> 打出来，macOS 上按住 <code>Cmd</code> 点。iTerm2、Kitty、WezTerm 认这个序列，Terminal.app 不认，点不了就设 <code>FORCE_HYPERLINK=1</code>。SSH 和 tmux 可能会把这段序列剥掉，没进全屏时，MCP 报错、自动更新和上下文不足的警告，也可能会把这一行<span class="nobr">截短。</span></p>
 <h2 id="多久跑一次">多久跑一次</h2>
-<p>会话一开始会跑，恢复会话也算，之后这些时候会再跑：</p>
+<p>会话一开始会跑，恢复会话也算，之后这些时候会<span class="nobr">再跑：</span></p>
 <ul>
-<li>Claude 有了新回复</li>
-<li><code>/compact</code> 结束</li>
-<li>权限模式变了</li>
-<li>vim 模式切换了</li>
-<li><code>statusLine.command</code> 变了</li>
-<li>设过 <code>refreshInterval</code>，并且时间到了</li>
+<li>Claude 有了新<span class="nobr">回复</span></li>
+<li><code>/compact</code> <span class="nobr">结束</span></li>
+<li>权限模式<span class="nobr">变了</span></li>
+<li>vim 模式切<span class="nobr">换了</span></li>
+<li><code>statusLine.command</code> <span class="nobr">变了</span></li>
+<li>设过 <code>refreshInterval</code>，并且时间<span class="nobr">到了</span></li>
 <li>上一份 JSON 里，某个限流窗口到了 <code>resets_at</code></li>
 <li>同一份 JSON 里，还热着的 prompt cache 到了 <code>expires_at</code></li>
 </ul>
-<p>两次刷新之间会去抖 300ms，只有 <code>command</code> 本身改了才不等，新一轮触发时还在跑的脚本会被取消。只改脚本文件要等下一次触发才生效，保存设置则会马上跑一次。这一行要出现，退出码得是 0，stdout 也得有内容，<code>claude --debug</code> 会记下每次的 stderr，以及第一次的退出码。主会话闲着时这些事件会停，主会话在等 subagent 干活时也算闲着，这段空档就靠 <code>refreshInterval</code> 补上。</p>
+<p>两次刷新之间会去抖 300ms，只有 <code>command</code> 本身改了才不等，新一轮触发时还在跑的脚本会被取消。只改脚本文件要等下一次触发才生效，保存设置则会马上跑一次。这一行要出现，退出码得是 0，stdout 也得有内容，<code>claude --debug</code> 会记下每次的 stderr，以及第一次的退出码。主会话闲着时这些事件会停，主会话在等 subagent 干活时也算闲着，这段空档就靠 <code>refreshInterval</code> <span class="nobr">补上。</span></p>
 <h2 id="在-kaku-里的图标和套餐用量">在 Kaku 里的图标和套餐用量</h2>
-<p>Kaku 不用装补丁字体也能画出 Nerd Font 图标，它自带 Symbols Nerd Font Mono，并且把它接在你用的字体后面当回退，所以状态栏里打印的分支、文件夹图标，用默认的 JetBrains Mono 能显示，换成你在 <code>kaku.lua</code> 里设的字体也能显示。</p>
+<p>Kaku 不用装补丁字体也能画出 Nerd Font 图标，它自带 Symbols Nerd Font Mono，并且把它接在你用的字体后面当回退，所以状态栏里打印的分支、文件夹图标，用默认的 JetBrains Mono 能显示，换成你在 <code>kaku.lua</code> 里设的字体也能<span class="nobr">显示。</span></p>
 <p>如果状态栏上只是想看套餐用量，<code>kaku ai</code> 已经能看到 Claude Code、Codex、Gemini CLI、Copilot CLI 和 Kimi Code 的用量，只有你在这个面板里改过，Kaku 才会动对应工具的设置，它也不会自己去加状态栏或 hook。</p>
 <h2 id="常见问题">常见问题</h2>
 <h3 id="状态栏为什么是空的">状态栏为什么是空的？</h3>
-<p>脚本得有执行权限，往 stdout 打出内容，退出码是 0，少了任何一样状态栏就是空的。工作区还没被信任时，<code>claude --debug</code> 会记 <code>Status line command skipped: workspace trust not accepted</code>，<code>statusLine</code> 要跑 shell 命令，跟 <a href="/zh/blog/claude-code-hooks">hook</a> 用的是同一套信任规则。在托管设置之外把 <code>disableAllHooks</code> 设成 <code>true</code>，就只剩托管的状态栏，<code>allowManagedHooksOnly</code> 会丢掉你自己写的命令。</p>
+<p>脚本得有执行权限，往 stdout 打出内容，退出码是 0，少了任何一样状态栏就是空的。工作区还没被信任时，<code>claude --debug</code> 会记 <code>Status line command skipped: workspace trust not accepted</code>，<code>statusLine</code> 要跑 shell 命令，跟 <a href="/zh/blog/claude-code-hooks">hook</a> 用的是同一套信任规则。在托管设置之外把 <code>disableAllHooks</code> 设成 <code>true</code>，就只剩托管的状态栏，<code>allowManagedHooksOnly</code> 会丢掉你自己写的<span class="nobr">命令。</span></p>
 <h3 id="百分比为什么和-context-对不上">百分比为什么和 <code>/context</code> 对不上？</h3>
 <p>状态栏用的是上一次 API 响应里的数，<code>/context</code> 会把那之后新加的消息估算进去，<code>used_percentage</code> 不算 <code>output_tokens</code>。</p>
 <h3 id="状态栏花钱吗">状态栏花钱吗？</h3>
-<p>不花，脚本不用 API token，<code>cost.total_cost_usd</code> 是按标价估的，<code>/clear</code> 会重置成 $0，v2.1.211 之前这个总数会留下来。</p>
+<p>不花，脚本不用 API token，<code>cost.total_cost_usd</code> 是按标价估的，<code>/clear</code> 会重置成 $0，v2.1.211 之前这个总数会留<span class="nobr">下来。</span></p>
 <h3 id="怎么显示-5-小时和-7-天的限额">怎么显示 5 小时和 7 天的限额？</h3>
-<p>订阅了 claude.ai Pro 或 Max 的人，以及设了消费上限的 Claude apps gateway，第一次 API 响应之后才会有 <code>rate_limits</code>。<code>five_hour.used_percentage</code> 和 <code>seven_day.used_percentage</code> 从 0 到 100，<code>resets_at</code> 是 Unix 秒，窗口没有，或者已经过了 <code>resets_at</code>，对应字段就不出现，5 小时的百分比用 <code>jq -r '.rate_limits.five_hour.used_percentage // empty'</code> 读。</p>
+<p>订阅了 claude.ai Pro 或 Max 的人，以及设了消费上限的 Claude apps gateway，第一次 API 响应之后才会有 <code>rate_limits</code>。<code>five_hour.used_percentage</code> 和 <code>seven_day.used_percentage</code> 从 0 到 100，<code>resets_at</code> 是 Unix 秒，窗口没有，或者已经过了 <code>resets_at</code>，对应字段就不出现，5 小时的百分比用 <code>jq -r '.rate_limits.five_hour.used_percentage // empty'</code>&nbsp;读。</p>
 <h3 id="subagent-在干活时分支为什么不动">subagent 在干活时，分支为什么不动？</h3>
-<p>主会话闲着时这些事件会停，主会话在等 subagent 干活时同样会停，<code>refreshInterval</code> 至少设成 <code>1</code>，再配上按 <code>session_id</code> 做的缓存，git 就不会每次刷新都跑。</p>
+<p>主会话闲着时这些事件会停，主会话在等 subagent 干活时同样会停，<code>refreshInterval</code> 至少设成 <code>1</code>，再配上按 <code>session_id</code> 做的缓存，git 就不会每次刷新<span class="nobr">都跑。</span></p>
           <aside class="blog-cta"><img class="blog-cta-icon" src="/img/kaku-mark.png" width="40" height="40" alt=""><p>Kaku 是一个免费开源的 Mac 终端。</p><a class="btn btn-primary" href="/zh/docs">安装 Kaku</a></aside>
           <nav class="blog-related" aria-label="继续阅读"><h2 class="blog-related-title">继续阅读</h2><ul class="blog-related-list"><li><a href="/zh/blog/install-claude-code-mac"><span class="blog-related-cat">Claude Code 与 Codex</span><span class="blog-related-name">在 Mac 上安装和更新 Claude Code</span><span class="blog-related-meta"><time datetime="2026-10-02">2026年10月2日</time> · 约 6 分钟</span></a></li><li><a href="/zh/blog/claude-code-hooks"><span class="blog-related-cat">Claude Code 与 Codex</span><span class="blog-related-name">Claude Code hooks 实用指南</span><span class="blog-related-meta"><time datetime="2026-10-03">2026年10月3日</time> · 约 8 分钟</span></a></li><li><a href="/zh/blog/claude-code-skills"><span class="blog-related-cat">Claude Code 与 Codex</span><span class="blog-related-name">Claude Code skills 怎么写、怎么用</span><span class="blog-related-meta"><time datetime="2026-10-06">2026年10月6日</time> · 约 9 分钟</span></a></li></ul></nav>
         </article>

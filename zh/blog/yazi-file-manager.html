@@ -149,13 +149,13 @@
       <div class="wide">
         <article class="doc-content blog-article">
           <figure class="blog-cover" aria-hidden="true"><img src="/img/blog/cards/yazi-file-manager.webp" width="1600" height="900" alt="" fetchpriority="high"></figure>
-<p>在 Mac 上用 <a href="https://yazi-rs.github.io/" target="_blank" rel="noopener noreferrer">Yazi</a>，先 <code>brew install yazi</code>，顺手把几个负责预览的命令行工具一起装上，然后敲 <code>yazi</code> 打开，按 <code>q</code> 退出就行。再把官方文档里那个 <code>y</code> 函数放进 shell 配置，退出时 shell 会停在你刚才浏览到的目录，不会弹回原地。剩下的配置都在 <code>~/.config/yazi/</code> 下的三个 TOML 文件里，而且只需要写你想改的那几行。</p>
+<p>在 Mac 上用 <a href="https://yazi-rs.github.io/" target="_blank" rel="noopener noreferrer">Yazi</a>，先 <code>brew install yazi</code>，顺手把几个负责预览的命令行工具一起装上，然后敲 <code>yazi</code> 打开，按 <code>q</code> 退出就行。再把官方文档里那个 <code>y</code> 函数放进 shell 配置，退出时 shell 会停在你刚才浏览到的目录，不会弹回原地。剩下的配置都在 <code>~/.config/yazi/</code> 下的三个 TOML 文件里，而且只需要写你想改的那<span class="nobr">几行。</span></p>
 <h2 id="安装-yazi-和预览工具">安装 Yazi 和预览工具</h2>
 <p>Yazi 唯一必需的依赖是用来识别文件类型的 <code>file</code>，macOS 本来就有。其他都是可选的命令行工具，每装一个就多一种能力，<a href="https://yazi-rs.github.io/docs/installation" target="_blank" rel="noopener noreferrer">安装页</a>给了一行 Homebrew 命令全部装好（2026 年 10 月核对，文档版本 26.9.1）：</p>
 <pre><code class="language-bash">brew update
 brew install yazi ffmpeg-full sevenzip jq poppler fd ripgrep fzf zoxide resvg imagemagick-full font-symbols-only-nerd-font
 brew link ffmpeg-full imagemagick-full -f --overwrite</code></pre>
-<p>每个包管的是什么：</p>
+<p>每个包管的是<span class="nobr">什么：</span></p>
 <table>
 <thead>
 <tr>
@@ -212,7 +212,7 @@ brew link ffmpeg-full imagemagick-full -f --overwrite</code></pre>
 </table>
 <p>只装 <code>yazi</code> 本体也能用，其他的可以等用到了再补，文档里也说某个预览出不来的时候，先把对应工具升到最新版再看，想跟最新代码的话可以用 <code>brew install yazi --HEAD</code>。如果图标显示成一个个方块，那是字体的事，可以看 <a href="/zh/blog/nerd-fonts-mac">Mac 上的 Nerd Fonts</a>。</p>
 <h2 id="先记住这些键">先记住这些键</h2>
-<p>在任意目录下敲 <code>yazi</code>，会看到三栏，左边是上一级目录，中间是当前目录，右边是光标所在文件的预览。按 <code>F1</code> 或 <code>~</code> 打开帮助，按 <code>q</code> 退出，<a href="https://yazi-rs.github.io/docs/quick-start" target="_blank" rel="noopener noreferrer">快速上手</a>里有完整列表，头一天用下面这些就够了：</p>
+<p>在任意目录下敲 <code>yazi</code>，会看到三栏，左边是上一级目录，中间是当前目录，右边是光标所在文件的预览。按 <code>F1</code> 或 <code>~</code> 打开帮助，按 <code>q</code> 退出，<a href="https://yazi-rs.github.io/docs/quick-start" target="_blank" rel="noopener noreferrer">快速上手</a>里有完整列表，头一天用下面这些就<span class="nobr">够了：</span></p>
 <table>
 <thead>
 <tr>
@@ -289,7 +289,7 @@ brew link ffmpeg-full imagemagick-full -f --overwrite</code></pre>
 </table>
 <p>像 <code>g</code> <code>g</code> 这样写成两个字母的，是先按一个再按另一个，<code>d</code> 只是把文件移进废纸篓，按 <code>g</code> <code>t</code> 就能进废纸篓把它捞回来，误删了也不慌，<code>D</code> 才是真删，这个要留神。平时在 shell 里就用 fzf 的话，<code>z</code> 用起来是一样的手感，zsh 那一侧怎么配可以看 <a href="/zh/blog/fzf-zsh-mac">Mac 上在 zsh 里用 fzf</a>。</p>
 <h2 id="y-这个函数">y 这个函数</h2>
-<p>从 shell 里启动的程序没法改 shell 自己的工作目录，所以直接用 <code>yazi</code>，退出后还是回到启动时的地方。Yazi 的办法是 <code>--cwd-file</code> 参数，退出时把当前目录写进一个临时文件，再由一个小函数读出来执行 <code>cd</code>，快速上手页给的 Bash 和 Zsh 版本是这样的：</p>
+<p>从 shell 里启动的程序没法改 shell 自己的工作目录，所以直接用 <code>yazi</code>，退出后还是回到启动时的地方。Yazi 的办法是 <code>--cwd-file</code> 参数，退出时把当前目录写进一个临时文件，再由一个小函数读出来执行 <code>cd</code>，快速上手页给的 Bash 和 Zsh 版本是这<span class="nobr">样的：</span></p>
 <pre><code class="language-bash"><span class="tok-k">function</span> y() {
   <span class="tok-b">local</span> tmp cwd; tmp=<span class="tok-s">"</span><span class="tok-k">$(</span>mktemp -t <span class="tok-s">"yazi-cwd.XXXXXX"</span><span class="tok-k">)</span><span class="tok-s">"</span>
   <span class="tok-b">command</span> yazi <span class="tok-s">"</span>$@<span class="tok-s">"</span> --cwd-file=<span class="tok-s">"</span>$tmp<span class="tok-s">"</span>
@@ -297,7 +297,7 @@ brew link ffmpeg-full imagemagick-full -f --overwrite</code></pre>
   [ <span class="tok-s">"</span>$cwd<span class="tok-s">"</span> != <span class="tok-s">"</span>$PWD<span class="tok-s">"</span> ] &amp;&amp; [ -d <span class="tok-s">"</span>$cwd<span class="tok-s">"</span> ] &amp;&amp; <span class="tok-b">builtin</span> <span class="tok-b">cd</span> -- <span class="tok-s">"</span>$cwd<span class="tok-s">"</span> || <span class="tok-b">builtin</span> <span class="tok-b">true</span>
   <span class="tok-b">command</span> rm -f -- <span class="tok-s">"</span>$tmp<span class="tok-s">"</span>
 }</code></pre>
-<p>把它放进 <code>~/.zshrc</code>，开一个新 shell，以后用 <code>y</code> 代替 <code>yazi</code> 启动，按 <code>q</code> 退出时 shell 就已经在你刚才看的那个目录里了，某次不想换目录就按 <code>Q</code> 退出。用 fish 的话同一页上有对应的写法：</p>
+<p>把它放进 <code>~/.zshrc</code>，开一个新 shell，以后用 <code>y</code> 代替 <code>yazi</code> 启动，按 <code>q</code> 退出时 shell 就已经在你刚才看的那个目录里了，某次不想换目录就按 <code>Q</code> 退出。用 fish 的话同一页上有对应的<span class="nobr">写法：</span></p>
 <pre><code class="language-fish"><span class="tok-k">function</span> y
   <span class="tok-k">set</span> tmp (mktemp -t <span class="tok-s">"yazi-cwd.XXXXXX"</span>)
   <span class="tok-b">command </span>yazi $argv --cwd-file=<span class="tok-s">"</span>$tmp<span class="tok-s">"</span>
@@ -309,46 +309,46 @@ brew link ffmpeg-full imagemagick-full -f --overwrite</code></pre>
 <h2 id="三个配置文件-yazitomlkeymaptomlthemetoml">三个配置文件 yazi.toml、keymap.toml、theme.toml</h2>
 <p>Yazi 从 <code>~/.config/yazi/</code> 读<a href="https://yazi-rs.github.io/docs/configuration/overview" target="_blank" rel="noopener noreferrer">三个配置文件</a>：</p>
 <ul>
-<li><code>yazi.toml</code> 放通用设置</li>
-<li><code>keymap.toml</code> 放快捷键</li>
-<li><code>theme.toml</code> 放配色</li>
+<li><code>yazi.toml</code> 放通用<span class="nobr">设置</span></li>
+<li><code>keymap.toml</code> 放快<span class="nobr">捷键</span></li>
+<li><code>theme.toml</code> 放<span class="nobr">配色</span></li>
 </ul>
-<p>默认配置已经编进了发布版里，所以不用把整个文件抄一遍，新建文件，只写你要改的那一项就行，比如想默认显示隐藏文件：</p>
+<p>默认配置已经编进了发布版里，所以不用把整个文件抄一遍，新建文件，只写你要改的那一项就行，比如想默认显示隐藏<span class="nobr">文件：</span></p>
 <pre><code class="language-toml"><span class="tok-c"># ~/.config/yazi/yazi.toml</span>
 <span class="tok-k">[mgr]</span>
 show_hidden = <span class="tok-b">true</span></code></pre>
-<p>快捷键稍微不一样，在 <code>[mgr]</code> 下写 <code>keymap = [...]</code> 会把默认键位整个换掉，多数时候这不是你想要的，用 <code>prepend_keymap</code> 或 <code>append_keymap</code> 才是在默认键位上叠加自己的：</p>
+<p>快捷键稍微不一样，在 <code>[mgr]</code> 下写 <code>keymap = [...]</code> 会把默认键位整个换掉，多数时候这不是你想要的，用 <code>prepend_keymap</code> 或 <code>append_keymap</code> 才是在默认键位上叠加自<span class="nobr">己的：</span></p>
 <pre><code class="language-toml"><span class="tok-c"># ~/.config/yazi/keymap.toml</span>
 <span class="tok-k">[mgr]</span>
 prepend_keymap = [
   { on = <span class="tok-s">"e"</span>, run = <span class="tok-s">"open"</span>, desc = <span class="tok-s">"Edit or open selected files"</span> },
 ]</code></pre>
-<p>完整的默认配置在 <a href="https://github.com/sxyazi/yazi/tree/shipped/yazi-config/preset" target="_blank" rel="noopener noreferrer">Yazi 仓库</a>的 <code>shipped</code> 标签下，改某个键或者某个选项之前，去那里查一下原名最省事。想试一套新配置又不想动现在这套，可以把 <code>YAZI_CONFIG_HOME</code> 指到另一个目录：</p>
+<p>完整的默认配置在 <a href="https://github.com/sxyazi/yazi/tree/shipped/yazi-config/preset" target="_blank" rel="noopener noreferrer">Yazi 仓库</a>的 <code>shipped</code> 标签下，改某个键或者某个选项之前，去那里查一下原名最省事。想试一套新配置又不想动现在这套，可以把 <code>YAZI_CONFIG_HOME</code> 指到另一个<span class="nobr">目录：</span></p>
 <pre><code class="language-bash">YAZI_CONFIG_HOME=~/.config/yazi-alt yazi</code></pre>
-<p>有一个坑要留意，如果你在这几个文件开头加了给编辑器用的 schema 提示，要写成 <code>#:schema</code> 注释，不要写成 <code>$schema</code> 键。Kaku 的安装脚本里记着 Yazi 26.5.6 起会拒绝 <code>$schema</code> 键，直接启动失败，所以以前好好的配置，升级一次 Yazi 就可能打不开了：</p>
+<p>有一个坑要留意，如果你在这几个文件开头加了给编辑器用的 schema 提示，要写成 <code>#:schema</code> 注释，不要写成 <code>$schema</code> 键。Kaku 的安装脚本里记着 Yazi 26.5.6 起会拒绝 <code>$schema</code> 键，直接启动失败，所以以前好好的配置，升级一次 Yazi 就可能打不<span class="nobr">开了：</span></p>
 <pre><code class="language-toml"><span class="tok-c">#:schema https://yazi-rs.github.io/schemas/keymap.json</span></code></pre>
 <h2 id="打开文件">打开文件</h2>
-<p><code>o</code> 和 <code>Enter</code> 是打开选中的文件，<code>O</code> 是交互式打开，会让你挑用哪个 opener，终端支持的话 <code>Shift + Enter</code> 和 <code>O</code> 是一样的效果。opener 定义在 <code>yazi.toml</code> 的 <code>[opener]</code> 下，把文件类型对应到 opener 的那些规则，也能像快捷键一样用 <code>prepend_*</code> 和 <code>append_*</code> 往上叠，常见的做法是加一个 <code>edit</code>，把文本文件交给你的编辑器，等它关掉再回来：</p>
+<p><code>o</code> 和 <code>Enter</code> 是打开选中的文件，<code>O</code> 是交互式打开，会让你挑用哪个 opener，终端支持的话 <code>Shift + Enter</code> 和 <code>O</code> 是一样的效果。opener 定义在 <code>yazi.toml</code> 的 <code>[opener]</code> 下，把文件类型对应到 opener 的那些规则，也能像快捷键一样用 <code>prepend_*</code> 和 <code>append_*</code> 往上叠，常见的做法是加一个 <code>edit</code>，把文本文件交给你的编辑器，等它关掉再<span class="nobr">回来：</span></p>
 <pre><code class="language-toml"><span class="tok-k">[opener]</span>
 edit = [
   { run = <span class="tok-s">"${EDITOR:-vim} %s"</span>, desc = <span class="tok-s">"edit"</span>, for = <span class="tok-s">"unix"</span>, block = <span class="tok-b">true</span> },
 ]</code></pre>
-<p><code>block = true</code> 的意思是 Yazi 把终端让给编辑器，你退出编辑器之后再回到 Yazi。要把路径贴到别的 App 里，<code>c</code> <code>c</code> 复制完整路径，<code>c</code> <code>d</code> 复制所在目录，<code>c</code> <code>f</code> 只复制文件名。</p>
+<p><code>block = true</code> 的意思是 Yazi 把终端让给编辑器，你退出编辑器之后再回到 Yazi。要把路径贴到别的 App 里，<code>c</code> <code>c</code> 复制完整路径，<code>c</code> <code>d</code> 复制所在目录，<code>c</code> <code>f</code> 只复制文<span class="nobr">件名。</span></p>
 <h2 id="在-kaku-里用-yazi">在 Kaku 里用 Yazi</h2>
-<p><a href="/zh/docs/features">Kaku</a> 的 shell 配置里带了一整套 Yazi 设置，但不自带 Yazi 本体。<code>kaku init</code> 在交互式 shell 里会先问你，再用 Homebrew 装上缺的工具，Yazi 也在其中，不过只装 <code>yazi</code> 这一个，上面那些预览工具还是要自己补。shell 集成给 zsh 和 fish 都定义了同样的 <code>y</code> 函数，按 <code>Cmd + Shift + Y</code> 会往当前窗格里敲一个 <code>y</code>，所以按 <code>q</code> 退出后，shell 已经停在你选的那个目录里。</p>
-<p><code>~/.config/yazi/</code> 下缺哪个文件，Kaku 就写一份起步配置，<code>yazi.toml</code> 里把预览栏放宽到 <code>ratio = [3, 3, 10]</code>，再加上前面那个 <code>edit</code> opener，<code>keymap.toml</code> 里把 <code>e</code> 和 <code>o</code> 绑成打开，<code>Enter</code> 改成进入目录，0.25.0 起还有一个 <code>init.lua</code>，在路径和文件栏之间留出一行。已经有 <code>yazi.toml</code> 的话，zsh 的配置只在缺的时候补上预览尺寸（<code>max_width</code>、<code>max_height</code>）和 <code>edit</code> opener，其他已有的文件不会去动。Kaku 还装了 <code>kaku-dark</code> 和 <code>kaku-light</code> 两个 flavor，在 <code>theme.toml</code> 里维护一段带标记的 <code>[flavor]</code>，跟着当前配色是 Kaku Dark 还是 Kaku Light 走，每次启动 Yazi 前都会对一遍。你自己写了 <code>[flavor]</code> 的话 Kaku 会原样保留。它写的都是 <code>#:schema</code> 注释，也会把 <code>theme.toml</code>、<code>keymap.toml</code> 和 <code>yazi.toml</code> 里旧的 <code>$schema</code> 键改过来，上面说的 26.5.6 那个坑就不用自己处理了。</p>
+<p><a href="/zh/docs/features">Kaku</a> 的 shell 配置里带了一整套 Yazi 设置，但不自带 Yazi 本体。<code>kaku init</code> 在交互式 shell 里会先问你，再用 Homebrew 装上缺的工具，Yazi 也在其中，不过只装 <code>yazi</code> 这一个，上面那些预览工具还是要自己补。shell 集成给 zsh 和 fish 都定义了同样的 <code>y</code> 函数，按 <code>Cmd + Shift + Y</code> 会往当前窗格里敲一个 <code>y</code>，所以按 <code>q</code> 退出后，shell 已经停在你选的那个目<span class="nobr">录里。</span></p>
+<p><code>~/.config/yazi/</code> 下缺哪个文件，Kaku 就写一份起步配置，<code>yazi.toml</code> 里把预览栏放宽到 <code>ratio = [3, 3, 10]</code>，再加上前面那个 <code>edit</code> opener，<code>keymap.toml</code> 里把 <code>e</code> 和 <code>o</code> 绑成打开，<code>Enter</code> 改成进入目录，0.25.0 起还有一个 <code>init.lua</code>，在路径和文件栏之间留出一行。已经有 <code>yazi.toml</code> 的话，zsh 的配置只在缺的时候补上预览尺寸（<code>max_width</code>、<code>max_height</code>）和 <code>edit</code> opener，其他已有的文件不会去动。Kaku 还装了 <code>kaku-dark</code> 和 <code>kaku-light</code> 两个 flavor，在 <code>theme.toml</code> 里维护一段带标记的 <code>[flavor]</code>，跟着当前配色是 Kaku Dark 还是 Kaku Light 走，每次启动 Yazi 前都会对一遍。你自己写了 <code>[flavor]</code> 的话 Kaku 会原样保留。它写的都是 <code>#:schema</code> 注释，也会把 <code>theme.toml</code>、<code>keymap.toml</code> 和 <code>yazi.toml</code> 里旧的 <code>$schema</code> 键改过来，上面说的 26.5.6 那个坑就不用自己处<span class="nobr">理了。</span></p>
 <p>图片预览要看终端能不能画像素，Kaku 实现了 iTerm2 的内联图片协议和 Kitty 图形协议，后者由 <code>enable_kitty_graphics</code> 控制，默认就是开的。在跑着 SSH 的窗格里按 <code>Cmd + Shift + R</code>，Kaku 会用 sshfs 把远端主机的文件挂到 <code>~/Library/Caches/dev.kaku/sshfs</code> 下，再在新标签里用 Yazi 打开，前提是装好了 macFUSE 和 sshfs。旁边的 <code>Cmd + Shift + G</code> 是 lazygit，可以看 <a href="/zh/blog/lazygit-and-delta">lazygit 和 delta</a>。</p>
 <h2 id="常见问题">常见问题</h2>
 <h3 id="怎么让-yazi-退出时顺便切换-shell-的目录">怎么让 Yazi 退出时顺便切换 shell 的目录？</h3>
-<p>用快速上手页里的 <code>y</code> 函数，它给 <code>yazi</code> 传 <code>--cwd-file</code>，等 Yazi 退出后再执行 <code>cd</code>。用 <code>y</code> 启动，按 <code>q</code> 退出会切换目录，按 <code>Q</code> 退出则留在原地。</p>
+<p>用快速上手页里的 <code>y</code> 函数，它给 <code>yazi</code> 传 <code>--cwd-file</code>，等 Yazi 退出后再执行 <code>cd</code>。用 <code>y</code> 启动，按 <code>q</code> 退出会切换目录，按 <code>Q</code> 退出则留在<span class="nobr">原地。</span></p>
 <h3 id="pdf视频或-svg-为什么预览不出来">PDF、视频或 SVG 为什么预览不出来？</h3>
-<p>每种预览各靠一个工具，PDF 要 <code>poppler</code>，视频缩略图要 <code>ffmpeg-full</code>，SVG 要 <code>resvg</code>，HEIC 和字体要 <code>imagemagick-full</code>，缺哪个装哪个，已经装了的就升到最新版再试。</p>
+<p>每种预览各靠一个工具，PDF 要 <code>poppler</code>，视频缩略图要 <code>ffmpeg-full</code>，SVG 要 <code>resvg</code>，HEIC 和字体要 <code>imagemagick-full</code>，缺哪个装哪个，已经装了的就升到最新版<span class="nobr">再试。</span></p>
 <h3 id="mac-上-yazi-的配置放在哪里">Mac 上 Yazi 的配置放在哪里？</h3>
 <p>在 <code>~/.config/yazi/</code> 下，分成 <code>yazi.toml</code>、<code>keymap.toml</code> 和 <code>theme.toml</code> 三个文件，想换一个目录就设置 <code>YAZI_CONFIG_HOME</code>。</p>
 <h3 id="升级之后-yazi-打不开了该查什么">升级之后 Yazi 打不开了，该查什么？</h3>
-<p>先看三个配置文件开头有没有 <code>$schema = ...</code> 这一行，Yazi 26.5.6 起不认这个键，把它改成 <code>#:schema https://...</code> 注释就好。</p>
+<p>先看三个配置文件开头有没有 <code>$schema = ...</code> 这一行，Yazi 26.5.6 起不认这个键，把它改成 <code>#:schema https://...</code> 注释<span class="nobr">就好。</span></p>
 <h3 id="kaku-会帮我装-yazi-吗">Kaku 会帮我装 Yazi 吗？</h3>
-<p>在交互式 shell 里跑 <code>kaku init</code>，它会问你要不要用 Homebrew 装，也可以自己 <code>brew install yazi</code>。装好后 Kaku 会配好 <code>y</code> 函数、<code>Cmd + Shift + Y</code>，以及跟着 Kaku Dark 或 Kaku Light 走的主题。</p>
+<p>在交互式 shell 里跑 <code>kaku init</code>，它会问你要不要用 Homebrew 装，也可以自己 <code>brew install yazi</code>。装好后 Kaku 会配好 <code>y</code> 函数、<code>Cmd + Shift + Y</code>，以及跟着 Kaku Dark 或 Kaku Light 走的<span class="nobr">主题。</span></p>
           <aside class="blog-cta"><img class="blog-cta-icon" src="/img/kaku-mark.png" width="40" height="40" alt=""><p>Kaku 是一个免费开源的 Mac 终端。</p><a class="btn btn-primary" href="/zh/docs">安装 Kaku</a></aside>
           <nav class="blog-related" aria-label="继续阅读"><h2 class="blog-related-title">继续阅读</h2><ul class="blog-related-list"><li><a href="/zh/blog/zsh-without-oh-my-zsh"><span class="blog-related-cat">Shell 与命令行工具</span><span class="blog-related-name">不用 Oh My Zsh，把 zsh 配得又快又好用</span><span class="blog-related-meta"><time datetime="2026-09-27">2026年9月27日</time> · 约 4 分钟</span></a></li><li><a href="/zh/blog/fzf-zsh-mac"><span class="blog-related-cat">Shell 与命令行工具</span><span class="blog-related-name">在 Mac 上给 zsh 配好 fzf，搜历史、找文件、跳目录</span><span class="blog-related-meta"><time datetime="2026-10-14">2026年10月14日</time> · 约 7 分钟</span></a></li><li><a href="/zh/blog/ssh-config-mac"><span class="blog-related-cat">Shell 与命令行工具</span><span class="blog-related-name">在 Mac 上配置 SSH config</span><span class="blog-related-meta"><time datetime="2026-10-18">2026年10月18日</time> · 约 9 分钟</span></a></li></ul></nav>
         </article>

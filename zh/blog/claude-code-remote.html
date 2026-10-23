@@ -141,7 +141,7 @@
       <div class="wide">
         <article class="doc-content blog-article">
           <figure class="blog-cover" aria-hidden="true"><img src="/img/blog/cards/claude-code-remote.webp" width="1600" height="900" alt="" fetchpriority="high"></figure>
-<p>人不在跑着 Claude Code 的那台 Mac 旁边时，想接着干活大概有三种办法，Anthropic 的 Remote Control 让你在 claude.ai/code 或手机上的 Claude App 里操作 Mac 上的会话，云端会话干脆把活挪到 Anthropic 的机器上，家里什么都不用开着，<code>kaku remote</code> 则是在另一台电脑的浏览器里打开 Mac 的终端，所有标签和分屏都在。内容按 2026 年 10 月的 Claude Code 2.1.302 核对过。</p>
+<p>人不在跑着 Claude Code 的那台 Mac 旁边时，想接着干活大概有三种办法，Anthropic 的 Remote Control 让你在 claude.ai/code 或手机上的 Claude App 里操作 Mac 上的会话，云端会话干脆把活挪到 Anthropic 的机器上，家里什么都不用开着，<code>kaku remote</code> 则是在另一台电脑的浏览器里打开 Mac 的终端，所有标签和分屏都在。内容按 2026 年 10 月的 Claude Code 2.1.302 核<span class="nobr">对过。</span></p>
 <h2 id="先看结论">先看结论</h2>
 <table>
 <thead>
@@ -186,44 +186,44 @@
 </tbody>
 </table>
 <h2 id="remote-control手机上接着同一个会话">Remote Control，手机上接着同一个会话</h2>
-<p>Remote Control 让 Claude Code 继续在你的 Mac 上跑，用的还是你的文件、工具和凭据，你只是在 claude.ai/code 或 Claude 手机 App 里看它、回它，开会话时把它打开就行：</p>
+<p>Remote Control 让 Claude Code 继续在你的 Mac 上跑，用的还是你的文件、工具和凭据，你只是在 claude.ai/code 或 Claude 手机 App 里看它、回它，开会话时把它打开<span class="nobr">就行：</span></p>
 <pre><code class="language-bash">claude --remote-control</code></pre>
-<p>也可以在项目里跑 <code>claude remote-control</code>，之后从 claude.ai/code 或 App 里新开的会话都会跑在这台 Mac 上，<code>claude remote-control --continue</code> 会接回这个目录上次开的那个。它要求 Claude 付费套餐，用 claude.ai 账号登录，API key 不支持，而且你想连多久，Mac 就得醒着联网多久。</p>
-<p>活儿离不开这台机器的时候用它最合适，比如要连本地数据库、要走内网、构建只能在这台机器上跑，你在手机上要做的只是批准一步，或者发下一条指令。</p>
+<p>也可以在项目里跑 <code>claude remote-control</code>，之后从 claude.ai/code 或 App 里新开的会话都会跑在这台 Mac 上，<code>claude remote-control --continue</code> 会接回这个目录上次开的那个。它要求 Claude 付费套餐，用 claude.ai 账号登录，API key 不支持，而且你想连多久，Mac 就得醒着联网<span class="nobr">多久。</span></p>
+<p>活儿离不开这台机器的时候用它最合适，比如要连本地数据库、要走内网、构建只能在这台机器上跑，你在手机上要做的只是批准一步，或者发下一条<span class="nobr">指令。</span></p>
 <h2 id="云端会话什么都不用开着">云端会话，什么都不用开着</h2>
-<p>云端会话把 Claude Code 跑在 Anthropic 提供的虚拟机上，一般是对着一个 GitHub 仓库干活，在没有 git remote 的仓库里，或者没装 Claude GitHub App 的仓库里跑 <code>claude --cloud</code>，它会把本地仓库打包传上去，不过开 pull request 还是要 GitHub，可以从 claude.ai/code 或 App 里开，也可以在终端里开：</p>
+<p>云端会话把 Claude Code 跑在 Anthropic 提供的虚拟机上，一般是对着一个 GitHub 仓库干活，在没有 git remote 的仓库里，或者没装 Claude GitHub App 的仓库里跑 <code>claude --cloud</code>，它会把本地仓库打包传上去，不过开 pull request 还是要 GitHub，可以从 claude.ai/code 或 App 里开，也可以在终端<span class="nobr">里开：</span></p>
 <pre><code class="language-bash">claude --cloud <span class="tok-s">"fix the flaky login test"</span></code></pre>
-<p>因为它不跑在你的 Mac 上，合上笔记本它也不会停，想回到本地接着做，<code>claude --teleport</code> 会把云端会话拉回你的终端。代价在环境上，会话能看到的是仓库，不是你的机器，只在本地才有的东西它都碰不到。</p>
+<p>因为它不跑在你的 Mac 上，合上笔记本它也不会停，想回到本地接着做，<code>claude --teleport</code> 会把云端会话拉回你的终端。代价在环境上，会话能看到的是仓库，不是你的机器，只在本地才有的东西它都碰<span class="nobr">不到。</span></p>
 <h2 id="kaku-remote浏览器里的整个终端">kaku remote，浏览器里的整个终端</h2>
-<p>上面两种看到的都是 Claude 的对话，可有时候你需要的是终端里的其他东西，比如旁边分屏里开发服务器的日志、另一个标签里的 Codex，或者一个随手查东西的 shell，<code>kaku remote</code> 则是直接在另一台电脑的浏览器里打开终端本身。</p>
+<p>上面两种看到的都是 Claude 的对话，可有时候你需要的是终端里的其他东西，比如旁边分屏里开发服务器的日志、另一个标签里的 Codex，或者一个随手查东西的 shell，<code>kaku remote</code> 则是直接在另一台电脑的浏览器里打开终端<span class="nobr">本身。</span></p>
 <figure class="blog-diagram"><picture><source media="(max-width: 640px)" srcset="/img/blog/remote-access-architecture-mobile.webp" width="340" height="388"><img src="/img/blog/remote-access-architecture.webp" width="657" height="231" loading="lazy" alt="另一台电脑上的浏览器经过中继连到你 Mac 上的 Kaku，你输入的和看到的内容从浏览器到 Kaku 全程加密"></picture><figcaption>中继只负责转发连接，读不到里面的内容。</figcaption></figure>
 
-<p>打开远程访问并配对一个浏览器：</p>
+<p>打开远程访问并配对一个浏<span class="nobr">览器：</span></p>
 <pre><code class="language-bash">kaku remote</code></pre>
-<p>Kaku 会先问一句再打开远程访问，然后给出一个配对链接，在要配对的那个浏览器里打开它，链接只能用一次，10 分钟后失效，所以每台设备都要重新跑一次 <code>kaku remote</code>，配对之后把页面加进书签，下次直接回来，不用新链接。</p>
-<p>你输入的和看到的内容在这个浏览器和 Kaku 之间是加密的，中间的中继只负责转发，每当有新的浏览器配对，Kaku 都会在 Mac 上发一条通知，不是你配的，你也能马上发现，访问管理都在 Mac 这边：</p>
+<p>Kaku 会先问一句再打开远程访问，然后给出一个配对链接，在要配对的那个浏览器里打开它，链接只能用一次，10 分钟后失效，所以每台设备都要重新跑一次 <code>kaku remote</code>，配对之后把页面加进书签，下次直接回来，不用新<span class="nobr">链接。</span></p>
+<p>你输入的和看到的内容在这个浏览器和 Kaku 之间是加密的，中间的中继只负责转发，每当有新的浏览器配对，Kaku 都会在 Mac 上发一条通知，不是你配的，你也能马上发现，访问管理都在 Mac <span class="nobr">这边：</span></p>
 <pre><code class="language-bash">kaku remote devices        <span class="tok-c"># 列出已配对的浏览器
 </span>kaku remote revoke &lt;id&gt;    <span class="tok-c"># 移除一个，它打开的会话几秒内结束
 </span>kaku remote off            <span class="tok-c"># 关掉远程访问
 </span>kaku remote --reset        <span class="tok-c"># 移除所有已配对的浏览器
 </span></code></pre>
-<p>这个页面目前是给桌面浏览器做的，和 Remote Control 一样，它连的是你真正的那台 Mac，所以 Mac 要醒着，Kaku 要开着。</p>
+<p>这个页面目前是给桌面浏览器做的，和 Remote Control 一样，它连的是你真正的那台 Mac，所以 Mac 要醒着，Kaku 要<span class="nobr">开着。</span></p>
 <h2 id="该用哪个">该用哪个</h2>
 <ul>
 <li><strong>在手机上批准一步：</strong> Remote Control。</li>
-<li><strong>合上笔记本也要继续跑的活：</strong> 云端会话。</li>
+<li><strong>合上笔记本也要继续跑的活：</strong> 云端<span class="nobr">会话。</span></li>
 <li><strong>在另一台电脑上用这台 Mac 的终端，agent 和其他东西都要：</strong> <code>kaku remote</code>。</li>
 </ul>
-<p>它们也能搭着用，在 Kaku 里用 <code>claude --remote-control</code> 开的会话，白天在手机上回几句，晚上换到另一张桌子前，在浏览器里接着用整个终端。</p>
+<p>它们也能搭着用，在 Kaku 里用 <code>claude --remote-control</code> 开的会话，白天在手机上回几句，晚上换到另一张桌子前，在浏览器里接着用整个<span class="nobr">终端。</span></p>
 <h2 id="常见问题">常见问题</h2>
 <h3 id="能在手机上用-claude-code-吗">能在手机上用 Claude Code 吗？</h3>
-<p>可以，在 Mac 上用 <code>claude --remote-control</code> 开会话，再到 Claude App 或 claude.ai/code 里打开它，云端会话也能在 App 里开和跟进。</p>
+<p>可以，在 Mac 上用 <code>claude --remote-control</code> 开会话，再到 Claude App 或 claude.ai/code 里打开它，云端会话也能在 App 里开和<span class="nobr">跟进。</span></p>
 <h3 id="合上笔记本之后-claude-code-还会跑吗">合上笔记本之后 Claude Code 还会跑吗？</h3>
-<p>本地会话包括开了 Remote Control 的，都会在 Mac 睡眠时停下，云端会话跑在 Anthropic 的机器上，会继续跑。</p>
+<p>本地会话包括开了 Remote Control 的，都会在 Mac 睡眠时停下，云端会话跑在 Anthropic 的机器上，会继<span class="nobr">续跑。</span></p>
 <h3 id="能不能直接-ssh-到-mac-上跑-claude-code">能不能直接 SSH 到 Mac 上跑 Claude Code？</h3>
-<p>可以，前提是你配好了 SSH，也有办法连到这台 Mac，最好在 tmux 里跑，断线了会话还在，要让<a href="/zh/blog/claude-code-notifications">通知</a>通过 tmux passthrough 回到你连过去的终端，发送端得给序列加上包装，tmux 得允许它通过，外层终端也得支持对应的通知通道。</p>
+<p>可以，前提是你配好了 SSH，也有办法连到这台 Mac，最好在 tmux 里跑，断线了会话还在，要让<a href="/zh/blog/claude-code-notifications">通知</a>通过 tmux passthrough 回到你连过去的终端，发送端得给序列加上包装，tmux 得允许它通过，外层终端也得支持对应的通知<span class="nobr">通道。</span></p>
 <h3 id="kaku-remote-能用-codex-和别的命令行工具吗">kaku remote 能用 Codex 和别的命令行工具吗？</h3>
-<p>能，它显示的是终端本身，Kaku 标签里不管跑着 Claude Code、Codex、编辑器还是 shell，浏览器里就是什么。</p>
+<p>能，它显示的是终端本身，Kaku 标签里不管跑着 Claude Code、Codex、编辑器还是 shell，浏览器里就是<span class="nobr">什么。</span></p>
           <aside class="blog-cta"><img class="blog-cta-icon" src="/img/kaku-mark.png" width="40" height="40" alt=""><p>Kaku 是一个免费开源的 Mac 终端。</p><a class="btn btn-primary" href="/zh/docs">安装 Kaku</a></aside>
           <nav class="blog-related" aria-label="继续阅读"><h2 class="blog-related-title">继续阅读</h2><ul class="blog-related-list"><li><a href="/zh/blog/install-claude-code-mac"><span class="blog-related-cat">Claude Code 与 Codex</span><span class="blog-related-name">在 Mac 上安装和更新 Claude Code</span><span class="blog-related-meta"><time datetime="2026-10-02">2026年10月2日</time> · 约 6 分钟</span></a></li><li><a href="/zh/blog/codex-cli-setup"><span class="blog-related-cat">Claude Code 与 Codex</span><span class="blog-related-name">在 Mac 上配好 Codex CLI：安装、登录和配置</span><span class="blog-related-meta"><time datetime="2026-09-29">2026年9月29日</time> · 约 5 分钟</span></a></li><li><a href="/zh/blog/claude-code-agent-teams"><span class="blog-related-cat">Claude Code 与 Codex</span><span class="blog-related-name">Claude Code agent teams 怎么打开，在 Kaku 里显示在哪</span><span class="blog-related-meta"><time datetime="2026-09-26">2026年9月26日</time> · 约 10 分钟</span></a></li></ul></nav>
         </article>

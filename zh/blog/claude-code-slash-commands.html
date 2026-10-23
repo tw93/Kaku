@@ -133,9 +133,9 @@
       <div class="wide">
         <article class="doc-content blog-article">
           <figure class="blog-cover" aria-hidden="true"><img src="/img/blog/cards/claude-code-slash-commands.webp" width="1600" height="900" alt="" fetchpriority="high"></figure>
-<p>在 Claude Code 会话里输入 <code>/</code> 就能看到所有命令，接着打字母可以过滤。日常最常用的是管上下文的 <code>/clear</code> 和 <code>/compact</code>，管模型的 <code>/model</code> 和 <code>/effort</code>，管会话的 <code>/resume</code> 和 <code>/rewind</code>，看费用的 <code>/usage</code>，管规则的 <code>/permissions</code> 和 <code>/hooks</code>，管 <code>CLAUDE.md</code> 的 <code>/init</code> 和 <code>/memory</code>，以及管服务器的 <code>/mcp</code>。想加自己的命令，就把一个 Markdown 文件存成项目里的 <code>.claude/commands/&lt;name&gt;.md</code>，或者所有项目通用的 <code>~/.claude/commands/&lt;name&gt;.md</code>，Claude Code 会把它变成 <code>/&lt;name&gt;</code>。自定义命令后来已经并进了 skill，新写的东西更适合用 skill 的格式。</p>
+<p>在 Claude Code 会话里输入 <code>/</code> 就能看到所有命令，接着打字母可以过滤。日常最常用的是管上下文的 <code>/clear</code> 和 <code>/compact</code>，管模型的 <code>/model</code> 和 <code>/effort</code>，管会话的 <code>/resume</code> 和 <code>/rewind</code>，看费用的 <code>/usage</code>，管规则的 <code>/permissions</code> 和 <code>/hooks</code>，管 <code>CLAUDE.md</code> 的 <code>/init</code> 和 <code>/memory</code>，以及管服务器的 <code>/mcp</code>。想加自己的命令，就把一个 Markdown 文件存成项目里的 <code>.claude/commands/&lt;name&gt;.md</code>，或者所有项目通用的 <code>~/.claude/commands/&lt;name&gt;.md</code>，Claude Code 会把它变成 <code>/&lt;name&gt;</code>。自定义命令后来已经并进了 skill，新写的东西更适合用 skill 的<span class="nobr">格式。</span></p>
 <h2 id="值得记住的命令">值得记住的命令</h2>
-<p>下面这份清单对照的是<a href="https://code.claude.com/docs/en/commands" target="_blank" rel="noopener noreferrer">命令参考</a>（2026 年 10 月 19 日读的）。参考页有一百多条，不是每个命令对每个用户都会出现，取决于平台、套餐和环境。命令只有在放在消息开头时才会运行，后面的文字成为它的参数。</p>
+<p>下面这份清单对照的是<a href="https://code.claude.com/docs/en/commands" target="_blank" rel="noopener noreferrer">命令参考</a>（2026 年 10 月 19 日读的）。参考页有一百多条，不是每个命令对每个用户都会出现，取决于平台、套餐和环境。命令只有在放在消息开头时才会运行，后面的文字成为它的<span class="nobr">参数。</span></p>
 <table>
 <thead>
 <tr>
@@ -226,9 +226,9 @@
 </tr>
 </tbody>
 </table>
-<p>其中有两个命令的含义随时间变过。<code>/agents</code> 以前会打开一个交互式管理界面，当前版本只打印那段提示，<code>/cost</code> 现在只是 <code>/usage</code> 的别名，所以如果老教程里的界面你看不到，先查参考页，别急着以为出了问题。</p>
+<p>其中有两个命令的含义随时间变过。<code>/agents</code> 以前会打开一个交互式管理界面，当前版本只打印那段提示，<code>/cost</code> 现在只是 <code>/usage</code> 的别名，所以如果老教程里的界面你看不到，先查参考页，别急着以为出了<span class="nobr">问题。</span></p>
 <h2 id="搭配命令的快捷键">搭配命令的快捷键</h2>
-<p><a href="https://code.claude.com/docs/en/interactive-mode" target="_blank" rel="noopener noreferrer">交互模式页面</a>列出了所有快捷键，下面这些能省掉一次打命令：</p>
+<p><a href="https://code.claude.com/docs/en/interactive-mode" target="_blank" rel="noopener noreferrer">交互模式页面</a>列出了所有快捷键，下面这些能省掉一次打<span class="nobr">命令：</span></p>
 <table>
 <thead>
 <tr>
@@ -281,8 +281,8 @@
 </table>
 <p><code>Option+P</code> 要求 Option 键以 Meta 的形式到达终端，Kaku 默认让左 Option 发送 Meta，右 Option 输入组合字符，所以在 Kaku 里不用改任何设置就能用。长提示词想分行，在 Kaku 里按 <code>Shift+Enter</code> 或 <code>Cmd+Enter</code>。</p>
 <h2 id="用-markdown-文件写自定义命令">用 Markdown 文件写自定义命令</h2>
-<p>文档明确说自定义命令已经并进 skill，<code>.claude/commands/deploy.md</code> 这个文件和 <code>.claude/skills/deploy/SKILL.md</code> 这个 skill 都会创建 <code>/deploy</code>，行为也一样，已有的命令文件继续可用。skill 多了放辅助文件的目录和对谁能调用的细致控制，所以新东西用 skill，见 <a href="/zh/blog/claude-code-skills">Claude Code skills</a>，不过只想存一段提示词的话，命令文件仍然是最短的办法。</p>
-<p>名字怎么来：</p>
+<p>文档明确说自定义命令已经并进 skill，<code>.claude/commands/deploy.md</code> 这个文件和 <code>.claude/skills/deploy/SKILL.md</code> 这个 skill 都会创建 <code>/deploy</code>，行为也一样，已有的命令文件继续可用。skill 多了放辅助文件的目录和对谁能调用的细致控制，所以新东西用 skill，见 <a href="/zh/blog/claude-code-skills">Claude Code skills</a>，不过只想存一段提示词的话，命令文件仍然是最短的<span class="nobr">办法。</span></p>
+<p>名字怎<span class="nobr">么来：</span></p>
 <table>
 <thead>
 <tr>
@@ -305,20 +305,20 @@
 </tr>
 </tbody>
 </table>
-<p>作用范围跟着位置走，仓库里 <code>.claude/</code> 下的文件对这个仓库的会话生效，提交进去团队也能用，<code>~/.claude/</code> 下的文件对这台机器上你所有的项目生效，skill 和命令文件重名时 skill 优先。</p>
-<p>命令文件接受和 skill 一样的 frontmatter，只是不含 <code>name</code> 和 <code>paths</code>，最常用的字段有这些：</p>
+<p>作用范围跟着位置走，仓库里 <code>.claude/</code> 下的文件对这个仓库的会话生效，提交进去团队也能用，<code>~/.claude/</code> 下的文件对这台机器上你所有的项目生效，skill 和命令文件重名时 skill <span class="nobr">优先。</span></p>
+<p>命令文件接受和 skill 一样的 frontmatter，只是不含 <code>name</code> 和 <code>paths</code>，最常用的字段有<span class="nobr">这些：</span></p>
 <ul>
-<li><code>description</code> 说明它做什么，显示在 <code>/</code> 菜单里。</li>
+<li><code>description</code> 说明它做什么，显示在 <code>/</code> 菜<span class="nobr">单里。</span></li>
 <li><code>argument-hint</code> 在自动补全时提示参数，比如 <code>[issue-number]</code>。</li>
-<li><code>allowed-tools</code> 让 Claude 在命令运行期间不用询问就能用列出的工具。</li>
-<li><code>disable-model-invocation: true</code> 阻止 Claude 自己调用它，适合有副作用的操作。</li>
+<li><code>allowed-tools</code> 让 Claude 在命令运行期间不用询问就能用列出的<span class="nobr">工具。</span></li>
+<li><code>disable-model-invocation: true</code> 阻止 Claude 自己调用它，适合有副作用的<span class="nobr">操作。</span></li>
 </ul>
 <p>skill 文档对 <code>allowed-tools</code> 还有两点提醒，命令文件同样适用。一是授权只在执行这条命令的那一轮有效，你发出下一条消息就失效，命令正文倒会一直留在上下文里。二是这个字段不受工作区信任的约束，提交在仓库里的命令文件可以给自己预先批准工具，所以 clone 下来别人的项目，先看看 <code>.claude/commands/</code> 里各个文件的 <code>allowed-tools</code> 写了什么，再在里面跑 Claude Code。</p>
 <h2 id="参数">参数</h2>
-<p>命令名后面写的内容会替换文件里的 <code>$ARGUMENTS</code>。要按位置取，<code>$ARGUMENTS[0]</code> 或更短的 <code>$0</code> 是第一个参数，<code>$1</code> 是第二个，多个词的值要用引号括起来，所以 <code>/migrate "hello world" second</code> 里 <code>$0</code> 就是 <code>hello world</code>。文件里如果一个占位符都没有，Claude Code 会在末尾追加 <code>ARGUMENTS: &lt;你的输入&gt;</code>，保证 Claude 仍然看到你输入了什么。</p>
-<p>写成感叹号加反引号命令的一行，比如 <code>!`git diff HEAD`</code>，会在 Claude 看到文件之前先运行，并替换成命令的输出，这样模型拿到的是实时数据，不用去猜。</p>
+<p>命令名后面写的内容会替换文件里的 <code>$ARGUMENTS</code>。要按位置取，<code>$ARGUMENTS[0]</code> 或更短的 <code>$0</code> 是第一个参数，<code>$1</code> 是第二个，多个词的值要用引号括起来，所以 <code>/migrate "hello world" second</code> 里 <code>$0</code> 就是 <code>hello world</code>。文件里如果一个占位符都没有，Claude Code 会在末尾追加 <code>ARGUMENTS: &lt;你的输入&gt;</code>，保证 Claude 仍然看到你输入了<span class="nobr">什么。</span></p>
+<p>写成感叹号加反引号命令的一行，比如 <code>!`git diff HEAD`</code>，会在 Claude 看到文件之前先运行，并替换成命令的输出，这样模型拿到的是实时数据，不用<span class="nobr">去猜。</span></p>
 <h2 id="三个可以直接抄的命令">三个可以直接抄的命令</h2>
-<p><code>.claude/commands/fix-issue.md</code>，用 <code>/fix-issue 123</code> 运行：</p>
+<p><code>.claude/commands/fix-issue.md</code>，用 <code>/fix-issue 123</code> <span class="nobr">运行：</span></p>
 <pre><code class="language-markdown">---
 description: Fix a GitHub issue by number
 argument-hint: [issue-number]
@@ -328,7 +328,7 @@ disable-model-invocation: true
 
 Fix GitHub issue $ARGUMENTS. Start with <span class="tok-s">`gh issue view $ARGUMENTS`</span>, find the
 cause, make the smallest fix and run the tests.</code></pre>
-<p><code>.claude/commands/summarize-changes.md</code>，用 <code>/summarize-changes</code> 运行：</p>
+<p><code>.claude/commands/summarize-changes.md</code>，用 <code>/summarize-changes</code> <span class="nobr">运行：</span></p>
 <pre><code class="language-markdown">---
 description: Summarize uncommitted changes and flag risks
 ---
@@ -342,7 +342,7 @@ description: Summarize uncommitted changes and flag risks
 Summarize the changes above in two or three bullet points, then list risks such as
 missing error handling, hardcoded values or tests that need updating. If the diff
 is empty, say there are no uncommitted changes.</code></pre>
-<p><code>~/.claude/commands/migrate.md</code>，个人命令，用 <code>/migrate SearchBar JavaScript TypeScript</code> 运行：</p>
+<p><code>~/.claude/commands/migrate.md</code>，个人命令，用 <code>/migrate SearchBar JavaScript TypeScript</code> <span class="nobr">运行：</span></p>
 <pre><code class="language-markdown">---
 description: Migrate a component between frameworks
 argument-hint: [component] [from] [to]
@@ -350,14 +350,14 @@ argument-hint: [component] [from] [to]
 
 Migrate the $0 component from $1 to $2. Keep behavior identical and list any
 places where the two differ.</code></pre>
-<p>每个都跑一遍看结果。如果命令没出现在 <code>/</code> 菜单里，检查文件名，以及开头的 <code>---</code> 是不是文件的第一行，只有那种情况下 Claude Code 才会读 frontmatter，认不出的字段名会被忽略而且不报错。通过 <code>--add-dir</code> 加进来的目录里，<code>.claude/commands/</code> 下的文件不会被监视，改了要重启会话。</p>
+<p>每个都跑一遍看结果。如果命令没出现在 <code>/</code> 菜单里，检查文件名，以及开头的 <code>---</code> 是不是文件的第一行，只有那种情况下 Claude Code 才会读 frontmatter，认不出的字段名会被忽略而且不报错。通过 <code>--add-dir</code> 加进来的目录里，<code>.claude/commands/</code> 下的文件不会被监视，改了要重启<span class="nobr">会话。</span></p>
 <h2 id="常见问题">常见问题</h2>
 <h3 id="自定义斜杠命令放在哪">自定义斜杠命令放在哪</h3>
-<p>项目的放在 <code>.claude/commands/</code>，所有项目通用的放在 <code>~/.claude/commands/</code>，<code>.claude/skills/</code> 下的 skill 目录创建的是同一种命令，也是文档更推荐的格式。</p>
+<p>项目的放在 <code>.claude/commands/</code>，所有项目通用的放在 <code>~/.claude/commands/</code>，<code>.claude/skills/</code> 下的 skill 目录创建的是同一种命令，也是文档更推荐的<span class="nobr">格式。</span></p>
 <h3 id="斜杠命令和-skill-现在是一回事吗">斜杠命令和 skill 现在是一回事吗</h3>
-<p>大体上是，两者都创建一个 <code>/name</code> 命令，行为一样，skill 多了辅助文件和调用控制，同名时 skill 优先于命令文件。</p>
+<p>大体上是，两者都创建一个 <code>/name</code> 命令，行为一样，skill 多了辅助文件和调用控制，同名时 skill 优先于命令<span class="nobr">文件。</span></p>
 <h3 id="怎么看到所有命令">怎么看到所有命令</h3>
-<p>输入 <code>/</code> 再用字母过滤，或者运行 <code>/help</code>，有些命令在你输入完整名字之前不会出现在菜单里。</p>
+<p>输入 <code>/</code> 再用字母过滤，或者运行 <code>/help</code>，有些命令在你输入完整名字之前不会出现在菜<span class="nobr">单里。</span></p>
           <aside class="blog-cta"><img class="blog-cta-icon" src="/img/kaku-mark.png" width="40" height="40" alt=""><p>Kaku 是一个免费开源的 Mac 终端。</p><a class="btn btn-primary" href="/zh/docs">安装 Kaku</a></aside>
           <nav class="blog-related" aria-label="继续阅读"><h2 class="blog-related-title">继续阅读</h2><ul class="blog-related-list"><li><a href="/zh/blog/install-claude-code-mac"><span class="blog-related-cat">Claude Code 与 Codex</span><span class="blog-related-name">在 Mac 上安装和更新 Claude Code</span><span class="blog-related-meta"><time datetime="2026-10-02">2026年10月2日</time> · 约 6 分钟</span></a></li><li><a href="/zh/blog/claude-code-permissions"><span class="blog-related-cat">Claude Code 与 Codex</span><span class="blog-related-name">Claude Code 权限：模式、规则和跳过确认</span><span class="blog-related-meta"><time datetime="2026-10-21">2026年10月21日</time> · 约 8 分钟</span></a></li><li><a href="/zh/blog/claude-code-cost"><span class="blog-related-cat">Claude Code 与 Codex</span><span class="blog-related-name">Claude Code 费用：计费方式、/usage、ccusage 和省钱做法</span><span class="blog-related-meta"><time datetime="2026-10-23">2026年10月23日</time> · 约 8 分钟</span></a></li></ul></nav>
         </article>

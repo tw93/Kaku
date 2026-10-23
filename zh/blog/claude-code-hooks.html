@@ -149,9 +149,9 @@
       <div class="wide">
         <article class="doc-content blog-article">
           <figure class="blog-cover" aria-hidden="true"><img src="/img/blog/cards/claude-code-hooks.webp" width="1600" height="900" alt="" fetchpriority="high"></figure>
-<p>Claude Code 的 hook 是一段 shell 命令，会话里某个事件触发时它会跑，配置写在 settings JSON 的 <code>hooks</code> 对象里。真正用得上的是 PreToolUse，它可以在工具调用之前拦住或放行，PostToolUse 在工具成功之后跑，Notification 在 Claude Code 发出通知时跑，Stop 在 Claude 回答结束时跑。退出码、matcher 和 JSON 字段都以 <a href="https://code.claude.com/docs/en/hooks-guide" target="_blank" rel="noopener noreferrer">hooks 指南</a> 和 <a href="https://code.claude.com/docs/en/hooks" target="_blank" rel="noopener noreferrer">hooks 参考</a> 为准，2026 年 10 月核对过。</p>
+<p>Claude Code 的 hook 是一段 shell 命令，会话里某个事件触发时它会跑，配置写在 settings JSON 的 <code>hooks</code> 对象里。真正用得上的是 PreToolUse，它可以在工具调用之前拦住或放行，PostToolUse 在工具成功之后跑，Notification 在 Claude Code 发出通知时跑，Stop 在 Claude 回答结束时跑。退出码、matcher 和 JSON 字段都以 <a href="https://code.claude.com/docs/en/hooks-guide" target="_blank" rel="noopener noreferrer">hooks 指南</a> 和 <a href="https://code.claude.com/docs/en/hooks" target="_blank" rel="noopener noreferrer">hooks 参考</a> 为准，2026 年 10 月核<span class="nobr">对过。</span></p>
 <h2 id="hook-放在哪">hook 放在哪</h2>
-<p>一个 hook 要写明事件、matcher 和 handler，<code>"type": "command"</code> 会跑一条 shell 命令，事件的 JSON 从 stdin 送进来。</p>
+<p>一个 hook 要写明事件、matcher 和 handler，<code>"type": "command"</code> 会跑一条 shell 命令，事件的 JSON 从 stdin 送<span class="nobr">进来。</span></p>
 <table>
 <thead>
 <tr>
@@ -178,9 +178,9 @@
 </tr>
 </tbody>
 </table>
-<p>用户、项目和本地的 hook 会加在一起跑，托管设置里的 hook 也照样跑，只有 <code>disableAllHooks</code> 同样写在托管设置里才会停。只关这一次：</p>
+<p>用户、项目和本地的 hook 会加在一起跑，托管设置里的 hook 也照样跑，只有 <code>disableAllHooks</code> 同样写在托管设置里才会停。只关这<span class="nobr">一次：</span></p>
 <pre><code class="language-bash">claude --settings <span class="tok-s">'{"disableAllHooks": true}'</span></code></pre>
-<p><code>/hooks</code> 会把 hook 列出来，只读，标成 user、project、local 或 plugin，保存了却找不到的话，去看末尾多出来的逗号，或者文件里的注释，settings JSON 这两样都不认。</p>
+<p><code>/hooks</code> 会把 hook 列出来，只读，标成 user、project、local 或 plugin，保存了却找不到的话，去看末尾多出来的逗号，或者文件里的注释，settings JSON 这两样都<span class="nobr">不认。</span></p>
 <h2 id="真正用得上的事件">真正用得上的事件</h2>
 <figure class="blog-diagram"><picture><source media="(max-width: 640px)" srcset="/img/blog/claude-code-hooks-lifecycle-mobile.webp" width="340" height="390"><img src="/img/blog/claude-code-hooks-lifecycle.webp" width="831" height="151" loading="lazy" alt="先是 PreToolUse，然后是工具调用和 PostToolUse，Claude 回答完时是 Stop"></picture><figcaption>一轮回答里每调用一次工具，PreToolUse、工具本身和 PostToolUse 就走一遍，Stop 只在回答结束时触发一次，Notification 则在 Claude Code 需要你的时候触发。</figcaption></figure>
 
@@ -222,7 +222,7 @@
 <p>你要是中途把这一轮打断，<code>Stop</code> 不会出声，API 出错时走的是 <code>StopFailure</code>，不是 <code>Stop</code>。</p>
 <p><code>PreToolUse</code> 和 <code>PostToolUse</code> 按工具名匹配，<code>Edit|Write</code> 和 <code>Edit, Write</code> 是同一份区分大小写的列表。matcher 里一旦出现字母、数字、<code>_</code>、<code>-</code>、空格、逗号和 <code>|</code> 以外的字符，整段 matcher 就当成正则，不会自动加上 <code>^</code> 和 <code>$</code>，所以 <code>Edit.*</code> 也会匹配到 <code>NotebookEdit</code>。<code>Stop</code> 忽略 matcher，留空、写成 <code>"*"</code>，或者根本不写，每次都会触发。Edit 和 Write 传来绝对路径 <code>tool_input.file_path</code>，Bash 传来 <code>tool_input.command</code>。</p>
 <h2 id="改完文件再格式化">改完文件再格式化</h2>
-<p><code>PostToolUse</code> 要等工具调用成功才跑，文件这时候已经写好了，下面这个 Prettier hook 放在项目的 <code>.claude/settings.json</code> 里，把刚改的文件格式化：</p>
+<p><code>PostToolUse</code> 要等工具调用成功才跑，文件这时候已经写好了，下面这个 Prettier hook 放在项目的 <code>.claude/settings.json</code> 里，把刚改的文件格<span class="nobr">式化：</span></p>
 <pre><code class="language-json">{
   "hooks": {
     "PostToolUse": [
@@ -238,11 +238,11 @@
     ]
   }
 }</code></pre>
-<p><code>jq</code> 负责读出路径，找不到命令时会报 <code>jq: command not found</code>，用 <code>brew install jq</code> 装上，退出码 0 的输出不会进对话。</p>
+<p><code>jq</code> 负责读出路径，找不到命令时会报 <code>jq: command not found</code>，用 <code>brew install jq</code> 装上，退出码 0 的输出不会进<span class="nobr">对话。</span></p>
 <p>用 <code>Bash</code> 改写文件不会触发 <code>Edit|Write</code>，想让 hook 不管文件是谁改的都能看到，指南里用的是 <code>FileChanged</code>。</p>
 <h2 id="命令跑之前拦住">命令跑之前拦住</h2>
-<p><code>PreToolUse</code> 在参数已经齐了、工具还没跑、权限模式也还没检查时跑一次，退出码 2 拦住这次调用，Claude 把 stderr 读成原因，退出码 0 时原来的权限流程照旧走，并不等于批准这次调用。</p>
-<p>存成 <code>.claude/hooks/no-rm.sh</code>，再 <code>chmod +x</code>，它会拦住以 <code>rm</code> 开头的 Bash 命令。</p>
+<p><code>PreToolUse</code> 在参数已经齐了、工具还没跑、权限模式也还没检查时跑一次，退出码 2 拦住这次调用，Claude 把 stderr 读成原因，退出码 0 时原来的权限流程照旧走，并不等于批准这次<span class="nobr">调用。</span></p>
+<p>存成 <code>.claude/hooks/no-rm.sh</code>，再 <code>chmod +x</code>，它会拦住以 <code>rm</code> 开头的 Bash <span class="nobr">命令。</span></p>
 <pre><code class="language-bash"><span class="tok-c">#!/bin/bash
 </span>input=<span class="tok-k">$(</span>cat<span class="tok-k">)</span>
 command=<span class="tok-k">$(</span>jq -r <span class="tok-s">'.tool_input.command'</span> &lt;&lt;&lt;<span class="tok-s">"</span>$input<span class="tok-s">"</span><span class="tok-k">)</span>
@@ -268,8 +268,8 @@ command=<span class="tok-k">$(</span>jq -r <span class="tok-s">'.tool_input.comm
     ]
   }
 }</code></pre>
-<p><code>$CLAUDE_PROJECT_DIR</code> 是会话开始时的项目根目录，命令得是 <code>rm</code> 开头才会被拦住，所以 <code>npm test &amp;&amp; rm -rf dist</code> 会漏过去。</p>
-<p>要在 JSON 里给出决定，就以 0 退出，stdout 里只能有下面这一个对象。<code>permissionDecision</code> 得放在 <code>hookSpecificOutput</code> 里，放在最外层的话，Claude Code 会忽略它，也不报错。</p>
+<p><code>$CLAUDE_PROJECT_DIR</code> 是会话开始时的项目根目录，命令得是 <code>rm</code> 开头才会被拦住，所以 <code>npm test &amp;&amp; rm -rf dist</code> 会漏<span class="nobr">过去。</span></p>
+<p>要在 JSON 里给出决定，就以 0 退出，stdout 里只能有下面这一个对象。<code>permissionDecision</code> 得放在 <code>hookSpecificOutput</code> 里，放在最外层的话，Claude Code 会忽略它，也不<span class="nobr">报错。</span></p>
 <pre><code class="language-json">{
   "hookSpecificOutput": {
     "hookEventName": <span class="tok-s">"PreToolUse"</span>,
@@ -279,13 +279,13 @@ command=<span class="tok-k">$(</span>jq -r <span class="tok-s">'.tool_input.comm
 }</code></pre>
 <p><code>"deny"</code> 取消这次调用，<code>"allow"</code> 跳过询问，deny 和 ask 的规则仍然生效，托管设置里的拒绝名单也在内，<code>"ask"</code> 会把询问弹出来。JSON 里就算写着 <code>"allow"</code>，退出码 2 仍然拦住，<code>"deny"</code> 在 bypass permissions 模式下也照样拦住。匹配到的 hook 会并行跑，最严的结果胜出，从严到松是 deny、defer、ask、allow。</p>
 <h2 id="claude-做完时提醒">Claude 做完时提醒</h2>
-<p><code>Stop</code> 在每次回答结束时触发，不只是任务做完那一次，你中途打断就不出声，退出码 2 会让 Claude 继续，用来提醒的 hook 以 0 退出。</p>
-<p>序列要写在 <code>terminalSequence</code> 里，因为 hook 没有 <code>/dev/tty</code>，由 Claude Code 替它写出去，tmux 和 GNU screen 里也一样，而且只在交互会话还留在屏幕上时才写。允许的值是 OSC 0、1、2、9、99、777，以及铃声。OSC 9 是 iTerm2、ConEmu、Windows Terminal 和 WezTerm 的通知，OSC 777 是 urxvt、Ghostty 和 Warp 的通知，别的都会被丢掉。</p>
+<p><code>Stop</code> 在每次回答结束时触发，不只是任务做完那一次，你中途打断就不出声，退出码 2 会让 Claude 继续，用来提醒的 hook 以 0 <span class="nobr">退出。</span></p>
+<p>序列要写在 <code>terminalSequence</code> 里，因为 hook 没有 <code>/dev/tty</code>，由 Claude Code 替它写出去，tmux 和 GNU screen 里也一样，而且只在交互会话还留在屏幕上时才写。允许的值是 OSC 0、1、2、9、99、777，以及铃声。OSC 9 是 iTerm2、ConEmu、Windows Terminal 和 WezTerm 的通知，OSC 777 是 urxvt、Ghostty 和 Warp 的通知，别的都会被<span class="nobr">丢掉。</span></p>
 <p>输入里的 <code>last_assistant_message</code> 是整段回复，没法直接当通知文字，所以脚本只发固定的一行，用 <code>printf</code> 拼出 OSC 777，再用 <code>jq -nc</code> 包成 JSON：</p>
 <pre><code class="language-bash"><span class="tok-c">#!/bin/bash
 </span>seq=<span class="tok-k">$(</span><span class="tok-b">printf</span> <span class="tok-s">'\033]777;notify;%s;%s\007'</span> <span class="tok-s">"Claude Code"</span> <span class="tok-s">"Finished"</span><span class="tok-k">)</span>
 jq -nc --arg seq <span class="tok-s">"</span>$seq<span class="tok-s">"</span> <span class="tok-s">'{terminalSequence: $seq}'</span></code></pre>
-<p><code>Stop</code> 没有 matcher，注册脚本时不要加：</p>
+<p><code>Stop</code> 没有 matcher，注册脚本时不<span class="nobr">要加：</span></p>
 <pre><code class="language-json">{
   "hooks": {
     "Stop": [
@@ -300,30 +300,30 @@ jq -nc --arg seq <span class="tok-s">"</span>$seq<span class="tok-s">"</span> <s
     ]
   }
 }</code></pre>
-<p><code>Notification</code> hook 也可以返回 <code>terminalSequence</code>，<code>preferredNotifChannel</code> 设成 <code>notifications_disabled</code> 也停不了它。输入里有 <code>message</code> 和 <code>notification_type</code>，<code>permission_prompt</code> 在大约六秒没有打字时触发，<code>idle_prompt</code> 在回答结束之后大约 60 秒、你还没打字时触发。</p>
+<p><code>Notification</code> hook 也可以返回 <code>terminalSequence</code>，<code>preferredNotifChannel</code> 设成 <code>notifications_disabled</code> 也停不了它。输入里有 <code>message</code> 和 <code>notification_type</code>，<code>permission_prompt</code> 在大约六秒没有打字时触发，<code>idle_prompt</code> 在回答结束之后大约 60 秒、你还没打字时<span class="nobr">触发。</span></p>
 <h2 id="看-hook-到底跑了什么">看 hook 到底跑了什么</h2>
-<p><code>/hooks</code> 里看得到这条 hook，它却一次都不跑，多半是 matcher 没对上工具名，<code>Ctrl + O</code> 打开 transcript 之后，成功是空白，拦住了会把原因写出来。退出码不是 0 也不是 2 时，通常是不拦截的错误，动作照样继续，输出里带着 <code>Failed with non-blocking status code:</code> 和 stderr 的第一行。</p>
+<p><code>/hooks</code> 里看得到这条 hook，它却一次都不跑，多半是 matcher 没对上工具名，<code>Ctrl + O</code> 打开 transcript 之后，成功是空白，拦住了会把原因写出来。退出码不是 0 也不是 2 时，通常是不拦截的错误，动作照样继续，输出里带着 <code>Failed with non-blocking status code:</code> 和 stderr 的第<span class="nobr">一行。</span></p>
 <pre><code class="language-bash"><span class="tok-b">echo</span> <span class="tok-s">'{"tool_name":"Bash","tool_input":{"command":"ls"}}'</span> | ./.claude/hooks/no-rm.sh
 <span class="tok-b">echo</span> $?</code></pre>
-<p><code>claude --debug</code> 把日志写到 <code>~/.claude/debug/&lt;session-id&gt;.txt</code>，终端里什么都不打印。要自己定路径就用 <code>claude --debug-file /tmp/claude.log</code>，会话开到一半想记日志，用 <code>/debug</code>。<code>Hook output does not start with {</code> 表示 stdout 不是单独一个 JSON 对象，常常是 shell profile 先打了一行，后面的 JSON 就不会生效。<code>Hook JSON output had unrecognized keys</code> 表示有字段放错了层级。</p>
+<p><code>claude --debug</code> 把日志写到 <code>~/.claude/debug/&lt;session-id&gt;.txt</code>，终端里什么都不打印。要自己定路径就用 <code>claude --debug-file /tmp/claude.log</code>，会话开到一半想记日志，用 <code>/debug</code>。<code>Hook output does not start with {</code> 表示 stdout 不是单独一个 JSON 对象，常常是 shell profile 先打了一行，后面的 JSON 就不会生效。<code>Hook JSON output had unrecognized keys</code> 表示有字段放错了<span class="nobr">层级。</span></p>
 <h2 id="hook-用的是你的权限">hook 用的是你的权限</h2>
-<p><code>"type": "command"</code> 的 hook 以你的用户身份跑，账号能读、能改、能删的文件它都能动，要让它在每次工具调用前都跑，先把脚本从头读一遍，要展开的变量都加上引号。</p>
+<p><code>"type": "command"</code> 的 hook 以你的用户身份跑，账号能读、能改、能删的文件它都能动，要让它在每次工具调用前都跑，先把脚本从头读一遍，要展开的变量都加上<span class="nobr">引号。</span></p>
 <p>交互会话会先等你确认信任这个工作区，然后才跑任何设置文件里的 hook，<code>~/.claude/settings.json</code> 里的也在内。<code>claude -p</code> 跳过这个对话框，把当前目录当成已信任，提交在仓库里的 <code>.claude/settings.json</code> hook 就会直接跑。仓库要不是你写的，先把 <code>.claude/</code> 读一遍，或者带上 <code>--settings '{"disableAllHooks": true}'</code>。</p>
 <h2 id="hook-和-kaku">hook 和 Kaku</h2>
-<p>Kaku 不会往你的 agent 里加 hook，也不会加指令，<code>kaku ai</code> 只有你在那里改某个工具的设置时才会动它，你自己写的字段会留着。</p>
+<p>Kaku 不会往你的 agent 里加 hook，也不会加指令，<code>kaku ai</code> 只有你在那里改某个工具的设置时才会动它，你自己写的字段会<span class="nobr">留着。</span></p>
 <p>Claude Code 自带的提醒是另一路开关，Kaku 0.25.0 及以上配 Claude Code 2.1.295 及以上不用任何设置，更早的版本要在 <code>~/.claude/settings.json</code> 里设上 <code>"preferredNotifChannel": "ghostty"</code>，见<a href="/zh/blog/claude-code-notifications">Claude Code 通知</a>。</p>
-<p>Stop 脚本和这条通道是分开的，它让 Claude Code 写出 OSC 777，也就是允许的那几种里 Ghostty 用的通知。Kaku 0.25.0 及以上配 Claude Code 2.1.295 及以上时，Claude 做完的时候 Kaku 本来就会提醒，再挂这个 Stop hook 会多出一条通知，所以它适合更早的版本或者别的终端。OSC 9 也在允许的那几种里，Codex 设了 <code>notification_method = "osc9"</code> 时，Kaku 会把它显示成工具自己写的那条消息。</p>
+<p>Stop 脚本和这条通道是分开的，它让 Claude Code 写出 OSC 777，也就是允许的那几种里 Ghostty 用的通知。Kaku 0.25.0 及以上配 Claude Code 2.1.295 及以上时，Claude 做完的时候 Kaku 本来就会提醒，再挂这个 Stop hook 会多出一条通知，所以它适合更早的版本或者别的终端。OSC 9 也在允许的那几种里，Codex 设了 <code>notification_method = "osc9"</code> 时，Kaku 会把它显示成工具自己写的那条<span class="nobr">消息。</span></p>
 <h2 id="常见问题">常见问题</h2>
 <h3 id="退出码-0-算不算放行">退出码 0 算不算放行？</h3>
-<p>不算，<code>PreToolUse</code> 返回 0 时原来的权限检查还在，要跳过询问，得在 <code>hookSpecificOutput</code> 里写上 <code>"permissionDecision": "allow"</code>，再以 0 退出，拒绝规则仍然生效。</p>
+<p>不算，<code>PreToolUse</code> 返回 0 时原来的权限检查还在，要跳过询问，得在 <code>hookSpecificOutput</code> 里写上 <code>"permissionDecision": "allow"</code>，再以 0 退出，拒绝规则仍然<span class="nobr">生效。</span></p>
 <h3 id="格式化为什么漏了文件">格式化为什么漏了文件？</h3>
-<p><code>Edit|Write</code> 只在 Edit 或 Write 工具之后跑，用 <code>Bash</code> 改写文件不会触发它，文件已经写完，<code>PostToolUse</code> 也撤不回这一次写入。</p>
+<p><code>Edit|Write</code> 只在 Edit 或 Write 工具之后跑，用 <code>Bash</code> 改写文件不会触发它，文件已经写完，<code>PostToolUse</code> 也撤不回这一次<span class="nobr">写入。</span></p>
 <h3 id="为什么-stop-hook-之后-claude-还在继续">为什么 Stop hook 之后 Claude 还在继续？</h3>
-<p>退出码 2，或者 <code>{"decision": "block", "reason": "..."}</code>，都是让 Claude 继续，连续拦住八次，中间没有工具调用，Claude Code 会结束这一轮。只想通知的时候以 0 退出，真要拦住的话，脚本先看 <code>stop_hook_active</code>，已经是 <code>true</code> 就以 0 退出，免得一直拦下去。</p>
+<p>退出码 2，或者 <code>{"decision": "block", "reason": "..."}</code>，都是让 Claude 继续，连续拦住八次，中间没有工具调用，Claude Code 会结束这一轮。只想通知的时候以 0 退出，真要拦住的话，脚本先看 <code>stop_hook_active</code>，已经是 <code>true</code> 就以 0 退出，免得一直拦<span class="nobr">下去。</span></p>
 <h3 id="我正在用的这个窗口能看到通知吗">我正在用的这个窗口能看到通知吗？</h3>
-<p>Kaku 在后台时才显示，你正看着的窗格不会弹，<code>terminalSequence</code> 只有交互会话还留在屏幕上时才会写出去。</p>
+<p>Kaku 在后台时才显示，你正看着的窗格不会弹，<code>terminalSequence</code> 只有交互会话还留在屏幕上时才会写<span class="nobr">出去。</span></p>
 <h3 id="这些-hook-是-kaku-装的吗">这些 hook 是 Kaku 装的吗？</h3>
-<p>不是，这些 hook 得你自己写进 Claude Code 的设置，Kaku 不会自己加 hook 或指令，<code>kaku ai</code> 会留着你写过的字段。</p>
+<p>不是，这些 hook 得你自己写进 Claude Code 的设置，Kaku 不会自己加 hook 或指令，<code>kaku ai</code> 会留着你写过的<span class="nobr">字段。</span></p>
           <aside class="blog-cta"><img class="blog-cta-icon" src="/img/kaku-mark.png" width="40" height="40" alt=""><p>Kaku 是一个免费开源的 Mac 终端。</p><a class="btn btn-primary" href="/zh/docs">安装 Kaku</a></aside>
           <nav class="blog-related" aria-label="继续阅读"><h2 class="blog-related-title">继续阅读</h2><ul class="blog-related-list"><li><a href="/zh/blog/install-claude-code-mac"><span class="blog-related-cat">Claude Code 与 Codex</span><span class="blog-related-name">在 Mac 上安装和更新 Claude Code</span><span class="blog-related-meta"><time datetime="2026-10-02">2026年10月2日</time> · 约 6 分钟</span></a></li><li><a href="/zh/blog/claude-code-statusline"><span class="blog-related-cat">Claude Code 与 Codex</span><span class="blog-related-name">配置 Claude Code 状态栏，显示模型、上下文和 git 分支</span><span class="blog-related-meta"><time datetime="2026-10-05">2026年10月5日</time> · 约 8 分钟</span></a></li><li><a href="/zh/blog/claude-code-remote"><span class="blog-related-cat">Claude Code 与 Codex</span><span class="blog-related-name">远程使用 Claude Code，接上正在跑的会话的三种办法</span><span class="blog-related-meta"><time datetime="2026-09-30">2026年9月30日</time> · 约 5 分钟</span></a></li></ul></nav>
         </article>

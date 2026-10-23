@@ -99,6 +99,9 @@ body {
 /* No paragraph or list item ends on one lone character, as on mole.fit
    (maintainer 2026-10-23); class rules that balance still win. */
 p, li, dd, figcaption, blockquote { text-wrap: pretty; }
+/* The last two characters of a Chinese paragraph, glued by the generator's
+   glue_cjk_tails so no line holds one character alone. */
+.nobr { white-space: nowrap; }
 #main-content { flex: 1 0 auto; }
 a { color: var(--brand); text-decoration: none; }
 a:hover { color: var(--brand-light); }

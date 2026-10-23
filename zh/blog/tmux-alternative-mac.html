@@ -141,48 +141,48 @@
       <div class="wide">
         <article class="doc-content blog-article">
           <figure class="blog-cover" aria-hidden="true"><img src="/img/blog/cards/tmux-alternative-mac.webp" width="1600" height="900" alt="" fetchpriority="high"></figure>
-<p>在一台主要自己用的 Mac 上，你很可能已经用不着 tmux 了，大多数人开 tmux 图的是三件事，把一个窗口分成好几个窗格，终端关掉之后活儿还在，以及从别的地方接回同一个会话。第一件可以用原生分屏，会话恢复能帮你找回布局，要让交互式会话在终端退出后继续运行，本地和服务器上都可以用 tmux 这类多路复用器。所以比较实在的答案是，本地分屏想不用 tmux 就不用，SSH 会话和终端重启后还得继续跑的任务，继续留着它。这篇讲清楚这条线划在哪，以及要留着的话怎么把 tmux 配好。</p>
+<p>在一台主要自己用的 Mac 上，你很可能已经用不着 tmux 了，大多数人开 tmux 图的是三件事，把一个窗口分成好几个窗格，终端关掉之后活儿还在，以及从别的地方接回同一个会话。第一件可以用原生分屏，会话恢复能帮你找回布局，要让交互式会话在终端退出后继续运行，本地和服务器上都可以用 tmux 这类多路复用器。所以比较实在的答案是，本地分屏想不用 tmux 就不用，SSH 会话和终端重启后还得继续跑的任务，继续留着它。这篇讲清楚这条线划在哪，以及要留着的话怎么把 tmux <span class="nobr">配好。</span></p>
 <h2 id="tmux-到底做了什么">tmux 到底做了什么</h2>
-<p>tmux 跑着一个服务端，你的 shell 归它管，终端只是负责把它们画出来的客户端，这个设计带来三样东西：</p>
+<p>tmux 跑着一个服务端，你的 shell 归它管，终端只是负责把它们画出来的客户端，这个设计带来三样<span class="nobr">东西：</span></p>
 <ol>
-<li><strong>分屏和窗口</strong>，画在同一个终端窗口里。</li>
-<li><strong>持久化</strong>，关掉终端或者 SSH 断了，shell 还在 tmux 服务端里跑，<code>tmux attach</code> 原样接回来，程序都还在跑。</li>
-<li><strong>共享</strong>，从另一个终端或<a href="/zh/blog/claude-code-remote">另一台机器</a> attach 上去，看到的是同一个会话。</li>
+<li><strong>分屏和窗口</strong>，画在同一个终端窗<span class="nobr">口里。</span></li>
+<li><strong>持久化</strong>，关掉终端或者 SSH 断了，shell 还在 tmux 服务端里跑，<code>tmux attach</code> 原样接回来，程序都还<span class="nobr">在跑。</span></li>
+<li><strong>共享</strong>，从另一个终端或<a href="/zh/blog/claude-code-remote">另一台机器</a> attach 上去，看到的是同一个<span class="nobr">会话。</span></li>
 </ol>
 <h2 id="现在的终端已经能做到的">现在的终端已经能做到的</h2>
 <p><strong>分屏。</strong> iTerm2、Ghostty、WezTerm、Kitty 和 Kaku 在 macOS 上都有原生分屏，由终端自己来画，滚动、选中、复制都是正常的样子，不用进 tmux 的 copy mode。</p>
-<p><strong>重启之后接着用。</strong> 有些终端会在重启后把窗口、标签和分屏恢复回来，Kaku 多做了一步，把屏幕上的内容也存下来。</p>
+<p><strong>重启之后接着用。</strong> 有些终端会在重启后把窗口、标签和分屏恢复回来，Kaku 多做了一步，把屏幕上的内容也存<span class="nobr">下来。</span></p>
 <figure class="blog-diagram"><picture><source media="(max-width: 640px)" srcset="/img/blog/session-restore-flow-mobile.webp" width="340" height="390"><img src="/img/blog/session-restore-flow.webp" width="902" height="151" loading="lazy" alt="Kaku 的会话恢复：跑着 agent 和 shell 的窗格每 60 秒存进一份快照，经过更新或崩溃导致的重启，恢复成原来的文字，不会重新执行任何东西"></picture><figcaption>恢复回来的窗格显示的是原来的内容，程序本身不会被重新启动。</figcaption></figure>
 
-<p>Kaku 退出时会保存每个窗口、里面的标签、分屏布局、每个窗格的工作目录，以及每个窗格最多 1500 行内容，运行过程中只要布局有变化，它每分钟也会刷新一次快照，所以就算意外退出，也能留下一份比较新的布局。下次启动时窗格带着原来的文字回到原来的目录，起一个新的 shell，之前跑着 Claude Code 或 Codex 的窗格会保留 agent 的最后一屏，能先看到每个对话停在哪里，再用 <code>claude --continue</code> 或 <code>codex resume --last</code> 接上。</p>
-<p>这就是和 tmux 最重要的区别，Kaku 恢复的是你看到的东西而不是进程，终端退出时正在跑的构建之后就不再跑了，而 tmux 能让它继续跑，因为这个进程本来就不属于终端。</p>
-<p><strong>agent。</strong> 对 AI 编程命令行工具来说，真正要紧的状态是对话，而 Claude Code 和 Codex 都会自己保存对话，终端把布局和最后一屏带回来，就已经解决了大半，剩下的交给 agent 自己的恢复命令。</p>
+<p>Kaku 退出时会保存每个窗口、里面的标签、分屏布局、每个窗格的工作目录，以及每个窗格最多 1500 行内容，运行过程中只要布局有变化，它每分钟也会刷新一次快照，所以就算意外退出，也能留下一份比较新的布局。下次启动时窗格带着原来的文字回到原来的目录，起一个新的 shell，之前跑着 Claude Code 或 Codex 的窗格会保留 agent 的最后一屏，能先看到每个对话停在哪里，再用 <code>claude --continue</code> 或 <code>codex resume --last</code> <span class="nobr">接上。</span></p>
+<p>这就是和 tmux 最重要的区别，Kaku 恢复的是你看到的东西而不是进程，终端退出时正在跑的构建之后就不再跑了，而 tmux 能让它继续跑，因为这个进程本来就不属于<span class="nobr">终端。</span></p>
+<p><strong>agent。</strong> 对 AI 编程命令行工具来说，真正要紧的状态是对话，而 Claude Code 和 Codex 都会自己保存对话，终端把布局和最后一屏带回来，就已经解决了大半，剩下的交给 agent 自己的恢复<span class="nobr">命令。</span></p>
 <h2 id="什么时候还要留着-tmux">什么时候还要留着 tmux</h2>
 <ul>
-<li><strong>通过 SSH 连的远程机器。</strong> tmux 本来就是为这个做的，在服务器上的 tmux 里跑长任务和 agent 会话，连接断了也什么都不会丢。</li>
-<li><strong>自己 Mac 上的长进程</strong>，终端重启时也必须一直跑着的，比如一个你从来不想重启的开发服务器。</li>
-<li><strong>两个人在同一个会话里结对</strong>，一起 attach 到同一个 shell 上。</li>
-<li><strong>建立在 tmux 快捷键和脚本上的工作流</strong>，用顺手了不想放弃。</li>
+<li><strong>通过 SSH 连的远程机器。</strong> tmux 本来就是为这个做的，在服务器上的 tmux 里跑长任务和 agent 会话，连接断了也什么都不<span class="nobr">会丢。</span></li>
+<li><strong>自己 Mac 上的长进程</strong>，终端重启时也必须一直跑着的，比如一个你从来不想重启的开发服<span class="nobr">务器。</span></li>
+<li><strong>两个人在同一个会话里结对</strong>，一起 attach 到同一个 shell&nbsp;上。</li>
+<li><strong>建立在 tmux 快捷键和脚本上的工作流</strong>，用顺手了不想<span class="nobr">放弃。</span></li>
 </ul>
 <h2 id="给-claude-code-配好-tmux">给 Claude Code 配好 tmux</h2>
-<p>如果你确实在 tmux 里跑 Claude Code，有三个设置能让它正常工作：</p>
+<p>如果你确实在 tmux 里跑 Claude Code，有三个设置能让它正常<span class="nobr">工作：</span></p>
 <pre><code class="language-bash"><span class="tok-c"># ~/.tmux.conf
 </span><span class="tok-b">set</span> -g allow-passthrough on
 <span class="tok-b">set</span> -s extended-keys on
 <span class="tok-b">set</span> -as terminal-features <span class="tok-s">'xterm*:extkeys'</span></code></pre>
 <p><code>allow-passthrough</code> 让加了 tmux passthrough 包装的序列从可见窗格传到外层终端，另外两个让 <code>Shift + Enter</code> 作为单独的按键传进来，而不是变成普通的回车，改完用 <code>tmux source-file ~/.tmux.conf</code> 重新加载，这些通知最后是怎么走到 macOS 的，可以看这篇<a href="/zh/blog/claude-code-notifications">通知指南</a>。</p>
-<p>装了 tmux 的话，<code>kaku init</code> 还会在 <code>~/.tmux.conf</code> 里加一行 <code>source-file</code>，指向一个由 Kaku 管理的小文件，它打开鼠标支持，让你从 Kaku attach 之后新开的窗格也保留 Kaku 的提示符，还让 <code>Shift</code> 加滚轮直接进入 tmux 的回滚。上面那三个设置还是要你自己加。</p>
+<p>装了 tmux 的话，<code>kaku init</code> 还会在 <code>~/.tmux.conf</code> 里加一行 <code>source-file</code>，指向一个由 Kaku 管理的小文件，它打开鼠标支持，让你从 Kaku attach 之后新开的窗格也保留 Kaku 的提示符，还让 <code>Shift</code> 加滚轮直接进入 tmux 的回滚。上面那三个设置还是要你自<span class="nobr">己加。</span></p>
 <h2 id="折中的用法">折中的用法</h2>
-<p>不一定要二选一，比较常见的做法是本地全部用原生分屏和会话恢复，只在 SSH 上去的服务器里用 tmux，在 Kaku 里就是 Mac 上用 <code>Cmd + D</code> 和 <code>Cmd + Shift + D</code> 分屏，远程用 <code>ssh server -t tmux new -A -s main</code>，每次都落到同一个远程会话里。</p>
+<p>不一定要二选一，比较常见的做法是本地全部用原生分屏和会话恢复，只在 SSH 上去的服务器里用 tmux，在 Kaku 里就是 Mac 上用 <code>Cmd + D</code> 和 <code>Cmd + Shift + D</code> 分屏，远程用 <code>ssh server -t tmux new -A -s main</code>，每次都落到同一个远程会<span class="nobr">话里。</span></p>
 <h2 id="常见问题">常见问题</h2>
 <h3 id="kaku-能替代-tmux-吗">Kaku 能替代 tmux 吗？</h3>
 <p>本地分屏和重启后找回布局，大体上可以，但它不会让进程在终端退出后继续跑，所以 SSH 会话和长时间运行的任务还是留给 tmux。</p>
 <h3 id="kaku-里能用-tmux-吗">Kaku 里能用 tmux 吗？</h3>
-<p>能，Kaku 和其他终端一样能跑 tmux，Kaku 管理的那个 tmux 文件还会加上鼠标支持，并让从 Kaku 里启动的 tmux 会话也有 Kaku 的提示符。</p>
+<p>能，Kaku 和其他终端一样能跑 tmux，Kaku 管理的那个 tmux 文件还会加上鼠标支持，并让从 Kaku 里启动的 tmux 会话也有 Kaku 的提<span class="nobr">示符。</span></p>
 <h3 id="ssh-断了怎么让-claude-code-继续跑">SSH 断了怎么让 Claude Code 继续跑？</h3>
-<p>在远程机器上的 tmux 里启动它，比如先 <code>tmux new -A -s claude</code> 再跑 <code>claude</code>，重新连上之后 <code>tmux attach -t claude</code> 就能接回来。</p>
+<p>在远程机器上的 tmux 里启动它，比如先 <code>tmux new -A -s claude</code> 再跑 <code>claude</code>，重新连上之后 <code>tmux attach -t claude</code> 就能接<span class="nobr">回来。</span></p>
 <h3 id="能关掉-kaku-的会话恢复吗">能关掉 Kaku 的会话恢复吗？</h3>
-<p>能，在 <code>kaku.lua</code> 里设 <code>config.restore_previous_session = false</code>，保存和恢复会一起关掉。</p>
+<p>能，在 <code>kaku.lua</code> 里设 <code>config.restore_previous_session = false</code>，保存和恢复会一起<span class="nobr">关掉。</span></p>
           <aside class="blog-cta"><img class="blog-cta-icon" src="/img/kaku-mark.png" width="40" height="40" alt=""><p>Kaku 是一个免费开源的 Mac 终端。</p><a class="btn btn-primary" href="/zh/docs">安装 Kaku</a></aside>
           <nav class="blog-related" aria-label="继续阅读"><h2 class="blog-related-title">继续阅读</h2><ul class="blog-related-list"><li><a href="/zh/blog/best-terminal-for-mac"><span class="blog-related-cat">终端</span><span class="blog-related-name">2026 年 Mac 上的终端怎么选</span><span class="blog-related-meta"><time datetime="2026-09-21">2026年9月21日</time> · 约 5 分钟</span></a></li><li><a href="/zh/blog/wezterm-config-for-mac"><span class="blog-related-cat">终端</span><span class="blog-related-name">一份实用的 Mac 版 WezTerm 配置，以及 Kaku 改了什么</span><span class="blog-related-meta"><time datetime="2026-09-28">2026年9月28日</time> · 约 4 分钟</span></a></li><li><a href="/zh/blog/nerd-fonts-mac"><span class="blog-related-cat">终端</span><span class="blog-related-name">Mac 上的 Nerd Font，装补丁字体还是用符号回退</span><span class="blog-related-meta"><time datetime="2026-10-08">2026年10月8日</time> · 约 6 分钟</span></a></li></ul></nav>
         </article>
