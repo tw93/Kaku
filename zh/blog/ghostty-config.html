@@ -169,7 +169,7 @@ font-family =</code></pre>
 <p><code>ghostty +list-fonts</code> 会列出 Ghostty 能识别的字体名，<code>font-family</code> 写多行就是一条回退链，第一行是主字体，后面几行负责补主字体里没有的<span class="nobr">字符：</span></p>
 <pre><code class="language-ini">font-family = <span class="tok-s">"JetBrains Mono"</span>
 font-size = <span class="tok-s">14</span></code></pre>
-<p>因为重复写是往后追加，主题或者引入的文件里可能藏着你不知道的字体，稳妥的做法是先写一行 <code>font-family = ""</code> 把列表清空再重新设。粗体和斜体默认从同一个字体家族里找，除非你单独设了 <code>font-family-bold</code> 或 <code>font-family-italic</code>，<code>font-size</code> 的单位是 point，可以写 <code>13.5</code> 这样的半号。Ghostty 已经内置了 Nerd Font 图标，只有想给图标换一种字形时，才需要再加一行 <code>font-family</code> 指向 Symbols Nerd Font Mono 这类图标字体，这种情况可以看 <a href="/zh/blog/nerd-fonts-mac">Nerd Fonts 那篇</a>。</p>
+<p>因为重复写是往后追加，主题或者引入的文件里可能藏着你不知道的字体，稳妥的做法是先写一行 <code>font-family = ""</code> 把列表清空再重新设。粗体和斜体默认从同一个字体家族里找，除非你单独设了 <code>font-family-bold</code> 或 <code>font-family-italic</code>，<code>font-size</code> 的单位是 point，可以写 <code>13.5</code> 这样的半号。Ghostty 已经内置了 Nerd Font 图标，只有想给图标换一种字形时，才需要再加一行 <code>font-family</code> 指向 Symbols Nerd Font Mono 这类图标字体，这种情况可以看 <a href="/zh/blog/nerd-fonts-mac">Nerd Fonts <span class="nobr">那篇</span></a>。</p>
 <p>主题是跟着 App 一起装好的，<code>ghostty +list-themes</code> 能看到全部，想跟着 macOS 的深色浅色自动切换，一行里把两个都<span class="nobr">写上：</span></p>
 <pre><code class="language-ini">theme = <span class="tok-s">light:Rose Pine Dawn,dark:Rose Pine</span></code></pre>
 <p>这种写法里 light 和 dark 两半都得有，顺序无所谓，自己做的主题放进 <code>~/.config/ghostty/themes/</code>，配置里再写 <code>background</code>、<code>foreground</code> 或 <code>palette</code> 会盖掉主题里的颜色。主题文件本身也是一份配置，什么选项都能设，所以来路不明的主题文件别随手往<span class="nobr">里放。</span></p>
@@ -217,7 +217,7 @@ config.window_padding = { left = <span class="tok-s">'12pt'</span>, right = <spa
   key = <span class="tok-s">'RightArrow'</span>, mods = <span class="tok-s">'CMD|SHIFT'</span>,
   action = wezterm.action.<span class="tok-f">ActivatePaneDirection</span>(<span class="tok-s">'Right'</span>),
 })</code></pre>
-<p><code>window_padding</code> 用 <code>pt</code> 才和 Ghostty 的边距一个意思，直接写数字或者 <code>px</code> 是物理像素，在 Retina 屏上会显得小一圈。分屏那几条不用搬，<code>Cmd + D</code> 和 <code>Cmd + Shift + D</code> 本来就是分屏，另外记得用 <code>table.insert</code> 往 <code>config.keys</code> 里加，直接给它赋一个新表会把 Kaku 的默认快捷键全部冲掉。三种配置方式具体差在哪，可以看 <a href="/zh/blog/ghostty-vs-iterm2-vs-wezterm">Ghostty、iTerm2 和 WezTerm 的对比</a>。</p>
+<p><code>window_padding</code> 用 <code>pt</code> 才和 Ghostty 的边距一个意思，直接写数字或者 <code>px</code> 是物理像素，在 Retina 屏上会显得小一圈。分屏那几条不用搬，<code>Cmd + D</code> 和 <code>Cmd + Shift + D</code> 本来就是分屏，另外记得用 <code>table.insert</code> 往 <code>config.keys</code> 里加，直接给它赋一个新表会把 Kaku 的默认快捷键全部冲掉。三种配置方式具体差在哪，可以看 <a href="/zh/blog/ghostty-vs-iterm2-vs-wezterm">Ghostty、iTerm2 和 WezTerm 的<span class="nobr">对比</span></a>。</p>
 <h2 id="常见问题">常见问题</h2>
 <h3 id="macos-上-ghostty-的配置文件在哪">macOS 上 Ghostty 的配置文件在哪？</h3>
 <p>在 <code>~/.config/ghostty/config.ghostty</code>，1.2.3 之前叫 <code>~/.config/ghostty/config</code>，Ghostty 还会读 <code>~/Library/Application Support/com.mitchellh.ghostty/config.ghostty</code>，而且是最后读，所以这份里的值<span class="nobr">优先。</span></p>

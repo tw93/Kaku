@@ -130,12 +130,12 @@ config.window_background_opacity = <span class="tok-n">0.95</span>
           <p>实际生成的文件里注释示例要多得多，<code>kaku init</code> 也会写出同样的文件，大多数时候把想改的那几行取消注释就<span class="nobr">够了。</span></p>
           </blockquote>
           <p>设置界面（<code>kaku config</code>）改的也是这个文件里的常用设置和 Lua 覆盖，如果启动 Kaku 时用了 <code>--config-file</code>，设置改的就是那个<span class="nobr">文件。</span></p>
-          <h2 id="configuration-appearance"><a class="anchor" href="#configuration-appearance" aria-label="链接到「外观」">#</a>外观</h2><p><strong>主题</strong></p>
+          <h2 id="configuration-appearance"><a class="anchor" href="#configuration-appearance" aria-label="链接到「外观」">#</a>外观</h2><p><strong><span class="nobr">主题</span></strong></p>
           <p>新安装默认使用 Kaku Dark 主题（首次生成的 <code>kaku.lua</code> 包含 <code>config.color_scheme = &quot;Kaku Dark&quot;</code>）。若配置中未指定该项（包括 V0.21.0 之前生成的配置），则仍会跟随 macOS 系统外观在 Dark 与 Light 间切换。若需跟随系统，可在 <code>kaku config</code> 中选择 Auto。若需固定单一<span class="nobr">主题：</span></p>
           <pre><code class="language-lua">config.color_scheme = <span class="tok-s">"Kaku Dark"</span>   <span class="tok-c">-- always dark</span>
 config.color_scheme = <span class="tok-s">"Kaku Light"</span>  <span class="tok-c">-- always light</span></code></pre>
           <p>不加载内置默认值的独立配置也能用这两个主题名。如果你的配置里写了 <code>config.colors</code> 或 <code>config.window_frame</code>，这些颜色会盖过主题，<code>kaku config</code> 的 Theme 一栏也会标出是哪一项在<span class="nobr">覆盖。</span></p>
-          <p><strong>颜色覆盖</strong></p>
+          <p><strong>颜色<span class="nobr">覆盖</span></strong></p>
           <p>部分命令行程序会直接输出特定十六进制颜色，可能与主题风格不协调。可通过颜色覆盖规则予以替换：<code>color_overrides</code> 映射背景色（包含调色板 ANSI 背景与 24 位真彩色背景），<code>foreground_color_overrides</code> 仅映射真彩色<span class="nobr">文字：</span></p>
           <pre><code class="language-lua">config.color_overrides = {
   [<span class="tok-s">'#6E6E6E'</span>] = <span class="tok-s">'#3A3942'</span>,
@@ -144,53 +144,53 @@ config.color_scheme = <span class="tok-s">"Kaku Light"</span>  <span class="tok-
 config.foreground_color_overrides = {
   [<span class="tok-s">'#FFFFDB'</span>] = <span class="tok-s">'#575653'</span>,
 }</code></pre>
-          <p><strong>字体</strong></p>
+          <p><strong><span class="nobr">字体</span></strong></p>
           <p>默认字体是 JetBrains Mono，中日韩字符回退到 PingFang SC，换字体这<span class="nobr">样写：</span></p>
           <pre><code class="language-lua">config.font = wezterm.<span class="tok-f">font</span>(<span class="tok-s">"Fira Code"</span>)</code></pre>
           <p>连字默认关闭，要重新<span class="nobr">打开：</span></p>
           <pre><code class="language-lua">config.harfbuzz_features = {}</code></pre>
-          <p><strong>字号</strong></p>
+          <p><strong><span class="nobr">字号</span></strong></p>
           <p>Kaku 会根据显示器分辨率自动适配字号（普通屏 15pt，Retina 高分屏 17pt）。如需手动<span class="nobr">指定：</span></p>
           <pre><code class="language-lua">config.font_size = <span class="tok-n">16</span></code></pre>
-          <p><strong>行高</strong></p>
+          <p><strong><span class="nobr">行高</span></strong></p>
           <pre><code class="language-lua">config.line_height = <span class="tok-n">1.28</span>  <span class="tok-c">-- default</span></code></pre>
-          <p>默认行距适度放宽，文本阅读更为舒适；QR code、<code>neofetch</code> 图标及 TUI 图表等字符图形会随之成比例拉伸。若希望图形更接近正方形，可调整为 <code>1.0</code> 至 <code>1.1</code>，详情见 <a href="/zh/docs/faq#faq-qr-codes-and-terminal-graphics-look-vertically-stretched">常见问答</a>。</p>
-          <p><strong>窗口透明度</strong></p>
+          <p>默认行距适度放宽，文本阅读更为舒适；QR code、<code>neofetch</code> 图标及 TUI 图表等字符图形会随之成比例拉伸。若希望图形更接近正方形，可调整为 <code>1.0</code> 至 <code>1.1</code>，详情见 <a href="/zh/docs/faq#faq-qr-codes-and-terminal-graphics-look-vertically-stretched">常见<span class="nobr">问答</span></a>。</p>
+          <p><strong>窗口透<span class="nobr">明度</span></strong></p>
           <pre><code class="language-lua">config.window_background_opacity = <span class="tok-n">0.92</span>
 config.macos_window_background_blur = <span class="tok-n">20</span>  <span class="tok-c">-- optional blur (0–100)</span></code></pre>
           <p><strong>红绿灯按钮（macOS）</strong></p>
           <p>默认用 <code>INTEGRATED_BUTTONS|RESIZE</code> 把红绿灯按钮嵌在标签栏里。想去掉关闭、最小化、缩放这三个按钮，同时保留拖边缘缩放和按住标签栏拖动<span class="nobr">窗口：</span></p>
           <pre><code class="language-lua">config.window_decorations = <span class="tok-s">"RESIZE"</span></code></pre>
-          <p><strong>Agent 标题</strong></p>
+          <p><strong>Agent <span class="nobr">标题</span></strong></p>
           <p>当前面板里跑着 Claude Code、Codex 或 Kimi 时，窗口右上角会显示它的标志和当前话题。不需要的话，在 <code>kaku config</code> 里把 Agent Title 关掉，或<span class="nobr">者写：</span></p>
           <pre><code class="language-lua">config.show_agent_title = <span class="tok-b">false</span></code></pre>
-          <p><strong>内边距</strong></p>
+          <p><strong>内<span class="nobr">边距</span></strong></p>
           <pre><code class="language-lua">config.window_padding = { left = <span class="tok-s">'24px'</span>, right = <span class="tok-s">'24px'</span>, top = <span class="tok-s">'40px'</span>, bottom = <span class="tok-s">'20px'</span> }</code></pre>
           <p>单位支持 <code>px</code>、<code>pt</code>、<code>cell</code> 和 <code>%</code>。其中 <code>px</code> 为物理像素，不随 DPI 缩放；若希望随系统缩放，请使用 <code>pt</code>（如 <code>top = '15pt'</code>）；若需按字符网格单元计算，可使用 <code>cell</code>。</p>
-          <h2 id="configuration-terminal-behavior"><a class="anchor" href="#configuration-terminal-behavior" aria-label="链接到「终端行为」">#</a>终端行为</h2><p><strong>光标</strong></p>
+          <h2 id="configuration-terminal-behavior"><a class="anchor" href="#configuration-terminal-behavior" aria-label="链接到「终端行为」">#</a>终端行为</h2><p><strong><span class="nobr">光标</span></strong></p>
           <pre><code class="language-lua">config.default_cursor_style = <span class="tok-s">"BlinkingBar"</span>
 config.cursor_thickness = <span class="tok-s">"2px"</span>
 config.cursor_blink_rate = <span class="tok-n">500</span></code></pre>
           <p><strong>输入法（IME）</strong></p>
           <p>默认情况下，输入法正在组合的文字会覆盖光标后的字符。如果希望组合文字以插入方式显示、不遮挡后续<span class="nobr">字符：</span></p>
           <pre><code class="language-lua">config.ime_preedit_rendering = <span class="tok-s">"BuiltinInsert"</span></code></pre>
-          <p><strong>回滚缓冲</strong></p>
+          <p><strong>回滚<span class="nobr">缓冲</span></strong></p>
           <pre><code class="language-lua">config.scrollback_lines = <span class="tok-n">10000</span>  <span class="tok-c">-- default</span></code></pre>
-          <p><strong>选中即复制</strong></p>
+          <p><strong>选中即<span class="nobr">复制</span></strong></p>
           <p>默认开启，要<span class="nobr">关掉：</span></p>
           <pre><code class="language-lua">config.copy_on_select = <span class="tok-b">false</span></code></pre>
-          <p><strong>复制时去掉行首空白</strong></p>
+          <p><strong>复制时去掉行首<span class="nobr">空白</span></strong></p>
           <p>复制一段带缩进的多行文本时，比如代码，把每行共有的行首空白去掉，粘贴出来就从第 0 列<span class="nobr">开始：</span></p>
           <pre><code class="language-lua">config.copy_strip_leading_whitespace = <span class="tok-b">true</span>  <span class="tok-c">-- default: false</span></code></pre>
-          <p><strong>恢复上次会话</strong></p>
+          <p><strong>恢复上次<span class="nobr">会话</span></strong></p>
           <p>Kaku 默认在启动时自动恢复上次打开的标签页与分屏。在窗口、标签或分屏发生变化后 1 分钟内会自动保存；即使遭遇崩溃或强制退出，也能恢复前次布局。若设为 <code>false</code>，则既不保存也不恢复<span class="nobr">会话：</span></p>
           <pre><code class="language-lua">config.restore_previous_session = <span class="tok-b">false</span>  <span class="tok-c">-- default: true</span></code></pre>
           <p>通过 SSH 域打开的分屏会准确恢复至对应的远程目录，不会误退至本地同名路径。若因主机无法连接等原因导致部分窗口恢复失败，Kaku 会发送通知提示未恢复的窗口数量，并保留已存会话以便下次启动时再次<span class="nobr">尝试。</span></p>
-          <p><strong>工作目录继承</strong></p>
+          <p><strong>工作目录<span class="nobr">继承</span></strong></p>
           <pre><code class="language-lua">config.window_inherit_working_directory = <span class="tok-b">true</span>   <span class="tok-c">-- new windows</span>
 config.tab_inherit_working_directory = <span class="tok-b">true</span>       <span class="tok-c">-- new tabs</span>
 config.split_pane_inherit_working_directory = <span class="tok-b">true</span> <span class="tok-c">-- new splits</span></code></pre>
-          <p><strong>标签栏</strong></p>
+          <p><strong>标<span class="nobr">签栏</span></strong></p>
           <p>单标签时标签栏默认隐藏。自动生成的标签标题默认显示当前目录名；你也可以调整标签栏位置、仅显示目录末段，或让它同步 Claude Code 等程序上报的动态标题，亦可在路径旁显示当前正在运行的前台<span class="nobr">命令：</span></p>
           <pre><code class="language-lua">config.tab_bar_at_bottom = <span class="tok-b">false</span>                   <span class="tok-c">-- move to top</span>
 config.tab_title_show_basename_only = <span class="tok-b">true</span>         <span class="tok-c">-- show "dirname" instead of "parent/dirname"</span>
@@ -200,12 +200,12 @@ config.tab_title_use_pane_title = <span class="tok-b">true</span>             <s
           <p>后台标签响铃（BEL）时，标题上会出现一个小圆点，Claude Code 在等你操作、跑完或出错时也会点亮它。只想关掉响铃这<span class="nobr">部分：</span></p>
           <pre><code class="language-lua">config.bell_tab_indicator = <span class="tok-b">false</span></code></pre>
           <p>新建标签按钮默认显示，右键标签可以新建、打开标签导航或关闭标签。不需要新建按钮的话，可以在 <code>kaku config</code> 里关掉 New Tab Button，或者写 <code>config.show_new_tab_button_in_tab_bar = false</code>。</p>
-          <p><strong>滚动条</strong></p>
+          <p><strong>滚<span class="nobr">动条</span></strong></p>
           <p>默认关闭，可以在 <code>kaku config</code> 里打开 Scrollbar，或者在 Lua <span class="nobr">里写：</span></p>
           <pre><code class="language-lua">config.enable_scroll_bar = <span class="tok-b">true</span></code></pre>
           <p>想让鼠标滚轮在 nano、vim 这类备用屏幕应用里滚动，而不是去翻 Kaku 的主回滚缓冲，打开这<span class="nobr">一项：</span></p>
           <pre><code class="language-lua">config.alternate_screen_wheel_scrolls_terminal = <span class="tok-b">true</span></code></pre>
-          <p><strong>拖选 + 鼠标滚轮</strong></p>
+          <p><strong>拖选 + 鼠标<span class="nobr">滚轮</span></strong></p>
           <p>控制按住左键拖选时滚轮的行为。从 v0.11 起默认是 <code>&quot;Extend&quot;</code>，滚轮会滚动回滚缓冲，选区跟着光标跨屏延伸，和 Safari、TextEdit、VS Code、iTerm2、<code>Terminal.app</code> 的表现<span class="nobr">一样。</span></p>
           <pre><code class="language-lua"><span class="tok-c">-- Default (recommended): scroll AND extend the selection so you can grab</span>
 <span class="tok-c">-- text that spans more than one screen of output.</span>
@@ -225,10 +225,10 @@ config.selection_wheel_scroll_behavior = <span class="tok-s">"Ignore"</span></co
           <p>左 Option 发送 Meta，在 Vim、Neovim 里按词移动时用得上，右 Option 用来输入组合<span class="nobr">字符。</span></p>
           <pre><code class="language-lua">config.send_composed_key_when_left_alt_is_pressed = <span class="tok-b">false</span>  <span class="tok-c">-- default: left = Meta</span>
 config.send_composed_key_when_right_alt_is_pressed = <span class="tok-b">true</span>  <span class="tok-c">-- default: right = Compose</span></code></pre>
-          <p><strong>Kitty 键盘协议</strong></p>
+          <p><strong>Kitty 键盘<span class="nobr">协议</span></strong></p>
           <p>开启后，Neovim 和 Herdr 里的 Esc 与向前删除键可正常识别，交换 Backspace 与 Delete 的设置也会<span class="nobr">生效：</span></p>
           <pre><code class="language-lua">config.enable_kitty_keyboard = <span class="tok-b">true</span></code></pre>
-          <p><strong>关闭确认</strong></p>
+          <p><strong>关闭<span class="nobr">确认</span></strong></p>
           <p>在关闭仍有任务运行的窗口、标签或分屏时，Kaku 支持弹窗确认。每项均可配置为 <code>NeverPrompt</code>、<code>SmartPrompt</code> 或 <code>AlwaysPrompt</code>，内置默认均为 <code>SmartPrompt</code>：</p>
           <pre><code class="language-lua">config.window_close_confirmation = <span class="tok-s">"SmartPrompt"</span>  <span class="tok-c">-- bundled default</span>
 config.tab_close_confirmation = <span class="tok-s">"SmartPrompt"</span>     <span class="tok-c">-- bundled default</span>
@@ -255,8 +255,8 @@ config.pane_close_confirmation = <span class="tok-s">"SmartPrompt"</span>    <sp
   mods = <span class="tok-s">'CMD|OPT'</span>,
   action = wezterm.action.<span class="tok-f">SplitHorizontal</span>({ domain = <span class="tok-s">'CurrentPaneDomain'</span> }),
 })</code></pre>
-          <p>所有可用动作见 <a href="https://wezfurlong.org/wezterm/config/lua/keyassignment/" target="_blank" rel="noopener noreferrer">WezTerm KeyAssignment 参考</a>。</p>
-          <h2 id="configuration-advanced"><a class="anchor" href="#configuration-advanced" aria-label="链接到「高级」">#</a>高级</h2><p><strong>企业代理请求头</strong></p>
+          <p>所有可用动作见 <a href="https://wezfurlong.org/wezterm/config/lua/keyassignment/" target="_blank" rel="noopener noreferrer">WezTerm KeyAssignment <span class="nobr">参考</span></a>。</p>
+          <h2 id="configuration-advanced"><a class="anchor" href="#configuration-advanced" aria-label="链接到「高级」">#</a>高级</h2><p><strong>企业代理请<span class="nobr">求头</span></strong></p>
           <p>如果公司的代理或 API 网关要求带额外的 HTTP 头，可以加到 Kaku Assistant 的 API 请<span class="nobr">求里：</span></p>
           <pre><code class="language-toml"><span class="tok-c"># ~/.config/kaku/assistant.toml</span>
 custom_headers = [<span class="tok-s">"X-Customer-ID: your-id"</span>, <span class="tok-s">"X-Org: your-org"</span>]</code></pre>
@@ -289,10 +289,10 @@ custom_headers = [<span class="tok-s">"X-Customer-ID: your-id"</span>, <span cla
     },
   }
 <span class="tok-k">end</span>)</code></pre>
-          <p><strong>WezTerm Lua 配置</strong></p>
+          <p><strong>WezTerm Lua <span class="nobr">配置</span></strong></p>
           <p>Kaku 沿用 WezTerm 的配置系统，不过有些上游配置项在 Kaku 里表现不同，或者已经不生效了。完整参<span class="nobr">考见：</span></p>
           <ul>
-          <li><a href="https://wezfurlong.org/wezterm/config/" target="_blank" rel="noopener noreferrer">WezTerm 配置项</a></li>
+          <li><a href="https://wezfurlong.org/wezterm/config/" target="_blank" rel="noopener noreferrer">WezTerm 配<span class="nobr">置项</span></a></li>
           <li><a href="https://wezfurlong.org/wezterm/config/lua/" target="_blank" rel="noopener noreferrer">WezTerm Lua API</a></li>
           </ul>
           <nav class="doc-pager" aria-label="Pagination"><a href="/zh/docs/cli"><span>上一页</span><strong>命令参考</strong></a><a href="/zh/docs/keybindings"><span>下一页</span><strong>快捷键</strong></a></nav>

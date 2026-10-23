@@ -202,7 +202,7 @@
 </tr>
 </tbody>
 </table>
-<p>两个 shell 在两个键上不一样。一个是 <code>Ctrl + U</code>，zsh 里它是 <code>kill-whole-line</code>，光标后面的字也会一起删掉，bash 的 <code>unix-line-discard</code> 只删到光标为止。另一个是 <code>Ctrl + W</code>，zsh 里它是 <code>backward-kill-word</code>，词由字母、数字和 <code>$WORDCHARS</code> 里的字符组成。这个变量默认带着 <code>/</code>，所以一整段路径按一下就没了，把 <code>/</code> 从里面去掉之后就能一段一段删，bash 的 <code>unix-word-rubout</code> 则是简单地删到上一个空格。两边来回切的话，其他差别可以看 <a href="/zh/blog/zsh-vs-bash">zsh 和 bash 的区别</a>。</p>
+<p>两个 shell 在两个键上不一样。一个是 <code>Ctrl + U</code>，zsh 里它是 <code>kill-whole-line</code>，光标后面的字也会一起删掉，bash 的 <code>unix-line-discard</code> 只删到光标为止。另一个是 <code>Ctrl + W</code>，zsh 里它是 <code>backward-kill-word</code>，词由字母、数字和 <code>$WORDCHARS</code> 里的字符组成。这个变量默认带着 <code>/</code>，所以一整段路径按一下就没了，把 <code>/</code> 从里面去掉之后就能一段一段删，bash 的 <code>unix-word-rubout</code> 则是简单地删到上一个空格。两边来回切的话，其他差别可以看 <a href="/zh/blog/zsh-vs-bash">zsh 和 bash 的<span class="nobr">区别</span></a>。</p>
 <p>删掉的内容其实没丢，一条很长的命令敲到一半想先跑点别的，按 <code>Ctrl + U</code> 把它收起来，跑完再按 <code>Ctrl + Y</code> 就能原样贴回来，相当于给命令行临时找了个地方先放<span class="nobr">一放。</span></p>
 <h2 id="option-当-meta为什么-mac-上-alt-b-和-alt-f-不灵">Option 当 Meta，为什么 Mac 上 Alt + B 和 Alt + F 不灵</h2>
 <p>Mac 键盘上其实没有 Alt 键，Option 加字母默认是用来打特殊字符的，美式布局下 Option + B 打出来的是 <code>∫</code>，而不是往回跳一个词。所以在终端把 Option 当成 Meta 发出去之前，上面表里所有 <code>Alt</code> 开头的行都只会打出一堆怪字符，每个终端的开关放在不同<span class="nobr">地方。</span></p>
@@ -211,7 +211,7 @@
 <p><strong>Ghostty</strong>，对应的是 <a href="https://ghostty.org/docs/config/reference#macos-option-as-alt" target="_blank" rel="noopener noreferrer"><code>macos-option-as-alt</code></a>，可以填 <code>true</code>、<code>false</code>、<code>left</code> 或 <code>right</code>。不设的时候它看键盘布局决定，美式标准和美式国际布局下是 <code>true</code>，其他布局都是 <code>false</code>，所以用德语、法语这类布局的人得自己<span class="nobr">写上：</span></p>
 <pre><code>macos-option-as-alt = left
 </code></pre>
-<p>只把左边的 Option 当 Alt，右边那个就还能用来打带音标的字母和各种符号，平时要写英文以外语言的人会很需要这一点。Ghostty 其他常用的配置可以看 <a href="/zh/blog/ghostty-config">Ghostty 配置</a>。</p>
+<p>只把左边的 Option 当 Alt，右边那个就还能用来打带音标的字母和各种符号，平时要写英文以外语言的人会很需要这一点。Ghostty 其他常用的配置可以看 <a href="/zh/blog/ghostty-config">Ghostty <span class="nobr">配置</span></a>。</p>
 <p><strong>WezTerm 和 Kaku</strong>，用的是 <code>send_composed_key_when_left_alt_is_pressed</code> 和 <code>send_composed_key_when_right_alt_is_pressed</code> 这两个键，哪一个设成 <code>false</code>，对应那一侧的 Option 就会被当成 Alt 发<span class="nobr">出去。</span></p>
 <h2 id="搜历史命令">搜历史命令</h2>
 <p>最值得学会的一个快捷键是 <code>Ctrl + R</code>，它会往回增量搜索历史记录，zsh 里叫 <code>history-incremental-search-backward</code>，bash 里叫 <code>reverse-search-history</code>。敲几个字母就能找到以前跑过的命令，再按一次 <code>Ctrl + R</code> 往更早的匹配翻，看到想要的直接回车执行，不想要了就按 <code>Ctrl + G</code>，命令行会恢复成搜索前的<span class="nobr">样子。</span></p>

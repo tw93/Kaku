@@ -96,7 +96,7 @@
           <h2 id="features-mouse"><a class="anchor" href="#features-mouse" aria-label="链接到「鼠标操作」">#</a>鼠标操作</h2><p>在分屏内右键，可以复制选中的文字、粘贴、搜索、打开 AI 对话或命令面板、往任意方向拆分，或者关掉点中的分屏；关闭前按设置弹出确认，接管鼠标的 TUI 程序右键仍归该程序处理。右键标签则可以新建标签、打开标签导航或关闭标签，标签栏末尾的 + 按钮也能快速新建<span class="nobr">标签。</span></p>
           <p><code>Cmd + 点击</code>打开网址和文件路径，网址在终端边缘自动折行也能拿到完整地址，硬换行之后的无关输出不会被拼进<span class="nobr">链接。</span></p>
           <h2 id="features-kaku-assistant"><a class="anchor" href="#features-kaku-assistant" aria-label="链接到「Kaku Assistant」">#</a>Kaku Assistant</h2><p>Kaku Assistant 能在命令报错时提供修复建议，将自然语言转换为可执行命令，也能结合当前终端输出和项目文件展开<span class="nobr">对话。</span></p>
-          <p><strong>配置</strong></p>
+          <p><strong><span class="nobr">配置</span></strong></p>
           <p>运行 <code>kaku ai</code> 打开 AI 设置，开启 Kaku Assistant 后填好下面<span class="nobr">几项：</span></p>
           <table class="config-fields">
           <thead>
@@ -137,10 +137,10 @@
           <pre><code class="language-bash">k <span class="tok-s">"summarize the current project"</span>
 kaku chat</code></pre>
           <p>shell 里的版本比面板简单，只输出纯文本，支持 <code>/new</code>、<code>/resume</code>、<code>/clear</code>、<code>/status</code>、<code>/memory</code> 和 <code>/exit</code>。</p>
-          <p><strong>命令失败修复</strong></p>
+          <p><strong>命令失败<span class="nobr">修复</span></strong></p>
           <p>命令以非零状态退出时，Kaku Assistant 会将失败命令、退出码、工作目录和当前 git 分支发送给模型，并在终端行内给出修复建议。按 <code>Cmd + Shift + E</code> 会直接运行这条修复命令，像 <code>rm -rf</code>、<code>git reset --hard</code> 这类高危命令只会填进命令行，确认后再自己<span class="nobr">回车。</span></p>
           <p><code>Ctrl+C</code> 退出、help 参数、单独调用包管理器、git pull 冲突，以及前台不是 shell 的进程，都不会<span class="nobr">触发。</span></p>
-          <p><strong>自然语言生成命令</strong></p>
+          <p><strong>自然语言生成<span class="nobr">命令</span></strong></p>
           <p>在提示符后输入 <code># &lt;描述&gt;</code> 并回车，Kaku 会在 shell 执行前拦截该指令，连同当前目录与 git 分支一并提交给模型，并将生成的命令回填至提示符，供你核对后<span class="nobr">执行。</span></p>
           <pre><code># list all files modified in the last 7 days
 # find and kill the process on port 3000
@@ -148,7 +148,7 @@ kaku chat</code></pre>
 </code></pre>
           <p><code>#</code> 生成和自动修复跟 <code>Cmd + L</code> 走同一个服务商和同一份凭据，所以 Codex 或 Copilot 登录在这里也能用，不只是 API key。</p>
           <p><code>#</code> 前缀在 zsh 和 fish 中均受支持。在请求返回前，输入的原始描述会保持显示；若模型无法生成安全的命令，将给出解释说明；危险指令仅回填至提示符供确认，绝不会自动<span class="nobr">执行。</span></p>
-          <p><strong>assistant.toml 字段</strong></p>
+          <p><strong>assistant.toml <span class="nobr">字段</span></strong></p>
           <p>配置文件在 <code>~/.config/kaku/assistant.toml</code>：</p>
           <table class="config-fields">
           <thead>
@@ -237,7 +237,7 @@ kaku chat</code></pre>
           <p>Kaku 从当前分屏自动识别 SSH 目标，挂载在 <code>~/Library/Caches/dev.kaku/sshfs/&lt;host&gt;</code>。</p>
           <p>先运行 <code>brew install --cask sshfs-mac</code> 安装 macOS 版 <a href="https://formulae.brew.sh/cask/sshfs-mac">SSHFS</a>，按 <a href="https://github.com/macfuse/macfuse/wiki/Getting-Started">macFUSE 说明</a>完成设置，并给远端主机配好密钥<span class="nobr">登录。</span></p>
           <h2 id="features-remote-access"><a class="anchor" href="#features-remote-access" aria-label="链接到「远程访问」">#</a>远程访问</h2><p>运行 <code>kaku remote</code>，可以在另一台电脑的桌面浏览器里使用这台 Mac 的终端。开启前会先确认，之后给出一个配对链接，每个链接配对一个浏览器，配对后把页面加入书签即可随时<span class="nobr">回来。</span></p>
-          <p>页面里有你的标签和分屏，支持复制粘贴，拖进页面的文件会上传到 Mac，Cmd+点击路径即可下载。输入和显示的内容在浏览器与 Kaku 之间加密。远程访问默认关闭。命令见 <a href="/zh/docs/cli#cli-kaku-remote">CLI 参考</a>。</p>
+          <p>页面里有你的标签和分屏，支持复制粘贴，拖进页面的文件会上传到 Mac，Cmd+点击路径即可下载。输入和显示的内容在浏览器与 Kaku 之间加密。远程访问默认关闭。命令见 <a href="/zh/docs/cli#cli-kaku-remote">CLI <span class="nobr">参考</span></a>。</p>
           <h2 id="features-shell-suite"><a class="anchor" href="#features-shell-suite" aria-label="链接到「Shell 套件」">#</a>Shell 套件</h2><p>Kaku 自带一组 shell 插件，在 Kaku 会话里自动<span class="nobr">加载。</span></p>
           <p><strong>Zsh 插件（内置）</strong></p>
           <ul>
@@ -246,7 +246,7 @@ kaku chat</code></pre>
           <li><strong>fast-syntax-highlighting</strong>：输入时实时着色、标出错误，颜色比 zsh-syntax-highlighting 更丰富，启动也<span class="nobr">更快。</span></li>
           <li><strong>zsh-autosuggestions</strong>：像 fish 一样，边打字边根据历史给出<span class="nobr">建议。</span></li>
           </ul>
-          <p><strong>Fish 支持</strong></p>
+          <p><strong>Fish <span class="nobr">支持</span></strong></p>
           <p>fish 用户运行 <code>kaku init</code> 会生成 <code>~/.config/kaku/fish/kaku.fish</code>，<code>kaku doctor</code> 会同时检查 zsh 和 fish 的<span class="nobr">集成。</span></p>
           <p><strong>可选工具（通过 <code>kaku init</code> 安装）</strong></p>
           <ul>

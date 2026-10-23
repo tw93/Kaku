@@ -170,7 +170,7 @@ brew install font-hack-nerd-font</code></pre>
   <span class="tok-s">'DengXian'</span>,
 }</code></pre>
 <p><a href="https://ghostty.org/docs/config/reference" target="_blank" rel="noopener noreferrer">Ghostty</a> 也不需要装，它内嵌了 JetBrains Mono，Nerd Font 图标也是内置的。它的回退是多写几行 <code>font-family</code>，第一行是主字体，后面几行补主字体里缺的码位，想换一份别的符号字体，就让它单独占一行，具体名字用 <code>ghostty +list-fonts</code> 查，写一行空的 <code>font-family = ""</code> 可以清掉文件前面设过的字体。Ghostty 1.2.0 起还有 <code>adjust-icon-height</code>，能调 Nerd Font 图标的最大高度，Powerline 和制表符字形不受<span class="nobr">影响。</span></p>
-<p>Nerd Fonts 的 README 里也说了，回退来的符号在缩放和位置上不一定对得齐，如果图标和文字放在一起看着有点歪，换成同一字体族的补丁版会更稳。Mac 上 WezTerm 的整套配置可以看 <a href="/zh/blog/wezterm-config-for-mac">Mac 版 WezTerm 配置</a>。</p>
+<p>Nerd Fonts 的 README 里也说了，回退来的符号在缩放和位置上不一定对得齐，如果图标和文字放在一起看着有点歪，换成同一字体族的补丁版会更稳。Mac 上 WezTerm 的整套配置可以看 <a href="/zh/blog/wezterm-config-for-mac">Mac 版 WezTerm <span class="nobr">配置</span></a>。</p>
 <h2 id="monopropo-和默认宽度">Mono、Propo 和默认宽度</h2>
 <p>每套补丁字体都有三种图标宽度，区别只在图标上，字母本身<span class="nobr">不变：</span></p>
 <table>

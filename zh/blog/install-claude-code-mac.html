@@ -164,7 +164,7 @@ brew install --cask claude-code@latest</code></pre>
 <p>shell 说找不到 <code>claude</code>，是安装目录还没进 <code>PATH</code>，原生启动器 <code>~/.local/bin/claude</code> 是指向 <code>~/.local/share/claude/versions/</code> 的符号<span class="nobr">链接。</span></p>
 <h2 id="登录">登录</h2>
 <p><code>claude</code> 在当前目录启动，第一次会把你带到浏览器。免费的 claude.ai 方案不含 Claude Code，Pro、Max、Team、Enterprise 和 Console 才有。Console 账号走的是 API，花的是预付的额度，第一次用 Console 登录会建一个名叫「Claude Code」的工作区。Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry 也<span class="nobr">能用。</span></p>
-<p>设了 <code>ANTHROPIC_API_KEY</code>，问到时确认用这把密钥，就会跳过登录提示。<code>claude auth login --console</code> 走 Console 计费，不走订阅，会话里用 <code>/login</code> 换账号，登录之后凭据会存下来，细节见<a href="https://code.claude.com/docs/zh-CN/quickstart" target="_blank" rel="noopener noreferrer">快速入门</a>。</p>
+<p>设了 <code>ANTHROPIC_API_KEY</code>，问到时确认用这把密钥，就会跳过登录提示。<code>claude auth login --console</code> 走 Console 计费，不走订阅，会话里用 <code>/login</code> 换账号，登录之后凭据会存下来，细节见<a href="https://code.claude.com/docs/zh-CN/quickstart" target="_blank" rel="noopener noreferrer">快速<span class="nobr">入门</span></a>。</p>
 <h2 id="确认装好了">确认装好了</h2>
 <p><code>claude doctor</code> 不进入会话，会打印安装是否正常、设置文件校验出的错误、可以怎么改，以及上次尝试更新的结果。会话里跑 <code>/doctor</code>，它能直接按这些建议帮你<span class="nobr">改好。</span></p>
 <h2 id="更新和发布渠道">更新和发布渠道</h2>
@@ -195,7 +195,7 @@ rm -rf ~/.local/share/claude</code></pre>
 <h2 id="换行和通知">换行和通知</h2>
 <p>按 Enter 会把当前输入发出去，<code>Ctrl + J</code>，或者先输入 <code>\</code> 再按 Enter，在每个终端里都是插入换行。哪些终端里 <code>Shift + Enter</code> 不用设置就能换行，哪些要先跑一次 <code>/terminal-setup</code>，<a href="/zh/blog/best-terminal-for-claude-code">Claude Code 用什么终端最好</a>那篇都列了，在 VS Code、Cursor 和 Devin Desktop 里 <code>/terminal-setup</code> 还会把 <code>terminal.integrated.gpuAcceleration</code> 设成 <code>"off"</code>，改回 <code>"auto"</code> 再重载窗口就能撤掉。桌面通知默认只在 Ghostty、Kitty 和 iTerm2 里发，其他终端怎么设，iTerm2 要打开哪个选项，SSH 和 <a href="/zh/blog/tmux-alternative-mac">tmux</a> 里是什么情况，<a href="/zh/blog/claude-code-notifications">通知指南</a>里都<span class="nobr">写了。</span></p>
 <h2 id="在-kaku-里">在 Kaku 里</h2>
-<p>Kaku 0.25.0 及以上配 Claude Code 2.1.295 及以上不用任何设置，0.25.0 之前的 Kaku 要在 <code>~/.claude/settings.json</code> 里设上 <code>"preferredNotifChannel": "ghostty"</code>，为什么这样，以及一条都收不到时该查什么，见<a href="/zh/blog/claude-code-notifications">通知指南</a>。</p>
+<p>Kaku 0.25.0 及以上配 Claude Code 2.1.295 及以上不用任何设置，0.25.0 之前的 Kaku 要在 <code>~/.claude/settings.json</code> 里设上 <code>"preferredNotifChannel": "ghostty"</code>，为什么这样，以及一条都收不到时该查什么，见<a href="/zh/blog/claude-code-notifications">通知<span class="nobr">指南</span></a>。</p>
 <p><code>Shift + Enter</code> 和 <code>Cmd + Enter</code> 在输入框里插入<span class="nobr">换行。</span></p>
 <p><code>kaku ai</code> 打开 AI 设置面板，可以配置 Claude Code、Codex、Gemini CLI、Copilot CLI 和 Kimi Code，看它们的套餐用量，也能把 Kaku Assistant 配好。只有你在这个面板里改过，Kaku 才会去改对应工具的设置，你自己写的字段会留着，它也不会自己往 agent 里加 hook 或<span class="nobr">指令。</span></p>
 <pre><code class="language-bash">kaku ai</code></pre>

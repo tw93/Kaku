@@ -202,7 +202,7 @@ npx ccusage blocks            <span class="tok-c"># Claude Code 的 5 小时计�
 <li><strong>带说明地 compact。</strong> <code>/compact Focus on code samples and API usage</code> 告诉 Claude 该保留什么，也可以在 <code>CLAUDE.md</code> 里写一段 Compact instructions。</li>
 <li><strong>按任务选模型。</strong> 用 <code>/model</code> 切换，或在 <code>/config</code> 里设默认值，简单的 subagent 任务在 <a href="/zh/blog/claude-code-subagents">subagent 文件</a>里写 <code>model: haiku</code>。</li>
 <li><strong>简单任务降低 effort。</strong> <code>/effort</code> 或 <code>/model</code> 可以调，固定思考预算的模型上还可以用 <code>MAX_THINKING_TOKENS=8000</code> 封顶，自适应推理的模型会忽略这个预算，在那些模型上改用 effort。</li>
-<li><strong>精简 MCP 服务器。</strong> 运行 <code>/mcp</code> 禁用不用的，有 <code>gh</code> 这类命令行工具就优先用它，因为它不会增加每个工具的列表，见 <a href="/zh/blog/claude-code-mcp-servers">MCP 服务器</a>。</li>
+<li><strong>精简 MCP 服务器。</strong> 运行 <code>/mcp</code> 禁用不用的，有 <code>gh</code> 这类命令行工具就优先用它，因为它不会增加每个工具的列表，见 <a href="/zh/blog/claude-code-mcp-servers">MCP 服<span class="nobr">务器</span></a>。</li>
 <li><strong>用 hook 过滤输出。</strong> PreToolUse 的 <a href="/zh/blog/claude-code-hooks">hook</a> 可以在 Claude 看到之前，把一次测试输出过滤到只剩失败项，文档里用 hook 从长日志里 grep 错误的例子，把上下文从几万 token 降到了<span class="nobr">几百。</span></li>
 <li><strong>CLAUDE.md 保持精简。</strong> 它在会话开始时加载，文档建议把特定流程的说明挪进按需加载的 <a href="/zh/blog/claude-code-skills">skill</a>，CLAUDE.md 控制在 200 行<span class="nobr">以内。</span></li>
 <li><strong>提示要具体。</strong> 让 Claude 给 auth.ts 里的登录函数加输入校验，比让它改进这个代码库触发的扫描少<span class="nobr">得多。</span></li>

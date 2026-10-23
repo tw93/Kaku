@@ -170,7 +170,7 @@
 </span><span class="tok-b">set</span> -g allow-passthrough on
 <span class="tok-b">set</span> -s extended-keys on
 <span class="tok-b">set</span> -as terminal-features <span class="tok-s">'xterm*:extkeys'</span></code></pre>
-<p><code>allow-passthrough</code> 让加了 tmux passthrough 包装的序列从可见窗格传到外层终端，另外两个让 <code>Shift + Enter</code> 作为单独的按键传进来，而不是变成普通的回车，改完用 <code>tmux source-file ~/.tmux.conf</code> 重新加载，这些通知最后是怎么走到 macOS 的，可以看这篇<a href="/zh/blog/claude-code-notifications">通知指南</a>。</p>
+<p><code>allow-passthrough</code> 让加了 tmux passthrough 包装的序列从可见窗格传到外层终端，另外两个让 <code>Shift + Enter</code> 作为单独的按键传进来，而不是变成普通的回车，改完用 <code>tmux source-file ~/.tmux.conf</code> 重新加载，这些通知最后是怎么走到 macOS 的，可以看这篇<a href="/zh/blog/claude-code-notifications">通知<span class="nobr">指南</span></a>。</p>
 <p>装了 tmux 的话，<code>kaku init</code> 还会在 <code>~/.tmux.conf</code> 里加一行 <code>source-file</code>，指向一个由 Kaku 管理的小文件，它打开鼠标支持，让你从 Kaku attach 之后新开的窗格也保留 Kaku 的提示符，还让 <code>Shift</code> 加滚轮直接进入 tmux 的回滚。上面那三个设置还是要你自<span class="nobr">己加。</span></p>
 <h2 id="折中的用法">折中的用法</h2>
 <p>不一定要二选一，比较常见的做法是本地全部用原生分屏和会话恢复，只在 SSH 上去的服务器里用 tmux，在 Kaku 里就是 Mac 上用 <code>Cmd + D</code> 和 <code>Cmd + Shift + D</code> 分屏，远程用 <code>ssh server -t tmux new -A -s main</code>，每次都落到同一个远程会<span class="nobr">话里。</span></p>

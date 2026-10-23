@@ -229,7 +229,7 @@ paths:
 ## Claude Code
 
 <span class="tok-s">`src/billing/`</span> 下的改动先用 plan mode。</code></pre>
-<p>用软链接（<code>ln -s AGENTS.md CLAUDE.md</code>）也行，但 Claude 的编辑工具不会通过软链接写入，在 Windows 上提交进仓库的软链接还可能被检出成一行文字。两个工具的整体对比在 <a href="/zh/blog/codex-vs-claude-code">Codex 和 Claude Code</a>，Codex 这一侧的配置在 <a href="/zh/blog/codex-cli-setup">Codex CLI 安装</a>。</p>
+<p>用软链接（<code>ln -s AGENTS.md CLAUDE.md</code>）也行，但 Claude 的编辑工具不会通过软链接写入，在 Windows 上提交进仓库的软链接还可能被检出成一行文字。两个工具的整体对比在 <a href="/zh/blog/codex-vs-claude-code">Codex 和 Claude Code</a>，Codex 这一侧的配置在 <a href="/zh/blog/codex-cli-setup">Codex CLI <span class="nobr">安装</span></a>。</p>
 <h2 id="在-kaku-里用">在 Kaku 里用</h2>
 <p>Kaku 不会动你的指令文件。<code>kaku ai</code> 修改的是 Claude Code 这类工具的设置，保留你自己写的字段，<a href="/zh/docs/ai-coding">AI 编程文档</a>里也写明它不会自己给你的 agent 加 hook 或指令。Kaku 能帮上忙的是周边的工作流，<code>Cmd + Click</code> 可以打开 Claude 打印出来的文件路径，用 <code>file_link_editor</code> 指定的编辑器，所以 Claude 报出 CLAUDE.md 的路径时能直接点开。<code>Cmd + D</code> 分屏，可以把编辑 <code>CLAUDE.md</code> 的窗格放在运行中的会话旁边，用 <code>/context</code> 对照<span class="nobr">检查。</span></p>
 <h2 id="常见问题">常见问题</h2>

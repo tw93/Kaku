@@ -311,7 +311,7 @@ jq -nc --arg seq <span class="tok-s">"</span>$seq<span class="tok-s">"</span> <s
 <p>交互会话会先等你确认信任这个工作区，然后才跑任何设置文件里的 hook，<code>~/.claude/settings.json</code> 里的也在内。<code>claude -p</code> 跳过这个对话框，把当前目录当成已信任，提交在仓库里的 <code>.claude/settings.json</code> hook 就会直接跑。仓库要不是你写的，先把 <code>.claude/</code> 读一遍，或者带上 <code>--settings '{"disableAllHooks": true}'</code>。</p>
 <h2 id="hook-和-kaku">hook 和 Kaku</h2>
 <p>Kaku 不会往你的 agent 里加 hook，也不会加指令，<code>kaku ai</code> 只有你在那里改某个工具的设置时才会动它，你自己写的字段会<span class="nobr">留着。</span></p>
-<p>Claude Code 自带的提醒是另一路开关，Kaku 0.25.0 及以上配 Claude Code 2.1.295 及以上不用任何设置，更早的版本要在 <code>~/.claude/settings.json</code> 里设上 <code>"preferredNotifChannel": "ghostty"</code>，见<a href="/zh/blog/claude-code-notifications">Claude Code 通知</a>。</p>
+<p>Claude Code 自带的提醒是另一路开关，Kaku 0.25.0 及以上配 Claude Code 2.1.295 及以上不用任何设置，更早的版本要在 <code>~/.claude/settings.json</code> 里设上 <code>"preferredNotifChannel": "ghostty"</code>，见<a href="/zh/blog/claude-code-notifications">Claude Code <span class="nobr">通知</span></a>。</p>
 <p>Stop 脚本和这条通道是分开的，它让 Claude Code 写出 OSC 777，也就是允许的那几种里 Ghostty 用的通知。Kaku 0.25.0 及以上配 Claude Code 2.1.295 及以上时，Claude 做完的时候 Kaku 本来就会提醒，再挂这个 Stop hook 会多出一条通知，所以它适合更早的版本或者别的终端。OSC 9 也在允许的那几种里，Codex 设了 <code>notification_method = "osc9"</code> 时，Kaku 会把它显示成工具自己写的那条<span class="nobr">消息。</span></p>
 <h2 id="常见问题">常见问题</h2>
 <h3 id="退出码-0-算不算放行">退出码 0 算不算放行？</h3>

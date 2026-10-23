@@ -171,7 +171,7 @@
 </span>ssh **&lt;Tab&gt;      <span class="tok-c"># 来自 /etc/hosts 和 ~/.ssh/config 的主机
 </span></code></pre>
 <h2 id="mac-上的坑alt-c-和-option-键">Mac 上的坑：Alt + C 和 Option 键</h2>
-<p>zsh 眼里的 Alt + C 是 Esc 后面跟一个 <code>c</code>，得让终端把 Option 当成 Meta 发出去才能用，而 Mac 默认按 Option 加字母只会打出一个字符。Kaku 的左 Option 默认就当 Meta 用，Terminal.app、iTerm2、Ghostty 和 WezTerm 怎么设可以看 <a href="/zh/blog/mac-terminal-shortcuts">Mac 终端里最省时间的快捷键</a>。</p>
+<p>zsh 眼里的 Alt + C 是 Esc 后面跟一个 <code>c</code>，得让终端把 Option 当成 Meta 发出去才能用，而 Mac 默认按 Option 加字母只会打出一个字符。Kaku 的左 Option 默认就当 Meta 用，Terminal.app、iTerm2、Ghostty 和 WezTerm 怎么设可以看 <a href="/zh/blog/mac-terminal-shortcuts">Mac 终端里最省时间的快<span class="nobr">捷键</span></a>。</p>
 <h2 id="用-fd-和-bat-调一调默认行为">用 fd 和 bat 调一调默认行为</h2>
 <p>自带的 walker 在大多数项目里已经够快，剩下要调的一般就两类，一是跳过 <code>node_modules</code> 这类文件特别多的目录，二是加一个预览窗。每个快捷键都有自己的 <code>*_OPTS</code> 变量，写在 source 那一行<span class="nobr">之前：</span></p>
 <pre><code class="language-bash">brew install bat tree
