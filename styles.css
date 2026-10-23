@@ -1397,11 +1397,12 @@ html[lang^="zh"] .foot-links b { letter-spacing: 0.6px; }
   .section-tight { margin-bottom: 33px; }
   .hero { padding: 32px 0 0; }
   .hero h1 { font-size: 56px; margin-bottom: 24px; }
-  /* Phone hero buttons share one row, each as wide as its label plus an equal
-     share of the rest, and wrap to two full rows when a long label (German
-     Windows) does not fit. Height stays the desktop 51px. */
+  /* Phone hero buttons keep their label's width with 24px sides and wrap to a
+     second row when a long label (German Windows) does not fit; stretched
+     halves left a wide empty band around a short label. 44px tall, the touch
+     minimum, rather than the desktop 51 (maintainer 2026-10-23). */
   .hero-actions { flex-wrap: wrap; gap: 8px; }
-  .hero-actions .btn { flex: 1 1 auto; min-width: 0; padding: 13px 16px; white-space: nowrap; }
+  .hero-actions .btn { flex: 0 0 auto; min-width: 0; padding: 10px 24px; white-space: nowrap; }
   .feature-grid, .quick-grid, .doc-grid, .doc-pager, .gallery { grid-template-columns: 1fr; }
   .docs-sidebar { gap: 12px; }
   .docs-menu {
