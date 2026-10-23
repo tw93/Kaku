@@ -96,6 +96,9 @@ body {
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
 }
+/* No paragraph or list item ends on one lone character, as on mole.fit
+   (maintainer 2026-10-23); class rules that balance still win. */
+p, li, dd, figcaption, blockquote { text-wrap: pretty; }
 #main-content { flex: 1 0 auto; }
 a { color: var(--brand); text-decoration: none; }
 a:hover { color: var(--brand-light); }
