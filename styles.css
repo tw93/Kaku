@@ -177,7 +177,9 @@ button, input { font: inherit; }
   font-size: 16px;
   line-height: 1.55;
 }
-/* Eyebrows follow mole.fit: quiet stone labels, since green means a link. */
+/* The 404 hero's label, the one eyebrow left: section heads carry none since
+   2026-10-23 (the content under each title already says what it is). Stone,
+   since green means a link. */
 .section-num {
   display: block;
   font-family: var(--ui);
@@ -1381,10 +1383,6 @@ html[lang^="zh"] .foot-links b { letter-spacing: 0.6px; }
   .wide, .hero-wrap, .hero-centered { padding-inline: 28px; }
   .site-nav { padding-inline: 14px; }
   .section-head h2 { font-size: 26px; }
-}
-/* mole.fit drops section eyebrows on phones; the 404 hero keeps its label. */
-@media (max-width: 640px) {
-  .section-head .section-num { display: none; }
 }
 @media (max-width: 560px) {
   .wide, .hero-wrap, .hero-centered { padding-inline: 16px; }
