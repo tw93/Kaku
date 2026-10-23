@@ -6,6 +6,7 @@ Notes on Mac terminals, AI coding tools and how Kaku is built, by Tw93.
 
 Install, configure and run AI coding agents in the terminal.
 
+- [Claude Code Cost: Pricing, /usage, ccusage and Ways to Cut It](https://kaku.fun/blog/claude-code-cost.md) (2026-10-23): How Claude Code is billed on plans and API keys, where /usage and ccusage show spend, what drives cost, and the habits that cut it.
 - [Claude Code Slash Commands: The Ones That Matter and How to Write Your Own](https://kaku.fun/blog/claude-code-slash-commands.md) (2026-10-22): The Claude Code slash commands worth knowing, their keyboard shortcuts, and how to write custom commands with arguments, plus three to copy.
 - [Claude Code Permissions: Modes, Rules and --dangerously-skip-permissions](https://kaku.fun/blog/claude-code-permissions.md) (2026-10-21): Claude Code permission modes, allow/ask/deny rules, what bypassPermissions risks, a safer middle-ground config and a hook that blocks commands.
 - [CLAUDE.md Explained: Memory Files, Load Order and What to Write](https://kaku.fun/blog/claude-md-memory.md) (2026-10-20): Where Claude Code reads CLAUDE.md from, how files stack, imports and rules, what to put in one, and how it relates to AGENTS.md and auto memory.

@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Claude Code Cost: Pricing, /usage, ccusage and Ways to Cut It · Kaku Blog</title>
+  <meta name="description" content="How Claude Code is billed on plans and API keys, where /usage and ccusage show spend, what drives cost, and the habits that cut it.">
+  <meta property="og:title" content="Claude Code Cost: Pricing, /usage, ccusage and Ways to Cut It · Kaku Blog">
+  <meta property="og:description" content="How Claude Code is billed on plans and API keys, where /usage and ccusage show spend, what drives cost, and the habits that cut it.">
+  <meta property="og:type" content="article">
+  <meta property="og:image" content="https://kaku.fun/img/blog/cards/claude-code-cost.webp">
+  <meta property="og:image:width" content="1600">
+  <meta property="og:image:height" content="900">
+  <meta property="og:image:alt" content="Claude Code Cost: Pricing, /usage, ccusage and Ways to Cut It">
+  <meta property="og:url" content="https://kaku.fun/blog/claude-code-cost">
+  <meta property="article:published_time" content="2026-10-23">
+  <meta property="article:modified_time" content="2026-10-23">
+  <meta property="article:author" content="Tw93">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://kaku.fun/img/blog/cards/claude-code-cost.webp">
+  <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-kaku-32.png"><link rel="icon" type="image/png" sizes="192x192" href="/img/favicon-kaku-192.png"><link rel="apple-touch-icon" href="/img/favicon-kaku-180.png">
+  <link rel="canonical" href="https://kaku.fun/blog/claude-code-cost"><link rel="alternate" type="application/rss+xml" title="Kaku releases" href="https://kaku.fun/feed.xml">
+  <link rel="alternate" type="application/rss+xml" title="Kaku Blog" href="https://kaku.fun/blog/feed.xml">
+  <link rel="alternate" hreflang="en" href="https://kaku.fun/blog/claude-code-cost">
+  <link rel="alternate" hreflang="zh-CN" href="https://kaku.fun/zh/blog/claude-code-cost">
+  <link rel="alternate" hreflang="x-default" href="https://kaku.fun/blog/claude-code-cost">
+  <link rel="alternate" type="text/markdown" href="https://kaku.fun/blog/claude-code-cost.md">
+  <link rel="stylesheet" href="/styles.css">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Kaku",
+          "item": "https://kaku.fun/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Blog",
+          "item": "https://kaku.fun/blog"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Claude Code Cost: Pricing, /usage, ccusage and Ways to Cut It",
+          "item": "https://kaku.fun/blog/claude-code-cost"
+        }
+      ]
+    },
+    {
+      "@type": "BlogPosting",
+      "@id": "https://kaku.fun/blog/claude-code-cost#article",
+      "headline": "Claude Code Cost: Pricing, /usage, ccusage and Ways to Cut It",
+      "description": "How Claude Code is billed on plans and API keys, where /usage and ccusage show spend, what drives cost, and the habits that cut it.",
+      "url": "https://kaku.fun/blog/claude-code-cost",
+      "mainEntityOfPage": "https://kaku.fun/blog/claude-code-cost",
+      "datePublished": "2026-10-23",
+      "dateModified": "2026-10-23",
+      "inLanguage": "en",
+      "articleSection": "Claude Code and Codex",
+      "image": "https://kaku.fun/img/blog/cards/claude-code-cost.webp",
+      "timeRequired": "PT8M",
+      "author": {
+        "@type": "Person",
+        "name": "Tw93",
+        "url": "https://tw93.fun",
+        "sameAs": [
+          "https://x.com/HiTw93",
+          "https://github.com/tw93"
+        ]
+      },
+      "publisher": {
+        "@id": "https://kaku.fun/#organization"
+      },
+      "isPartOf": {
+        "@id": "https://kaku.fun/blog#blog"
+      },
+      "about": {
+        "@id": "https://kaku.fun/#software"
+      },
+      "encoding": {
+        "@type": "MediaObject",
+        "encodingFormat": "text/markdown",
+        "contentUrl": "https://kaku.fun/blog/claude-code-cost.md"
+      }
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Is Claude Code free?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Not on its own. The pricing page lists it under the paid plans, and with an API key you pay per token. Check claude.com/pricing for current plans."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does /usage show my real bill?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "For API billing it is an estimate at list price, and the Console usage page is authoritative. On Pro and Max the session dollar figure is not what you are charged, so read the plan usage bars."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Why did one short question use so much?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Because the whole conversation travels with it. After a break longer than the cache lifetime the full context is reprocessed too. Run /clear between tasks."
+          }
+        }
+      ]
+    }
+  ]
+}
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <nav class="site-nav" aria-label="Primary navigation"><div class="wide nav-inner"><a class="brand" href="/"><strong>Kaku</strong></a><div class="nav-links"><a href="/docs">Docs</a><a href="/compare">Compare</a><a href="/changelog">Changelog</a><a href="/blog" aria-current="page">Blog</a></div><div class="nav-actions"><details class="lang-switch"><summary class="lang-trigger" aria-label="Choose a language"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/></svg><span class="lang-current-code" aria-hidden="true">EN</span><span class="lang-current-name">English</span></summary><div class="lang-menu"><a class="lang-option" href="/zh/blog/claude-code-cost" hreflang="zh-CN">简体中文</a><a class="lang-option" aria-current="page" href="/blog/claude-code-cost" hreflang="en">English</a></div></details><script src="/navigation.js" defer></script><a class="nav-icon" href="https://github.com/tw93/Kaku" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a><a class="nav-icon" href="https://x.com/HiTw93" target="_blank" rel="noopener noreferrer" aria-label="X"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a></div></div></nav>
+  <main id="main-content" class="docs-page blog-page">
+    <header class="page-hero doc-hero blog-hero"><div class="wide"><nav class="blog-crumb" aria-label="Breadcrumb"><a href="/blog">Blog</a></nav><h1>Claude Code Cost: Pricing, /usage, ccusage and Ways to Cut It</h1><p class="blog-meta"><span><a href="/blog#topic-agents">Claude Code and Codex</a></span><span>Published <time datetime="2026-10-23">Oct 23, 2026</time></span><span>8 min read</span></p></div></header>
+    <section class="section">
+      <div class="wide">
+        <article class="doc-content blog-article">
+          <figure class="blog-cover" aria-hidden="true"><img src="/img/blog/cards/claude-code-cost.webp" width="1600" height="900" alt="" fetchpriority="high"></figure>
+<p>Claude Code is billed one of two ways. On a Pro, Max, Team or Enterprise plan your usage draws from a plan allowance, and on an API key, the Claude Console or a cloud provider you pay per token. Either way the cost follows one thing, how much context Claude has to read on every request. Check where you stand with <code>/usage</code> (<code>/cost</code> is an alias), keep sessions short with <code>/clear</code>, and match the model to the task. Anthropic's costs page puts the average across enterprise deployments at around $13 per developer per active day, with 90% of users below $30.</p>
+<h2 id="how-you-are-billed">How you are billed</h2>
+<p>The <a href="https://code.claude.com/docs/en/costs" target="_blank" rel="noopener noreferrer">costs page</a>, read on 19 October 2026, starts with the split. Claude Code charges by API token consumption, and for subscription plan pricing it sends you to <a href="https://claude.com/pricing" target="_blank" rel="noopener noreferrer">claude.com/pricing</a>. That pricing page lists Claude Code under the Pro and Max plans and as included on Team and Enterprise, but not on Free. This post copies no plan prices, because they change and that page is the source.</p>
+<p>What differs is where the meter is:</p>
+<table>
+<thead>
+<tr>
+<th>Your setup</th>
+<th>What is metered</th>
+<th>Where you see spend</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pro or Max</td>
+<td>A plan allowance shared with claude.ai</td>
+<td>Plan usage bars in <code>/usage</code></td>
+</tr>
+<tr>
+<td>Team or Enterprise</td>
+<td>A per-seat allowance on a rolling five-hour window and a weekly window</td>
+<td>Spend report in org analytics</td>
+</tr>
+<tr>
+<td>Claude Console (API key)</td>
+<td>Tokens, billed to your organization</td>
+<td>Console usage page</td>
+</tr>
+<tr>
+<td>Bedrock, Google Cloud's Agent Platform, Foundry</td>
+<td>Tokens, billed to your cloud account</td>
+<td>Your cloud billing console</td>
+</tr>
+</tbody>
+</table>
+<p>On a plan, you can also turn on usage credits to keep working past the allowance. <code>/usage-credits</code> opens the settings for them, or, on a Team or Enterprise seat without billing access, sends a request to your admins.</p>
+<h2 id="where-to-see-what-you-spent">Where to see what you spent</h2>
+<p><code>/usage</code> is the command to know. Its Session block shows token counts per model and a dollar figure for the current session. Claude Code works that figure out locally from token counts at list price, so the docs call it an estimate, and the Usage page in the Claude Console is the authoritative number for API billing. On Pro and Max the dollar figure is not what you are billed, since usage is included in the subscription. Those plans get plan usage bars and a breakdown instead, with recent usage attributed to skills, subagents, plugins and individual MCP servers. Press <code>d</code> or <code>w</code> to switch between 24 hours and 7 days. The breakdown also flags behaviors such as long context or cache misses once one accounts for 10% or more of recent usage. Its figures are approximate, computed from session history on this machine, so usage from other devices or claude.ai is not in them.</p>
+<p>The session totals reset when <code>/clear</code> starts a new session. Newer versions also add a <code>Prompt cache (main)</code> line that shows what share of input came from cache and whether the cache is warm, which helps when a session suddenly feels expensive.</p>
+<p><code>/insights</code> answers a different question. It writes an HTML report to <code>~/.claude/usage-data/report.html</code> about how you work, with friction points and suggestions, and its analysis uses tokens from your plan or API usage.</p>
+<p>If you want the numbers on screen all the time, the <a href="/blog/claude-code-statusline">status line</a> can show cost and context usage continuously. Kaku's <code>kaku ai</code> panel also shows plan usage for Claude Code without installing a status line.</p>
+<h2 id="ccusage-for-history">ccusage for history</h2>
+<p><code>/usage</code> covers the current session and recent plan usage. For a history by day, month or session, <a href="https://github.com/ccusage/ccusage" target="_blank" rel="noopener noreferrer">ccusage</a> reads the usage data Claude Code leaves on your machine and prints reports:</p>
+<pre><code class="language-bash">npx ccusage@latest            <span class="tok-c"># all detected sources by day
+</span>npx ccusage claude daily      <span class="tok-c"># Claude Code only
+</span>npx ccusage monthly --json
+npx ccusage blocks            <span class="tok-c"># Claude Code 5-hour billing windows
+</span>npx ccusage claude daily --instances   <span class="tok-c"># grouped by project
+</span></code></pre>
+<p>Its README says it analyzes token usage and costs from local data, reports cache creation and cache read tokens separately, and has an <code>--offline</code> mode that uses cached pricing. It is a third-party project, not an Anthropic tool, so treat its dollar figures the way you treat <code>/usage</code>, as an estimate from list prices.</p>
+<h2 id="what-drives-the-cost">What drives the cost</h2>
+<p>Token cost scales with context size. Claude Code sends the whole conversation with every request, and every tool call is another request carrying the results so far. Prompt caching makes re-reading that history cheaper, not free, which is why a one-line question in a session that has been open all day still draws usage for the whole conversation.</p>
+<p>The costs page lists the usual reasons usage climbs:</p>
+<ul>
+<li><strong>Long context.</strong> Stale conversation from three tasks ago is sent again on every message.</li>
+<li><strong>Cache misses.</strong> The first message after a break longer than the cache lifetime reprocesses the full context. The lifetime is one hour on a subscription, dropping to five minutes once you draw on usage credits, and five minutes on an API key or cloud provider by default.</li>
+<li><strong>Model choice.</strong> The docs say Sonnet handles most coding tasks and costs less than Opus, and that unexpectedly high API spend usually traces back to long sessions that were never cleared or to Opus left as the default. Each model also has its own prompt cache, so switching with <code>/model</code> partway through a conversation makes the next request read the whole history with no cache hits; change models at the start of a task or right after <code>/clear</code>.</li>
+<li><strong>Extended thinking.</strong> Thinking tokens are billed as output tokens, and the default budget can be tens of thousands of tokens per request.</li>
+<li><strong>Subagents and teams.</strong> Each subagent sends its own requests on top of the main conversation. <a href="/blog/claude-code-agent-teams">Agent teams</a> run separate instances, and the docs say they use about 7 times more tokens than a standard session when teammates run in plan mode.</li>
+<li><strong>Scheduled and idle work.</strong> Scheduled tasks, cross-session messages and goal check-ins send your full context even while you are away.</li>
+<li><strong>MCP tools.</strong> Tool definitions are deferred by default, so only names and server instructions enter context until a tool is used, but <code>/context</code> shows what is taking space.</li>
+</ul>
+<h2 id="ways-to-cut-it">Ways to cut it</h2>
+<p>These are the habits the costs doc recommends.</p>
+<ol>
+<li><strong>Clear between tasks.</strong> Run <code>/clear</code> when you switch to unrelated work. Use <code>/rename</code> first and <code>/resume</code> later if you want to come back. <code>/clear</code> costs nothing, while <code>/compact</code> has to read the whole conversation it summarizes.</li>
+<li><strong>Compact with instructions.</strong> <code>/compact Focus on code samples and API usage</code> tells Claude what to keep. You can also put a "Compact instructions" section in <code>CLAUDE.md</code>.</li>
+<li><strong>Pick the model for the job.</strong> Switch with <code>/model</code> or set a default in <code>/config</code>. For simple subagent tasks, put <code>model: haiku</code> in the <a href="/blog/claude-code-subagents">subagent file</a>.</li>
+<li><strong>Lower the effort on easy tasks.</strong> <code>/effort</code> or <code>/model</code> adjusts it, and <code>MAX_THINKING_TOKENS=8000</code> caps the budget on models with a fixed thinking budget. Adaptive-reasoning models ignore that budget, so use effort levels there.</li>
+<li><strong>Trim MCP servers.</strong> Run <code>/mcp</code> and disable what you are not using, and prefer CLI tools such as <code>gh</code> when they exist, since they add no per-tool listing. See <a href="/blog/claude-code-mcp-servers">MCP servers</a>.</li>
+<li><strong>Filter output with hooks.</strong> A PreToolUse <a href="/blog/claude-code-hooks">hook</a> can cut a test run down to the failures before Claude sees it. The docs' example of a hook that greps a long log for errors takes context from tens of thousands of tokens to hundreds.</li>
+<li><strong>Keep CLAUDE.md small.</strong> It loads at session start. The docs suggest moving workflow-specific instructions into <a href="/blog/claude-code-skills">skills</a>, which load on demand, and keeping CLAUDE.md under 200 lines.</li>
+<li><strong>Be specific.</strong> "Add input validation to the login function in auth.ts" triggers far less scanning than "improve this codebase".</li>
+<li><strong>Plan first on big tasks.</strong> Shift+Tab cycles to <a href="/blog/claude-code-plan-mode">plan mode</a>, which prevents expensive rework when the first direction is wrong. Escape stops a wrong turn early, and <code>/rewind</code> restores a checkpoint.</li>
+</ol>
+<h2 id="limits-for-teams">Limits for teams</h2>
+<p>On Team and Enterprise plans the seat allowance is the default ceiling. Admins can turn on usage credits and set spend limits at the organization, group or member level, and the spend report in org analytics shows estimated spend per user and per model with CSV export. Usage inside the seat allowance is not metered in dollars.</p>
+<p>On the Console, spend limits are set per workspace, and the first sign-in creates a workspace called Claude Code for tracking. The docs give per-user rate limit recommendations by team size, from 200k to 300k tokens per minute per user for 1 to 5 users down to 10k to 15k for 500 or more. On cloud providers, Claude Code does not send metrics back to Anthropic, so per-user numbers come from OpenTelemetry or an LLM gateway.</p>
+<p>Users hit different walls, and the messages differ. "You've hit your session limit" or "weekly limit" is a seat window shared across models, so switching models does not help. A spend limit message means usage credits hit a cap an admin set. A context or auto-compact warning is not a usage limit at all.</p>
+<h2 id="faq">FAQ</h2>
+<h3 id="is-claude-code-free">Is Claude Code free?</h3>
+<p>Not on its own. The pricing page lists it under the paid plans, and with an API key you pay per token. Check <a href="https://claude.com/pricing" target="_blank" rel="noopener noreferrer">claude.com/pricing</a> for current plans.</p>
+<h3 id="does-usage-show-my-real-bill">Does /usage show my real bill?</h3>
+<p>For API billing it is an estimate at list price, and the Console usage page is authoritative. On Pro and Max the session dollar figure is not what you are charged, so read the plan usage bars.</p>
+<h3 id="why-did-one-short-question-use-so-much">Why did one short question use so much?</h3>
+<p>Because the whole conversation travels with it. After a break longer than the cache lifetime the full context is reprocessed too. Run <code>/clear</code> between tasks.</p>
+          <aside class="blog-cta"><img class="blog-cta-icon" src="/img/kaku-mark.png" width="40" height="40" alt=""><p>Kaku is a free, open-source Mac terminal.</p><a class="btn btn-primary" href="/docs">Install Kaku</a></aside>
+          <nav class="blog-related" aria-label="Keep reading"><h2 class="blog-related-title">Keep reading</h2><ul class="blog-related-list"><li><a href="/blog/install-claude-code-mac"><span class="blog-related-cat">Claude Code and Codex</span><span class="blog-related-name">Install Claude Code on Mac: Installer, Homebrew and Updates</span><span class="blog-related-meta"><time datetime="2026-10-02">Oct 2, 2026</time> · 6 min read</span></a></li><li><a href="/blog/claude-code-slash-commands"><span class="blog-related-cat">Claude Code and Codex</span><span class="blog-related-name">Claude Code Slash Commands: The Ones That Matter and How to Write Your Own</span><span class="blog-related-meta"><time datetime="2026-10-22">Oct 22, 2026</time> · 7 min read</span></a></li><li><a href="/blog/claude-code-permissions"><span class="blog-related-cat">Claude Code and Codex</span><span class="blog-related-name">Claude Code Permissions: Modes, Rules and --dangerously-skip-permissions</span><span class="blog-related-meta"><time datetime="2026-10-21">Oct 21, 2026</time> · 8 min read</span></a></li></ul></nav>
+        </article>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer"><div class="wide foot"><div class="foot-brand"><p class="name">Kaku · <span class="foot-mark" lang="zh-Hant">書</span></p><p class="foot-sub">A fast, good-looking, AI-friendly terminal for the Mac.</p></div><div class="foot-links"><div><b>Product</b><a href="/docs">Docs</a><a href="/changelog">Changelog</a><a href="/roadmap">Roadmap</a><a href="/compare">Compare</a><a href="/blog">Blog</a></div><div><b>Project</b><a href="/about">About</a><a href="/privacy">Privacy</a><a href="https://github.com/tw93/Kaku">GitHub</a><a href="https://github.com/tw93/Kaku/issues">Issues</a></div><div><b>Connect</b><a href="/contact">Contact</a><a href="https://x.com/HiTw93">X</a></div></div></div></footer>
+</body>
+</html>

@@ -7,6 +7,14 @@
     <description>Guides and notes on Mac terminals, Claude Code, Codex and shell setup, and how Kaku is built.</description>
     <language>en</language>
     <item>
+      <title>Claude Code Cost: Pricing, /usage, ccusage and Ways to Cut It</title>
+      <link>https://kaku.fun/blog/claude-code-cost</link>
+      <guid isPermaLink="true">https://kaku.fun/blog/claude-code-cost</guid>
+      <pubDate>Fri, 23 Oct 2026 09:00:00 +0800</pubDate>
+      <dc:creator>Tw93</dc:creator>
+      <description>How Claude Code is billed on plans and API keys, where /usage and ccusage show spend, what drives cost, and the habits that cut it.</description>
+    </item>
+    <item>
       <title>Claude Code Slash Commands: The Ones That Matter and How to Write Your Own</title>
       <link>https://kaku.fun/blog/claude-code-slash-commands</link>
       <guid isPermaLink="true">https://kaku.fun/blog/claude-code-slash-commands</guid>

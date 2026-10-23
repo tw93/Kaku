@@ -7,6 +7,14 @@
     <description>关于 Mac 终端、Claude Code、Codex、shell 配置的指南，以及 Kaku 是怎么做出来的。</description>
     <language>zh-CN</language>
     <item>
+      <title>Claude Code 费用：计费方式、/usage、ccusage 和省钱做法</title>
+      <link>https://kaku.fun/zh/blog/claude-code-cost</link>
+      <guid isPermaLink="true">https://kaku.fun/zh/blog/claude-code-cost</guid>
+      <pubDate>Fri, 23 Oct 2026 09:00:00 +0800</pubDate>
+      <dc:creator>Tw93</dc:creator>
+      <description>Claude Code 的订阅与 API 计费区别，/usage 和 ccusage 怎么看花费，费用从哪来，以及怎么省。</description>
+    </item>
+    <item>
       <title>Claude Code 斜杠命令：常用命令和自定义命令写法</title>
       <link>https://kaku.fun/zh/blog/claude-code-slash-commands</link>
       <guid isPermaLink="true">https://kaku.fun/zh/blog/claude-code-slash-commands</guid>
