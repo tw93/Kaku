@@ -61,7 +61,7 @@ pub fn ensure_assistant_toml_exists() -> anyhow::Result<PathBuf> {
     config::create_user_owned_dirs(parent).context("create config directory")?;
 
     if !path.exists() {
-        std::fs::write(&path, default_assistant_toml_template())
+        crate::utils::write_atomic(&path, default_assistant_toml_template().as_bytes())
             .with_context(|| format!("write {}", path.display()))?;
     }
 
@@ -154,7 +154,7 @@ fn ensure_required_keys(path: &Path) -> anyhow::Result<()> {
     let (updated, changed) = ensure_required_keys_in_content(&raw);
 
     if changed {
-        std::fs::write(path, updated.as_bytes())
+        crate::utils::write_atomic(path, updated.as_bytes())
             .with_context(|| format!("write {}", path.display()))?;
     }
     Ok(())
@@ -241,6 +241,86 @@ fn top_level_toml_has_key(content: &str, key: &str) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::os::unix::fs::{symlink, PermissionsExt};
+
+    #[test]
+    fn required_keys_update_preserves_symlink_permissions_and_user_settings() {
+        let dir = tempfile::tempdir().expect("tempdir");
+        let target = dir.path().join("dotfiles.toml");
+        let link = dir.path().join("assistant.toml");
+        let original = "# My settings\napi_key = \"user-key\"\nmodel = \"custom-model\"\n\n[provider]\nname = \"custom\"\n";
+        std::fs::write(&target, original).expect("seed target");
+        std::fs::set_permissions(&target, std::fs::Permissions::from_mode(0o400))
+            .expect("protect target");
+        symlink("dotfiles.toml", &link).expect("symlink");
+
+        ensure_required_keys(&link).expect("insert missing base_url");
+
+        assert_eq!(
+            std::fs::read_link(&link).expect("read link"),
+            Path::new("dotfiles.toml")
+        );
+        let saved = std::fs::read_to_string(&target).expect("read target");
+        assert_eq!(
+            saved,
+            format!(
+                "# My settings\napi_key = \"user-key\"\nmodel = \"custom-model\"\nbase_url = \"{DEFAULT_BASE_URL}\"\n[provider]\nname = \"custom\"\n"
+            )
+        );
+        assert_eq!(
+            std::fs::metadata(&target)
+                .expect("target metadata")
+                .permissions()
+                .mode()
+                & 0o777,
+            0o400
+        );
+        ensure_required_keys(&link).expect("already complete config needs no write");
+        assert_eq!(
+            std::fs::read_to_string(&target).expect("read target again"),
+            saved
+        );
+    }
+
+    #[test]
+    fn required_keys_write_failure_preserves_symlink_and_target() {
+        let dir = tempfile::tempdir().expect("tempdir");
+        let target_dir = dir.path().join("dotfiles");
+        std::fs::create_dir(&target_dir).expect("target dir");
+        let target = target_dir.join("assistant.toml");
+        let original = "# My settings\napi_key = \"user-key\"\n";
+        std::fs::write(&target, original).expect("seed target");
+        std::fs::set_permissions(&target, std::fs::Permissions::from_mode(0o600))
+            .expect("target permissions");
+        let link = dir.path().join("assistant.toml");
+        symlink("dotfiles/assistant.toml", &link).expect("symlink");
+
+        // The target remains writable, but a sibling temporary file cannot be
+        // created. A direct write would overwrite the user's existing config.
+        std::fs::set_permissions(&target_dir, std::fs::Permissions::from_mode(0o500))
+            .expect("protect target directory");
+        let result = ensure_required_keys(&link);
+        std::fs::set_permissions(&target_dir, std::fs::Permissions::from_mode(0o700))
+            .expect("restore target directory");
+
+        assert!(result.is_err(), "write in protected directory succeeded");
+        assert_eq!(
+            std::fs::read_to_string(&target).expect("read target"),
+            original
+        );
+        assert_eq!(
+            std::fs::read_link(&link).expect("read link"),
+            Path::new("dotfiles/assistant.toml")
+        );
+        assert_eq!(
+            std::fs::metadata(&target)
+                .expect("target metadata")
+                .permissions()
+                .mode()
+                & 0o777,
+            0o600
+        );
+    }
 
     // detect_provider* tests live in `kaku-gui/src/ai_client.rs` next to the
     // single canonical implementation. The previously duplicated tests here
