@@ -14,35 +14,7 @@ local function basename(path)
   return path:match('([^/]+)$')
 end
 
-local yazi_mode_hints = {}
-
-local function pane_hint_key(pane)
-  if not pane then
-    return nil
-  end
-
-  local ok, pane_id = pcall(function()
-    return pane:pane_id()
-  end)
-  if not ok or not pane_id then
-    return nil
-  end
-
-  return tostring(pane_id)
-end
-
-local function set_yazi_mode_hint(pane, active)
-  local key = pane_hint_key(pane)
-  if not key then
-    return
-  end
-
-  if active then
-    yazi_mode_hints[key] = true
-  else
-    yazi_mode_hints[key] = nil
-  end
-end
+local yazi_tabs = {}
 
 -- URL decode helper for Chinese characters in paths
 -- Converts %E9%9F%B3%E4%B9%90 -> 音乐
@@ -3014,37 +2986,61 @@ local function launch_yazi(window, pane)
     return
   end
 
-  local remote_target = resolve_remote_target_from_pane(pane)
-  local send_command = "\x15y 2>/dev/null || yazi\r"
-  if not remote_target then
-    sync_managed_yazi_theme(window)
-
-    local yazi_cmd = resolve_yazi_command()
-    if not yazi_cmd then
-      set_yazi_mode_hint(pane, false)
-      show_yazi_toast(window, pane, "kaku-toast-yazi-missing")
-      return
-    end
-
-    send_command = "\x15y 2>/dev/null || " .. yazi_cmd .. "\r"
+  local yazi_cmd = resolve_yazi_command()
+  if not yazi_cmd then
+    show_yazi_toast(window, pane, "kaku-toast-yazi-missing")
+    return
   end
 
-  set_yazi_mode_hint(pane, true)
-  local dims = window:get_dimensions()
-  update_window_config(window, dims.is_full_screen, pane)
+  sync_managed_yazi_theme(window)
+  -- This shortcut always opens local Yazi. Remote paths belong to the
+  -- sshfs workflow (Cmd+Shift+R), not the local filesystem or SSH domain.
+  local cwd = os.getenv('HOME')
+  if not resolve_remote_target_from_pane(pane) then
+    local path = pane_cwd(pane)
+    if path ~= '' then
+      cwd = path
+    end
+  end
 
   local ok = pcall(function()
-    -- Prefer the shell wrapper `y` for cwd sync. Remote panes must not receive
-    -- a locally resolved absolute yazi path.
-    window:perform_action(
-      wezterm.action.SendString(send_command),
-      pane
-    )
+    local mux_window = window:mux_window()
+    local source_tab_id = window:active_tab():tab_id()
+    -- Spawn directly: SendString would type a shell command into Codex or
+    -- whichever interactive application currently owns the source pane.
+    local tab = mux_window:spawn_tab({
+      domain = { DomainName = 'local' },
+      cwd = cwd,
+      args = { yazi_cmd },
+    })
+    yazi_tabs[tab:tab_id()] = {
+      source = source_tab_id,
+      window = mux_window:window_id(),
+    }
+    tab:activate()
   end)
   if not ok then
-    set_yazi_mode_hint(pane, false)
     show_yazi_toast(window, pane, "kaku-toast-yazi-dispatch-failed")
+  end
+end
+
+local function restore_yazi_tab(window)
+  if next(yazi_tabs) == nil then
     return
+  end
+  local mux_window = window:mux_window()
+  local window_id = mux_window:window_id()
+  local tabs = {}
+  for _, tab in ipairs(mux_window:tabs()) do
+    tabs[tab:tab_id()] = tab
+  end
+  for tab_id, origin in pairs(yazi_tabs) do
+    if origin.window == window_id and not tabs[tab_id] then
+      if tabs[origin.source] then
+        tabs[origin.source]:activate()
+      end
+      yazi_tabs[tab_id] = nil
+    end
   end
 end
 
@@ -3868,6 +3864,7 @@ wezterm.on('user-var-changed', function(window, pane, name, value)
 end)
 
 wezterm.on('update-right-status', function(window, pane)
+  restore_yazi_tab(window)
   pane = resolve_active_pane(window, pane)
   if should_remember_last_cwd() then
     local ok, cwd = pcall(function() return pane:get_current_working_dir() end)
@@ -4631,7 +4628,7 @@ config.keys = (function() return {
     action = wezterm.action.EmitEvent('kaku-launch-lazygit'),
   },
 
-  -- Cmd+Shift+Y: launch yazi in current pane
+  -- Cmd+Shift+Y: launch local yazi in a new tab
   {
     key = 'Y',
     mods = 'CMD|SHIFT',

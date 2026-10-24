@@ -112,9 +112,9 @@ config.window_padding = { left = '24px', right = '24px', top = '40px', bottom = 
 
 Since V0.12.1 the viewport no longer jumps to the top during streaming output. If you scroll up mid-stream, pressing the down arrow or scrolling back down returns you to the current output.
 
-## Cmd+Shift+Y sends a local path when inside an SSH session.
+## How does Cmd+Shift+Y work inside an SSH session or Codex?
 
-The yazi remote-files feature (`Cmd+Shift+R`) is designed for SSH sessions and mounts the remote filesystem via sshfs. `Cmd+Shift+Y` is for local yazi. Use `Cmd+Shift+R` when you are inside an SSH pane.
+`Cmd+Shift+Y` starts local yazi in a separate tab without sending input to the current application. It inherits a local pane's working directory; from an SSH session, it uses your local home directory. Closing the yazi tab returns to the source tab. The yazi remote-files feature (`Cmd+Shift+R`) mounts the remote filesystem via sshfs; use it to browse files from an SSH pane.
 
 ## Kaku's prompt shows up in other terminals, or is missing from them.
 

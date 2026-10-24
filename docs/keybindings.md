@@ -73,7 +73,7 @@
 | Apply Kaku Assistant suggestion | `Cmd + Shift + E` |
 | Restore previous window snapshot | `Cmd + Opt + Shift + T` |
 | Open lazygit | `Cmd + Shift + G` |
-| Open yazi file manager | `Cmd + Shift + Y` |
+| Open local yazi in a new tab | `Cmd + Shift + Y` |
 | Browse remote files (SSH) | `Cmd + Shift + R` |
 | Open Doctor panel | `Ctrl + Shift + L` |
 

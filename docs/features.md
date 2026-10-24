@@ -125,7 +125,9 @@ Install lazygit with `brew install lazygit` or via `kaku init`.
 
 ## Yazi File Manager
 
-Press `Cmd + Shift + Y` to launch yazi in the current pane. The shell wrapper `y` also launches yazi and syncs the shell working directory on exit.
+Press `Cmd + Shift + Y` to launch local yazi in a new tab, starting in the current pane's working directory. Closing the yazi tab returns to the source tab. This also works while Codex or another interactive application is running, without typing a command into its input. From an SSH session, local yazi starts in your local home directory; use `Cmd + Shift + R` to browse remote files.
+
+The shortcut does not change the source shell's directory. To launch yazi in the current shell and sync its working directory on exit, run the shell wrapper `y` instead.
 
 **Theme sync**: Kaku automatically updates `~/.config/yazi/theme.toml` to match the active color scheme (Kaku Dark or Kaku Light). No manual yazi theme setup needed.
 

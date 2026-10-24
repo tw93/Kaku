@@ -206,6 +206,11 @@ jobs:
       - name: Restart process selection tests
         run: python3 scripts/test_restart_kaku.py
 
+      - name: Yazi tab launcher regression tests
+        run: |
+          command -v luajit >/dev/null || brew install luajit
+          luajit scripts/test_yazi_launcher.lua
+
       - name: Shell integration smoke tests
         run: |
           set -euo pipefail
