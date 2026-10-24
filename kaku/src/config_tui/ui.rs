@@ -432,7 +432,7 @@ fn render_selector(frame: &mut ratatui::Frame, area: Rect, app: &App) {
                             Modifier::empty()
                         }),
                 ),
-                Span::styled(*opt, style),
+                Span::styled(opt.clone(), style),
             ]))
         })
         .collect();

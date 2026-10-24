@@ -61,6 +61,30 @@ config.color_scheme = "Kaku Dark"   -- always dark
 config.color_scheme = "Kaku Light"  -- always light
 ```
 
+**Custom themes**
+
+Kaku reads WezTerm-compatible color scheme files from the `colors` directory next to your config: `~/.config/kaku/colors/*.toml` by default, plus any directory listed in `config.color_scheme_dirs`. Everything `kaku config` needs to list a theme comes from those files, so no registration step is required.
+
+```toml
+# ~/.config/kaku/colors/example-dark.toml
+[colors]
+background = "#101014"
+foreground = "#e6e2d8"
+cursor_bg = "#e6e2d8"
+cursor_fg = "#101014"
+selection_bg = "#2c2a36"
+selection_fg = "#e6e2d8"
+ansi = ["#3a3646", "#e1505d", "#2bae85", "#e2c027", "#619ac3", "#c08eaf", "#57c3c2", "#cfc8bb"]
+brights = ["#6b6478", "#ea586c", "#45b787", "#eed045", "#8fb2c9", "#d1c2d3", "#93d5dc", "#f4efe4"]
+
+[metadata]
+name = "Example Dark"
+```
+
+The selected value is the scheme's `[metadata].name`, or the file name when that field is absent. Keep the file name equal to `name` so the scheme loads without scanning the whole directory. A scheme your `kaku.lua` defines directly (`config.color_schemes["Name"] = { ... }`) is listed too.
+
+After the file is in place, open `kaku config` and pick it from **Theme**; the command writes `config.color_scheme = "Example Dark"` for you. **Auto** still switches only between Kaku Dark and Kaku Light, so a custom theme is a manual choice.
+
 **Color overrides**
 
 Remap specific hex colors to keep theme consistency with apps that output their own colors. `color_overrides` applies to rendered backgrounds, including palette-backed ANSI backgrounds and truecolor backgrounds. `foreground_color_overrides` applies only to truecolor text:

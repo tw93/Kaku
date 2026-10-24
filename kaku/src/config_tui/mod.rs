@@ -306,6 +306,39 @@ enum Mode {
 /// `window_frame` opts out of the bundled config's frame theming.
 const THEME_OVERRIDE_KEYS: [&str; 2] = ["colors", "window_frame"];
 
+/// Escapes a value for a single-quoted Lua string literal.
+fn escape_lua_string(value: &str) -> String {
+    value
+        .replace('\\', "\\\\")
+        .replace('\'', "\\'")
+        .replace('\n', "\\n")
+        .replace('\r', "\\r")
+}
+
+/// Fixed choice labels for a `ConfigField`. Choices that come from the user's
+/// environment, such as color schemes, are built at runtime instead.
+fn choices(values: &[&str]) -> Vec<String> {
+    values.iter().map(|value| value.to_string()).collect()
+}
+
+/// Theme labels for the Appearance row: Kaku's fixed entries followed by every
+/// user-provided scheme discovered on disk or in the user's Lua config.
+fn theme_choices() -> Vec<String> {
+    merge_theme_choices(config::user_color_schemes())
+}
+
+/// Appends discovered scheme names after the fixed labels, dropping duplicates
+/// so a scheme that shares a label cannot appear twice.
+fn merge_theme_choices(discovered: Vec<String>) -> Vec<String> {
+    let mut labels = choices(&["Auto", "Kaku Dark", "Kaku Light"]);
+    for name in discovered {
+        if !labels.iter().any(|existing| existing == &name) {
+            labels.push(name);
+        }
+    }
+    labels
+}
+
 #[derive(Clone)]
 struct ConfigField {
     section: &'static str,
@@ -313,7 +346,7 @@ struct ConfigField {
     lua_key: &'static str,
     value: String,
     default: String,
-    options: Vec<&'static str>,
+    options: Vec<String>,
     /// If true, the field's config line exists but could not be fully parsed.
     /// save_config will leave the line untouched to avoid corrupting user config.
     skip_write: bool,
@@ -345,6 +378,12 @@ struct App {
 
 impl App {
     fn new(config_path: PathBuf) -> Self {
+        Self::with_theme_choices(config_path, theme_choices())
+    }
+
+    /// `themes` is injected so tests can exercise the Appearance row without
+    /// depending on the user's real config directory.
+    fn with_theme_choices(config_path: PathBuf, themes: Vec<String>) -> Self {
         let fields = vec![
             // Appearance
             ConfigField {
@@ -353,7 +392,7 @@ impl App {
                 lua_key: "color_scheme",
                 value: String::new(),
                 default: "Auto".into(),
-                options: vec!["Auto", "Kaku Dark", "Kaku Light"],
+                options: themes,
                 skip_write: false,
             },
             ConfigField {
@@ -362,7 +401,7 @@ impl App {
                 lua_key: "font",
                 value: String::new(),
                 default: "JetBrains Mono".into(),
-                options: vec![],
+                options: Vec::new(),
                 skip_write: false,
             },
             ConfigField {
@@ -371,7 +410,7 @@ impl App {
                 lua_key: "font_size",
                 value: String::new(),
                 default: "17".into(),
-                options: vec![],
+                options: Vec::new(),
                 skip_write: false,
             },
             ConfigField {
@@ -380,7 +419,7 @@ impl App {
                 lua_key: "line_height",
                 value: String::new(),
                 default: "1.28".into(),
-                options: vec![],
+                options: Vec::new(),
                 skip_write: false,
             },
             ConfigField {
@@ -389,7 +428,7 @@ impl App {
                 lua_key: "macos_global_hotkey",
                 value: String::new(),
                 default: "Ctrl+Alt+Cmd+K".into(),
-                options: vec![],
+                options: Vec::new(),
                 skip_write: false,
             },
             ConfigField {
@@ -398,7 +437,7 @@ impl App {
                 lua_key: "tab_bar_at_bottom",
                 value: String::new(),
                 default: "Bottom".into(),
-                options: vec!["Bottom", "Top"],
+                options: choices(&["Bottom", "Top"]),
                 skip_write: false,
             },
             ConfigField {
@@ -407,7 +446,7 @@ impl App {
                 lua_key: "tab_title_show_basename_only",
                 value: String::new(),
                 default: "Off".into(),
-                options: vec!["On", "Off"],
+                options: choices(&["On", "Off"]),
                 skip_write: false,
             },
             ConfigField {
@@ -416,7 +455,7 @@ impl App {
                 lua_key: "tab_title_show_foreground_process",
                 value: String::new(),
                 default: "Off".into(),
-                options: vec!["On", "Off"],
+                options: choices(&["On", "Off"]),
                 skip_write: false,
             },
             ConfigField {
@@ -425,7 +464,7 @@ impl App {
                 lua_key: "show_tab_index_in_tab_bar",
                 value: String::new(),
                 default: "Off".into(),
-                options: vec!["On", "Off"],
+                options: choices(&["On", "Off"]),
                 skip_write: false,
             },
             ConfigField {
@@ -434,7 +473,7 @@ impl App {
                 lua_key: "show_new_tab_button_in_tab_bar",
                 value: String::new(),
                 default: "On".into(),
-                options: vec!["On", "Off"],
+                options: choices(&["On", "Off"]),
                 skip_write: false,
             },
             ConfigField {
@@ -443,7 +482,7 @@ impl App {
                 lua_key: "show_agent_title",
                 value: String::new(),
                 default: "On".into(),
-                options: vec!["On", "Off"],
+                options: choices(&["On", "Off"]),
                 skip_write: false,
             },
             ConfigField {
@@ -452,7 +491,7 @@ impl App {
                 lua_key: "enable_scroll_bar",
                 value: String::new(),
                 default: "Off".into(),
-                options: vec!["On", "Off"],
+                options: choices(&["On", "Off"]),
                 skip_write: false,
             },
             ConfigField {
@@ -461,7 +500,7 @@ impl App {
                 lua_key: "__wdeco_traffic_lights__",
                 value: String::new(),
                 default: "On".into(),
-                options: vec!["On", "Off"],
+                options: choices(&["On", "Off"]),
                 skip_write: false,
             },
             ConfigField {
@@ -470,7 +509,7 @@ impl App {
                 lua_key: "__wdeco_shadow__",
                 value: String::new(),
                 default: "On".into(),
-                options: vec!["On", "Off"],
+                options: choices(&["On", "Off"]),
                 skip_write: false,
             },
             ConfigField {
@@ -479,7 +518,7 @@ impl App {
                 lua_key: "window_background_opacity",
                 value: String::new(),
                 default: "1.0".into(),
-                options: vec![],
+                options: Vec::new(),
                 skip_write: false,
             },
             ConfigField {
@@ -488,7 +527,7 @@ impl App {
                 lua_key: "macos_window_background_blur",
                 value: String::new(),
                 default: "0".into(),
-                options: vec![],
+                options: Vec::new(),
                 skip_write: false,
             },
             ConfigField {
@@ -497,7 +536,7 @@ impl App {
                 lua_key: "copy_on_select",
                 value: String::new(),
                 default: "On".into(),
-                options: vec!["On", "Off"],
+                options: choices(&["On", "Off"]),
                 skip_write: false,
             },
             ConfigField {
@@ -506,7 +545,7 @@ impl App {
                 lua_key: "tab_close_confirmation",
                 value: String::new(),
                 default: "Smart".into(),
-                options: vec!["Never", "Smart", "Always"],
+                options: choices(&["Never", "Smart", "Always"]),
                 skip_write: false,
             },
             ConfigField {
@@ -515,7 +554,7 @@ impl App {
                 lua_key: "pane_close_confirmation",
                 value: String::new(),
                 default: "Smart".into(),
-                options: vec!["Never", "Smart", "Always"],
+                options: choices(&["Never", "Smart", "Always"]),
                 skip_write: false,
             },
             ConfigField {
@@ -524,7 +563,7 @@ impl App {
                 lua_key: "bell_tab_indicator",
                 value: String::new(),
                 default: "On".into(),
-                options: vec!["On", "Off"],
+                options: choices(&["On", "Off"]),
                 skip_write: false,
             },
             ConfigField {
@@ -533,7 +572,7 @@ impl App {
                 lua_key: "bell_dock_badge",
                 value: String::new(),
                 default: "Off".into(),
-                options: vec!["On", "Off"],
+                options: choices(&["On", "Off"]),
                 skip_write: false,
             },
             ConfigField {
@@ -542,7 +581,7 @@ impl App {
                 lua_key: "remember_last_cwd",
                 value: String::new(),
                 default: "On".into(),
-                options: vec!["On", "Off"],
+                options: choices(&["On", "Off"]),
                 skip_write: false,
             },
             ConfigField {
@@ -551,7 +590,7 @@ impl App {
                 lua_key: "restore_previous_session",
                 value: String::new(),
                 default: "On".into(),
-                options: vec!["On", "Off"],
+                options: choices(&["On", "Off"]),
                 skip_write: false,
             },
             ConfigField {
@@ -560,7 +599,7 @@ impl App {
                 lua_key: "smart_tab_mode",
                 value: String::new(),
                 default: "Suggestion First".into(),
-                options: vec!["Completion First", "Suggestion First", "Off"],
+                options: choices(&["Completion First", "Suggestion First", "Off"]),
                 skip_write: false,
             },
         ];
@@ -608,6 +647,21 @@ impl App {
                         self.fields[i].skip_write = true;
                     }
                 }
+            }
+        }
+
+        // A scheme can be selected without a matching `colors/*.toml` on disk,
+        // for example a table the user's config builds inline. Keep it in the
+        // list so the row still shows the active value instead of falling back
+        // to the first label.
+        if let Some(field) = self
+            .fields
+            .iter_mut()
+            .find(|field| field.lua_key == "color_scheme")
+        {
+            let current = field.value.clone();
+            if !current.is_empty() && !field.options.iter().any(|option| option == &current) {
+                field.options.push(current);
             }
         }
 
@@ -1061,7 +1115,7 @@ impl App {
                 let current_idx = field
                     .options
                     .iter()
-                    .position(|&o| o == current)
+                    .position(|option| option.as_str() == current)
                     .unwrap_or(0);
                 let next_idx = (current_idx + 1) % 2;
                 let next_value = field.options[next_idx].to_string();
@@ -1074,7 +1128,7 @@ impl App {
                 self.select_index = field
                     .options
                     .iter()
-                    .position(|&o| o == current)
+                    .position(|option| option.as_str() == current)
                     .unwrap_or(0);
             }
         } else {
@@ -1138,14 +1192,14 @@ impl App {
     }
 
     fn confirm_select(&mut self) {
-        let selected_option = self.fields[self.selected].options[self.select_index];
+        let selected_option = self.fields[self.selected].options[self.select_index].clone();
         let current_value = self.display_value(&self.fields[self.selected]).to_string();
         if current_value == selected_option {
             self.mode = Mode::Normal;
             return;
         }
 
-        self.fields[self.selected].value = selected_option.to_string();
+        self.fields[self.selected].value = selected_option;
         // Same: explicit user choice overrides the skip_write protection.
         self.fields[self.selected].skip_write = false;
         self.mode = Mode::Normal;
@@ -1428,7 +1482,9 @@ impl App {
                 if field.value == "Auto" {
                     KAKU_AUTO_COLOR_SCHEME_EXPR.into()
                 } else {
-                    format!("'{}'", field.value)
+                    // Scheme names come from the user, so quote them like Lua
+                    // string literals instead of interpolating raw text.
+                    format!("'{}'", escape_lua_string(&field.value))
                 }
             }
             "font" => format!("wezterm.font('{}')", field.value),
@@ -1555,15 +1611,28 @@ fn signal_config_changed() {
 #[cfg(test)]
 mod tests {
     use super::{
-        ensure_editable_config_exists, normal_mode_action, with_remote_enabled, App, Mode,
-        NormalModeAction, KAKU_AUTO_COLOR_SCHEME_EXPR,
+        choices, ensure_editable_config_exists, normal_mode_action, with_remote_enabled, App,
+        ConfigField, Mode, NormalModeAction, KAKU_AUTO_COLOR_SCHEME_EXPR,
     };
     use crossterm::event::KeyCode;
     use std::path::PathBuf;
     use tempfile::tempdir;
 
+    fn test_app_at(config_path: PathBuf) -> App {
+        // Inject the fixed labels so tests never read the developer's real
+        // config directory; theme discovery has its own fixtures.
+        App::with_theme_choices(config_path, choices(&["Auto", "Kaku Dark", "Kaku Light"]))
+    }
+
     fn test_app() -> App {
-        App::new(PathBuf::from("/tmp/kaku-config-tui-test.lua"))
+        test_app_at(PathBuf::from("/tmp/kaku-config-tui-test.lua"))
+    }
+
+    fn theme_field(app: &App) -> &ConfigField {
+        app.fields
+            .iter()
+            .find(|f| f.lua_key == "color_scheme")
+            .expect("color_scheme field to exist")
     }
 
     #[test]
@@ -1658,6 +1727,71 @@ mod tests {
     }
 
     #[test]
+    fn discovered_schemes_append_after_the_fixed_theme_labels() {
+        let labels = super::merge_theme_choices(vec![
+            "Example Dark".to_string(),
+            "Kaku Dark".to_string(),
+            "Example Dark".to_string(),
+        ]);
+
+        assert_eq!(
+            labels,
+            choices(&["Auto", "Kaku Dark", "Kaku Light", "Example Dark"])
+        );
+    }
+
+    #[test]
+    fn selecting_a_user_scheme_writes_its_name() {
+        let mut app = App::with_theme_choices(
+            PathBuf::from("/tmp/kaku-config-tui-test.lua"),
+            choices(&["Auto", "Kaku Dark", "Kaku Light", "Example Dark"]),
+        );
+        app.selected = app
+            .fields
+            .iter()
+            .position(|f| f.lua_key == "color_scheme")
+            .expect("color_scheme field to exist");
+        app.mode = Mode::Selecting;
+        app.select_index = 3;
+        app.confirm_select();
+
+        assert_eq!(theme_field(&app).value, "Example Dark");
+        assert_eq!(app.to_lua_value(theme_field(&app)), "'Example Dark'");
+    }
+
+    #[test]
+    fn user_scheme_names_are_escaped_in_lua() {
+        let mut app = test_app();
+        let idx = app
+            .fields
+            .iter()
+            .position(|f| f.lua_key == "color_scheme")
+            .expect("color_scheme field to exist");
+        app.fields[idx].value = "O'Brien Dark".to_string();
+
+        assert_eq!(app.to_lua_value(&app.fields[idx]), "'O\\'Brien Dark'");
+    }
+
+    /// A scheme the user config selects without a matching `colors/*.toml`, for
+    /// example one built inline, must stay selectable instead of silently
+    /// reverting to the first label.
+    #[test]
+    fn load_config_keeps_a_selected_scheme_that_was_not_discovered() {
+        let dir = tempdir().expect("tempdir");
+        let config_path = dir.path().join("kaku.lua");
+        std::fs::write(&config_path, "config.color_scheme = 'Local Only'\n").expect("write config");
+
+        let mut app = test_app_at(config_path);
+        app.load_config();
+
+        assert_eq!(theme_field(&app).value, "Local Only");
+        assert_eq!(
+            theme_field(&app).options.last().map(String::as_str),
+            Some("Local Only")
+        );
+    }
+
+    #[test]
     fn color_scheme_update_strips_legacy_managed_theme_block() {
         let mut app = test_app();
         let idx = app
@@ -1731,7 +1865,7 @@ return config
         )
         .expect("write config");
 
-        let mut app = App::new(config_path);
+        let mut app = test_app_at(config_path);
         app.load_config();
 
         assert_eq!(app.theme_overridden_by, vec!["colors"]);
@@ -1743,7 +1877,7 @@ return config
         let config_path = dir.path().join("kaku.lua");
         std::fs::write(&config_path, "config.color_scheme = 'Kaku Light'\n").expect("write config");
 
-        let mut app = App::new(config_path);
+        let mut app = test_app_at(config_path);
         app.load_config();
 
         assert!(app.theme_overridden_by.is_empty());
@@ -1759,7 +1893,7 @@ return config
         )
         .expect("write config");
 
-        let mut app = App::new(config_path);
+        let mut app = test_app_at(config_path);
         app.load_config();
 
         let field = app
@@ -1876,7 +2010,7 @@ return config
         let config_path = dir.path().join("kaku.lua");
         std::fs::write(&config_path, "config.show_tab_index_in_tab_bar = true\n")
             .expect("write config");
-        let mut app = App::new(config_path);
+        let mut app = test_app_at(config_path);
         app.load_config();
         assert_eq!(app.fields[idx].value, "On");
     }
@@ -1917,8 +2051,8 @@ return config
 
         assert_eq!(tab_field.default, "Smart");
         assert_eq!(pane_field.default, "Smart");
-        assert_eq!(tab_field.options, vec!["Never", "Smart", "Always"]);
-        assert_eq!(pane_field.options, vec!["Never", "Smart", "Always"]);
+        assert_eq!(tab_field.options, choices(&["Never", "Smart", "Always"]));
+        assert_eq!(pane_field.options, choices(&["Never", "Smart", "Always"]));
         assert_eq!(app.to_lua_value(tab_field), "'SmartPrompt'");
         assert_eq!(app.to_lua_value(pane_field), "'SmartPrompt'");
     }
@@ -2273,7 +2407,7 @@ return config
         )
         .expect("write config");
 
-        let mut app = App::new(config_path.clone());
+        let mut app = test_app_at(config_path.clone());
         app.load_config();
 
         // Toggle copy_on_select (a binary field) to make the state dirty.
@@ -2364,7 +2498,7 @@ return config
             )
             .expect("write config");
 
-            let mut app = App::new(config_path);
+            let mut app = test_app_at(config_path);
             app.load_config();
 
             let tl = app
@@ -2429,7 +2563,7 @@ return config
             )
             .expect("write config");
 
-            let mut app = App::new(config_path.clone());
+            let mut app = test_app_at(config_path.clone());
             app.load_config();
 
             for f in app.fields.iter_mut() {
@@ -2464,7 +2598,7 @@ return config
         )
         .expect("write config");
 
-        let mut app = App::new(config_path.clone());
+        let mut app = test_app_at(config_path.clone());
         app.load_config();
         app.save_config().expect("save_config");
 
@@ -2486,7 +2620,7 @@ return config
         )
         .expect("write config");
 
-        let mut app = App::new(config_path.clone());
+        let mut app = test_app_at(config_path.clone());
         app.load_config();
 
         let shadow_idx = app
@@ -2516,7 +2650,7 @@ return config
         let original = "local wezterm = require 'wezterm'\nlocal config = {}\nconfig.window_decorations = \"TITLE|RESIZE\"\nreturn config\n";
         std::fs::write(&config_path, original).expect("write");
 
-        let mut app = App::new(config_path.clone());
+        let mut app = test_app_at(config_path.clone());
         app.load_config();
 
         // Verify skip_write is set and bits are extracted correctly
@@ -2560,7 +2694,7 @@ return config
         )
         .expect("write");
 
-        let mut app = App::new(config_path.clone());
+        let mut app = test_app_at(config_path.clone());
         app.load_config();
 
         // Verify extracted bits: TL=Off (no INTEGRATED_BUTTONS), Shadow=On
@@ -2597,7 +2731,7 @@ return config
         )
         .expect("write");
 
-        let mut app = App::new(config_path.clone());
+        let mut app = test_app_at(config_path.clone());
         app.load_config();
 
         // Verify extracted bits: TL=Off, Shadow=Off
@@ -2648,7 +2782,7 @@ return config
         )
         .expect("write");
 
-        let mut app = App::new(config_path.clone());
+        let mut app = test_app_at(config_path.clone());
         app.load_config();
 
         // Both loaded as "On" (default state). Save must keep the line

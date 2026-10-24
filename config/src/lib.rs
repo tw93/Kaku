@@ -199,6 +199,78 @@ pub fn build_default_schemes() -> HashMap<String, Palette> {
     color_schemes
 }
 
+/// Scheme names that Kaku defines itself. Settings lists them under their fixed
+/// labels, so [`user_color_schemes`] never reports them.
+const KAKU_OWN_SCHEMES: [&str; 3] = ["Kaku Dark", "Kaku Light", "Kaku Theme"];
+
+/// Names of the color schemes the user provides.
+///
+/// Discovers `<config-dir>/colors/*.toml` for every config directory, every
+/// directory listed in `color_scheme_dirs`, and the schemes the user's Lua
+/// config defines directly in `color_schemes`. Only names are collected; the
+/// palettes stay lazily loaded.
+///
+/// The scheme name is the file's `metadata.name`, falling back to the file
+/// name without the `.toml` suffix, which is how the config loader resolves a
+/// named scheme.
+pub fn user_color_schemes() -> Vec<String> {
+    let config = configuration();
+    let mut dirs = config.color_scheme_dirs.clone();
+    for dir in CONFIG_DIRS.iter() {
+        dirs.push(dir.join("colors"));
+    }
+    collect_user_color_schemes(&dirs, &config.color_schemes)
+}
+
+fn collect_user_color_schemes(dirs: &[PathBuf], defined: &HashMap<String, Palette>) -> Vec<String> {
+    let mut names = Vec::new();
+
+    for dir in dirs {
+        let Ok(entries) = std::fs::read_dir(dir) else {
+            // A missing colors directory is the common case.
+            continue;
+        };
+        for entry in entries.flatten() {
+            let path = entry.path();
+            let Some(file_name) = path.file_name().and_then(|name| name.to_str()) else {
+                continue;
+            };
+            let Some(stem) = file_name.strip_suffix(".toml") else {
+                continue;
+            };
+            if !path.is_file() {
+                continue;
+            }
+
+            let scheme = std::fs::read_to_string(&path)
+                .context("reading color scheme")
+                .and_then(|s| ColorSchemeFile::from_toml_str(&s).context("parsing TOML"));
+            match scheme {
+                Ok(scheme) => names.push(scheme.metadata.name.unwrap_or_else(|| stem.to_string())),
+                Err(err) => {
+                    // One broken file must not hide the other themes.
+                    log::debug!(
+                        "color scheme `{}` is not usable for the theme list: {:#}",
+                        path.display(),
+                        err
+                    );
+                }
+            }
+        }
+    }
+
+    for name in defined.keys() {
+        if !KAKU_OWN_SCHEMES.contains(&name.as_str()) {
+            names.push(name.clone());
+        }
+    }
+
+    names.sort_by_cached_key(|name| (name.to_lowercase(), name.clone()));
+    names.dedup();
+    names.retain(|name| !name.trim().is_empty());
+    names
+}
+
 /// Lazy-loading color scheme registry
 /// Loads color schemes on-demand instead of eagerly loading all 1001 schemes at startup
 pub struct ColorSchemeRegistry {
@@ -1558,6 +1630,79 @@ assert(title_text() == split_fallback)
             content.contains("['#205EA6'] = '#C9DDF0'"),
             "Kaku Light should not flatten Claude Code's blue selected row into the cream background"
         );
+    }
+
+    fn write_scheme_fixture(dir: &Path, file_name: &str, metadata_name: Option<&str>) {
+        let metadata = metadata_name
+            .map(|name| format!("\n[metadata]\nname = \"{name}\"\n"))
+            .unwrap_or_default();
+        std::fs::write(
+            dir.join(file_name),
+            format!(
+                r##"
+[colors]
+foreground = "#e6e2d8"
+background = "#101014"
+ansi = ["#3a3646", "#e1505d", "#2bae85", "#e2c027", "#619ac3", "#c08eaf", "#57c3c2", "#cfc8bb"]
+brights = ["#6b6478", "#ea586c", "#45b787", "#eed045", "#8fb2c9", "#d1c2d3", "#93d5dc", "#f4efe4"]
+{metadata}"##
+            ),
+        )
+        .expect("write color scheme fixture");
+    }
+
+    fn scratch_color_dir(label: &str) -> PathBuf {
+        static NEXT: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(0);
+        let dir = std::env::temp_dir().join(format!(
+            "kaku-{label}-{}-{}",
+            std::process::id(),
+            NEXT.fetch_add(1, std::sync::atomic::Ordering::Relaxed)
+        ));
+        std::fs::create_dir_all(&dir).expect("create color scheme fixture dir");
+        dir
+    }
+
+    #[test]
+    fn user_color_schemes_follow_files_and_config_without_hardcoding_names() {
+        let dir = scratch_color_dir("user-schemes");
+
+        // Named by metadata, not by the file name.
+        write_scheme_fixture(&dir, "file-name.toml", Some("Zulu"));
+        // Falls back to the file name when metadata.name is absent.
+        write_scheme_fixture(&dir, "aurora.toml", None);
+        // A broken file must not hide the others.
+        std::fs::write(
+            dir.join("broken.toml"),
+            "[colors]\nbackground = '#000000'\n",
+        )
+        .expect("write broken fixture");
+        // Non-TOML files and directories are ignored.
+        std::fs::write(dir.join("notes.txt"), "not a scheme").expect("write text fixture");
+        std::fs::create_dir(dir.join("nested.toml")).expect("create nested dir");
+
+        let mut defined = HashMap::new();
+        // Duplicate of a disk scheme: reported once.
+        defined.insert("Zulu".to_string(), Palette::default());
+        defined.insert("Inline Theme".to_string(), Palette::default());
+        // Kaku's own entries are listed under their fixed labels instead.
+        defined.insert("Kaku Dark".to_string(), Palette::default());
+        defined.insert("Kaku Light".to_string(), Palette::default());
+        defined.insert("Kaku Theme".to_string(), Palette::default());
+
+        let names = super::collect_user_color_schemes(std::slice::from_ref(&dir), &defined);
+
+        assert_eq!(names, vec!["aurora", "Inline Theme", "Zulu"]);
+
+        std::fs::remove_dir_all(&dir).expect("clean fixture dir");
+    }
+
+    #[test]
+    fn user_color_schemes_tolerate_missing_directories() {
+        let names = super::collect_user_color_schemes(
+            &[PathBuf::from("/nonexistent/kaku/colors")],
+            &HashMap::new(),
+        );
+        assert!(names.is_empty());
     }
 }
 
