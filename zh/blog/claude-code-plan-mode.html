@@ -149,55 +149,55 @@
       <div class="wide">
         <article class="doc-content blog-article">
           <figure class="blog-cover" aria-hidden="true"><img src="/img/blog/cards/claude-code-plan-mode.webp" width="1600" height="900" alt="" fetchpriority="high"></figure>
-<p>plan mode 让 Claude Code 读仓库、写一份计划，在你批准之前不改源码，已经能用 bypass permissions 的交互式终端是例外。可以按 <code>Shift + Tab</code> 切过去，也可以只在一条提示词前面加上 <code>/plan</code>，或者用 <code>claude --permission-mode plan</code> 启动。批准这份计划会退出 plan mode，接着按你点的那一项对应的权限模式<span class="nobr">继续。</span></p>
+<p>plan mode 让 Claude Code 读仓库、写一份计划，在你批准之前不改源码，已经能用 bypass permissions 的交互式终端是例外。可以按 <code>Shift + Tab</code> 切过去，也可以只在一条提示词前面加上 <code>/plan</code>，或者用 <code>claude --permission-mode plan</code> 启动。批准这份计划会退出 plan mode，接着按你点的那一项对应的权限模式继续。</p>
 <h2 id="plan-mode-允许什么拦住什么">plan mode 允许什么、拦住什么</h2>
-<p><a href="https://code.claude.com/docs/zh-CN/common-workflows" target="_blank" rel="noopener noreferrer">常见工作流</a>里，plan mode 用来在改动写进磁盘之前先看一遍，规则以<a href="https://code.claude.com/docs/en/permission-modes" target="_blank" rel="noopener noreferrer">权限模式</a>为准。交互式终端里已经能用 bypass permissions 时，Claude 收到的指令仍然是只写计划、不改文件，可它在规划期间一旦真的改文件或跑 shell，就不会再问。ask 规则还是会问，关键路径上的 <code>rm</code> 或 <code>rmdir</code> 也一样，文件系统根目录、你的主目录、当前工作目录都算关键<span class="nobr">路径。</span></p>
-<p>规划期间的 shell 命令按下面的顺序，命中第一条就照那一条办，2026 年 10 月核<span class="nobr">对过。</span></p>
+<p><a href="https://code.claude.com/docs/zh-CN/common-workflows" target="_blank" rel="noopener noreferrer">常见工作流</a>里，plan mode 用来在改动写进磁盘之前先看一遍，规则以<a href="https://code.claude.com/docs/en/permission-modes" target="_blank" rel="noopener noreferrer">权限模式</a>为准。交互式终端里已经能用 bypass permissions 时，Claude 收到的指令仍然是只写计划、不改文件，可它在规划期间一旦真的改文件或跑 shell，就不会再问。ask 规则还是会问，关键路径上的 <code>rm</code> 或 <code>rmdir</code> 也一样，文件系统根目录、你的主目录、当前工作目录都算关键路径。</p>
+<p>规划期间的 shell 命令按下面的顺序，命中第一条就照那一条办，2026 年 10 月核对过。</p>
 <ul>
-<li><strong>交互式终端里已经能用 bypass permissions</strong>，规划阶段的命令不走分类器，也不弹<span class="nobr">确认。</span></li>
-<li><strong>auto mode 可用，并且 <code>useAutoModeDuringPlan</code> 开着，这是默认</strong>，除了关键路径上的删除，其余 shell 命令交给分类器，放行的就执行，拒绝的就<span class="nobr">拦住。</span></li>
-<li><strong>auto mode 不可用，或者 <code>useAutoModeDuringPlan</code> 关着</strong>，内置只读集合以外的命令都会问，sandbox auto-allow 开着也<span class="nobr">一样。</span></li>
+<li><strong>交互式终端里已经能用 bypass permissions</strong>，规划阶段的命令不走分类器，也不弹确认。</li>
+<li><strong>auto mode 可用，并且 <code>useAutoModeDuringPlan</code> 开着，这是默认</strong>，除了关键路径上的删除，其余 shell 命令交给分类器，放行的就执行，拒绝的就拦住。</li>
+<li><strong>auto mode 不可用，或者 <code>useAutoModeDuringPlan</code> 关着</strong>，内置只读集合以外的命令都会问，sandbox auto-allow 开着也一样。</li>
 </ul>
-<p>auto mode 可用时，权限模式那张表里，plan mode 这一行能做的是读文件，外加分类器放行的命令，能不能用取决于 Claude Code 的版本、当前模型，还有组织的设置。<code>.git</code>、<code>.claude</code>、<code>.zshrc</code> 这些受保护路径不会自动放行，规划期间 auto mode 可用就交给分类器，不可用就问你。<code>~/.claude/plans/</code> 下的计划文件，或者你设的 <code>plansDirectory</code>，不在这条限<span class="nobr">制里。</span></p>
+<p>auto mode 可用时，权限模式那张表里，plan mode 这一行能做的是读文件，外加分类器放行的命令，能不能用取决于 Claude Code 的版本、当前模型，还有组织的设置。<code>.git</code>、<code>.claude</code>、<code>.zshrc</code> 这些受保护路径不会自动放行，规划期间 auto mode 可用就交给分类器，不可用就问你。<code>~/.claude/plans/</code> 下的计划文件，或者你设的 <code>plansDirectory</code>，不在这条限制里。</p>
 <h2 id="怎么进入-plan-mode">怎么进入 plan mode</h2>
-<p><code>Shift + Tab</code> 每按一次换一个权限模式，从 auto 开始，第一下到 Manual，配置里写的是 <code>default</code>，再按到 <code>acceptEdits</code>，再按到 <code>plan</code>。状态栏对应显示 <code>manual mode on</code>、<code>accept edits on</code> 或 <code>plan mode on</code>。可选模式接在 <code>plan</code> 后面，先是 <code>bypassPermissions</code>，<code>auto</code> 排在最后，<code>dontAsk</code> 不在这个循环里。Windows 上 Node 或 Bun 运行时没打开 VT input mode 时，改用 <code>Alt + M</code> 切换。在 plan mode 里再按一次 <code>Shift + Tab</code> 会离开，计划不算<span class="nobr">批准。</span></p>
+<p><code>Shift + Tab</code> 每按一次换一个权限模式，从 auto 开始，第一下到 Manual，配置里写的是 <code>default</code>，再按到 <code>acceptEdits</code>，再按到 <code>plan</code>。状态栏对应显示 <code>manual mode on</code>、<code>accept edits on</code> 或 <code>plan mode on</code>。可选模式接在 <code>plan</code> 后面，先是 <code>bypassPermissions</code>，<code>auto</code> 排在最后，<code>dontAsk</code> 不在这个循环里。Windows 上 Node 或 Bun 运行时没打开 VT input mode 时，改用 <code>Alt + M</code> 切换。在 plan mode 里再按一次 <code>Shift + Tab</code> 会离开，计划不算批准。</p>
 <pre><code class="language-bash">claude --permission-mode plan</code></pre>
-<p>同一个参数跟 <code>-p</code> 一起用也行，终端会话要默认进入 plan mode 时，写进项目的 <code>.claude/settings.json</code>，只影响这个项目里的终端会话，写进 <code>~/.claude/settings.json</code>，这台机器上每个终端会话都<span class="nobr">这样：</span></p>
+<p>同一个参数跟 <code>-p</code> 一起用也行，终端会话要默认进入 plan mode 时，写进项目的 <code>.claude/settings.json</code>，只影响这个项目里的终端会话，写进 <code>~/.claude/settings.json</code>，这台机器上每个终端会话都这样：</p>
 <pre><code class="language-json">{
   "permissions": {
     "defaultMode": <span class="tok-s">"plan"</span>
   }
 }</code></pre>
 <p>项目或托管设置里的值优先于用户文件 <code>~/.claude/settings.json</code>，<code>auto</code> 和 <code>bypassPermissions</code> 写在项目的 <code>.claude/settings.json</code> 或 <code>.claude/settings.local.json</code> 里不会生效，<code>plan</code> 会。VS Code 扩展决定起始模式时不看项目里的 <code>.claude/settings.json</code>，要在 VS Code 的用户设置里把 <code>claudeCode.initialPermissionMode</code> 设成 <code>plan</code>。</p>
-<p>Claude Code v2.1.283 起，交互式终端会话一开始就是 auto mode。更早的版本里，Pro、Max 和 Team 的会话取到 feature flag 时也从 auto 起步，前提是 macOS、Linux 和 WSL 上不低于 v2.1.228，原生 Windows 不低于 v2.1.233，其他情况都从 Manual 开始。命令行参数或 <code>permissions.defaultMode</code> 会盖过这个起点，选了 auto 但当时不可用，会话就从 Manual 开始。刚安装或刚升级后的第一次会话，feature flag 还没到，起点可能不<span class="nobr">一样。</span></p>
+<p>Claude Code v2.1.283 起，交互式终端会话一开始就是 auto mode。更早的版本里，Pro、Max 和 Team 的会话取到 feature flag 时也从 auto 起步，前提是 macOS、Linux 和 WSL 上不低于 v2.1.228，原生 Windows 不低于 v2.1.233，其他情况都从 Manual 开始。命令行参数或 <code>permissions.defaultMode</code> 会盖过这个起点，选了 auto 但当时不可用，会话就从 Manual 开始。刚安装或刚升级后的第一次会话，feature flag 还没到，起点可能不一样。</p>
 <p>计划批准之后，再按 <code>Shift + Tab</code>，或者发一条以 <code>/plan</code> 开头的提示词，会再进一次 plan mode。</p>
 <h2 id="一条写清楚的-plan-提示词">一条写清楚的 plan 提示词</h2>
-<p>要改哪一处、哪些行为必须保持原样、计划里列出会动哪些文件和准备跑的测试、还有哪些地方不动，都写在提示<span class="nobr">词里。</span></p>
+<p>要改哪一处、哪些行为必须保持原样、计划里列出会动哪些文件和准备跑的测试、还有哪些地方不动，都写在提示词里。</p>
 <pre><code class="language-text">/plan Add a null check in src/auth/user.ts before the profile lookup.
 Keep the current error type. List every file you would change, the test command you would run, and anything you would leave alone.</code></pre>
-<p><code>@src/auth/user.ts</code> 会把这个文件的内容带上，只要没超过 Read 工具的上限，默认 25,000 token，文本文件大于 256KB 就不会带上。任何终端里按 <code>Ctrl + J</code> 都会插入换行，先打一个 <code>\</code> 再按回车也一样，哪些终端不用设置就能用 <code>Shift + Enter</code> 换行，<a href="/zh/blog/best-terminal-for-claude-code">终端对比</a>那篇<span class="nobr">列过。</span></p>
+<p><code>@src/auth/user.ts</code> 会把这个文件的内容带上，只要没超过 Read 工具的上限，默认 25,000 token，文本文件大于 256KB 就不会带上。任何终端里按 <code>Ctrl + J</code> 都会插入换行，先打一个 <code>\</code> 再按回车也一样，哪些终端不用设置就能用 <code>Shift + Enter</code> 换行，<a href="/zh/blog/best-terminal-for-claude-code">终端对比</a>那篇列过。</p>
 <h2 id="批准或者接着改计划">批准，或者接着改计划</h2>
-<p>计划写好以后，Claude 会问下一步怎么走，<code>Yes, and use auto mode</code> 是批准并继续用 auto mode，auto mode 不可用时这一项写成 <code>Yes, auto-accept edits</code>。会话启动时就带了 bypass permissions，这一项写成 <code>Yes, and switch to BYPASS PERMISSIONS (no further prompts) for this session</code>。<code>Yes, manually approve edits</code> 同样是批准，每一处修改你自己看，<code>No, keep planning</code> 留在 plan mode，你可以接着说计划要改哪里。批准会退出 plan mode，切到这一项对应的权限模式，<code>Ctrl + G</code> 在 Claude 往下做之前，用你的默认文本编辑器打开它给出的<span class="nobr">计划。</span></p>
+<p>计划写好以后，Claude 会问下一步怎么走，<code>Yes, and use auto mode</code> 是批准并继续用 auto mode，auto mode 不可用时这一项写成 <code>Yes, auto-accept edits</code>。会话启动时就带了 bypass permissions，这一项写成 <code>Yes, and switch to BYPASS PERMISSIONS (no further prompts) for this session</code>。<code>Yes, manually approve edits</code> 同样是批准，每一处修改你自己看，<code>No, keep planning</code> 留在 plan mode，你可以接着说计划要改哪里。批准会退出 plan mode，切到这一项对应的权限模式，<code>Ctrl + G</code> 在 Claude 往下做之前，用你的默认文本编辑器打开它给出的计划。</p>
 <h2 id="什么时候不用-plan-mode">什么时候不用 plan mode</h2>
-<p>想在写进磁盘之前先读一遍改动，或者先把代码库看清楚再改，用 plan mode。Manual 模式下读文件不会问，状态栏显示 <code>manual mode on</code>，用 <code>claude --permission-mode default</code> 启动，<code>manual</code> 是 CLI 接受的<span class="nobr">别名。</span></p>
-<p><code>acceptEdits</code> 适合准备用 <code>git diff</code> 再看一遍的修改，从 Manual 按一次 <code>Shift + Tab</code> 就进去，也可以 <code>claude --permission-mode acceptEdits</code> 启动，状态栏显示 <code>accept edits on</code>。它会自动批准文件修改，以及工作目录或 <code>additionalDirectories</code> 里的 <code>mkdir</code>、<code>touch</code>、<code>rm</code>、<code>rmdir</code>、<code>mv</code>、<code>cp</code> 和 <code>sed</code>，前面带 <code>LANG=C</code> 这样的前缀，或者套一层 <code>timeout</code>，也算。其他 shell 命令、受保护路径上的写入，还有关键路径上的 <code>rm</code> 或 <code>rmdir</code>，仍然<span class="nobr">会问。</span></p>
-<p>任务比较长、方向也信得过的时候用 auto mode，它在后台做安全检查，日常的确认会少一些，但不保证<span class="nobr">安全。</span></p>
+<p>想在写进磁盘之前先读一遍改动，或者先把代码库看清楚再改，用 plan mode。Manual 模式下读文件不会问，状态栏显示 <code>manual mode on</code>，用 <code>claude --permission-mode default</code> 启动，<code>manual</code> 是 CLI 接受的别名。</p>
+<p><code>acceptEdits</code> 适合准备用 <code>git diff</code> 再看一遍的修改，从 Manual 按一次 <code>Shift + Tab</code> 就进去，也可以 <code>claude --permission-mode acceptEdits</code> 启动，状态栏显示 <code>accept edits on</code>。它会自动批准文件修改，以及工作目录或 <code>additionalDirectories</code> 里的 <code>mkdir</code>、<code>touch</code>、<code>rm</code>、<code>rmdir</code>、<code>mv</code>、<code>cp</code> 和 <code>sed</code>，前面带 <code>LANG=C</code> 这样的前缀，或者套一层 <code>timeout</code>，也算。其他 shell 命令、受保护路径上的写入，还有关键路径上的 <code>rm</code> 或 <code>rmdir</code>，仍然会问。</p>
+<p>任务比较长、方向也信得过的时候用 auto mode，它在后台做安全检查，日常的确认会少一些，但不保证安全。</p>
 <h2 id="plan-mode-和-effort">plan mode 和 effort</h2>
-<p>plan mode 决定哪些动作能跑，扩展思考和 effort（思考强度）决定一条请求想多深。macOS 按 <code>Option + T</code>，Windows 和 Linux 按 <code>Alt + T</code>，用来开关扩展思考，macOS 不用把 Option 配成 Meta 也能用。Opus 5.5、Sonnet 5.5、Haiku 5.5 和 Fable 这几个模型不受这个开关影响，它们一直开着扩展思考。<code>/effort</code> 改的是 effort，一发出去就生效，要是弹出缓存警告，确认之后，新的档位从这一轮的下一条请求开<span class="nobr">始用。</span></p>
+<p>plan mode 决定哪些动作能跑，扩展思考和 effort（思考强度）决定一条请求想多深。macOS 按 <code>Option + T</code>，Windows 和 Linux 按 <code>Alt + T</code>，用来开关扩展思考，macOS 不用把 Option 配成 Meta 也能用。Opus 5.5、Sonnet 5.5、Haiku 5.5 和 Fable 这几个模型不受这个开关影响，它们一直开着扩展思考。<code>/effort</code> 改的是 effort，一发出去就生效，要是弹出缓存警告，确认之后，新的档位从这一轮的下一条请求开始用。</p>
 <h2 id="kaku-里的-shift-tab">Kaku 里的 Shift + Tab</h2>
-<p>Kaku 默认的终端快捷键里没有 <code>Shift + Tab</code>，<a href="/zh/docs/keybindings">快捷键</a>那一页也没列，所以在窗格里这个键会送到 Claude Code。状态栏一直不变的话，打开 <code>~/.config/kaku/kaku.lua</code> 看 <code>config.keys</code>，往这张表里插入，直接赋一张新表会把默认快捷键换掉。要是里面有一条绑了 Shift 的 <code>Tab</code>，这个键在 Claude Code 看到之前就被吞掉了，别的终端把 <code>Shift + Tab</code> 吞掉，也是查同<span class="nobr">一处。</span></p>
-<p>AI 聊天面板是分开的，<code>Cmd + L</code> 打开它，Simple Model 和 Deep Model 不一样时，在那个面板里按 <code>Shift + Tab</code> 是在两个模型之间切换，<a href="/zh/docs/features">功能特性</a>里写了，这个切换不碰 Claude Code 的权限<span class="nobr">模式。</span></p>
+<p>Kaku 默认的终端快捷键里没有 <code>Shift + Tab</code>，<a href="/zh/docs/keybindings">快捷键</a>那一页也没列，所以在窗格里这个键会送到 Claude Code。状态栏一直不变的话，打开 <code>~/.config/kaku/kaku.lua</code> 看 <code>config.keys</code>，往这张表里插入，直接赋一张新表会把默认快捷键换掉。要是里面有一条绑了 Shift 的 <code>Tab</code>，这个键在 Claude Code 看到之前就被吞掉了，别的终端把 <code>Shift + Tab</code> 吞掉，也是查同一处。</p>
+<p>AI 聊天面板是分开的，<code>Cmd + L</code> 打开它，Simple Model 和 Deep Model 不一样时，在那个面板里按 <code>Shift + Tab</code> 是在两个模型之间切换，<a href="/zh/docs/features">功能特性</a>里写了，这个切换不碰 Claude Code 的权限模式。</p>
 <h2 id="常见问题">常见问题</h2>
 <h3 id="按几次-shift-tab-才到-plan-mode">按几次 Shift + Tab 才到 plan mode？</h3>
-<p>从 auto mode 按三次，从 Manual 按两次，状态栏出现 <code>plan mode on</code> 就停，<code>claude --permission-mode plan</code>，或者一条以 <code>/plan</code> 开头的提示词，不<span class="nobr">用按。</span></p>
+<p>从 auto mode 按三次，从 Manual 按两次，状态栏出现 <code>plan mode on</code> 就停，<code>claude --permission-mode plan</code>，或者一条以 <code>/plan</code> 开头的提示词，不用按。</p>
 <h3 id="plan-mode-开着时claude-能改文件吗">plan mode 开着时，Claude 能改文件吗？</h3>
-<p>批准之前不会改文件，已经能用 bypass permissions 的交互式终端除外，ask 规则和关键路径上的 <code>rm</code> 或 <code>rmdir</code> 还是会问，其他 shell 命令按上面三种情<span class="nobr">况走。</span></p>
+<p>批准之前不会改文件，已经能用 bypass permissions 的交互式终端除外，ask 规则和关键路径上的 <code>rm</code> 或 <code>rmdir</code> 还是会问，其他 shell 命令按上面三种情况走。</p>
 <h3 id="开始改文件之前怎么改这份计划">开始改文件之前，怎么改这份计划？</h3>
-<p>按 <code>Ctrl + G</code>，用你的默认文本编辑器打开它给出的计划，选 <code>No, keep planning</code> 会留在 plan mode，再按一次 <code>Shift + Tab</code> 会离开，不算<span class="nobr">批准。</span></p>
+<p>按 <code>Ctrl + G</code>，用你的默认文本编辑器打开它给出的计划，选 <code>No, keep planning</code> 会留在 plan mode，再按一次 <code>Shift + Tab</code> 会离开，不算批准。</p>
 <h3 id="把-effort-调高能代替-plan-mode-吗">把 effort 调高，能代替 plan mode 吗？</h3>
-<p><code>Option + T</code> 开关扩展思考，<code>/effort</code> 改的是下一条请求的 effort，退出 plan mode、开始改文件，靠的是你批准了这份<span class="nobr">计划。</span></p>
+<p><code>Option + T</code> 开关扩展思考，<code>/effort</code> 改的是下一条请求的 effort，退出 plan mode、开始改文件，靠的是你批准了这份计划。</p>
 <h3 id="为什么-shift-tab-没有反应">为什么 Shift + Tab 没有反应？</h3>
-<p>在 Kaku 里，先到 <code>~/.config/kaku/kaku.lua</code> 的 <code>config.keys</code> 下面找有没有绑了 Shift 的 <code>Tab</code>。还要看是在哪里按的，AI 聊天面板里 Simple Model 和 Deep Model 不同时，这个键是在两个模型之间切换。另外从 auto mode 按第一下，状态栏显示的是 <code>manual mode on</code>，不是没<span class="nobr">反应。</span></p>
+<p>在 Kaku 里，先到 <code>~/.config/kaku/kaku.lua</code> 的 <code>config.keys</code> 下面找有没有绑了 Shift 的 <code>Tab</code>。还要看是在哪里按的，AI 聊天面板里 Simple Model 和 Deep Model 不同时，这个键是在两个模型之间切换。另外从 auto mode 按第一下，状态栏显示的是 <code>manual mode on</code>，不是没反应。</p>
           <aside class="blog-cta"><img class="blog-cta-icon" src="/img/kaku-mark.png" width="40" height="40" alt=""><p>Kaku 是一个免费开源的 Mac 终端。</p><a class="btn btn-primary" href="/zh/docs">安装 Kaku</a></aside>
           <nav class="blog-related" aria-label="继续阅读"><h2 class="blog-related-title">继续阅读</h2><ul class="blog-related-list"><li><a href="/zh/blog/install-claude-code-mac"><span class="blog-related-cat">Claude Code 与 Codex</span><span class="blog-related-name">在 Mac 上安装和更新 Claude Code</span><span class="blog-related-meta"><time datetime="2026-10-02">2026年10月2日</time> · 约 6 分钟</span></a></li><li><a href="/zh/blog/claude-code-notifications"><span class="blog-related-cat">Claude Code 与 Codex</span><span class="blog-related-name">Claude Code 通知不弹出，在 Mac 上怎么修</span><span class="blog-related-meta"><time datetime="2026-09-20">2026年9月20日</time> · 约 5 分钟</span></a></li><li><a href="/zh/blog/cursor-vs-claude-code"><span class="blog-related-cat">Claude Code 与 Codex</span><span class="blog-related-name">Cursor 和 Claude Code 怎么选</span><span class="blog-related-meta"><time datetime="2026-09-25">2026年9月25日</time> · 约 8 分钟</span></a></li></ul></nav>
         </article>

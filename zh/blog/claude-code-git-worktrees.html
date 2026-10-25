@@ -149,19 +149,19 @@
       <div class="wide">
         <article class="doc-content blog-article">
           <figure class="blog-cover" aria-hidden="true"><img src="/img/blog/cards/claude-code-git-worktrees.webp" width="1600" height="900" alt="" fetchpriority="high"></figure>
-<p><code>git worktree add ../repo-feature -b feature</code> 会给同一个仓库再检出一份，每个 Claude Code 会话拿到自己的目录和分支，一个会话做功能，另一个会话修 bug，两边写下去的不是同一批文件。这份检出就是 worktree，也就是链接工作树，Claude Code 自己也能建，命令是 <code>claude --worktree feature-auth</code>，目录在 <code>.claude/worktrees/feature-auth/</code>，分支名叫 <code>worktree-feature-auth</code>。文中的 flag 和清理行为是 2026 年 10 月对着 <a href="https://git-scm.com/docs/git-worktree/zh_HANS-CN" target="_blank" rel="noopener noreferrer">git worktree 手册</a>、Claude Code 的<a href="https://code.claude.com/docs/zh-CN/common-workflows" target="_blank" rel="noopener noreferrer">常见工作流程</a>和 <a href="https://code.claude.com/docs/zh-CN/worktrees" target="_blank" rel="noopener noreferrer">worktrees</a> 页核对<span class="nobr">过的。</span></p>
+<p><code>git worktree add ../repo-feature -b feature</code> 会给同一个仓库再检出一份，每个 Claude Code 会话拿到自己的目录和分支，一个会话做功能，另一个会话修 bug，两边写下去的不是同一批文件。这份检出就是 worktree，也就是链接工作树，Claude Code 自己也能建，命令是 <code>claude --worktree feature-auth</code>，目录在 <code>.claude/worktrees/feature-auth/</code>，分支名叫 <code>worktree-feature-auth</code>。文中的 flag 和清理行为是 2026 年 10 月对着 <a href="https://git-scm.com/docs/git-worktree/zh_HANS-CN" target="_blank" rel="noopener noreferrer">git worktree 手册</a>、Claude Code 的<a href="https://code.claude.com/docs/zh-CN/common-workflows" target="_blank" rel="noopener noreferrer">常见工作流程</a>和 <a href="https://code.claude.com/docs/zh-CN/worktrees" target="_blank" rel="noopener noreferrer">worktrees</a> 页核对过的。</p>
 <h2 id="为什么两个-agent-不能共用一个检出目录">为什么两个 agent 不能共用一个检出目录</h2>
-<p>一个仓库只有一棵主工作树，两个 <code>claude</code> 进程从这里启动的话，工作树、index 和文件全是同一份，每次写入都落在同一个<span class="nobr">地方。</span></p>
+<p>一个仓库只有一棵主工作树，两个 <code>claude</code> 进程从这里启动的话，工作树、index 和文件全是同一份，每次写入都落在同一个地方。</p>
 <p><code>git worktree add</code> 会拒绝别的工作树已经检出的分支，除非加上 <code>--force</code>，所以每个会话都要有自己的分支和目录。Claude Code 用 worktree 把文件隔开，subagent 是在同一次会话里把活拆开，多个 Claude 会话要一起配合，文档里用的是 agent teams。</p>
 <h2 id="添加列出和删除-worktree">添加、列出和删除 worktree</h2>
 <p><a href="https://git-scm.com/docs/git-worktree/zh_HANS-CN" target="_blank" rel="noopener noreferrer"><code>git worktree</code></a> 给同一个仓库再挂上一棵工作树，<code>-b</code> 会新建分支，你没写提交的时候，起点就是 <code>HEAD</code>。</p>
 <pre><code class="language-bash">git worktree add ../repo-feature -b feature
 git worktree add ../repo-bugfix fix-issue-456
 git worktree list</code></pre>
-<p>第二种写法检出的是已经存在的分支，<code>list</code> 先打印主工作树，再打印每一棵链接工作树，每行后面带着它的提交和<span class="nobr">分支。</span></p>
-<p>链接工作树有自己的 <code>HEAD</code> 和 index，<code>refs/</code> 下面的引用是共享的，<code>refs/bisect</code>、<code>refs/worktree</code> 和 <code>refs/rewritten</code> 除外，仓库配置也共享，这棵树里的 <code>.git</code> 是一个文件，管理数据放在主仓库的 <code>$GIT_DIR/worktrees</code> <span class="nobr">下面。</span></p>
+<p>第二种写法检出的是已经存在的分支，<code>list</code> 先打印主工作树，再打印每一棵链接工作树，每行后面带着它的提交和分支。</p>
+<p>链接工作树有自己的 <code>HEAD</code> 和 index，<code>refs/</code> 下面的引用是共享的，<code>refs/bisect</code>、<code>refs/worktree</code> 和 <code>refs/rewritten</code> 除外，仓库配置也共享，这棵树里的 <code>.git</code> 是一个文件，管理数据放在主仓库的 <code>$GIT_DIR/worktrees</code> 下面。</p>
 <pre><code class="language-bash">git worktree remove ../repo-feature</code></pre>
-<p><code>remove</code> 不会动主工作树，链接工作树里有未跟踪文件，或者已跟踪文件被改过，它也会拒绝，带未提交改动或未跟踪文件的工作树只有加 <code>--force</code> 才能删除，这也会丢掉其中未保存的内容，带子模块的也需要这个参数，锁定的工作树得把 <code>--force</code> 加两次。目录如果是你亲手删的，管理文件会留到 <code>git worktree prune</code>，或者留到 <code>gc.worktreePruneExpire</code>。Git 手册里说，同一仓库多份检出这个功能还算试验性的，子模块的支持也不<span class="nobr">完整。</span></p>
+<p><code>remove</code> 不会动主工作树，链接工作树里有未跟踪文件，或者已跟踪文件被改过，它也会拒绝，带未提交改动或未跟踪文件的工作树只有加 <code>--force</code> 才能删除，这也会丢掉其中未保存的内容，带子模块的也需要这个参数，锁定的工作树得把 <code>--force</code> 加两次。目录如果是你亲手删的，管理文件会留到 <code>git worktree prune</code>，或者留到 <code>gc.worktreePruneExpire</code>。Git 手册里说，同一仓库多份检出这个功能还算试验性的，子模块的支持也不完整。</p>
 <h2 id="让-claude-code-自己建-worktree">让 Claude Code 自己建 worktree</h2>
 <p>在仓库目录里，<code>--worktree</code> 和 <code>-w</code> 是同一个 flag，第二个终端得换一个名字，名字空着的时候 Claude 会自己起一个，比如 <code>bright-running-fox</code>，<code>.claude/worktrees/</code> 要你自己加进 <code>.gitignore</code>。</p>
 <pre><code class="language-bash">claude --worktree feature-auth</code></pre>
@@ -172,43 +172,43 @@ git worktree list</code></pre>
     "baseRef": <span class="tok-s">"head"</span>
   }
 }</code></pre>
-<p><code>claude --worktree "#1234"</code> 会从 <code>origin</code> 把这个 pull request 取到 <code>.claude/worktrees/pr-&lt;number&gt;/</code>，<code>#</code> 要加引号，这个名字的目录已经在的话，会重新打开那棵工作树。在 <code>"fresh"</code> 下，一棵工作树如果还停在 Claude 建的那条分支上，也是干净的，并且自己一次提交都没有，或者对应的 pull request 已经合并、远端分支也删了，重新打开时会被重置到默认<span class="nobr">分支。</span></p>
-<p>让 Claude 到某棵工作树里干活时会调用 <code>EnterWorktree</code>，subagent 要单独一棵的话，在 <code>.claude/agents/</code> 里写 <code>isolation: worktree</code>，干净做完会删掉，还留着改动的会留到 <code>cleanupPeriodDays</code> 那次清理，只有确认不会丢掉这些改动才<span class="nobr">会删。</span></p>
-<p>退出时 Claude 会看有没有改动、未跟踪文件、子模块里还没提交的内容，以及新提交，没有会话名而且工作树是干净的，目录和分支就一起删掉，会话有名字就会先问。工作树里还有要留的内容，目录和分支都保留，Claude 会打印 <code>claude --worktree &lt;name&gt; --resume</code>，选择删除就把目录、分支和这些内容一起去掉。状态如果核对不了，就改成询问，不会直<span class="nobr">接删。</span></p>
-<p><code>git worktree remove</code> 遇到锁定的工作树会拒绝，得先 <code>git worktree unlock</code>。在 worktree 会话里，Claude 改主工作树里的文件会被拦住，在主工作树里跑的 shell 命令，以及把 git 指到那边的命令也会被拦住，包括 <code>git -C</code>、<code>--git-dir</code>、<code>GIT_DIR</code>、<code>GIT_WORK_TREE</code> 和 <code>cd</code>，<code>cp</code> 进主工作树不在这些检查里。在 <a href="/zh/blog/claude-code-hooks">hooks</a> 里，<code>${CLAUDE_PROJECT_DIR}</code> 一直是启动时的项目根，hook 的 <code>cwd</code> 才是这棵工<span class="nobr">作树。</span></p>
+<p><code>claude --worktree "#1234"</code> 会从 <code>origin</code> 把这个 pull request 取到 <code>.claude/worktrees/pr-&lt;number&gt;/</code>，<code>#</code> 要加引号，这个名字的目录已经在的话，会重新打开那棵工作树。在 <code>"fresh"</code> 下，一棵工作树如果还停在 Claude 建的那条分支上，也是干净的，并且自己一次提交都没有，或者对应的 pull request 已经合并、远端分支也删了，重新打开时会被重置到默认分支。</p>
+<p>让 Claude 到某棵工作树里干活时会调用 <code>EnterWorktree</code>，subagent 要单独一棵的话，在 <code>.claude/agents/</code> 里写 <code>isolation: worktree</code>，干净做完会删掉，还留着改动的会留到 <code>cleanupPeriodDays</code> 那次清理，只有确认不会丢掉这些改动才会删。</p>
+<p>退出时 Claude 会看有没有改动、未跟踪文件、子模块里还没提交的内容，以及新提交，没有会话名而且工作树是干净的，目录和分支就一起删掉，会话有名字就会先问。工作树里还有要留的内容，目录和分支都保留，Claude 会打印 <code>claude --worktree &lt;name&gt; --resume</code>，选择删除就把目录、分支和这些内容一起去掉。状态如果核对不了，就改成询问，不会直接删。</p>
+<p><code>git worktree remove</code> 遇到锁定的工作树会拒绝，得先 <code>git worktree unlock</code>。在 worktree 会话里，Claude 改主工作树里的文件会被拦住，在主工作树里跑的 shell 命令，以及把 git 指到那边的命令也会被拦住，包括 <code>git -C</code>、<code>--git-dir</code>、<code>GIT_DIR</code>、<code>GIT_WORK_TREE</code> 和 <code>cd</code>，<code>cp</code> 进主工作树不在这些检查里。在 <a href="/zh/blog/claude-code-hooks">hooks</a> 里，<code>${CLAUDE_PROJECT_DIR}</code> 一直是启动时的项目根，hook 的 <code>cwd</code> 才是这棵工作树。</p>
 <h2 id="每一份检出要单独配">每一份检出要单独配</h2>
-<p>新目录里检出的是已跟踪文件，依赖在这个目录里装，也可以让 Claude 装，写在 <code>.gitignore</code> 里的 <code>.env</code> 不会跟着进这份<span class="nobr">检出。</span></p>
-<p>项目根上的 <code>.worktreeinclude</code> 会把 gitignore 掉的文件复制进 Claude 用 git 建出来的工作树，语法和 <code>.gitignore</code> 一样，已经跟踪的文件永远不会<span class="nobr">复制。</span></p>
+<p>新目录里检出的是已跟踪文件，依赖在这个目录里装，也可以让 Claude 装，写在 <code>.gitignore</code> 里的 <code>.env</code> 不会跟着进这份检出。</p>
+<p>项目根上的 <code>.worktreeinclude</code> 会把 gitignore 掉的文件复制进 Claude 用 git 建出来的工作树，语法和 <code>.gitignore</code> 一样，已经跟踪的文件永远不会复制。</p>
 <pre><code class="language-text">.env
 .env.local
 config/secrets.json</code></pre>
 <p><code>--worktree</code>、subagent 的工作树和桌面 App 都会照这个文件复制，<code>WorktreeCreate</code> hook 会跳过这次复制，用 SVN、Perforce 或 Mercurial 代替 git 建工作树时也会跳过，<code>.env</code> 就得由这个 hook 自己复制。<code>git lfs install --local</code> 之后，还要在工作树里跑 <code>git lfs pull</code>，Claude Code 不会跑仓库本地的这个 filter。</p>
 <h2 id="先合并分支再删掉-worktree">先合并分支，再删掉 worktree</h2>
-<p><code>git worktree list</code> 能看到 <code>worktree-feature-auth</code>，或者你用 <code>-b</code> 传进去的那个分支，提交在这棵工作树里做完，再回到主工作树把这个分支合并进来，而且得赶在 Claude 的清理把分支删掉之前。<code>git worktree remove</code> 只删工作树，共享的分支还留在仓库里，Claude 自己的删除会连目录带分支一起<span class="nobr">删掉。</span></p>
+<p><code>git worktree list</code> 能看到 <code>worktree-feature-auth</code>，或者你用 <code>-b</code> 传进去的那个分支，提交在这棵工作树里做完，再回到主工作树把这个分支合并进来，而且得赶在 Claude 的清理把分支删掉之前。<code>git worktree remove</code> 只删工作树，共享的分支还留在仓库里，Claude 自己的删除会连目录带分支一起删掉。</p>
 <pre><code class="language-bash">git worktree remove ../repo-feature
 git worktree remove .claude/worktrees/feature-auth</code></pre>
-<p>有未提交改动或未跟踪文件时，先保存需要的内容，只有确定要丢弃工作树里剩下的内容，才加 <code>--force</code>，git 因为锁定而拒绝的话，先对那个路径跑 <code>git worktree unlock</code> 再删，目录如果是你亲手删的，<code>git worktree prune</code> 会清掉 <code>$GIT_DIR/worktrees</code> 下面那条过期<span class="nobr">记录。</span></p>
-<p>想回到留下来的那棵工<span class="nobr">作树：</span></p>
+<p>有未提交改动或未跟踪文件时，先保存需要的内容，只有确定要丢弃工作树里剩下的内容，才加 <code>--force</code>，git 因为锁定而拒绝的话，先对那个路径跑 <code>git worktree unlock</code> 再删，目录如果是你亲手删的，<code>git worktree prune</code> 会清掉 <code>$GIT_DIR/worktrees</code> 下面那条过期记录。</p>
+<p>想回到留下来的那棵工作树：</p>
 <pre><code class="language-bash">claude --worktree feature-auth --resume</code></pre>
 <h2 id="一个-worktree-一个标签">一个 worktree 一个标签</h2>
 <figure class="blog-diagram"><picture><source media="(max-width: 640px)" srcset="/img/blog/claude-code-git-worktrees-mobile.webp" width="340" height="509"><img src="/img/blog/claude-code-git-worktrees.webp" width="385" height="352" loading="lazy" alt="同一个仓库的三个 worktree 文件夹，各在自己的分支上，各开在一个跑着 agent 的 Kaku 标签里"></picture><figcaption>三个文件夹共用同一个 .git 目录，所以在一个标签里提交的改动，另外两个标签里也看得到。</figcaption></figure>
 
 <p><a href="/zh/docs/keybindings">新建标签</a> 是 <code>Cmd + T</code>，新标签和分屏会继承当前目录，<code>config.tab_inherit_working_directory</code> 和 <code>config.split_pane_inherit_working_directory</code> 默认都是 true，所以可以 <code>cd ../repo-feature</code>，也可以直接在仓库里跑 <code>claude --worktree</code>。<code>Cmd + Shift + I</code> 或者双击能改标签名，手动改过的名字会留着，<code>config.tab_title_use_pane_title</code> 让标签显示 Claude Code 的标题时也不会被换掉，自动标题显示的是目录，<code>Cmd + Shift + O</code> 打开 Tab Navigator。</p>
-<p><code>Cmd + D</code> 左右分屏，<code>Cmd + Shift + D</code> 上下分屏，<code>Cmd + Shift + Enter</code> 放大当前窗格，窗格或标签里 Claude Code 正在前台运行时，关掉之前会先问，内置的 <code>tab_close_confirmation</code> 和 <code>pane_close_confirmation</code> 都是 <code>SmartPrompt</code>，一个标签里有好几个窗格时，<code>Cmd + W</code> 关的是当前<span class="nobr">窗格。</span></p>
-<p><a href="/zh/docs/cli"><code>kaku start --new-tab</code></a> 往当前窗口加一个标签，<code>kaku cli split-pane</code> 拆开当前窗格，还可以在新窗格里跑一条<span class="nobr">命令：</span></p>
+<p><code>Cmd + D</code> 左右分屏，<code>Cmd + Shift + D</code> 上下分屏，<code>Cmd + Shift + Enter</code> 放大当前窗格，窗格或标签里 Claude Code 正在前台运行时，关掉之前会先问，内置的 <code>tab_close_confirmation</code> 和 <code>pane_close_confirmation</code> 都是 <code>SmartPrompt</code>，一个标签里有好几个窗格时，<code>Cmd + W</code> 关的是当前窗格。</p>
+<p><a href="/zh/docs/cli"><code>kaku start --new-tab</code></a> 往当前窗口加一个标签，<code>kaku cli split-pane</code> 拆开当前窗格，还可以在新窗格里跑一条命令：</p>
 <pre><code class="language-bash">kaku cli split-pane -- bash -c <span class="tok-s">"claude --worktree feature-auth"</span></code></pre>
-<p><code>config.restore_previous_session</code> 默认是 true，下次打开会把标签和窗格带回来，窗口、标签或窗格一打开或关掉，一分钟内会把布局存下来，崩溃或者强制退出也在这个范围里。跑着 Claude Code 的窗格回来时还留着最后一屏，能看出对话停在哪里。Kaku 0.25.0 及以上配 Claude Code 2.1.295 及以上不用任何设置，Claude Code 在等你、做完了或者失败了，后台标签上都会出现一个点，更早的版本把<a href="/zh/blog/claude-code-notifications">通知渠道</a>设成 <code>ghostty</code>，等你和做完这两种状态也会点亮同一<span class="nobr">个点。</span></p>
+<p><code>config.restore_previous_session</code> 默认是 true，下次打开会把标签和窗格带回来，窗口、标签或窗格一打开或关掉，一分钟内会把布局存下来，崩溃或者强制退出也在这个范围里。跑着 Claude Code 的窗格回来时还留着最后一屏，能看出对话停在哪里。Kaku 0.25.0 及以上配 Claude Code 2.1.295 及以上不用任何设置，Claude Code 在等你、做完了或者失败了，后台标签上都会出现一个点，更早的版本把<a href="/zh/blog/claude-code-notifications">通知渠道</a>设成 <code>ghostty</code>，等你和做完这两种状态也会点亮同一个点。</p>
 <h2 id="常见问题">常见问题</h2>
 <h3 id="两个-worktree-能检出同一个分支吗">两个 worktree 能检出同一个分支吗？</h3>
-<p><code>git worktree add</code> 会拒绝已经检出的分支，<code>--force</code> 可以强行检出，<code>-b</code> 和 <code>claude --worktree</code> 都是新建一条分支，不会再去占用已经检出的<span class="nobr">那条。</span></p>
+<p><code>git worktree add</code> 会拒绝已经检出的分支，<code>--force</code> 可以强行检出，<code>-b</code> 和 <code>claude --worktree</code> 都是新建一条分支，不会再去占用已经检出的那条。</p>
 <h3 id="新-worktree-里为什么没有-env">新 worktree 里为什么没有 <code>.env</code>？</h3>
-<p>检出里只有已跟踪的文件，写在 <code>.gitignore</code> 里的 <code>.env</code> 只有 <code>.worktreeinclude</code> 写了它才会复制过去，而且只对 Claude Code 用 git 建出来的工作树<span class="nobr">生效。</span></p>
+<p>检出里只有已跟踪的文件，写在 <code>.gitignore</code> 里的 <code>.env</code> 只有 <code>.worktreeinclude</code> 写了它才会复制过去，而且只对 Claude Code 用 git 建出来的工作树生效。</p>
 <h3 id="failed-to-resolve-base-branch-head-是什么意思">Failed to resolve base branch "HEAD" 是什么意思？</h3>
 <p>仓库里还一次提交都没有，先在主工作树里提交一次，再跑 <code>claude --worktree</code>，这条报错记在<a href="https://code.claude.com/docs/zh-CN/common-workflows" target="_blank" rel="noopener noreferrer">常见工作流程</a>里。</p>
 <h3 id="删掉-worktree-会把分支也删掉吗">删掉 worktree 会把分支也删掉吗？</h3>
-<p>Claude 自己的删除会把目录和分支一起删掉，<code>git worktree remove</code> 会留下分支，所以先从主工作树把分支合并进来，锁还留着的话，用 <code>git worktree unlock</code> <span class="nobr">解开。</span></p>
+<p>Claude 自己的删除会把目录和分支一起删掉，<code>git worktree remove</code> 会留下分支，所以先从主工作树把分支合并进来，锁还留着的话，用 <code>git worktree unlock</code> 解开。</p>
 <h3 id="isolation-会拦住写进主工作树的每一次写入吗">isolation 会拦住写进主工作树的每一次写入吗？</h3>
-<p>主工作树上的 <code>Edit</code>、<code>Write</code> 和 <code>NotebookEdit</code> 会被拦住，在那里跑的 shell 命令，以及把 git 指过去的命令也会被拦住，<code>cp</code> 进主工作树不在这些检<span class="nobr">查里。</span></p>
+<p>主工作树上的 <code>Edit</code>、<code>Write</code> 和 <code>NotebookEdit</code> 会被拦住，在那里跑的 shell 命令，以及把 git 指过去的命令也会被拦住，<code>cp</code> 进主工作树不在这些检查里。</p>
           <aside class="blog-cta"><img class="blog-cta-icon" src="/img/kaku-mark.png" width="40" height="40" alt=""><p>Kaku 是一个免费开源的 Mac 终端。</p><a class="btn btn-primary" href="/zh/docs">安装 Kaku</a></aside>
           <nav class="blog-related" aria-label="继续阅读"><h2 class="blog-related-title">继续阅读</h2><ul class="blog-related-list"><li><a href="/zh/blog/install-claude-code-mac"><span class="blog-related-cat">Claude Code 与 Codex</span><span class="blog-related-name">在 Mac 上安装和更新 Claude Code</span><span class="blog-related-meta"><time datetime="2026-10-02">2026年10月2日</time> · 约 6 分钟</span></a></li><li><a href="/zh/blog/claude-code-skills"><span class="blog-related-cat">Claude Code 与 Codex</span><span class="blog-related-name">Claude Code skills 怎么写、怎么用</span><span class="blog-related-meta"><time datetime="2026-10-06">2026年10月6日</time> · 约 9 分钟</span></a></li><li><a href="/zh/blog/codex-vs-claude-code"><span class="blog-related-cat">Claude Code 与 Codex</span><span class="blog-related-name">Codex CLI 和 Claude Code 对比</span><span class="blog-related-meta"><time datetime="2026-10-09">2026年10月9日</time> · 约 7 分钟</span></a></li></ul></nav>
         </article>

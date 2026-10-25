@@ -149,30 +149,30 @@
       <div class="wide">
         <article class="doc-content blog-article">
           <figure class="blog-cover" aria-hidden="true"><img src="/img/blog/cards/nerd-fonts-mac.webp" width="1600" height="900" alt="" fetchpriority="high"></figure>
-<p>提示符、文件列表和状态栏里的图标，只有终端用的字体里有这个字形才画得出来，没有的话就是一个个空方块或问号。解决办法有两个，一是装一套 <a href="https://www.nerdfonts.com/" target="_blank" rel="noopener noreferrer">Nerd Font</a>，也就是打过补丁、塞进了几千个图标的编程字体，二是保留你现在的字体，再把只含图标的 Nerd Font 加成回退字体。有些终端自带这份回退，WezTerm、Ghostty 和 Kaku 都是，那就什么都不<span class="nobr">用装。</span></p>
+<p>提示符、文件列表和状态栏里的图标，只有终端用的字体里有这个字形才画得出来，没有的话就是一个个空方块或问号。解决办法有两个，一是装一套 <a href="https://www.nerdfonts.com/" target="_blank" rel="noopener noreferrer">Nerd Font</a>，也就是打过补丁、塞进了几千个图标的编程字体，二是保留你现在的字体，再把只含图标的 Nerd Font 加成回退字体。有些终端自带这份回退，WezTerm、Ghostty 和 Kaku 都是，那就什么都不用装。</p>
 <h2 id="nerd-font-是什么">Nerd Font 是什么</h2>
-<p><a href="https://github.com/ryanoasis/nerd-fonts" target="_blank" rel="noopener noreferrer">Nerd Fonts</a> 拿 JetBrains Mono、Fira Code、Hack 这类编程字体，往里面加上几套图标字体的字形，包括 Powerline 符号、Font Awesome、Material Design Icons、Devicons、Octicons、Codicons 等。Starship 这样的提示符、Yazi 和 lazygit 这样的终端工具，还有很多状态栏，画分支、文件夹和语言图标时用的就是这些<span class="nobr">码位。</span></p>
-<p>这个项目还发布了只含图标的 <code>SymbolsOnly</code> 字体，用途是让你保留喜欢的字体，你的字体里缺的字符，终端再去这份符号字体<span class="nobr">里找。</span></p>
+<p><a href="https://github.com/ryanoasis/nerd-fonts" target="_blank" rel="noopener noreferrer">Nerd Fonts</a> 拿 JetBrains Mono、Fira Code、Hack 这类编程字体，往里面加上几套图标字体的字形，包括 Powerline 符号、Font Awesome、Material Design Icons、Devicons、Octicons、Codicons 等。Starship 这样的提示符、Yazi 和 lazygit 这样的终端工具，还有很多状态栏，画分支、文件夹和语言图标时用的就是这些码位。</p>
+<p>这个项目还发布了只含图标的 <code>SymbolsOnly</code> 字体，用途是让你保留喜欢的字体，你的字体里缺的字符，终端再去这份符号字体里找。</p>
 <h2 id="字形缺了会怎样">字形缺了会怎样</h2>
-<p>一个字体只画得出它自己有的字符，缺字的时候终端会顺着回退列表往下找，再去找系统字体，就像在英文字体里打中文照样能显示出来。但 Nerd Fonts 的图标放在私用区，系统字体里都没有，整条链上找不到一个 Nerd Font，最后就只能画成<span class="nobr">方块。</span></p>
-<p>在 WezTerm 里可以用 <code>wezterm ls-fonts --text</code> 加一小段文字，看每个字符是哪个字体画出来的，这是分清到底没装字体还是配置写错最快的<span class="nobr">办法。</span></p>
+<p>一个字体只画得出它自己有的字符，缺字的时候终端会顺着回退列表往下找，再去找系统字体，就像在英文字体里打中文照样能显示出来。但 Nerd Fonts 的图标放在私用区，系统字体里都没有，整条链上找不到一个 Nerd Font，最后就只能画成方块。</p>
+<p>在 WezTerm 里可以用 <code>wezterm ls-fonts --text</code> 加一小段文字，看每个字符是哪个字体画出来的，这是分清到底没装字体还是配置写错最快的办法。</p>
 <h2 id="装补丁字体">装补丁字体</h2>
-<p>每一套补丁字体都是一个 Homebrew cask，在 Mac 上不加 <code>--cask</code> 也能<span class="nobr">找到：</span></p>
+<p>每一套补丁字体都是一个 Homebrew cask，在 Mac 上不加 <code>--cask</code> 也能找到：</p>
 <pre><code class="language-bash">brew install font-jetbrains-mono-nerd-font
 brew install font-hack-nerd-font</code></pre>
-<p>补丁版的字体名是原名去掉空格再加上 <code>Nerd Font</code>，JetBrains Mono 就变成 <code>JetBrainsMono Nerd Font</code>，终端字体设置里要填的是这个名字，原版的 <code>JetBrains Mono</code> 是另一个字体族。不想用 Homebrew 的话，<a href="https://github.com/ryanoasis/nerd-fonts/releases/latest" target="_blank" rel="noopener noreferrer">发布页</a>上每个字体族都有一个压缩包，解开后双击每个 <code>.ttf</code> 安装<span class="nobr">就行。</span></p>
+<p>补丁版的字体名是原名去掉空格再加上 <code>Nerd Font</code>，JetBrains Mono 就变成 <code>JetBrainsMono Nerd Font</code>，终端字体设置里要填的是这个名字，原版的 <code>JetBrains Mono</code> 是另一个字体族。不想用 Homebrew 的话，<a href="https://github.com/ryanoasis/nerd-fonts/releases/latest" target="_blank" rel="noopener noreferrer">发布页</a>上每个字体族都有一个压缩包，解开后双击每个 <code>.ttf</code> 安装就行。</p>
 <h2 id="保留原字体加一份符号回退">保留原字体，加一份符号回退</h2>
 <p>只含图标的那份字体也是 cask：</p>
 <pre><code class="language-bash">brew install font-symbols-only-nerd-font</code></pre>
-<p>怎么加要看终端。<a href="https://wezterm.org/config/fonts.html" target="_blank" rel="noopener noreferrer">WezTerm</a> 不需要装，它自带 JetBrains Mono、Nerd Font Symbols 和 Noto Color Emoji，并且会接在你设的字体列表<span class="nobr">后面：</span></p>
+<p>怎么加要看终端。<a href="https://wezterm.org/config/fonts.html" target="_blank" rel="noopener noreferrer">WezTerm</a> 不需要装，它自带 JetBrains Mono、Nerd Font Symbols 和 Noto Color Emoji，并且会接在你设的字体列表后面：</p>
 <pre><code class="language-lua">config.font = wezterm.font_with_fallback {
   <span class="tok-s">'Fira Code'</span>,
   <span class="tok-s">'DengXian'</span>,
 }</code></pre>
-<p><a href="https://ghostty.org/docs/config/reference" target="_blank" rel="noopener noreferrer">Ghostty</a> 也不需要装，它内嵌了 JetBrains Mono，Nerd Font 图标也是内置的。它的回退是多写几行 <code>font-family</code>，第一行是主字体，后面几行补主字体里缺的码位，想换一份别的符号字体，就让它单独占一行，具体名字用 <code>ghostty +list-fonts</code> 查，写一行空的 <code>font-family = ""</code> 可以清掉文件前面设过的字体。Ghostty 1.2.0 起还有 <code>adjust-icon-height</code>，能调 Nerd Font 图标的最大高度，Powerline 和制表符字形不受<span class="nobr">影响。</span></p>
-<p>Nerd Fonts 的 README 里也说了，回退来的符号在缩放和位置上不一定对得齐，如果图标和文字放在一起看着有点歪，换成同一字体族的补丁版会更稳。Mac 上 WezTerm 的整套配置可以看 <a href="/zh/blog/wezterm-config-for-mac">Mac 版 WezTerm <span class="nobr">配置</span></a>。</p>
+<p><a href="https://ghostty.org/docs/config/reference" target="_blank" rel="noopener noreferrer">Ghostty</a> 也不需要装，它内嵌了 JetBrains Mono，Nerd Font 图标也是内置的。它的回退是多写几行 <code>font-family</code>，第一行是主字体，后面几行补主字体里缺的码位，想换一份别的符号字体，就让它单独占一行，具体名字用 <code>ghostty +list-fonts</code> 查，写一行空的 <code>font-family = ""</code> 可以清掉文件前面设过的字体。Ghostty 1.2.0 起还有 <code>adjust-icon-height</code>，能调 Nerd Font 图标的最大高度，Powerline 和制表符字形不受影响。</p>
+<p>Nerd Fonts 的 README 里也说了，回退来的符号在缩放和位置上不一定对得齐，如果图标和文字放在一起看着有点歪，换成同一字体族的补丁版会更稳。Mac 上 WezTerm 的整套配置可以看 <a href="/zh/blog/wezterm-config-for-mac">Mac 版 WezTerm 配置</a>。</p>
 <h2 id="monopropo-和默认宽度">Mono、Propo 和默认宽度</h2>
-<p>每套补丁字体都有三种图标宽度，区别只在图标上，字母本身<span class="nobr">不变：</span></p>
+<p>每套补丁字体都有三种图标宽度，区别只在图标上，字母本身不变：</p>
 <table>
 <thead>
 <tr>
@@ -199,9 +199,9 @@ brew install font-hack-nerd-font</code></pre>
 </tr>
 </tbody>
 </table>
-<p>在终端里用 Mono 最稳，每个图标都只占一格，表格和状态栏的列不<span class="nobr">会乱。</span></p>
+<p>在终端里用 Mono 最稳，每个图标都只占一格，表格和状态栏的列不会乱。</p>
 <h2 id="选哪个基础字体">选哪个基础字体</h2>
-<p>以下按 Nerd Fonts README 整理，2026 年 10 月核<span class="nobr">对过：</span></p>
+<p>以下按 Nerd Fonts README 整理，2026 年 10 月核对过：</p>
 <table>
 <thead>
 <tr>
@@ -238,21 +238,21 @@ brew install font-hack-nerd-font</code></pre>
 </tr>
 </tbody>
 </table>
-<p>所有图标都能在 <a href="https://www.nerdfonts.com/cheat-sheet" target="_blank" rel="noopener noreferrer">cheat sheet</a> 里搜到，还能直接复制<span class="nobr">码位。</span></p>
+<p>所有图标都能在 <a href="https://www.nerdfonts.com/cheat-sheet" target="_blank" rel="noopener noreferrer">cheat sheet</a> 里搜到，还能直接复制码位。</p>
 <h2 id="kaku-里的字体">Kaku 里的字体</h2>
-<p>Kaku 不用另装 Nerd Font，默认字体是 JetBrains Mono，中文用 PingFang SC，同时自带 Symbols Nerd Font Mono，并把它接在你用的字体后面当回退，所以 Starship、lazygit、Yazi 和状态栏的图标第一次打开就能正常<span class="nobr">显示。</span></p>
-<p>在 <code>~/.config/kaku/kaku.lua</code> 里换了字体，这份回退也还在，换成什么字体图标都不<span class="nobr">会丢：</span></p>
+<p>Kaku 不用另装 Nerd Font，默认字体是 JetBrains Mono，中文用 PingFang SC，同时自带 Symbols Nerd Font Mono，并把它接在你用的字体后面当回退，所以 Starship、lazygit、Yazi 和状态栏的图标第一次打开就能正常显示。</p>
+<p>在 <code>~/.config/kaku/kaku.lua</code> 里换了字体，这份回退也还在，换成什么字体图标都不会丢：</p>
 <pre><code class="language-lua">config.font = wezterm.<span class="tok-f">font</span>(<span class="tok-s">"Fira Code"</span>)</code></pre>
 <p>Kaku 跟着主题调字重这件事只对默认的 JetBrains Mono 生效，你自己设了字体之后，Kaku 就不再去动它的字重。Starship 在内的 shell 那一侧怎么配，可以看<a href="/zh/blog/zsh-without-oh-my-zsh">不用 Oh My Zsh 配好 zsh</a>。</p>
 <h2 id="常见问题">常见问题</h2>
 <h3 id="在-wezterm-里换了字体图标还在吗">在 WezTerm 里换了字体，图标还在吗？</h3>
-<p>在。<code>wezterm.font_with_fallback</code> 会把你的字体放在前面，WezTerm 再把自带的回退接在后面，其中就有 Nerd Font Symbols，用 <code>wezterm ls-fonts</code> 能看到整<span class="nobr">条链。</span></p>
+<p>在。<code>wezterm.font_with_fallback</code> 会把你的字体放在前面，WezTerm 再把自带的回退接在后面，其中就有 Nerd Font Symbols，用 <code>wezterm ls-fonts</code> 能看到整条链。</p>
 <h3 id="nerd-fontnerd-font-mono-和-nerd-font-propo-有什么区别">Nerd Font、Nerd Font Mono 和 Nerd Font Propo 有什么区别？</h3>
-<p>只差在图标宽度上，普通版允许图标占两格，Mono 每个图标只占一格，Propo 按比例排，在终端里用 Mono 不会压到<span class="nobr">文字。</span></p>
+<p>只差在图标宽度上，普通版允许图标占两格，Mono 每个图标只占一格，Propo 按比例排，在终端里用 Mono 不会压到文字。</p>
 <h3 id="在-ghostty-里怎么加符号回退">在 Ghostty 里怎么加符号回退？</h3>
 <p>不用加，Ghostty 已经内置了 Nerd Font 图标，只有想换一份别的符号字体时，才需要先装好它，用 <code>ghostty +list-fonts</code> 查到名字，再在主字体后面加一行 <code>font-family</code>。</p>
 <h3 id="在-kaku-里需要装-nerd-font-吗">在 Kaku 里需要装 Nerd Font 吗？</h3>
-<p>不需要，Kaku 自带 Symbols Nerd Font Mono，接在你的字体后面当回退，你在 <code>kaku.lua</code> 里自己设的字体也<span class="nobr">一样。</span></p>
+<p>不需要，Kaku 自带 Symbols Nerd Font Mono，接在你的字体后面当回退，你在 <code>kaku.lua</code> 里自己设的字体也一样。</p>
 <h3 id="nerd-fonts-没提供的字体能自己打补丁吗">Nerd Fonts 没提供的字体能自己打补丁吗？</h3>
 <p>能，先用 <code>brew install fontforge</code> 装好 FontForge，从最新发布里下载 <code>FontPatcher.zip</code>，再运行 <code>fontforge -script font-patcher PATH_TO_FONT --complete</code>，生成的字体族名是原名加上 <code>Nerd Font</code>。</p>
           <aside class="blog-cta"><img class="blog-cta-icon" src="/img/kaku-mark.png" width="40" height="40" alt=""><p>Kaku 是一个免费开源的 Mac 终端。</p><a class="btn btn-primary" href="/zh/docs">安装 Kaku</a></aside>

@@ -149,11 +149,11 @@
       <div class="wide">
         <article class="doc-content blog-article">
           <figure class="blog-cover" aria-hidden="true"><img src="/img/blog/cards/starship-prompt.webp" width="1600" height="900" alt="" fetchpriority="high"></figure>
-<p>在 Mac 上用 Starship，装好只要三步，<code>brew install starship</code>，在 <code>~/.zshrc</code> 里加一行 <code>eval "$(starship init zsh)"</code>，再开一个新的 shell 就能看到新提示符了。之后所有的定制都写在 <code>~/.config/starship.toml</code> 这一个 TOML 文件里，显示哪些模块、每个模块长什么样、用什么颜色都在这里改，也可以直接拿社区的预设当起点。想让它一直够快，要盯的主要是 <code>scan_timeout</code> 和 <code>command_timeout</code> 这两个超时，以及 Git 相关模块在大仓库里到底干了多<span class="nobr">少活。</span></p>
+<p>在 Mac 上用 Starship，装好只要三步，<code>brew install starship</code>，在 <code>~/.zshrc</code> 里加一行 <code>eval "$(starship init zsh)"</code>，再开一个新的 shell 就能看到新提示符了。之后所有的定制都写在 <code>~/.config/starship.toml</code> 这一个 TOML 文件里，显示哪些模块、每个模块长什么样、用什么颜色都在这里改，也可以直接拿社区的预设当起点。想让它一直够快，要盯的主要是 <code>scan_timeout</code> 和 <code>command_timeout</code> 这两个超时，以及 Git 相关模块在大仓库里到底干了多少活。</p>
 <h2 id="安装并启用">安装并启用</h2>
 <p><a href="https://starship.rs/guide/" target="_blank" rel="noopener noreferrer">Starship 的安装文档</a>在 macOS 上给了好几种装法，<code>cargo install starship --locked</code>、<code>port install starship</code> 和官方安装脚本都行，最省事的还是 Homebrew：</p>
 <pre><code class="language-bash">brew install starship</code></pre>
-<p>装好之后在对应 shell 的配置文件里加上初始化那一行，放在靠后的位置、语法高亮之前，zsh、bash 和 fish 的写法各不<span class="nobr">一样：</span></p>
+<p>装好之后在对应 shell 的配置文件里加上初始化那一行，放在靠后的位置、语法高亮之前，zsh、bash 和 fish 的写法各不一样：</p>
 <pre><code class="language-bash"><span class="tok-c"># ~/.zshrc
 </span><span class="tok-b">eval</span> <span class="tok-s">"</span><span class="tok-k">$(</span>starship init zsh<span class="tok-k">)</span><span class="tok-s">"</span>
 
@@ -161,14 +161,14 @@
 </span><span class="tok-b">eval</span> <span class="tok-s">"</span><span class="tok-k">$(</span>starship init bash<span class="tok-k">)</span><span class="tok-s">"</span></code></pre>
 <pre><code class="language-fish"><span class="tok-c"># ~/.config/fish/config.fish
 </span>starship init <span class="tok-b">fish</span> | <span class="tok-b">source</span></code></pre>
-<p>开一个新的 shell 提示符就换好了。如果你正好也在重新整理 zsh，Starship 这一行和补全、自动建议、语法高亮之间的先后关系，可以看<a href="/zh/blog/zsh-without-oh-my-zsh">不用 Oh My Zsh 配好 zsh</a>，这篇就不再重<span class="nobr">复了。</span></p>
-<p>文档里只写了一个前提条件，终端里要装好并启用一套 <a href="https://www.nerdfonts.com/" target="_blank" rel="noopener noreferrer">Nerd Font</a>，因为 Git、各种语言和工具的默认符号用的都是这些字形，没有的话提示符里就是一排空方块。不想换掉现在用的字体，也可以只加一份符号回退，做法在 <a href="/zh/blog/nerd-fonts-mac">Mac 上的 Nerd Font</a> 里<span class="nobr">讲过。</span></p>
+<p>开一个新的 shell 提示符就换好了。如果你正好也在重新整理 zsh，Starship 这一行和补全、自动建议、语法高亮之间的先后关系，可以看<a href="/zh/blog/zsh-without-oh-my-zsh">不用 Oh My Zsh 配好 zsh</a>，这篇就不再重复了。</p>
+<p>文档里只写了一个前提条件，终端里要装好并启用一套 <a href="https://www.nerdfonts.com/" target="_blank" rel="noopener noreferrer">Nerd Font</a>，因为 Git、各种语言和工具的默认符号用的都是这些字形，没有的话提示符里就是一排空方块。不想换掉现在用的字体，也可以只加一份符号回退，做法在 <a href="/zh/blog/nerd-fonts-mac">Mac 上的 Nerd Font</a> 里讲过。</p>
 <h2 id="配置文件">配置文件</h2>
-<p>Starship 不会自己创建配置文件，第一次要手动建<span class="nobr">一个：</span></p>
+<p>Starship 不会自己创建配置文件，第一次要手动建一个：</p>
 <pre><code class="language-bash">mkdir -p ~/.config &amp;&amp; touch ~/.config/starship.toml</code></pre>
-<p>如果你习惯把配置放在 dotfiles 仓库里，可以在初始化那一行之前设好 <code>STARSHIP_CONFIG</code>，Starship 就会改去读那个<span class="nobr">路径：</span></p>
+<p>如果你习惯把配置放在 dotfiles 仓库里，可以在初始化那一行之前设好 <code>STARSHIP_CONFIG</code>，Starship 就会改去读那个路径：</p>
 <pre><code class="language-bash"><span class="tok-b">export</span> STARSHIP_CONFIG=~/dotfiles/starship.toml</code></pre>
-<p>下面这份小配置差不多把几个核心概念都用<span class="nobr">上了：</span></p>
+<p>下面这份小配置差不多把几个核心概念都用上了：</p>
 <pre><code class="language-toml"><span class="tok-s">"$schema"</span> = <span class="tok-s">'https://starship.rs/config-schema.json'</span>
 
 add_newline = <span class="tok-b">false</span>
@@ -182,21 +182,21 @@ truncation_length = <span class="tok-n">2</span>
 
 <span class="tok-k">[package]</span>
 disabled = <span class="tok-b">true</span></code></pre>
-<p><code>$schema</code> 这一行让编辑器能按 Starship 的配置 schema 补全键名，写起来少查很多次文档。<code>add_newline</code> 这种顶层的键管整个提示符，每个 <code>[table]</code> 管一个模块。按<a href="https://starship.rs/config/" target="_blank" rel="noopener noreferrer">配置文档</a>的说法，模块就是根据当前环境显示信息的一个组件，比如在 Node.js 项目里 <code>nodejs</code> 模块会显示当前的 Node.js 版本。任何模块加上 <code>disabled = true</code> 就会从提示符里彻底<span class="nobr">消失。</span></p>
-<p>有几个默认值最好心里有数，以下是 2026 年 10 月核对过的。<code>add_newline</code> 默认是 <code>true</code>，所以两次提示符之间会空一行，不喜欢就关掉。<code>directory</code> 默认截到三层父目录，在 Git 仓库里还会截到仓库根目录。<code>cmd_duration</code> 只在命令跑了超过两秒时才出现，对应的是 <code>min_time = 2_000</code>。<code>time</code> 和 <code>git_metrics</code> 默认是关着的，要自己写 <code>disabled = false</code> 才会<span class="nobr">显示。</span></p>
+<p><code>$schema</code> 这一行让编辑器能按 Starship 的配置 schema 补全键名，写起来少查很多次文档。<code>add_newline</code> 这种顶层的键管整个提示符，每个 <code>[table]</code> 管一个模块。按<a href="https://starship.rs/config/" target="_blank" rel="noopener noreferrer">配置文档</a>的说法，模块就是根据当前环境显示信息的一个组件，比如在 Node.js 项目里 <code>nodejs</code> 模块会显示当前的 Node.js 版本。任何模块加上 <code>disabled = true</code> 就会从提示符里彻底消失。</p>
+<p>有几个默认值最好心里有数，以下是 2026 年 10 月核对过的。<code>add_newline</code> 默认是 <code>true</code>，所以两次提示符之间会空一行，不喜欢就关掉。<code>directory</code> 默认截到三层父目录，在 Git 仓库里还会截到仓库根目录。<code>cmd_duration</code> 只在命令跑了超过两秒时才出现，对应的是 <code>min_time = 2_000</code>。<code>time</code> 和 <code>git_metrics</code> 默认是关着的，要自己写 <code>disabled = false</code> 才会显示。</p>
 <h2 id="格式字符串">格式字符串</h2>
-<p>每个模块都有自己的 <code>format</code>，整个提示符也有一个，格式字符串里能放三种<span class="nobr">东西：</span></p>
+<p>每个模块都有自己的 <code>format</code>，整个提示符也有一个，格式字符串里能放三种东西：</p>
 <ul>
 <li><strong>变量</strong>以 <code>$</code> 开头，比如 <code>git_branch</code> 模块里的 <code>$branch</code>，或者提示符 format 里的 <code>$git_branch</code>。</li>
 <li><strong>文字组</strong>写成 <code>[文字](样式)</code>，<code>'[on](red bold)'</code> 会打出一个红色粗体的 <code>on</code>。</li>
-<li><strong>条件组</strong>用圆括号包起来，里面的变量全是空的时候整组都不显示，<code>'(@$region)'</code> 要么显示 <code>@us-east-1</code>，要么什么都<span class="nobr">没有。</span></li>
+<li><strong>条件组</strong>用圆括号包起来，里面的变量全是空的时候整组都不显示，<code>'(@$region)'</code> 要么显示 <code>@us-east-1</code>，要么什么都没有。</li>
 </ul>
-<p>样式就是一小段字符串，像 <code>'bold fg:27'</code>、<code>'fg:green bg:blue'</code>、<code>'underline bg:#bf5700'</code>，写 <code>''</code> 就是不加任何样式。<code>$ [ ] ( )</code> 这几个符号在格式里有特殊含义，想原样打出来要加反斜杠转义，TOML 里用单引号的字符串需要的转义更少，所以文档里的例子大多用单<span class="nobr">引号。</span></p>
-<p>提示符默认的 format 是 <code>$all</code>，展开后是一长串按固定顺序排好的模块，如果只想挪一个模块、其他保持不变，在 <code>$all</code> 后面接着写就行，不用整串<span class="nobr">重写：</span></p>
+<p>样式就是一小段字符串，像 <code>'bold fg:27'</code>、<code>'fg:green bg:blue'</code>、<code>'underline bg:#bf5700'</code>，写 <code>''</code> 就是不加任何样式。<code>$ [ ] ( )</code> 这几个符号在格式里有特殊含义，想原样打出来要加反斜杠转义，TOML 里用单引号的字符串需要的转义更少，所以文档里的例子大多用单引号。</p>
+<p>提示符默认的 format 是 <code>$all</code>，展开后是一长串按固定顺序排好的模块，如果只想挪一个模块、其他保持不变，在 <code>$all</code> 后面接着写就行，不用整串重写：</p>
 <pre><code class="language-toml">format = <span class="tok-s">'$all$directory$character'</span></code></pre>
-<p>显式写出来的模块不会重复出现，所以这一行的效果是把目录挪到第二行，紧挨着提示符字符。想完全掌控顺序的话，就只列你要的那几个<span class="nobr">模块：</span></p>
+<p>显式写出来的模块不会重复出现，所以这一行的效果是把目录挪到第二行，紧挨着提示符字符。想完全掌控顺序的话，就只列你要的那几个模块：</p>
 <pre><code class="language-toml">format = <span class="tok-s">'$directory$git_branch$git_status$nodejs$python$character'</span></code></pre>
-<p>颜色也可以先起个名字再到处用，把 <code>palette</code> 设成一个名字，在 <code>[palettes.&lt;名字&gt;]</code> 下面定义好颜色，之后任何样式字符串里都能直接写这个颜<span class="nobr">色名：</span></p>
+<p>颜色也可以先起个名字再到处用，把 <code>palette</code> 设成一个名字，在 <code>[palettes.&lt;名字&gt;]</code> 下面定义好颜色，之后任何样式字符串里都能直接写这个颜色名：</p>
 <pre><code class="language-toml">palette = <span class="tok-s">'mine'</span>
 
 <span class="tok-k">[palettes.mine]</span>
@@ -205,7 +205,7 @@ mustard = <span class="tok-s">'#af8700'</span>
 <span class="tok-k">[git_branch]</span>
 style = <span class="tok-s">'bold mustard'</span></code></pre>
 <h2 id="预设">预设</h2>
-<p><a href="https://starship.rs/presets/" target="_blank" rel="noopener noreferrer">预设页</a>收集了社区提交的配置，每一个都链到单独的页面，里面有完整的 TOML 和使用方法，以下是 2026 年 10 月页面上列<span class="nobr">出的：</span></p>
+<p><a href="https://starship.rs/presets/" target="_blank" rel="noopener noreferrer">预设页</a>收集了社区提交的配置，每一个都链到单独的页面，里面有完整的 TOML 和使用方法，以下是 2026 年 10 月页面上列出的：</p>
 <table>
 <thead>
 <tr>
@@ -252,36 +252,36 @@ style = <span class="tok-s">'bold mustard'</span></code></pre>
 </tr>
 </tbody>
 </table>
-<p>页面上还提到 No Nerd Fonts 会在以后的版本里成为默认。预设不是一个开关，它就是一份写好的 <code>starship.toml</code>，换上之后和你自己写的配置没有区别，照样一行行改，所以替换之前先把现在的文件另存一份，后悔了还能换回来。<code>starship</code> 自己也能打印内置的预设，<code>starship preset --list</code> 列出名字，<code>starship preset tokyo-night -o ~/.config/starship.toml</code> 直接写成配置<span class="nobr">文件。</span></p>
+<p>页面上还提到 No Nerd Fonts 会在以后的版本里成为默认。预设不是一个开关，它就是一份写好的 <code>starship.toml</code>，换上之后和你自己写的配置没有区别，照样一行行改，所以替换之前先把现在的文件另存一份，后悔了还能换回来。<code>starship</code> 自己也能打印内置的预设，<code>starship preset --list</code> 列出名字，<code>starship preset tokyo-night -o ~/.config/starship.toml</code> 直接写成配置文件。</p>
 <h2 id="让它保持够快">让它保持够快</h2>
-<p>提示符画出来之前你是没法打字的，所以它里面任何一点慢，每按一次回车都感觉得到，大部分情况下动这三个地方就<span class="nobr">够了。</span></p>
-<p><code>scan_timeout</code> 限制 Starship 扫描当前目录文件的时间，各个语言模块就是靠这一步判断你是不是在 Node.js 或 Python 项目里，默认是 30 ms。<code>command_timeout</code> 限制模块调用的每一条外部命令，比如 <code>git</code> 或 <code>node --version</code>，默认是 500 ms。在特别大的仓库里 Git 的状态可能要算更久，经常待在这种仓库里就把它调高一点，宁可少显示点信息也不想等的话就保持低<span class="nobr">一些：</span></p>
+<p>提示符画出来之前你是没法打字的，所以它里面任何一点慢，每按一次回车都感觉得到，大部分情况下动这三个地方就够了。</p>
+<p><code>scan_timeout</code> 限制 Starship 扫描当前目录文件的时间，各个语言模块就是靠这一步判断你是不是在 Node.js 或 Python 项目里，默认是 30 ms。<code>command_timeout</code> 限制模块调用的每一条外部命令，比如 <code>git</code> 或 <code>node --version</code>，默认是 500 ms。在特别大的仓库里 Git 的状态可能要算更久，经常待在这种仓库里就把它调高一点，宁可少显示点信息也不想等的话就保持低一些：</p>
 <pre><code class="language-toml">scan_timeout = <span class="tok-n">10</span>
 command_timeout = <span class="tok-n">1000</span></code></pre>
 <p>大仓库里最花时间的通常是 Git，<code>git_status</code> 有个 <code>ignore_submodules</code>，打开后子模块里的改动就不再算进去，还有个 <code>use_git_executable</code>，让它改用 <code>git</code> 命令本身来算状态，而不是用 gitoxide。统计增删行数的 <code>git_metrics</code> 默认是关的，不看那两个数字就让它一直关着。平时根本不看的模块，直接写 <code>disabled = true</code>，或者干脆不写进 <code>format</code>。</p>
-<p>排查的时候有几样东西能帮上忙，<code>starship timings</code> 会列出当前目录下每个模块花了多久，找慢的那个最快。<code>starship explain</code> 会显示每个模块的说明，一眼就知道提示符里每一段是谁画的。警告和错误会写进 <code>~/.cache/starship/session_${STARSHIP_SESSION_KEY}.log</code>，每个终端会话一个文件，想换目录的话设 <code>STARSHIP_CACHE</code> <span class="nobr">就行。</span></p>
+<p>排查的时候有几样东西能帮上忙，<code>starship timings</code> 会列出当前目录下每个模块花了多久，找慢的那个最快。<code>starship explain</code> 会显示每个模块的说明，一眼就知道提示符里每一段是谁画的。警告和错误会写进 <code>~/.cache/starship/session_${STARSHIP_SESSION_KEY}.log</code>，每个终端会话一个文件，想换目录的话设 <code>STARSHIP_CACHE</code> 就行。</p>
 <h2 id="右侧提示符">右侧提示符</h2>
-<p><code>right_format</code> 和 <code>format</code> 写法完全一样，只是画在右边，默认是空的，把命令耗时和时钟挪过去，左边就能一直保持<span class="nobr">很短：</span></p>
+<p><code>right_format</code> 和 <code>format</code> 写法完全一样，只是画在右边，默认是空的，把命令耗时和时钟挪过去，左边就能一直保持很短：</p>
 <pre><code class="language-toml">format = <span class="tok-s">'$directory$git_branch$git_status$character'</span>
 right_format = <span class="tok-s">'$cmd_duration$time'</span>
 
 <span class="tok-k">[time]</span>
 disabled = <span class="tok-b">false</span></code></pre>
-<p>这里左边的 format 没有用 <code>$all</code>，而是把模块一个个写出来，因为 <code>$all</code> 里本来就带了 <code>cmd_duration</code> 和 <code>time</code>，拆开写才能确定这两个模块只放在<span class="nobr">右边。</span></p>
+<p>这里左边的 format 没有用 <code>$all</code>，而是把模块一个个写出来，因为 <code>$all</code> 里本来就带了 <code>cmd_duration</code> 和 <code>time</code>，拆开写才能确定这两个模块只放在右边。</p>
 <h2 id="kaku-里的-starship">Kaku 里的 Starship</h2>
-<p>Kaku 的 shell 配置会在没装 Starship 时用 Homebrew 装上，<code>kaku init</code> 和首次打开时都会先问你，但它只在 Kaku 里启动 Starship，从 Kaku 里开的 tmux 会话也算。托管的 <code>kaku.zsh</code> 判断的是 <code>TERM_PROGRAM=Kaku</code>，或者同时有 <code>$TMUX</code> 和 Kaku shell 导出的 <code>KAKU_SESSION</code>，fish 那边是同一套判断，其他终端还是你原来的提示符。想让所有终端都用 Kaku 的 Starship，在 <code>.zshrc</code> 里 Kaku 那行之前加上 <code>export KAKU_PROMPT_EVERYWHERE=1</code>，fish 则在 <code>config.fish</code> 里写 <code>set -gx KAKU_PROMPT_EVERYWHERE 1</code>。图标也不用另装 Nerd Font，Kaku 自带 Symbols Nerd Font Mono，会接在你设的字体后面当<span class="nobr">回退。</span></p>
+<p>Kaku 的 shell 配置会在没装 Starship 时用 Homebrew 装上，<code>kaku init</code> 和首次打开时都会先问你，但它只在 Kaku 里启动 Starship，从 Kaku 里开的 tmux 会话也算。托管的 <code>kaku.zsh</code> 判断的是 <code>TERM_PROGRAM=Kaku</code>，或者同时有 <code>$TMUX</code> 和 Kaku shell 导出的 <code>KAKU_SESSION</code>，fish 那边是同一套判断，其他终端还是你原来的提示符。想让所有终端都用 Kaku 的 Starship，在 <code>.zshrc</code> 里 Kaku 那行之前加上 <code>export KAKU_PROMPT_EVERYWHERE=1</code>，fish 则在 <code>config.fish</code> 里写 <code>set -gx KAKU_PROMPT_EVERYWHERE 1</code>。图标也不用另装 Nerd Font，Kaku 自带 Symbols Nerd Font Mono，会接在你设的字体后面当回退。</p>
 <p>Kaku 没有另外一份提示符配置，它不设 <code>STARSHIP_CONFIG</code>，所以 Starship 读的就是正常的 <code>~/.config/starship.toml</code>。Kaku 只在这个文件不存在时才把自己那份拷过去，你已经有的话就不会动。唯一的例外是 Kaku 0.10.0 到 0.22.0 拷过去的那份去掉了图标的旧配置，你的文件要是和它一个字节都没差，Kaku 会换成当前版本，改过的或者是软链接的都原样保留。拷过去的那份就是普通配置，随便改。它用一条很短的显式 <code>format</code> 代替了 <code>$all</code>，把 <code>command_timeout</code> 设成 2000 给大仓库里的 Git 状态留出余量，还给 <code>git_status</code> 打开了 <code>ignore_submodules</code>。</p>
 <h2 id="常见问题">常见问题</h2>
 <h3 id="starship-提示符里为什么全是方块或问号">Starship 提示符里为什么全是方块或问号？</h3>
-<p>终端用的字体里没有这些模块要用的 Nerd Font 字形，装一套 Nerd Font，或者只加一份符号字体当回退，也可以换成 No Nerd Fonts 或 Plain Text Symbols 这两个预设，就不再依赖这些字<span class="nobr">形了。</span></p>
+<p>终端用的字体里没有这些模块要用的 Nerd Font 字形，装一套 Nerd Font，或者只加一份符号字体当回退，也可以换成 No Nerd Fonts 或 Plain Text Symbols 这两个预设，就不再依赖这些字形了。</p>
 <h3 id="starship-的配置文件在哪">Starship 的配置文件在哪？</h3>
-<p>在 <code>~/.config/starship.toml</code>，Starship 不会自己生成，用 <code>mkdir -p ~/.config &amp;&amp; touch ~/.config/starship.toml</code> 建一个，想放到别处的话，把 <code>STARSHIP_CONFIG</code> 指向那个路径<span class="nobr">就行。</span></p>
+<p>在 <code>~/.config/starship.toml</code>，Starship 不会自己生成，用 <code>mkdir -p ~/.config &amp;&amp; touch ~/.config/starship.toml</code> 建一个，想放到别处的话，把 <code>STARSHIP_CONFIG</code> 指向那个路径就行。</p>
 <h3 id="在大仓库里提示符为什么变慢或者-git-状态不见了">在大仓库里提示符为什么变慢，或者 Git 状态不见了？</h3>
-<p>大仓库里的 Git 命令很容易超过默认 500 ms 的 <code>command_timeout</code>，还是想看到状态就把超时调高，在 <code>[git_status]</code> 里写上 <code>ignore_submodules = true</code>，再把用不上的模块都<span class="nobr">关掉。</span></p>
+<p>大仓库里的 Git 命令很容易超过默认 500 ms 的 <code>command_timeout</code>，还是想看到状态就把超时调高，在 <code>[git_status]</code> 里写上 <code>ignore_submodules = true</code>，再把用不上的模块都关掉。</p>
 <h3 id="怎么把提示符放到右边">怎么把提示符放到右边？</h3>
-<p>设置 <code>right_format</code>，比如 <code>right_format = '$cmd_duration$time'</code>，同时左边的 <code>format</code> 不要再用 <code>$all</code>，只列出你想留在左边的那几个<span class="nobr">模块。</span></p>
+<p>设置 <code>right_format</code>，比如 <code>right_format = '$cmd_duration$time'</code>，同时左边的 <code>format</code> 不要再用 <code>$all</code>，只列出你想留在左边的那几个模块。</p>
 <h3 id="kaku-会覆盖我的-starshiptoml-吗">Kaku 会覆盖我的 starship.toml 吗？</h3>
-<p>不会，Kaku 只在没有 <code>~/.config/starship.toml</code>，或者它还是旧版 Kaku 拷过去、一个字节都没改过的那份时才写入，你自己写的配置在 Kaku 里和其他终端里都原样<span class="nobr">生效。</span></p>
+<p>不会，Kaku 只在没有 <code>~/.config/starship.toml</code>，或者它还是旧版 Kaku 拷过去、一个字节都没改过的那份时才写入，你自己写的配置在 Kaku 里和其他终端里都原样生效。</p>
           <aside class="blog-cta"><img class="blog-cta-icon" src="/img/kaku-mark.png" width="40" height="40" alt=""><p>Kaku 是一个免费开源的 Mac 终端。</p><a class="btn btn-primary" href="/zh/docs">安装 Kaku</a></aside>
           <nav class="blog-related" aria-label="继续阅读"><h2 class="blog-related-title">继续阅读</h2><ul class="blog-related-list"><li><a href="/zh/blog/zsh-without-oh-my-zsh"><span class="blog-related-cat">Shell 与命令行工具</span><span class="blog-related-name">不用 Oh My Zsh，把 zsh 配得又快又好用</span><span class="blog-related-meta"><time datetime="2026-09-27">2026年9月27日</time> · 约 4 分钟</span></a></li><li><a href="/zh/blog/zsh-vs-bash"><span class="blog-related-cat">Shell 与命令行工具</span><span class="blog-related-name">Mac 上用 zsh 还是 bash</span><span class="blog-related-meta"><time datetime="2026-10-04">2026年10月4日</time> · 约 5 分钟</span></a></li><li><a href="/zh/blog/fzf-zsh-mac"><span class="blog-related-cat">Shell 与命令行工具</span><span class="blog-related-name">在 Mac 上给 zsh 配好 fzf，搜历史、找文件、跳目录</span><span class="blog-related-meta"><time datetime="2026-10-14">2026年10月14日</time> · 约 7 分钟</span></a></li></ul></nav>
         </article>

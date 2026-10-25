@@ -205,31 +205,7 @@ def render_body(text: str) -> str:
     # External links open in a new tab, like the docs.
     out = re.sub(r'<a href="(https?://(?!kaku\.fun)[^"]+)">',
                  r'<a href="\1" target="_blank" rel="noopener noreferrer">', out)
-    return glue_cjk_tails(BLOCK_RE.sub(render_block, out))
-
-
-# Keep a paragraph or list item from ending on one Chinese or Japanese
-# character. `text-wrap: pretty` handles most lines, but Chromium gives up in
-# paragraphs with long unbreakable tokens or `box-decoration-break: clone` code
-# chips, and Firefox has no `pretty`; so the last two characters and closing
-# punctuation stay on one line (inside a closing link when the paragraph ends on
-# one), or a lone one is bound to the word before it
-# (same helper on every product site, maintainer 2026-10-23).
-GLUE_BLOCK_RE = re.compile(r'(<(p|li)\b[^>]*>)((?:(?!<(?:p|li)\b).)*?)(</\2>)', re.S)
-CJK_TAIL_RE = re.compile(r'[\u3040-\u30ff\u3400-\u9fff\uf900-\ufaff]{2}[。，、；：！？」』）”]*$')
-CJK_LONE_RE = re.compile(r'([^\s<>]{1,20} [\u3040-\u30ff\u3400-\u9fff\uf900-\ufaff][。，、；：！？」』）”]*)$')
-CJK_LINKED_RE = re.compile(r'([\u3040-\u30ff\u3400-\u9fff\uf900-\ufaff]{2})((?:</(?:a|strong|em|b)>)+[。，、；：！？」』）”]*)$')
-
-
-def glue_cjk_tails(page):
-    def glue(m):
-        inner, glued = CJK_TAIL_RE.subn(lambda t: f'<span class="nobr">{t.group(0)}</span>', m.group(3))
-        if not glued:  # the last two inside a link, emphasis or bold: glue them there
-            inner, glued = CJK_LINKED_RE.subn(r'<span class="nobr">\1</span>\2', inner)
-        if not glued:
-            inner = CJK_LONE_RE.sub(r'<span class="nobr">\1</span>', inner)
-        return m.group(1) + inner + m.group(4)
-    return GLUE_BLOCK_RE.sub(glue, page)
+    return BLOCK_RE.sub(render_block, out)
 
 
 def faq_pairs(body_html: str, lang: str) -> list[tuple[str, str]]:

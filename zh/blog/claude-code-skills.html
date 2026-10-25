@@ -141,10 +141,10 @@
       <div class="wide">
         <article class="doc-content blog-article">
           <figure class="blog-cover" aria-hidden="true"><img src="/img/blog/cards/claude-code-skills.webp" width="1600" height="900" alt="" fetchpriority="high"></figure>
-<p>一个 <a href="https://code.claude.com/docs/en/skills" target="_blank" rel="noopener noreferrer">Claude Code skill</a> 是带 <code>SKILL.md</code> 的文件夹，Claude 拿 <code>description</code> 和当前任务对，对上了才加载正文，你打 <code>/skill-name</code> 时也会加载。文件以 YAML frontmatter 开头，后面是说明，脚本和参考文件放在同一层，<code>name</code> 决定命令名，不写就用文件夹名。个人 skill 放在 <code>~/.claude/skills/&lt;name&gt;/SKILL.md</code>，这台机器上每个项目都能用，项目 skill 放在 <code>.claude/skills/&lt;name&gt;/SKILL.md</code>，只跟着这个仓库的会<span class="nobr">话走。</span></p>
+<p>一个 <a href="https://code.claude.com/docs/en/skills" target="_blank" rel="noopener noreferrer">Claude Code skill</a> 是带 <code>SKILL.md</code> 的文件夹，Claude 拿 <code>description</code> 和当前任务对，对上了才加载正文，你打 <code>/skill-name</code> 时也会加载。文件以 YAML frontmatter 开头，后面是说明，脚本和参考文件放在同一层，<code>name</code> 决定命令名，不写就用文件夹名。个人 skill 放在 <code>~/.claude/skills/&lt;name&gt;/SKILL.md</code>，这台机器上每个项目都能用，项目 skill 放在 <code>.claude/skills/&lt;name&gt;/SKILL.md</code>，只跟着这个仓库的会话走。</p>
 <h2 id="怎么区分-skillclaudemd斜杠命令和-subagent">怎么区分 skill、CLAUDE.md、斜杠命令和 subagent</h2>
-<p><code>CLAUDE.md</code> 是每次都会加载的说明，skill 放的是一套做法，比如一份你会反复粘贴的检查清单，或者 <code>CLAUDE.md</code> 里已经写成步骤的那<span class="nobr">一节。</span></p>
-<p>自定义命令已经并进了 skill，原来的 <code>.claude/commands/deploy.md</code> 还能用，照样生成 <code>/deploy</code>，换成 <code>.claude/skills/deploy/SKILL.md</code> 生成的也是同一条命令。一份 <a href="https://code.claude.com/docs/en/slash-commands" target="_blank" rel="noopener noreferrer">斜杠命令</a> 文件能写同一套 frontmatter，只是没有 <code>name</code> 和 <code>paths</code>，skill 另外可以带上旁边的文件，<code>description</code> 和任务对上时 Claude 自己也会加<span class="nobr">载它。</span></p>
+<p><code>CLAUDE.md</code> 是每次都会加载的说明，skill 放的是一套做法，比如一份你会反复粘贴的检查清单，或者 <code>CLAUDE.md</code> 里已经写成步骤的那一节。</p>
+<p>自定义命令已经并进了 skill，原来的 <code>.claude/commands/deploy.md</code> 还能用，照样生成 <code>/deploy</code>，换成 <code>.claude/skills/deploy/SKILL.md</code> 生成的也是同一条命令。一份 <a href="https://code.claude.com/docs/en/slash-commands" target="_blank" rel="noopener noreferrer">斜杠命令</a> 文件能写同一套 frontmatter，只是没有 <code>name</code> 和 <code>paths</code>，skill 另外可以带上旁边的文件，<code>description</code> 和任务对上时 Claude 自己也会加载它。</p>
 <p>一个 <a href="https://code.claude.com/docs/en/sub-agents" target="_blank" rel="noopener noreferrer">subagent</a> 有自己的上下文窗口、系统提示、工具和权限，做完只交回一段摘要，文件放在 <code>~/.claude/agents/</code> 或 <code>.claude/agents/</code>，Claude 按各自的 <code>description</code> 把任务分出去。自定义 subagent 的 <code>description</code> 加起来超过 15,000 token，启动时会警告，内置的不算在内。写上 <code>context: fork</code> 之后，skill 正文就变成那个 subagent 的任务，它看不到当前对话，不写 <code>agent</code> 时类型是 <code>general-purpose</code>。</p>
 <table>
 <thead>
@@ -184,7 +184,7 @@
 </table>
 <p><code>disable-model-invocation: true</code> 不把 <code>description</code> 放进上下文，自动匹配看不到它，你自己打 <code>/name</code> 仍然可以跑这个 skill。</p>
 <h2 id="skillmd-里有什么">SKILL.md 里有什么</h2>
-<p>开头的 <code>---</code> 必须是文件第一行，字段都可选，名字用小写加连字符，只有 <code>when_to_use</code> 用的是下划线。Claude 拿来对任务的是 <code>description</code>，不认识的字段会被忽略。YAML 解析失败时 skill 照样加载，只是字段全空，<code>/name</code> 还能用，没有字段就不会自己去<span class="nobr">匹配。</span></p>
+<p>开头的 <code>---</code> 必须是文件第一行，字段都可选，名字用小写加连字符，只有 <code>when_to_use</code> 用的是下划线。Claude 拿来对任务的是 <code>description</code>，不认识的字段会被忽略。YAML 解析失败时 skill 照样加载，只是字段全空，<code>/name</code> 还能用，没有字段就不会自己去匹配。</p>
 <pre><code class="language-yaml">---
 name: summarize-changes
 description: Summarize uncommitted changes and flag risks. Use when asked what changed.
@@ -195,39 +195,39 @@ allowed-tools: Bash(git diff *)
 
 Summarize the diff in a few bullets. If it is empty, say so.</code></pre>
 <p>要给这台机器上的每个项目用，就把上面这份存成 <code>~/.claude/skills/summarize-changes/SKILL.md</code>。</p>
-<p><code>!`git diff HEAD`</code> 会先跑，输出替换这一行，<code>!</code> 必须在行首，或者紧跟空白，命令失败就中止这次调用，不在 auto 模式时，你的规则不允许的命令同样会中止，Bash 超时是 2 <span class="nobr">分钟。</span></p>
-<p><code>allowed-tools</code> 只在这一轮放行 <code>Bash(git diff *)</code>，skill 正文则一直留在对话里。<code>user-invocable: false</code> 会把菜单项藏起来，Claude 按 <code>description</code> 仍然可以加载这个 skill，另设 <code>disable-model-invocation: true</code> 时，Claude Code 会拦住它自己发起的<span class="nobr">调用。</span></p>
+<p><code>!`git diff HEAD`</code> 会先跑，输出替换这一行，<code>!</code> 必须在行首，或者紧跟空白，命令失败就中止这次调用，不在 auto 模式时，你的规则不允许的命令同样会中止，Bash 超时是 2 分钟。</p>
+<p><code>allowed-tools</code> 只在这一轮放行 <code>Bash(git diff *)</code>，skill 正文则一直留在对话里。<code>user-invocable: false</code> 会把菜单项藏起来，Claude 按 <code>description</code> 仍然可以加载这个 skill，另设 <code>disable-model-invocation: true</code> 时，Claude Code 会拦住它自己发起的调用。</p>
 <h2 id="写一条对得上的-description">写一条对得上的 description</h2>
-<p>先写它做什么、什么时候用，场景放在前面，<code>when_to_use</code> 会把触发短语接在 <code>description</code> 后面，没写 <code>description</code> 就用正文第一行非空的 markdown 代替。<code>description</code> 和 <code>when_to_use</code> 加在一起，到 1,536 个字符就截断，这个上限由 <code>skillListingMaxDescChars</code> 设定。名字和 <code>description</code> 每一轮都会送出去，预算是上下文窗口的 1%，<code>skillListingBudgetFraction</code> 用来改这个比例，比如 <code>0.02</code>，要固定字符数就用 <code>SLASH_COMMAND_TOOL_CHAR_BUDGET</code>。超出预算之后，先丢掉用得最少的 <code>description</code>，名字还留着。2026 年 10 月核<span class="nobr">对过。</span></p>
-<p><code>paths</code> 的写法和按路径生效的规则一样是 glob，只有碰到匹配的文件时才会自动加载。一个 skill 一直不自己出现，多半是 <code>description</code> 里没有你会说的那些词，YAML 没有解析成功，或者模型调用被关掉了。问 <code>What skills are available?</code> 能看到当前列出来的 skill，<code>/doctor</code> 会估算这份列表的开销。<code>/skill-doctor</code> 从 v2.1.252 起还会报开销和用过的情况，内置的和企业的 skill 除外，交互会话里它开在 <code>/plugin</code> 的 Stats 标<span class="nobr">签上。</span></p>
+<p>先写它做什么、什么时候用，场景放在前面，<code>when_to_use</code> 会把触发短语接在 <code>description</code> 后面，没写 <code>description</code> 就用正文第一行非空的 markdown 代替。<code>description</code> 和 <code>when_to_use</code> 加在一起，到 1,536 个字符就截断，这个上限由 <code>skillListingMaxDescChars</code> 设定。名字和 <code>description</code> 每一轮都会送出去，预算是上下文窗口的 1%，<code>skillListingBudgetFraction</code> 用来改这个比例，比如 <code>0.02</code>，要固定字符数就用 <code>SLASH_COMMAND_TOOL_CHAR_BUDGET</code>。超出预算之后，先丢掉用得最少的 <code>description</code>，名字还留着。2026 年 10 月核对过。</p>
+<p><code>paths</code> 的写法和按路径生效的规则一样是 glob，只有碰到匹配的文件时才会自动加载。一个 skill 一直不自己出现，多半是 <code>description</code> 里没有你会说的那些词，YAML 没有解析成功，或者模型调用被关掉了。问 <code>What skills are available?</code> 能看到当前列出来的 skill，<code>/doctor</code> 会估算这份列表的开销。<code>/skill-doctor</code> 从 v2.1.252 起还会报开销和用过的情况，内置的和企业的 skill 除外，交互会话里它开在 <code>/plugin</code> 的 Stats 标签上。</p>
 <h2 id="脚本和参考文件">脚本和参考文件</h2>
-<p><code>SKILL.md</code> 保持在 500 行以内，调用过一次，这段文字就留在对话里，不会再从磁盘读，自动压缩之后，每个 skill 可以留下最近一次运行开头的 5,000 token，从共用的 25,000 token 里取，新的<span class="nobr">先占。</span></p>
-<p><code>SKILL.md</code> 指向一份参考文件时，不会跟正文一起读进来，要等说明写了去读，Claude 才会去读那个文件，脚本是拿去执行的，不会塞进提示词。<code>${CLAUDE_SKILL_DIR}</code> 就是 <code>SKILL.md</code> 所在的目录，正文和 <code>allowed-tools</code> 里都写它，比如 <code>Bash(${CLAUDE_SKILL_DIR}/scripts/render.sh *)</code>，这样授权才能和要跑的命令对上。工作区信任管不到 <code>allowed-tools</code> 这个字段，在从未信任过的文件夹里跑 <code>claude -p</code> 也<span class="nobr">一样。</span></p>
+<p><code>SKILL.md</code> 保持在 500 行以内，调用过一次，这段文字就留在对话里，不会再从磁盘读，自动压缩之后，每个 skill 可以留下最近一次运行开头的 5,000 token，从共用的 25,000 token 里取，新的先占。</p>
+<p><code>SKILL.md</code> 指向一份参考文件时，不会跟正文一起读进来，要等说明写了去读，Claude 才会去读那个文件，脚本是拿去执行的，不会塞进提示词。<code>${CLAUDE_SKILL_DIR}</code> 就是 <code>SKILL.md</code> 所在的目录，正文和 <code>allowed-tools</code> 里都写它，比如 <code>Bash(${CLAUDE_SKILL_DIR}/scripts/render.sh *)</code>，这样授权才能和要跑的命令对上。工作区信任管不到 <code>allowed-tools</code> 这个字段，在从未信任过的文件夹里跑 <code>claude -p</code> 也一样。</p>
 <h2 id="用名字调用">用名字调用</h2>
-<p>消息开头的 <code>/fix-issue 123</code> 会跑这个 skill，<code>$ARGUMENTS</code> 是 <code>123</code>，<code>$0</code> 是第一个参数，正文里没有占位符时，Claude Code 会接上 <code>ARGUMENTS:</code> 和你打的那段文字。写成 <code>go ahead and /deploy to staging</code> 这种夹在句子里的样子，不会直接跑，这个名字只表示当前这条回复允许<span class="nobr">用它。</span></p>
-<p>在提示符里打 <code>/write-tests /fix-issue 123</code>，两个都会加载，<code>123</code> 分给每一个，最多展开第一个 skill 加后面五个，从左往右认，遇到第一个不是行内运行、用户可直接调用的 skill 名就停下，<code>claude -p</code> 和 Agent SDK 只加载第<span class="nobr">一个。</span></p>
+<p>消息开头的 <code>/fix-issue 123</code> 会跑这个 skill，<code>$ARGUMENTS</code> 是 <code>123</code>，<code>$0</code> 是第一个参数，正文里没有占位符时，Claude Code 会接上 <code>ARGUMENTS:</code> 和你打的那段文字。写成 <code>go ahead and /deploy to staging</code> 这种夹在句子里的样子，不会直接跑，这个名字只表示当前这条回复允许用它。</p>
+<p>在提示符里打 <code>/write-tests /fix-issue 123</code>，两个都会加载，<code>123</code> 分给每一个，最多展开第一个 skill 加后面五个，从左往右认，遇到第一个不是行内运行、用户可直接调用的 skill 名就停下，<code>claude -p</code> 和 Agent SDK 只加载第一个。</p>
 <h2 id="用-plugin-分享">用 plugin 分享</h2>
-<p>把 <code>.claude/skills/</code> 提交进仓库，这个仓库里的会话都会加载，克隆了仓库的云端会话也算。要连 subagent、hook 或 MCP server 一起装，就做成一个 <a href="https://code.claude.com/docs/en/plugins" target="_blank" rel="noopener noreferrer">plugin</a>，清单是 <code>.claude-plugin/plugin.json</code>，里面的 skill 以 <code>/plugin-name:skill-name</code> <span class="nobr">运行。</span></p>
-<p>marketplace 是带 <code>.claude-plugin/marketplace.json</code> 的仓库，Claude Code 在第一次交互式终端会话里，会把 Anthropic 的官方 marketplace 加进来，之后从 <code>/plugin</code> 的 Discover 标签安装，也可以直接写<span class="nobr">名字：</span></p>
+<p>把 <code>.claude/skills/</code> 提交进仓库，这个仓库里的会话都会加载，克隆了仓库的云端会话也算。要连 subagent、hook 或 MCP server 一起装，就做成一个 <a href="https://code.claude.com/docs/en/plugins" target="_blank" rel="noopener noreferrer">plugin</a>，清单是 <code>.claude-plugin/plugin.json</code>，里面的 skill 以 <code>/plugin-name:skill-name</code> 运行。</p>
+<p>marketplace 是带 <code>.claude-plugin/marketplace.json</code> 的仓库，Claude Code 在第一次交互式终端会话里，会把 Anthropic 的官方 marketplace 加进来，之后从 <code>/plugin</code> 的 Discover 标签安装，也可以直接写名字：</p>
 <pre><code class="language-text">/plugin install skill-creator@claude-plugins-official</code></pre>
 <p>User scope 装给你自己，这台电脑上每个项目都能用，Project scope 写进已经提交的 <code>.claude/settings.json</code>，但每个协作者还是要自己装一次。Local scope 也只给你自己，而且只限这个仓库，装好之后每次会话都会加载。Claude 自己能调用的 skill，名字和 <code>description</code> 每一轮都在上下文里，也计入用量，正文要等 skill 跑起来才加载，官方 marketplace 的 plugin 在安装之前，Marketplaces 标签上会显示 Context cost。<code>skillOverrides</code> 不影响 plugin 里的 skill，要关掉某一个，用 <code>/plugin</code>，或者跑 <code>claude plugin disable</code>。</p>
 <h2 id="常见写错">常见写错</h2>
-<p>在 <code>description</code> 里把 <code>CLAUDE.md</code> 再写一遍，每一轮都在花这份列表的预算，事实放在 <code>CLAUDE.md</code> 里，<code>/doctor</code> 会指出和已提交文件重复的本地文件，并提议把总会加载的说明挪进 skill。<code>description</code> 写到 1,536 个字符就被截断，1% 的预算装满之后，用得最少的 <code>description</code> 先被丢掉，名字仍然<span class="nobr">留着。</span></p>
-<p><code>/name</code> 能用，Claude 却从不选这个 skill，是 <code>description</code> 没进那份列表，<code>claude --debug</code> 会打出 YAML 错误，<code>claude plugin validate ~/.claude/skills</code> 能找到解析不了的 frontmatter，这要 v2.1.233 或更新。不在 plugin 里时，文件夹名里有 <code>&lt;</code>、零宽空格，或者首尾空格，这个 skill 就加载<span class="nobr">不了。</span></p>
-<p>每次改动都要执行的规则写成 <a href="/zh/blog/claude-code-hooks">hook</a>，frontmatter 里的 <code>hooks</code> 从 skill 跑起来那一刻生效，一直持续到会话结束。正文里的说明要写成一直生效的样子，比如写 <code>Run the tests after every edit</code>，不要只写 <code>Run the tests</code>，因为后面的轮次不会再读这个文件。压缩之后要再调用一次，也只留得住开头那<span class="nobr">一段。</span></p>
+<p>在 <code>description</code> 里把 <code>CLAUDE.md</code> 再写一遍，每一轮都在花这份列表的预算，事实放在 <code>CLAUDE.md</code> 里，<code>/doctor</code> 会指出和已提交文件重复的本地文件，并提议把总会加载的说明挪进 skill。<code>description</code> 写到 1,536 个字符就被截断，1% 的预算装满之后，用得最少的 <code>description</code> 先被丢掉，名字仍然留着。</p>
+<p><code>/name</code> 能用，Claude 却从不选这个 skill，是 <code>description</code> 没进那份列表，<code>claude --debug</code> 会打出 YAML 错误，<code>claude plugin validate ~/.claude/skills</code> 能找到解析不了的 frontmatter，这要 v2.1.233 或更新。不在 plugin 里时，文件夹名里有 <code>&lt;</code>、零宽空格，或者首尾空格，这个 skill 就加载不了。</p>
+<p>每次改动都要执行的规则写成 <a href="/zh/blog/claude-code-hooks">hook</a>，frontmatter 里的 <code>hooks</code> 从 skill 跑起来那一刻生效，一直持续到会话结束。正文里的说明要写成一直生效的样子，比如写 <code>Run the tests after every edit</code>，不要只写 <code>Run the tests</code>，因为后面的轮次不会再读这个文件。压缩之后要再调用一次，也只留得住开头那一段。</p>
 <h2 id="给耗时任务开一个窗格">给耗时任务开一个窗格</h2>
-<p><a href="/zh/docs/cli">Kaku 的 CLI</a> 能从脚本或别的工具里控制 Kaku 的标签和窗格，一个 skill 可以给很长的构建、测试或日志开一个<span class="nobr">窗格：</span></p>
+<p><a href="/zh/docs/cli">Kaku 的 CLI</a> 能从脚本或别的工具里控制 Kaku 的标签和窗格，一个 skill 可以给很长的构建、测试或日志开一个窗格：</p>
 <pre><code class="language-bash">kaku cli split-pane -- bash -c <span class="tok-s">"echo hello"</span></code></pre>
-<p>不带命令时，<code>kaku cli split-pane</code> 拆分的是当前窗格，<code>kaku cli --help</code> 列出每一个子<span class="nobr">命令。</span></p>
+<p>不带命令时，<code>kaku cli split-pane</code> 拆分的是当前窗格，<code>kaku cli --help</code> 列出每一个子命令。</p>
 <h2 id="常见问题">常见问题</h2>
 <h3 id="想在每个项目里都用的-skill-放在哪">想在每个项目里都用的 skill 放在哪？</h3>
-<p>放在 <code>~/.claude/skills/&lt;skill-name&gt;/SKILL.md</code>，Cowork 和云端会话不读这条路径，它们加载的是你 claude.ai 账号里的 skill，云端会话还会加载仓库里已经提交的项目 skill，文件夹不见了，就到 <code>~/.claude/skills/.trash/</code> <span class="nobr">里找。</span></p>
+<p>放在 <code>~/.claude/skills/&lt;skill-name&gt;/SKILL.md</code>，Cowork 和云端会话不读这条路径，它们加载的是你 claude.ai 账号里的 skill，云端会话还会加载仓库里已经提交的项目 skill，文件夹不见了，就到 <code>~/.claude/skills/.trash/</code> 里找。</p>
 <h3 id="为什么-name-能用claude-却从不选这个-skill">为什么 <code>/name</code> 能用，Claude 却从不选这个 skill？</h3>
 <p>自动匹配要有 <code>description</code>，YAML 坏了它就是空的，<code>disable-model-invocation: true</code> 故意不放进上下文，问 <code>What skills are available?</code>，或者在 v2.1.252 及以后跑 <code>/skill-doctor</code>。</p>
 <h3 id="该写成-skill-还是-subagent">该写成 skill 还是 subagent？</h3>
-<p>skill 跑在当前这场对话里，用的是同一份上下文，subagent 另开一份上下文，做完只交回一段摘要，<code>context: fork</code> 会把 skill 正文变成那个<span class="nobr">任务。</span></p>
+<p>skill 跑在当前这场对话里，用的是同一份上下文，subagent 另开一份上下文，做完只交回一段摘要，<code>context: fork</code> 会把 skill 正文变成那个任务。</p>
 <h3 id="怎么不让-claude-自己去部署">怎么不让 Claude 自己去部署？</h3>
-<p>写上 <code>disable-model-invocation: true</code>，部署留给自己打 <code>/deploy</code>。权限里的 deny 规则写上 <code>Skill(deploy)</code>，会拦住 Skill 工具，<code>skillOverrides</code> 写成 <code>"deploy": "user-invocable-only"</code> 时 <code>/deploy</code> 还留在菜单里，写成 <code>"off"</code> 就把它藏<span class="nobr">起来。</span></p>
+<p>写上 <code>disable-model-invocation: true</code>，部署留给自己打 <code>/deploy</code>。权限里的 deny 规则写上 <code>Skill(deploy)</code>，会拦住 Skill 工具，<code>skillOverrides</code> 写成 <code>"deploy": "user-invocable-only"</code> 时 <code>/deploy</code> 还留在菜单里，写成 <code>"off"</code> 就把它藏起来。</p>
           <aside class="blog-cta"><img class="blog-cta-icon" src="/img/kaku-mark.png" width="40" height="40" alt=""><p>Kaku 是一个免费开源的 Mac 终端。</p><a class="btn btn-primary" href="/zh/docs">安装 Kaku</a></aside>
           <nav class="blog-related" aria-label="继续阅读"><h2 class="blog-related-title">继续阅读</h2><ul class="blog-related-list"><li><a href="/zh/blog/install-claude-code-mac"><span class="blog-related-cat">Claude Code 与 Codex</span><span class="blog-related-name">在 Mac 上安装和更新 Claude Code</span><span class="blog-related-meta"><time datetime="2026-10-02">2026年10月2日</time> · 约 6 分钟</span></a></li><li><a href="/zh/blog/claude-code-statusline"><span class="blog-related-cat">Claude Code 与 Codex</span><span class="blog-related-name">配置 Claude Code 状态栏，显示模型、上下文和 git 分支</span><span class="blog-related-meta"><time datetime="2026-10-05">2026年10月5日</time> · 约 8 分钟</span></a></li><li><a href="/zh/blog/claude-code-git-worktrees"><span class="blog-related-cat">Claude Code 与 Codex</span><span class="blog-related-name">用 git worktree 同时跑多个 Claude Code</span><span class="blog-related-meta"><time datetime="2026-10-07">2026年10月7日</time> · 约 9 分钟</span></a></li></ul></nav>
         </article>

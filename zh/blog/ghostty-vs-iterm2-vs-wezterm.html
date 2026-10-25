@@ -133,29 +133,29 @@
       <div class="wide">
         <article class="doc-content blog-article">
           <figure class="blog-cover" aria-hidden="true"><img src="/img/blog/cards/ghostty-vs-iterm2-vs-wezterm.webp" width="1600" height="900" alt="" fetchpriority="high"></figure>
-<p>Ghostty、iTerm2 和 WezTerm 都是好终端，三者真正的区别在配置方式上，iTerm2 靠一个设置窗口，Ghostty 是个轻快的原生 App 配上一份 <code>key = value</code> 的文本文件，WezTerm 则是一段能自己算出配置的 Lua 脚本。离不开 <code>tmux -CC</code> 或 trigger 就选 iTerm2，想要快、配一次就不管就选 Ghostty，想给终端写程序就选 WezTerm。下面按分屏、图片、通知、发版节奏和 AI 编程工具逐项对比，版本按 2026-10-17 核对，iTerm2 3.7.6，Ghostty 1.3.1，WezTerm 是 20240203 加上之后的 nightly。Warp、Kitty、Alacritty 和 Terminal.app 放在<a href="/zh/blog/best-terminal-for-mac">Mac 终端怎么选</a><span class="nobr">里讲。</span></p>
+<p>Ghostty、iTerm2 和 WezTerm 都是好终端，三者真正的区别在配置方式上，iTerm2 靠一个设置窗口，Ghostty 是个轻快的原生 App 配上一份 <code>key = value</code> 的文本文件，WezTerm 则是一段能自己算出配置的 Lua 脚本。离不开 <code>tmux -CC</code> 或 trigger 就选 iTerm2，想要快、配一次就不管就选 Ghostty，想给终端写程序就选 WezTerm。下面按分屏、图片、通知、发版节奏和 AI 编程工具逐项对比，版本按 2026-10-17 核对，iTerm2 3.7.6，Ghostty 1.3.1，WezTerm 是 20240203 加上之后的 nightly。Warp、Kitty、Alacritty 和 Terminal.app 放在<a href="/zh/blog/best-terminal-for-mac">Mac 终端怎么选</a>里讲。</p>
 <figure class="blog-diagram"><picture><source media="(max-width: 640px)" srcset="/img/blog/terminal-config-models-mobile.webp" width="340" height="443"><img src="/img/blog/terminal-config-models.webp" width="437" height="352" loading="lazy" alt="iTerm2 用设置窗口配置并存成 plist，Ghostty 用一行行 key = value 的文本文件，WezTerm 用可热重载的 Lua 脚本"></picture><figcaption>三种配置方式，设置窗口、文本文件和 Lua 脚本。</figcaption></figure>
 
 <h2 id="配置">配置</h2>
-<p><strong>iTerm2</strong> 所有东西都在设置窗口里，存成一个 property list，profile 能让一个 App 装下好几套配置，几乎每个行为都能在某处找到一个勾选框。这种深度是它的长处，可想在几台机器之间同步，就得导出 profile，或者让 iTerm2 从一个文件夹里读保存的偏好<span class="nobr">设置。</span></p>
-<p><strong>Ghostty</strong> 读的是 <code>~/.config/ghostty/config.ghostty</code>，1.2.3 之前叫 <code>config</code>，就是一串<span class="nobr">设置：</span></p>
+<p><strong>iTerm2</strong> 所有东西都在设置窗口里，存成一个 property list，profile 能让一个 App 装下好几套配置，几乎每个行为都能在某处找到一个勾选框。这种深度是它的长处，可想在几台机器之间同步，就得导出 profile，或者让 iTerm2 从一个文件夹里读保存的偏好设置。</p>
+<p><strong>Ghostty</strong> 读的是 <code>~/.config/ghostty/config.ghostty</code>，1.2.3 之前叫 <code>config</code>，就是一串设置：</p>
 <pre><code class="language-ini">font-family = <span class="tok-s">JetBrains Mono</span>
 font-size = <span class="tok-s">15</span>
 macos-option-as-alt = <span class="tok-s">true</span></code></pre>
 <p>按 <code>Cmd + Shift + ,</code> 重新加载，<code>ghostty +show-config --default --docs</code> 会把所有选项连同说明一起打印出来，三个里面它最好读，也最好放进 dotfiles。</p>
-<p><strong>WezTerm</strong> 会执行 <code>~/.wezterm.lua</code>，用它返回的那<span class="nobr">张表：</span></p>
+<p><strong>WezTerm</strong> 会执行 <code>~/.wezterm.lua</code>，用它返回的那张表：</p>
 <pre><code class="language-lua"><span class="tok-k">local</span> wezterm = <span class="tok-b">require</span> <span class="tok-s">'wezterm'</span>
 <span class="tok-k">local</span> config = wezterm.<span class="tok-f">config_builder</span>()
 config.font = wezterm.font <span class="tok-s">'JetBrains Mono'</span>
 config.font_size = <span class="tok-n">15</span>
 <span class="tok-k">return</span> config</code></pre>
-<p>因为配置本身就是一段程序，里面可以按系统外观挑配色，可以根据事件拼状态栏，也可以定义执行 Lua 的快捷键，保存后自动重新加载。代价是写错一个字就是一个 Lua 报错，而不是被忽略的<span class="nobr">一行。</span></p>
+<p>因为配置本身就是一段程序，里面可以按系统外观挑配色，可以根据事件拼状态栏，也可以定义执行 Lua 的快捷键，保存后自动重新加载。代价是写错一个字就是一个 Lua 报错，而不是被忽略的一行。</p>
 <h2 id="分屏标签和-tmux">分屏、标签和 tmux</h2>
 <p>三个都有标签和分屏，区别在怎么对待 tmux。</p>
 <ul>
-<li><strong>iTerm2</strong> 有 <code>tmux -CC</code>，把 tmux 会话显示成原生的窗口、标签和分屏，远程服务器上 tmux 的持久化你照样有，滚动和复制却用的是终端自己的，macOS 上没有别的终端做得这<span class="nobr">么好。</span></li>
-<li><strong>WezTerm</strong> 自带多路复用，远程机器上也装了 WezTerm 的话，不用 tmux 会话也能一直<span class="nobr">跑着。</span></li>
-<li><strong>Ghostty</strong> 有原生分屏，和 tmux 配合就是普通用法，没有专门的<span class="nobr">集成。</span></li>
+<li><strong>iTerm2</strong> 有 <code>tmux -CC</code>，把 tmux 会话显示成原生的窗口、标签和分屏，远程服务器上 tmux 的持久化你照样有，滚动和复制却用的是终端自己的，macOS 上没有别的终端做得这么好。</li>
+<li><strong>WezTerm</strong> 自带多路复用，远程机器上也装了 WezTerm 的话，不用 tmux 会话也能一直跑着。</li>
+<li><strong>Ghostty</strong> 有原生分屏，和 tmux 配合就是普通用法，没有专门的集成。</li>
 </ul>
 <h2 id="图片">图片</h2>
 <table>
@@ -188,23 +188,23 @@ config.font_size = <span class="tok-n">15</span>
 </tr>
 </tbody>
 </table>
-<p>现在大多数能在终端里显示图片的工具都用 Kitty 协议，所以常见情况三个都能<span class="nobr">覆盖。</span></p>
+<p>现在大多数能在终端里显示图片的工具都用 Kitty 协议，所以常见情况三个都能覆盖。</p>
 <h2 id="通知">通知</h2>
 <p>三个都能把转义序列变成 macOS 通知，但 AI 编程工具对它们并不一视同仁。Claude Code 默认的 <code>auto</code> 通道在 Ghostty 里直接能用，在 iTerm2 里要先在设置里打开转义序列提醒，在 WezTerm 里则一声不吭，直到你把 <code>preferredNotifChannel</code> 设成 <code>terminal_bell</code> 或者加一个 hook。每种情况的细节在这篇<a href="/zh/blog/claude-code-notifications">通知指南</a>里。</p>
 <h2 id="重启之后">重启之后</h2>
-<p>iTerm2 能恢复窗口，还能在 App 重启时让会话继续活着，Ghostty 通过 <code>window-save-state</code> 走 macOS 的窗口恢复，窗口、标签、分屏和工作目录都会回来，WezTerm 自己不恢复会话，一般是加插件，或者靠它的多路<span class="nobr">复用。</span></p>
+<p>iTerm2 能恢复窗口，还能在 App 重启时让会话继续活着，Ghostty 通过 <code>window-save-state</code> 走 macOS 的窗口恢复，窗口、标签、分屏和工作目录都会回来，WezTerm 自己不恢复会话，一般是加插件，或者靠它的多路复用。</p>
 <h2 id="发版节奏">发版节奏</h2>
 <p>iTerm2 和 Ghostty 都在正常发版，WezTerm 最后一个稳定版是 2024 年 2 月的，开发一直在继续，但修复只能通过 nightly 拿到，所以用 WezTerm 要么一直跟 nightly，要么接受一些老 bug。</p>
 <h2 id="跑-claude-code-和-codex">跑 Claude Code 和 Codex</h2>
-<p>三个在 Claude Code 里都不用设置就能用 <code>Shift + Enter</code> 换行，关闭有程序在跑的窗格前也都会确认，所以差别主要在上面说的通知，以及想把长时间的 agent 会话用顺手需要提前配多少东西，这部分在<a href="/zh/blog/best-terminal-for-claude-code">Claude Code 用什么终端</a>里讲得<span class="nobr">更细。</span></p>
+<p>三个在 Claude Code 里都不用设置就能用 <code>Shift + Enter</code> 换行，关闭有程序在跑的窗格前也都会确认，所以差别主要在上面说的通知，以及想把长时间的 agent 会话用顺手需要提前配多少东西，这部分在<a href="/zh/blog/best-terminal-for-claude-code">Claude Code 用什么终端</a>里讲得更细。</p>
 <p>Kaku 在这里跟 WezTerm 最接近，它是 WezTerm 的分支，保留了 Lua 配置和引擎，把 AI 编程命令行工具用得到的部分配好了，比如 <code>Cmd + Click</code> 打开 <code>path:line</code>，重启后保留 agent 的最后一屏，并且按正常的 macOS 版本发布，而不是只有 nightly。</p>
 <h2 id="常见问题">常见问题</h2>
 <h3 id="ghostty-比-iterm2-快吗">Ghostty 比 iTerm2 快吗？</h3>
-<p>Ghostty 围绕 GPU 渲染来做，一般用着更轻，iTerm2 也用 Metal 渲染，日常工作里两者都够快，真正拉开差距的是功能而不是<span class="nobr">速度。</span></p>
+<p>Ghostty 围绕 GPU 渲染来做，一般用着更轻，iTerm2 也用 Metal 渲染，日常工作里两者都够快，真正拉开差距的是功能而不是速度。</p>
 <h3 id="三个里哪个和-tmux-配合最好">三个里哪个和 tmux 配合最好？</h3>
-<p>iTerm2，因为 <code>tmux -CC</code> 能把 tmux 窗口变成原生的标签和分屏，在 Ghostty 和 WezTerm 里 tmux 就是普通<span class="nobr">用法。</span></p>
+<p>iTerm2，因为 <code>tmux -CC</code> 能把 tmux 窗口变成原生的标签和分屏，在 Ghostty 和 WezTerm 里 tmux 就是普通用法。</p>
 <h3 id="wezterm-还在维护吗">WezTerm 还在维护吗？</h3>
-<p>还在，GitHub 上开发一直在继续，只是最新的稳定版停在 2024 年 2 月，之后的改动都通过 nightly <span class="nobr">发布。</span></p>
+<p>还在，GitHub 上开发一直在继续，只是最新的稳定版停在 2024 年 2 月，之后的改动都通过 nightly 发布。</p>
           <aside class="blog-cta"><img class="blog-cta-icon" src="/img/kaku-mark.png" width="40" height="40" alt=""><p>Kaku 是一个免费开源的 Mac 终端。</p><a class="btn btn-primary" href="/zh/docs">安装 Kaku</a></aside>
           <nav class="blog-related" aria-label="继续阅读"><h2 class="blog-related-title">继续阅读</h2><ul class="blog-related-list"><li><a href="/zh/blog/best-terminal-for-mac"><span class="blog-related-cat">终端</span><span class="blog-related-name">2026 年 Mac 上的终端怎么选</span><span class="blog-related-meta"><time datetime="2026-09-21">2026年9月21日</time> · 约 5 分钟</span></a></li><li><a href="/zh/blog/wezterm-config-for-mac"><span class="blog-related-cat">终端</span><span class="blog-related-name">一份实用的 Mac 版 WezTerm 配置，以及 Kaku 改了什么</span><span class="blog-related-meta"><time datetime="2026-09-28">2026年9月28日</time> · 约 4 分钟</span></a></li><li><a href="/zh/blog/tmux-alternative-mac"><span class="blog-related-cat">终端</span><span class="blog-related-name">在 Mac 上还需要 tmux 吗</span><span class="blog-related-meta"><time datetime="2026-10-01">2026年10月1日</time> · 约 5 分钟</span></a></li></ul></nav>
         </article>

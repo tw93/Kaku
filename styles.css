@@ -97,10 +97,11 @@ body {
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
 }
-/* No paragraph or list item ends on one lone character, as on mole.fit
-   (maintainer 2026-10-23); class rules that balance still win. */
-p, li, dd, figcaption, blockquote { text-wrap: pretty; }
-html[lang^="zh"] :is(p, li, dd, figcaption, blockquote) { line-break: strict; }
+/* Every line fills the column, as on mole.fit (maintainer 2026-10-25): no
+   pretty, balance, strict breaking, keep-all or glued tails, which all wrapped
+   phone lines early. A comma or full stop that does not fit hangs at the edge
+   (WebKit). */
+html[lang^="zh"] body { hanging-punctuation: allow-end; }
 /* Chinese leading in three tiers, as on mole.fit: leads 1.6, answers and
    card prose 1.75, articles, docs and release notes 1.8; phones step to 1.7. */
 html[lang^="zh"] :is(.section-head p, .page-hero p) { line-height: 1.6; }
@@ -110,9 +111,6 @@ html[lang^="zh"] :is(.doc-content, .release-doc ol li), html[lang^="zh"] .releas
   html[lang^="zh"] :is(.faq-answer, .workflow-item p, .feature span, .method p, .quick-card p, .doc-card p, .doc-content, .release-doc ol li),
   html[lang^="zh"] .release-doc ol li::before { line-height: 1.7; }
 }
-/* The last two characters of a Chinese paragraph, glued by the generator's
-   glue_cjk_tails so no line holds one character alone. */
-.nobr { white-space: nowrap; }
 #main-content { flex: 1 0 auto; }
 a { color: var(--brand); text-decoration: none; }
 a:hover { color: var(--brand-light); }
@@ -398,9 +396,6 @@ button, input { font: inherit; }
   line-height: 1.4;
   letter-spacing: 0;
 }
-/* Chinese wraps at its commas, so a phone never splits 够快 or 对 AI 友好. */
-html:lang(zh) .hero-sub { word-break: keep-all; }
-html:lang(zh) .hero-sub span { white-space: nowrap; }
 .hero-actions {
   display: flex;
   flex-wrap: wrap;
@@ -1200,7 +1195,6 @@ html[lang^="zh"] .gallery-caption .line { margin-bottom: 0; font-style: normal; 
   font-size: 17px;
   font-weight: 500;
   line-height: 1.35;
-  text-wrap: balance;
 }
 .faq-chevron {
   position: relative;

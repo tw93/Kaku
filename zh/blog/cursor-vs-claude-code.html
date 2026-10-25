@@ -149,51 +149,51 @@
       <div class="wide">
         <article class="doc-content blog-article">
           <figure class="blog-cover" aria-hidden="true"><img src="/img/blog/cards/cursor-vs-claude-code.webp" width="1600" height="900" alt="" fetchpriority="high"></figure>
-<p>Cursor 是一个编辑器，coding agent 装在里面，Claude Code 是一个 agent，终端和 IDE 扩展里都能跑，它读仓库、改文件、跑命令，改出来的还是普通项目文件，Cursor 或其他编辑器都能打开。怎么选，看你想在哪读 diff，也看你想同时跑几个<span class="nobr">会话。</span></p>
+<p>Cursor 是一个编辑器，coding agent 装在里面，Claude Code 是一个 agent，终端和 IDE 扩展里都能跑，它读仓库、改文件、跑命令，改出来的还是普通项目文件，Cursor 或其他编辑器都能打开。怎么选，看你想在哪读 diff，也看你想同时跑几个会话。</p>
 <h2 id="各自怎么工作">各自怎么工作</h2>
-<p><a href="https://cursor.com/docs/models-and-pricing" target="_blank" rel="noopener noreferrer">Cursor</a> 的文档把它写成 AI 编辑器，也写成 coding agent，你用它看懂一个仓库，用 Plan Mode 规划功能、把功能做出来，修 bug，合并前看 diff、跑检查，插件、skills、MCP 和 rules 都从同一个地<span class="nobr">方加。</span></p>
-<p><a href="https://code.claude.com/docs/en/overview" target="_blank" rel="noopener noreferrer">Claude Code</a> 跑在终端、IDE 扩展、桌面 App 和浏览器里，这几处共用一个引擎，所以项目里的 <code>CLAUDE.md</code>、设置和 MCP 服务器在每一处都生效。到项目目录里这样<span class="nobr">启动。</span></p>
+<p><a href="https://cursor.com/docs/models-and-pricing" target="_blank" rel="noopener noreferrer">Cursor</a> 的文档把它写成 AI 编辑器，也写成 coding agent，你用它看懂一个仓库，用 Plan Mode 规划功能、把功能做出来，修 bug，合并前看 diff、跑检查，插件、skills、MCP 和 rules 都从同一个地方加。</p>
+<p><a href="https://code.claude.com/docs/en/overview" target="_blank" rel="noopener noreferrer">Claude Code</a> 跑在终端、IDE 扩展、桌面 App 和浏览器里，这几处共用一个引擎，所以项目里的 <code>CLAUDE.md</code>、设置和 MCP 服务器在每一处都生效。到项目目录里这样启动。</p>
 <pre><code class="language-bash"><span class="tok-b">cd</span> your-project
 claude</code></pre>
-<p>它改文件、跑命令，也用 git 做暂存、写提交说明、开分支、提 pull request。项目根目录的 <code>CLAUDE.md</code> 每次会话开始都会读，已经有 <code>AGENTS.md</code> 的话，就用那份<span class="nobr">代替。</span></p>
+<p>它改文件、跑命令，也用 git 做暂存、写提交说明、开分支、提 pull request。项目根目录的 <code>CLAUDE.md</code> 每次会话开始都会读，已经有 <code>AGENTS.md</code> 的话，就用那份代替。</p>
 <h2 id="钱花在哪">钱花在哪</h2>
-<p><a href="https://cursor.com/pricing" target="_blank" rel="noopener noreferrer">Cursor 的价格页</a> 列了 Free、Plus、Premium、Super 和 Ultra，另外还有 Teams 和 Enterprise，价目以这一页上的数字为准，2026 年 10 月核对过。Cursor 的用量和 Grok 那边的 Chat、Imagine、Voice、Bot 放在同一个池子里，每周刷新，更高的档位池子更大，包含的额度用完还可以再买一笔。Free 的 agent 请求有限，聊天请求也有限，Plus 只含 Grok 模型。Premium 及以上含 Grok 的用量，第三方模型按 API 标价另计，不在这份包含的额度里，并且有花费上限。Cloud agents 和 Bugbot 的代码审查从 Premium 起才有，agent 每个方案都有，Free <span class="nobr">也有。</span></p>
+<p><a href="https://cursor.com/pricing" target="_blank" rel="noopener noreferrer">Cursor 的价格页</a> 列了 Free、Plus、Premium、Super 和 Ultra，另外还有 Teams 和 Enterprise，价目以这一页上的数字为准，2026 年 10 月核对过。Cursor 的用量和 Grok 那边的 Chat、Imagine、Voice、Bot 放在同一个池子里，每周刷新，更高的档位池子更大，包含的额度用完还可以再买一笔。Free 的 agent 请求有限，聊天请求也有限，Plus 只含 Grok 模型。Premium 及以上含 Grok 的用量，第三方模型按 API 标价另计，不在这份包含的额度里，并且有花费上限。Cloud agents 和 Bugbot 的代码审查从 Premium 起才有，agent 每个方案都有，Free 也有。</p>
 <p>Claude Code 用的是 <a href="https://claude.com/pricing" target="_blank" rel="noopener noreferrer">Claude 订阅</a>（Pro、Max、Team 或 Enterprise），或者按用量计费的 <a href="https://platform.claude.com/" target="_blank" rel="noopener noreferrer">Anthropic Console</a> 账号，Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry 上也能用。安装和登录怎么做写在 Anthropic 的<a href="https://code.claude.com/docs/zh-CN/setup" target="_blank" rel="noopener noreferrer">安装文档</a>里。claude.ai 的方案里，<code>/usage</code> 显示当前会话和这一周，用 API key 或第三方登录时，显示的是这一次会话的费用和 token，更多价格在 <a href="https://code.claude.com" target="_blank" rel="noopener noreferrer">code.claude.com</a>。</p>
 <h2 id="上下文和模型">上下文和模型</h2>
-<p>Cursor 给每个模型标了默认上下文，很多还有更高的上限，这张表会随着新模型上线一直变，具体数字以<a href="https://cursor.com/docs/models-and-pricing" target="_blank" rel="noopener noreferrer">模型页面</a>上的<span class="nobr">为准。</span></p>
-<p>Claude Code 的上下文窗口跟着模型走，默认 200K token，支持扩展上下文的模型是 1M，扩展里能看到窗口填了多少，Claude 需要时会自己压缩，想现在就压就跑 <code>/compact</code>。<code>@</code> 引用目录时只放进文件列表，不放内容。点一下模型名字就能换，Claude Code v2.1.284 及以后，只打 <code>/model</code> 也会弹出模型<span class="nobr">列表。</span></p>
+<p>Cursor 给每个模型标了默认上下文，很多还有更高的上限，这张表会随着新模型上线一直变，具体数字以<a href="https://cursor.com/docs/models-and-pricing" target="_blank" rel="noopener noreferrer">模型页面</a>上的为准。</p>
+<p>Claude Code 的上下文窗口跟着模型走，默认 200K token，支持扩展上下文的模型是 1M，扩展里能看到窗口填了多少，Claude 需要时会自己压缩，想现在就压就跑 <code>/compact</code>。<code>@</code> 引用目录时只放进文件列表，不放内容。点一下模型名字就能换，Claude Code v2.1.284 及以后，只打 <code>/model</code> 也会弹出模型列表。</p>
 <h2 id="并行和长会话">并行和长会话</h2>
 <p>git worktree 会在另一个目录里把仓库再检出一份，用的是另一条分支，所以 <code>claude --worktree feature-auth</code> 能让两个 Claude Code 任务不改同一批文件，再开一个终端就换一个名字，怎么设置、用完怎么清理写在 Anthropic 的 <a href="https://code.claude.com/docs/zh-CN/worktrees" target="_blank" rel="noopener noreferrer">worktree 文档</a>里。</p>
-<p><strong>Open in New Tab</strong>（Mac 上是 <code>Cmd + Shift + Esc</code>）或 <strong>Open in New Window</strong> 开的是另一段对话，历史和上下文各自<span class="nobr">一份。</span></p>
+<p><strong>Open in New Tab</strong>（Mac 上是 <code>Cmd + Shift + Esc</code>）或 <strong>Open in New Window</strong> 开的是另一段对话，历史和上下文各自一份。</p>
 <pre><code class="language-bash">claude --continue
 claude --resume</code></pre>
-<p><code>--continue</code> 重新打开这个目录里最新的一次会话，没有的话就打印 <code>No conversation found to continue</code> 然后退出。<code>--resume</code>，或者会话里的 <code>/resume</code>，让你自<span class="nobr">己挑。</span></p>
+<p><code>--continue</code> 重新打开这个目录里最新的一次会话，没有的话就打印 <code>No conversation found to continue</code> 然后退出。<code>--resume</code>，或者会话里的 <code>/resume</code>，让你自己挑。</p>
 <p>在 <a href="https://claude.ai/code" target="_blank" rel="noopener noreferrer">claude.ai/code</a> 上可以在浏览器里跑耗时长的任务，一次可以开好几个，你本地没有的仓库也包括在内。桌面 App 把会话并排显示，需要付费订阅。Routines 在云上跑，电脑关着也行，在网页上建，在桌面 App 里建，或者用 <code>/schedule</code>。</p>
 <h2 id="改动怎么审">改动怎么审</h2>
-<p>Cursor 审改动留在编辑器里，你在里面看 diff、跑检查，合并前把问题看<span class="nobr">出来。</span></p>
-<p>Claude Code 的 <a href="/zh/blog/claude-code-plan-mode">plan mode</a> 会读仓库、写计划，批准之前不改源码，已经能用 bypass permissions 的交互式终端是例外，用 <code>Shift + Tab</code>、<code>/plan</code> 或 <code>--permission-mode plan</code> 都能<span class="nobr">进去。</span></p>
-<p>扩展里有几种权限模式，Edit 直接写文件，不再问你，Auto 先让一个分类器把大部分动作过一遍，Manual 停在并排的 diff 上，等你接受、拒绝，或者改了再用。<strong>Accept this change</strong> 和 <strong>Reject this change</strong> 按 hunk 一步步过，从 Claude Code v2.1.275 起才有，改动超过 100 处的 diff 打开时没有这两个<span class="nobr">按钮。</span></p>
-<p><code>claude "commit my changes with a descriptive message"</code> 会做这次提交，之后用 <code>git diff</code> 看，也可以在 <a href="/zh/blog/lazygit-and-delta">lazygit</a> 里看。扩展里从一条消息出发，可以把对话分叉出去，把文件倒回去，也可以两样一<span class="nobr">起做。</span></p>
+<p>Cursor 审改动留在编辑器里，你在里面看 diff、跑检查，合并前把问题看出来。</p>
+<p>Claude Code 的 <a href="/zh/blog/claude-code-plan-mode">plan mode</a> 会读仓库、写计划，批准之前不改源码，已经能用 bypass permissions 的交互式终端是例外，用 <code>Shift + Tab</code>、<code>/plan</code> 或 <code>--permission-mode plan</code> 都能进去。</p>
+<p>扩展里有几种权限模式，Edit 直接写文件，不再问你，Auto 先让一个分类器把大部分动作过一遍，Manual 停在并排的 diff 上，等你接受、拒绝，或者改了再用。<strong>Accept this change</strong> 和 <strong>Reject this change</strong> 按 hunk 一步步过，从 Claude Code v2.1.275 起才有，改动超过 100 处的 diff 打开时没有这两个按钮。</p>
+<p><code>claude "commit my changes with a descriptive message"</code> 会做这次提交，之后用 <code>git diff</code> 看，也可以在 <a href="/zh/blog/lazygit-and-delta">lazygit</a> 里看。扩展里从一条消息出发，可以把对话分叉出去，把文件倒回去，也可以两样一起做。</p>
 <h2 id="在-cursor-里用-claude-code">在 Cursor 里用 Claude Code</h2>
-<p><a href="https://code.claude.com/docs/en/overview" target="_blank" rel="noopener noreferrer">概述</a>里，Cursor 用 <code>cursor:extension/anthropic.claude-code</code> 装扩展，VS Code 用 <code>vscode:extension/anthropic.claude-code</code>，装好之后，<strong>Open in New Tab</strong> 在 Command Palette（<code>Cmd + Shift + P</code>）里。具体写在 <a href="https://code.claude.com/docs/en/ide-integrations" target="_blank" rel="noopener noreferrer">IDE 集成</a>，终端里的步骤来自 <a href="https://code.claude.com/docs/en/vs-code" target="_blank" rel="noopener noreferrer">VS Code <span class="nobr">指南</span></a>。</p>
+<p><a href="https://code.claude.com/docs/en/overview" target="_blank" rel="noopener noreferrer">概述</a>里，Cursor 用 <code>cursor:extension/anthropic.claude-code</code> 装扩展，VS Code 用 <code>vscode:extension/anthropic.claude-code</code>，装好之后，<strong>Open in New Tab</strong> 在 Command Palette（<code>Cmd + Shift + P</code>）里。具体写在 <a href="https://code.claude.com/docs/en/ide-integrations" target="_blank" rel="noopener noreferrer">IDE 集成</a>，终端里的步骤来自 <a href="https://code.claude.com/docs/en/vs-code" target="_blank" rel="noopener noreferrer">VS Code 指南</a>。</p>
 <p>用 Command 和反引号打开集成终端，然后跑 <code>claude</code>，这样 CLI 会把 diff 和诊断放到这个编辑器里显示。扩展不会把 <code>claude</code> 放进 <code>PATH</code>，所以终端里要另有一份独立的 CLI，<code>/ide</code> 把外面的终端接到 VS Code。<code>claude --resume</code> 接着面板里的那段聊天。这段要是还在别处开着，面板会说两份可能会把消息混在一起，关掉另一份，或者选 <strong>Open here anyway</strong>。</p>
 <h2 id="在-kaku-里并排">在 Kaku 里并排</h2>
-<p>在 <a href="/zh/docs/ai-coding">Kaku</a> 里，<code>Cmd + D</code> 左右分屏，<code>Cmd + Shift + D</code> 上下分屏，Claude Code 可以挨着一个 shell，也可以挨着 Codex，<code>Cmd + Shift + Enter</code> 把你正在看的窗格放大。关掉窗格或标签时，如果前台正跑着 Claude Code、Codex 或其他要跑很久的程序，会先问<span class="nobr">一声。</span></p>
-<p><code>restore_previous_session</code> 默认开着，启动时会重新打开上次的标签和窗格，窗口、标签或窗格一开一关，一分钟内会把布局存下来，所以崩溃或强制退出也能把那份布局带回来。重启之后，原来跑着 Claude Code 或 Codex 的窗格留着最后一屏，Claude Code 用 <code>claude --resume</code> 接上，另一个窗格里的 Codex 用 <code>codex resume</code> 接上，它会列出这个仓库最近的<span class="nobr">会话。</span></p>
+<p>在 <a href="/zh/docs/ai-coding">Kaku</a> 里，<code>Cmd + D</code> 左右分屏，<code>Cmd + Shift + D</code> 上下分屏，Claude Code 可以挨着一个 shell，也可以挨着 Codex，<code>Cmd + Shift + Enter</code> 把你正在看的窗格放大。关掉窗格或标签时，如果前台正跑着 Claude Code、Codex 或其他要跑很久的程序，会先问一声。</p>
+<p><code>restore_previous_session</code> 默认开着，启动时会重新打开上次的标签和窗格，窗口、标签或窗格一开一关，一分钟内会把布局存下来，所以崩溃或强制退出也能把那份布局带回来。重启之后，原来跑着 Claude Code 或 Codex 的窗格留着最后一屏，Claude Code 用 <code>claude --resume</code> 接上，另一个窗格里的 Codex 用 <code>codex resume</code> 接上，它会列出这个仓库最近的会话。</p>
 <p><code>Cmd + Click</code> 能打开 <code>src/main.rs:42:7</code> 这种路径，程序正占着鼠标时也点得开，<a href="/zh/blog/best-terminal-for-claude-code">给 Claude Code 选终端</a>那篇讲过为什么这一点要紧，在 <code>~/.config/kaku/kaku.lua</code> 里把它指到 Cursor：</p>
 <pre><code class="language-lua">config.file_link_editor = <span class="tok-s">"cursor --goto"</span></code></pre>
-<p><code>Cmd + Shift + G</code> 在这个窗格里打开 lazygit，Kaku 会在 <code>PATH</code> 里找这个可执行文件，也会到常见的 Homebrew 目录<span class="nobr">里找。</span></p>
+<p><code>Cmd + Shift + G</code> 在这个窗格里打开 lazygit，Kaku 会在 <code>PATH</code> 里找这个可执行文件，也会到常见的 Homebrew 目录里找。</p>
 <h2 id="常见问题">常见问题</h2>
 <h3 id="能不能在-cursor-里跑-claude-code">能不能在 Cursor 里跑 Claude Code？</h3>
-<p>能，用 <code>cursor:extension/anthropic.claude-code</code>，或者在集成终端里跑 <code>claude</code>，<code>claude --resume</code> 接着面板里的聊天，扩展本身不会把 <code>claude</code> <span class="nobr">装上。</span></p>
+<p>能，用 <code>cursor:extension/anthropic.claude-code</code>，或者在集成终端里跑 <code>claude</code>，<code>claude --resume</code> 接着面板里的聊天，扩展本身不会把 <code>claude</code> 装上。</p>
 <h3 id="怎么让两个-claude-code-会话不改同一批文件">怎么让两个 Claude Code 会话不改同一批文件？</h3>
 <p><code>claude --worktree feature-auth</code> 会在自己的分支上再检出一份，下一个终端要用另一个名字，设置和清理写在 Anthropic 的 <a href="https://code.claude.com/docs/zh-CN/worktrees" target="_blank" rel="noopener noreferrer">worktree 文档</a>里。</p>
 <h3 id="怎么接上之前的-claude-code-会话">怎么接上之前的 Claude Code 会话？</h3>
-<p><code>claude --continue</code> 接的是这个目录里最新的一次会话，<code>claude --resume</code> 或 <code>/resume</code> 会打开选择，这段聊天要是还在别处开着，扩展会提<span class="nobr">醒你。</span></p>
+<p><code>claude --continue</code> 接的是这个目录里最新的一次会话，<code>claude --resume</code> 或 <code>/resume</code> 会打开选择，这段聊天要是还在别处开着，扩展会提醒你。</p>
 <h3 id="cursor-的订阅包含-claude-和-gpt-模型吗">Cursor 的订阅包含 Claude 和 GPT 模型吗？</h3>
-<p>Plus 只有 Grok 模型，从 Premium 起能用 Claude 和 GPT 这类第三方模型，按 API 标价另算，加在月费之外。Claude Code 另算，走 Pro、Max、Team、Enterprise、Console，或者 Bedrock 这类提<span class="nobr">供方。</span></p>
+<p>Plus 只有 Grok 模型，从 Premium 起能用 Claude 和 GPT 这类第三方模型，按 API 标价另算，加在月费之外。Claude Code 另算，走 Pro、Max、Team、Enterprise、Console，或者 Bedrock 这类提供方。</p>
 <h3 id="重启之后-kaku-还留着什么">重启之后 Kaku 还留着什么？</h3>
-<p>留下的是标签和分屏，恢复默认开着，布局一变，一分钟内就会存下来，崩溃之后也一样，跑着 Claude Code 或 Codex 的窗格留着最后一屏，那个程序还在前台时，关掉它仍然会先问<span class="nobr">一声。</span></p>
+<p>留下的是标签和分屏，恢复默认开着，布局一变，一分钟内就会存下来，崩溃之后也一样，跑着 Claude Code 或 Codex 的窗格留着最后一屏，那个程序还在前台时，关掉它仍然会先问一声。</p>
           <aside class="blog-cta"><img class="blog-cta-icon" src="/img/kaku-mark.png" width="40" height="40" alt=""><p>Kaku 是一个免费开源的 Mac 终端。</p><a class="btn btn-primary" href="/zh/docs">安装 Kaku</a></aside>
           <nav class="blog-related" aria-label="继续阅读"><h2 class="blog-related-title">继续阅读</h2><ul class="blog-related-list"><li><a href="/zh/blog/install-claude-code-mac"><span class="blog-related-cat">Claude Code 与 Codex</span><span class="blog-related-name">在 Mac 上安装和更新 Claude Code</span><span class="blog-related-meta"><time datetime="2026-10-02">2026年10月2日</time> · 约 6 分钟</span></a></li><li><a href="/zh/blog/claude-code-plan-mode"><span class="blog-related-cat">Claude Code 与 Codex</span><span class="blog-related-name">Claude Code 的 plan mode 什么时候用、怎么用</span><span class="blog-related-meta"><time datetime="2026-09-23">2026年9月23日</time> · 约 8 分钟</span></a></li><li><a href="/zh/blog/claude-code-agent-teams"><span class="blog-related-cat">Claude Code 与 Codex</span><span class="blog-related-name">Claude Code agent teams 怎么打开，在 Kaku 里显示在哪</span><span class="blog-related-meta"><time datetime="2026-09-26">2026年9月26日</time> · 约 10 分钟</span></a></li></ul></nav>
         </article>

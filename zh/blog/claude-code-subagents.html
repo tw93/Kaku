@@ -149,10 +149,10 @@
       <div class="wide">
         <article class="doc-content blog-article">
           <figure class="blog-cover" aria-hidden="true"><img src="/img/blog/cards/claude-code-subagents.webp" width="1600" height="900" alt="" fetchpriority="high"></figure>
-<p><a href="https://code.claude.com/docs/en/sub-agents" target="_blank" rel="noopener noreferrer">Claude Code 的 subagent</a> 是一个单独写了系统提示词的帮手，有自己的工具列表和自己的上下文窗口。定义它只要在 <code>~/.claude/agents/</code> 或 <code>.claude/agents/</code> 里放一个 Markdown 文件，Claude 把任务交给它，它干完只把总结带回来。用它的目的就是让搜索结果、日志和整页整页的文件内容别堆进你的主对<span class="nobr">话里。</span></p>
+<p><a href="https://code.claude.com/docs/en/sub-agents" target="_blank" rel="noopener noreferrer">Claude Code 的 subagent</a> 是一个单独写了系统提示词的帮手，有自己的工具列表和自己的上下文窗口。定义它只要在 <code>~/.claude/agents/</code> 或 <code>.claude/agents/</code> 里放一个 Markdown 文件，Claude 把任务交给它，它干完只把总结带回来。用它的目的就是让搜索结果、日志和整页整页的文件内容别堆进你的主对话里。</p>
 <h2 id="subagentskill-和-agent-teams-的区别">subagent、skill 和 agent teams 的区别</h2>
-<p><a href="/zh/blog/claude-code-skills">skill</a> 跑在主对话里，是一段可以反复用的流程，Claude 把它加载进你当前所在的上下文。subagent 则是从零开始，看不到你的对话历史，看不到你调用过的 skill，也看不到 Claude 已经读过的文件，Claude 给它写一段委派说明，它照着这段说明干活，最后交回一个结果。两者在两个方向上可以结合，带 <code>context: fork</code> 的 skill 会把自己的正文当成一个 subagent 的任务来跑，而写了 <code>skills</code> 字段的 subagent 会在启动时把这些 skill 的完整内容预先装<span class="nobr">进来。</span></p>
-<p><a href="https://code.claude.com/docs/en/agent-teams" target="_blank" rel="noopener noreferrer">agent teams</a> 是第三种东西，几个 Claude Code 会话一起干活，其中一个当 lead，队友之间可以直接发消息，还共用一份任务列表。2026 年 10 月核对过，它目前是实验功能，默认关着，要用 <code>CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1</code> 打开。打开之后，Claude 委派时只要给 subagent 起了名字，它就会作为队友启动，而不是普通的 subagent。文档对取舍说得很直白，subagent 把总结交回调用方，花得少，每个队友却是一个单独的 Claude 实例，token 消耗随着活跃队友的数量一<span class="nobr">起涨。</span></p>
+<p><a href="/zh/blog/claude-code-skills">skill</a> 跑在主对话里，是一段可以反复用的流程，Claude 把它加载进你当前所在的上下文。subagent 则是从零开始，看不到你的对话历史，看不到你调用过的 skill，也看不到 Claude 已经读过的文件，Claude 给它写一段委派说明，它照着这段说明干活，最后交回一个结果。两者在两个方向上可以结合，带 <code>context: fork</code> 的 skill 会把自己的正文当成一个 subagent 的任务来跑，而写了 <code>skills</code> 字段的 subagent 会在启动时把这些 skill 的完整内容预先装进来。</p>
+<p><a href="https://code.claude.com/docs/en/agent-teams" target="_blank" rel="noopener noreferrer">agent teams</a> 是第三种东西，几个 Claude Code 会话一起干活，其中一个当 lead，队友之间可以直接发消息，还共用一份任务列表。2026 年 10 月核对过，它目前是实验功能，默认关着，要用 <code>CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1</code> 打开。打开之后，Claude 委派时只要给 subagent 起了名字，它就会作为队友启动，而不是普通的 subagent。文档对取舍说得很直白，subagent 把总结交回调用方，花得少，每个队友却是一个单独的 Claude 实例，token 消耗随着活跃队友的数量一起涨。</p>
 <table>
 <thead>
 <tr>
@@ -184,16 +184,16 @@
 </tbody>
 </table>
 <h2 id="自带的几个-subagent">自带的几个 subagent</h2>
-<p>就算一个都没定义，你其实已经在用 subagent 了，Claude Code 自带下面这<span class="nobr">几个：</span></p>
+<p>就算一个都没定义，你其实已经在用 subagent 了，Claude Code 自带下面这几个：</p>
 <ul>
-<li><strong>Explore</strong>：只读，用来找文件和搜代码，Claude 调它时会指定 quick、medium 或 very thorough 三种细致程度<span class="nobr">之一。</span></li>
-<li><strong>Plan</strong>：只读，在 <a href="/zh/blog/claude-code-plan-mode">plan mode</a> 里帮 Claude 做调研，让探索的输出留在另一个上下文窗口里，你看方案时主对话还是干<span class="nobr">净的。</span></li>
-<li><strong>general-purpose</strong>：subagent 能用的工具它都有，适合既要探索又要改代码的<span class="nobr">任务。</span></li>
-<li><strong>claude</strong>、<strong>statusline-setup</strong> 和 <strong>claude-code-guide</strong>：Claude 自己会去调的辅助角色，分别兜底杂项任务、处理 <code>/statusline</code>、回答 Claude Code 本身的用法<span class="nobr">问题。</span></li>
+<li><strong>Explore</strong>：只读，用来找文件和搜代码，Claude 调它时会指定 quick、medium 或 very thorough 三种细致程度之一。</li>
+<li><strong>Plan</strong>：只读，在 <a href="/zh/blog/claude-code-plan-mode">plan mode</a> 里帮 Claude 做调研，让探索的输出留在另一个上下文窗口里，你看方案时主对话还是干净的。</li>
+<li><strong>general-purpose</strong>：subagent 能用的工具它都有，适合既要探索又要改代码的任务。</li>
+<li><strong>claude</strong>、<strong>statusline-setup</strong> 和 <strong>claude-code-guide</strong>：Claude 自己会去调的辅助角色，分别兜底杂项任务、处理 <code>/statusline</code>、回答 Claude Code 本身的用法问题。</li>
 </ul>
-<p>Explore 和 Plan 启动时不带你的 <code>CLAUDE.md</code>，也不带 git 状态快照，这样调研又快又便宜，它们还是一次性的，不返回 agent ID，所以 Claude 之后没法让它们接<span class="nobr">着干。</span></p>
+<p>Explore 和 Plan 启动时不带你的 <code>CLAUDE.md</code>，也不带 git 状态快照，这样调研又快又便宜，它们还是一次性的，不返回 agent ID，所以 Claude 之后没法让它们接着干。</p>
 <h2 id="自己写一个">自己写一个</h2>
-<p>subagent 就是一个带 YAML frontmatter 的 Markdown 文件，必填的只有 <code>name</code> 和 <code>description</code>，正文会变成它的系统提<span class="nobr">示词：</span></p>
+<p>subagent 就是一个带 YAML frontmatter 的 Markdown 文件，必填的只有 <code>name</code> 和 <code>description</code>，正文会变成它的系统提示词：</p>
 <pre><code class="language-markdown">---
 name: code-reviewer
 description: Reviews code for quality and best practices. Use proactively after code changes.
@@ -203,8 +203,8 @@ model: sonnet
 
 You are a code reviewer. Run git diff, focus on the modified files,
 and report issues ordered by priority with a suggested fix for each.</code></pre>
-<p>放在 <code>~/.claude/agents/</code> 里每个项目都能用，放在 <code>.claude/agents/</code> 里就跟着这个仓库一起提交，两边重名时项目里的那个优先。Claude Code 会盯着这两个目录，改完文件下一次委派就用上新定义，不用重启，唯一例外是会话启动时如果 <code>agents</code> 目录原本不存在，那就先建好第一个文件，再重启<span class="nobr">一次。</span></p>
-<p>值得知道的字段大概是<span class="nobr">这些：</span></p>
+<p>放在 <code>~/.claude/agents/</code> 里每个项目都能用，放在 <code>.claude/agents/</code> 里就跟着这个仓库一起提交，两边重名时项目里的那个优先。Claude Code 会盯着这两个目录，改完文件下一次委派就用上新定义，不用重启，唯一例外是会话启动时如果 <code>agents</code> 目录原本不存在，那就先建好第一个文件，再重启一次。</p>
+<p>值得知道的字段大概是这些：</p>
 <table>
 <thead>
 <tr>
@@ -255,41 +255,41 @@ and report issues ordered by priority with a suggested fix for each.</code></pre
 </tr>
 </tbody>
 </table>
-<p>多个单词的字段名用 camelCase，必须一字不差，Claude Code 碰到不认识的字段会直接忽略，不报错，没有 <code>description</code> 或者 YAML 解析不了的文件也会被悄悄跳过，想知道原因就用 <code>claude --debug</code> 启动，原因会写进 debug <span class="nobr">日志。</span></p>
-<p>再说 <code>/agents</code>，现在的版本里它只会打印一句提示，让你去问 Claude 或者直接改那两个目录，v2.1.197 及更早的版本里它才是一个带 Running 和 Library 两个标签的向导，所以眼下最快的办法是把想要的 subagent 描述给 Claude，告诉它存到哪，再打开它写出来的文件看<span class="nobr">一遍。</span></p>
-<p>要用的时候，在提示词里点它的名字，Claude 一般就会委派过去，想确保一定是它，就输入 <code>@</code> 从补全里选，<code>claude --agent code-reviewer</code> 则会让整个会话都以这个 agent 的身份跑，工具、模型和系统提示词都换成<span class="nobr">它的。</span></p>
+<p>多个单词的字段名用 camelCase，必须一字不差，Claude Code 碰到不认识的字段会直接忽略，不报错，没有 <code>description</code> 或者 YAML 解析不了的文件也会被悄悄跳过，想知道原因就用 <code>claude --debug</code> 启动，原因会写进 debug 日志。</p>
+<p>再说 <code>/agents</code>，现在的版本里它只会打印一句提示，让你去问 Claude 或者直接改那两个目录，v2.1.197 及更早的版本里它才是一个带 Running 和 Library 两个标签的向导，所以眼下最快的办法是把想要的 subagent 描述给 Claude，告诉它存到哪，再打开它写出来的文件看一遍。</p>
+<p>要用的时候，在提示词里点它的名字，Claude 一般就会委派过去，想确保一定是它，就输入 <code>@</code> 从补全里选，<code>claude --agent code-reviewer</code> 则会让整个会话都以这个 agent 的身份跑，工具、模型和系统提示词都换成它的。</p>
 <h2 id="用得上的地方">用得上的地方</h2>
-<p>文档里特别挑出来的有三种场景，共同点都是过程输出很多，真正要的答案<span class="nobr">很短。</span></p>
-<p><strong>搜索和调研。</strong> 让 subagent 去找某个配置值在哪里被读取，或者让三个 subagent 各管一块，同时去调研 auth、database 和 API 这几个模块，读过的文件都留在它们各自的窗口里，回到你这边的只是一段简短的结论，前提是这几条调研路线互相不<span class="nobr">依赖。</span></p>
-<p><strong>代码审查。</strong> 给 reviewer 配 <code>tools: Read, Glob, Grep, Bash</code>，它没有 Edit 和 Write，但 Bash 仍能运行改文件的命令，想让它只读，还得限制允许执行的命令。也可以串起来用，先让 reviewer 找性能问题，再让另一个 subagent 去修，中间由 Claude 把相关的发现传<span class="nobr">过去。</span></p>
-<p><strong>跑测试和看日志。</strong> <code>Use a subagent to run the test suite and report only the failing tests with their error messages</code> 是最典型的例子，几千行测试输出留在 subagent 那边，回到主对话的只有两行失败<span class="nobr">信息。</span></p>
+<p>文档里特别挑出来的有三种场景，共同点都是过程输出很多，真正要的答案很短。</p>
+<p><strong>搜索和调研。</strong> 让 subagent 去找某个配置值在哪里被读取，或者让三个 subagent 各管一块，同时去调研 auth、database 和 API 这几个模块，读过的文件都留在它们各自的窗口里，回到你这边的只是一段简短的结论，前提是这几条调研路线互相不依赖。</p>
+<p><strong>代码审查。</strong> 给 reviewer 配 <code>tools: Read, Glob, Grep, Bash</code>，它没有 Edit 和 Write，但 Bash 仍能运行改文件的命令，想让它只读，还得限制允许执行的命令。也可以串起来用，先让 reviewer 找性能问题，再让另一个 subagent 去修，中间由 Claude 把相关的发现传过去。</p>
+<p><strong>跑测试和看日志。</strong> <code>Use a subagent to run the test suite and report only the failing tests with their error messages</code> 是最典型的例子，几千行测试输出留在 subagent 那边，回到主对话的只有两行失败信息。</p>
 <p>要是担心它的改动跟你手上的活撞在一起，<code>isolation: worktree</code> 会给它一份单独的仓库副本，默认从你的默认分支拉出来，它什么都没改的话这个 worktree 会自动清掉，整个会话都这样跑的做法写在 <a href="/zh/blog/claude-code-git-worktrees">worktree 那篇</a> 里。</p>
 <h2 id="反而碍事的时候">反而碍事的时候</h2>
-<p>任务需要你来回调整好几轮，或者规划、实现和测试几个阶段共用大量上下文，又或者只是一个很快的小改动，这些情况都留在主对话里更好，subagent 启动时手里只有 Claude 对任务的那段总结，前几轮很可能在重新摸索你早就知道的东西，这部分时间是白花的。<code>CLAUDE.md</code> 里有哪条规则必须让它知道，比如 <code>ignore the vendor/ directory</code>，委派时就再说一遍，因为设了 <code>omitClaudeMd</code> 的 subagent 和自带的 Explore、Plan 都看不<span class="nobr">到它。</span></p>
-<p>如果只是想问一个对话里已经有的东西，用 <code>/btw</code> 更合适，它能看到你完整的上下文，但没有任何工具权限，答案也不会写进<span class="nobr">历史。</span></p>
+<p>任务需要你来回调整好几轮，或者规划、实现和测试几个阶段共用大量上下文，又或者只是一个很快的小改动，这些情况都留在主对话里更好，subagent 启动时手里只有 Claude 对任务的那段总结，前几轮很可能在重新摸索你早就知道的东西，这部分时间是白花的。<code>CLAUDE.md</code> 里有哪条规则必须让它知道，比如 <code>ignore the vendor/ directory</code>，委派时就再说一遍，因为设了 <code>omitClaudeMd</code> 的 subagent 和自带的 Explore、Plan 都看不到它。</p>
+<p>如果只是想问一个对话里已经有的东西，用 <code>/btw</code> 更合适，它能看到你完整的上下文，但没有任何工具权限，答案也不会写进历史。</p>
 <h2 id="成本和上下文">成本和上下文</h2>
 <p>subagent 省的是上下文，不是钱，它自己发请求，跟主对话算在同一份用量额度里，文档也提醒过，开很多个 subagent、每个都交回很详细的结果，照样会把主上下文塞满，而且每个 subagent 跑的时候都在花自己的 token。</p>
-<p>能调的地方有这么<span class="nobr">几处：</span></p>
+<p>能调的地方有这么几处：</p>
 <ul>
-<li>偏重探索的 subagent 设 <code>model: haiku</code>，用户级或项目级里放一个名字叫 <code>Explore</code> 的 subagent 会覆盖自带的那个，这样默认的搜索 agent 也能换到更便宜的模<span class="nobr">型上。</span></li>
-<li><code>description</code> 写短一些，它们一直待在上下文里给 Claude 做路由用，自定义 subagent 的描述加起来超过 15,000 token，Claude Code 启动时会给出<span class="nobr">警告。</span></li>
-<li>任务确实需要整段对话时用 fork，<code>/subtask draft unit tests for the parser changes so far</code> 会启动一个继承你全部历史的 subagent，还能复用父会话的 prompt cache，比一个需要同样背景的新 subagent 花<span class="nobr">得少。</span></li>
+<li>偏重探索的 subagent 设 <code>model: haiku</code>，用户级或项目级里放一个名字叫 <code>Explore</code> 的 subagent 会覆盖自带的那个，这样默认的搜索 agent 也能换到更便宜的模型上。</li>
+<li><code>description</code> 写短一些，它们一直待在上下文里给 Claude 做路由用，自定义 subagent 的描述加起来超过 15,000 token，Claude Code 启动时会给出警告。</li>
+<li>任务确实需要整段对话时用 fork，<code>/subtask draft unit tests for the parser changes so far</code> 会启动一个继承你全部历史的 subagent，还能复用父会话的 prompt cache，比一个需要同样背景的新 subagent 花得少。</li>
 <li>心里有个上限，subagent 最多能往下嵌套三层，同时在跑的默认上限是 20 个，可以用 <code>CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS</code> 改。</li>
 </ul>
 <h2 id="在-kaku-里盯着并行的活">在 Kaku 里盯着并行的活</h2>
-<p>后台 subagent 会出现在 Claude Code 输入框下面的面板里，<code>/tasks</code> 也能列出来，其中哪个需要权限时，提示会出现在主会话里，并写明是哪个 subagent 在问，这时候主会话就停下来等你了。同时开好几个 Claude Code 会话时，可以每个放进 <a href="/zh/docs/ai-coding">Kaku</a> 的一个标签，或者用 <code>Cmd + D</code> 和 <code>Cmd + Shift + D</code> 分屏，正在看的那个用 <code>Cmd + Shift + Enter</code> 放大，agent teams 的分屏显示需要 tmux 或 iTerm2，所以在不开 tmux 的 Kaku 里，队友会显示在 Claude Code 自己的那个面<span class="nobr">板里。</span></p>
-<p>Kaku 0.25.0 及以上配 Claude Code 2.1.295 及以上不用任何设置，更早的版本要在 <code>~/.claude/settings.json</code> 里设 <code>"preferredNotifChannel": "ghostty"</code>，原因写在 <a href="/zh/blog/claude-code-notifications">Claude Code 通知</a>那篇。标签上的小点也是这样分的，0.25.0 之前靠 <code>ghostty</code> 通道在 Claude Code 等你或做完时亮起，0.25.0 起不用设置就会亮，还多了出错这一种<span class="nobr">状态。</span></p>
+<p>后台 subagent 会出现在 Claude Code 输入框下面的面板里，<code>/tasks</code> 也能列出来，其中哪个需要权限时，提示会出现在主会话里，并写明是哪个 subagent 在问，这时候主会话就停下来等你了。同时开好几个 Claude Code 会话时，可以每个放进 <a href="/zh/docs/ai-coding">Kaku</a> 的一个标签，或者用 <code>Cmd + D</code> 和 <code>Cmd + Shift + D</code> 分屏，正在看的那个用 <code>Cmd + Shift + Enter</code> 放大，agent teams 的分屏显示需要 tmux 或 iTerm2，所以在不开 tmux 的 Kaku 里，队友会显示在 Claude Code 自己的那个面板里。</p>
+<p>Kaku 0.25.0 及以上配 Claude Code 2.1.295 及以上不用任何设置，更早的版本要在 <code>~/.claude/settings.json</code> 里设 <code>"preferredNotifChannel": "ghostty"</code>，原因写在 <a href="/zh/blog/claude-code-notifications">Claude Code 通知</a>那篇。标签上的小点也是这样分的，0.25.0 之前靠 <code>ghostty</code> 通道在 Claude Code 等你或做完时亮起，0.25.0 起不用设置就会亮，还多了出错这一种状态。</p>
 <h2 id="常见问题">常见问题</h2>
 <h3 id="subagent-文件放在哪">subagent 文件放在哪？</h3>
-<p>放在 <code>~/.claude/agents/</code> 里每个项目都能用，放在 <code>.claude/agents/</code> 里只给这一个仓库用，两个目录都会递归扫描，建子文件夹没问题，认的是 <code>name</code> 字段，跟文件名<span class="nobr">无关。</span></p>
+<p>放在 <code>~/.claude/agents/</code> 里每个项目都能用，放在 <code>.claude/agents/</code> 里只给这一个仓库用，两个目录都会递归扫描，建子文件夹没问题，认的是 <code>name</code> 字段，跟文件名无关。</p>
 <h3 id="subagent-能看到我的对话吗">subagent 能看到我的对话吗？</h3>
-<p>看不到，它拿到的是自己的系统提示词、Claude 写的委派说明、你的 <code>CLAUDE.md</code>（Explore、Plan 和设了 <code>omitClaudeMd</code> 的除外）、一份 git 状态快照，以及预装的 skill，只有用 <code>/subtask</code> 启动的 fork 才会继承对话<span class="nobr">历史。</span></p>
+<p>看不到，它拿到的是自己的系统提示词、Claude 写的委派说明、你的 <code>CLAUDE.md</code>（Explore、Plan 和设了 <code>omitClaudeMd</code> 的除外）、一份 git 状态快照，以及预装的 skill，只有用 <code>/subtask</code> 启动的 fork 才会继承对话历史。</p>
 <h3 id="用-subagent-会让-claude-code-更便宜吗">用 subagent 会让 Claude Code 更便宜吗？</h3>
-<p>单靠它不会，它能让主上下文保持精简，但每个 subagent 都在同一份用量额度里花自己的 token，真正能把开销降下来的是把搜索交给 <code>model: haiku</code>，再让它交回来的总结尽<span class="nobr">量短。</span></p>
+<p>单靠它不会，它能让主上下文保持精简，但每个 subagent 都在同一份用量额度里花自己的 token，真正能把开销降下来的是把搜索交给 <code>model: haiku</code>，再让它交回来的总结尽量短。</p>
 <h3 id="该用-subagent-还是-agent-team">该用 subagent 还是 agent team？</h3>
 <p>只关心结果时用 subagent，几个队友之间需要互相分享发现、互相挑刺时才用 agent team，前提是你能接受多出来的 token 和那个实验开关，怎么打开、队友在 Kaku 里显示在哪，见 <a href="/zh/blog/claude-code-agent-teams">Claude Code agent teams</a>。</p>
 <h3 id="claude-为什么不调我写的-subagent">Claude 为什么不调我写的 subagent？</h3>
-<p>Claude 是按 <code>description</code> 来路由的，写得具体一些，想让它不问就主动用，可以加上 <code>use proactively</code>，再检查文件里 <code>name</code> 和 <code>description</code> 都在、YAML 能正常解析，实在不行就用 <code>@</code> 点名，这样一定会<span class="nobr">跑它。</span></p>
+<p>Claude 是按 <code>description</code> 来路由的，写得具体一些，想让它不问就主动用，可以加上 <code>use proactively</code>，再检查文件里 <code>name</code> 和 <code>description</code> 都在、YAML 能正常解析，实在不行就用 <code>@</code> 点名，这样一定会跑它。</p>
           <aside class="blog-cta"><img class="blog-cta-icon" src="/img/kaku-mark.png" width="40" height="40" alt=""><p>Kaku 是一个免费开源的 Mac 终端。</p><a class="btn btn-primary" href="/zh/docs">安装 Kaku</a></aside>
           <nav class="blog-related" aria-label="继续阅读"><h2 class="blog-related-title">继续阅读</h2><ul class="blog-related-list"><li><a href="/zh/blog/install-claude-code-mac"><span class="blog-related-cat">Claude Code 与 Codex</span><span class="blog-related-name">在 Mac 上安装和更新 Claude Code</span><span class="blog-related-meta"><time datetime="2026-10-02">2026年10月2日</time> · 约 6 分钟</span></a></li><li><a href="/zh/blog/codex-vs-claude-code"><span class="blog-related-cat">Claude Code 与 Codex</span><span class="blog-related-name">Codex CLI 和 Claude Code 对比</span><span class="blog-related-meta"><time datetime="2026-10-09">2026年10月9日</time> · 约 7 分钟</span></a></li><li><a href="/zh/blog/claude-code-mcp-servers"><span class="blog-related-cat">Claude Code 与 Codex</span><span class="blog-related-name">配置 Claude Code 的 MCP 服务器</span><span class="blog-related-meta"><time datetime="2026-10-19">2026年10月19日</time> · 约 10 分钟</span></a></li></ul></nav>
         </article>

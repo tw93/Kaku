@@ -125,36 +125,36 @@
       <div class="wide">
         <article class="doc-content blog-article">
           <figure class="blog-cover" aria-hidden="true"><img src="/img/blog/cards/best-terminal-for-claude-code.webp" width="1600" height="900" alt="" fetchpriority="high"></figure>
-<p>Claude Code 在哪个终端里都能跑，只要能显示现代的 TUI 就行，所以真正值得问的不是哪个终端能跑，而是一个会话跑上几个小时的时候，哪个终端最不碍事。决定这件事的其实就五样，长提示词能不能分行写完再发，Claude 停下来等你的时候你能不能知道，它打印出来的文件和链接能不能直接点开，终端重启之后会话还在不在，以及会不会手滑一个 <code>Cmd + W</code> 就把它关了。Ghostty 和 iTerm2 大部分都做得不错，我做的 Kaku 支持这五样，0.25.0 及以上配 Claude Code 2.1.295 及以上，通知也不用任何<span class="nobr">设置。</span></p>
+<p>Claude Code 在哪个终端里都能跑，只要能显示现代的 TUI 就行，所以真正值得问的不是哪个终端能跑，而是一个会话跑上几个小时的时候，哪个终端最不碍事。决定这件事的其实就五样，长提示词能不能分行写完再发，Claude 停下来等你的时候你能不能知道，它打印出来的文件和链接能不能直接点开，终端重启之后会话还在不在，以及会不会手滑一个 <code>Cmd + W</code> 就把它关了。Ghostty 和 iTerm2 大部分都做得不错，我做的 Kaku 支持这五样，0.25.0 及以上配 Claude Code 2.1.295 及以上，通知也不用任何设置。</p>
 <figure class="blog-diagram"><picture><source media="(max-width: 640px)" srcset="/img/blog/claude-code-session-loop-mobile.webp" width="340" height="517"><img src="/img/blog/claude-code-session-loop.webp" width="873" height="231" loading="lazy" alt="Claude Code 会话的循环，写提示词，Claude 开始干活，它提问或做完，你回来看结果并打开文件，终端重启后会话还在"></picture><figcaption>终端会在这五个地方帮上忙，或者添乱。</figcaption></figure>
 
 <h2 id="提示词要能分行写">提示词要能分行写</h2>
-<p>给 agent 的提示词很少只有一行，常常是先贴一段报错，再补一个文件路径，最后才写要它做什么，写到一半按了回车，发出去的就是半<span class="nobr">句话。</span></p>
-<p>Claude Code 自己的文档列了哪些终端里 <code>Shift + Enter</code> 不用设置就能换行，包括 Ghostty、Kitty、iTerm2、WezTerm、Warp、Apple Terminal 和 Windows Terminal，VS Code、Cursor、Zed 以及 0.16 之前的 Alacritty 需要先跑一次 <code>/terminal-setup</code>。还有两个到哪都能用的办法，<code>Ctrl + J</code>，或者先打一个反斜杠再<span class="nobr">回车。</span></p>
-<p>在 Kaku 里 <code>Shift + Enter</code> 和 <code>Cmd + Enter</code> 都是换行，不用提前跑任何<span class="nobr">命令。</span></p>
+<p>给 agent 的提示词很少只有一行，常常是先贴一段报错，再补一个文件路径，最后才写要它做什么，写到一半按了回车，发出去的就是半句话。</p>
+<p>Claude Code 自己的文档列了哪些终端里 <code>Shift + Enter</code> 不用设置就能换行，包括 Ghostty、Kitty、iTerm2、WezTerm、Warp、Apple Terminal 和 Windows Terminal，VS Code、Cursor、Zed 以及 0.16 之前的 Alacritty 需要先跑一次 <code>/terminal-setup</code>。还有两个到哪都能用的办法，<code>Ctrl + J</code>，或者先打一个反斜杠再回车。</p>
+<p>在 Kaku 里 <code>Shift + Enter</code> 和 <code>Cmd + Enter</code> 都是换行，不用提前跑任何命令。</p>
 <h2 id="claude-在等你的时候要能知道">Claude 在等你的时候要能知道</h2>
-<p>Claude 问了一个问题，你却在另一个窗口里，桌面通知能让你及时回来，前提是终端和 Claude Code 对怎么发通知有<span class="nobr">共识。</span></p>
-<p>Claude Code 的 <code>preferredNotifChannel</code> 默认是 <code>auto</code>，而 <code>auto</code> 只会在 iTerm2、Ghostty 和 Kitty 里发桌面通知，在 Terminal.app 里是发一个响铃字符，还得是关掉了提示音才发，其他终端里它什么都不做，这就是为什么用 WezTerm、Warp 或者 Claude Code 不认识的终端时，一条通知都收<span class="nobr">不到。</span></p>
-<p>Kaku 0.25.0 及以上配 Claude Code 2.1.295 及以上版本不用任何设置，Claude Code 会告诉 Kaku 自己在等你还是已经跑完，Kaku 再把它变成通知。更早的版本里，Kaku 能识别 Claude Code 发给 Ghostty 的那段序列，在 <code>~/.claude/settings.json</code> 里加一行<span class="nobr">就行：</span></p>
+<p>Claude 问了一个问题，你却在另一个窗口里，桌面通知能让你及时回来，前提是终端和 Claude Code 对怎么发通知有共识。</p>
+<p>Claude Code 的 <code>preferredNotifChannel</code> 默认是 <code>auto</code>，而 <code>auto</code> 只会在 iTerm2、Ghostty 和 Kitty 里发桌面通知，在 Terminal.app 里是发一个响铃字符，还得是关掉了提示音才发，其他终端里它什么都不做，这就是为什么用 WezTerm、Warp 或者 Claude Code 不认识的终端时，一条通知都收不到。</p>
+<p>Kaku 0.25.0 及以上配 Claude Code 2.1.295 及以上版本不用任何设置，Claude Code 会告诉 Kaku 自己在等你还是已经跑完，Kaku 再把它变成通知。更早的版本里，Kaku 能识别 Claude Code 发给 Ghostty 的那段序列，在 <code>~/.claude/settings.json</code> 里加一行就行：</p>
 <pre><code class="language-json">{ "preferredNotifChannel": <span class="tok-s">"ghostty"</span> }</code></pre>
-<p>通知只在 Kaku 处于后台时出现，正在看的那个窗格不会再弹一次，如果一条都收不到，点 Kaku &gt; Notification Settings 把 Allow Notifications <span class="nobr">打开。</span></p>
+<p>通知只在 Kaku 处于后台时出现，正在看的那个窗格不会再弹一次，如果一条都收不到，点 Kaku &gt; Notification Settings 把 Allow Notifications 打开。</p>
 <h2 id="它打印出来的东西要能点开">它打印出来的东西要能点开</h2>
-<p>Claude Code 会打印文件路径，常常还带着行号，也会给出文档或者 PR 的链接，能不能直接点开主要看两个<span class="nobr">细节。</span></p>
-<p>第一个是 Claude Code 运行时会占用鼠标，很多终端里这时普通点击会被它收走，链接打不开，Kaku 里 <code>Cmd + Click</code> 即使在程序占着鼠标时也能打开链接和<span class="nobr">路径。</span></p>
-<p>第二个是像 <code>src/main.rs:42:7</code> 这样的路径，应该直接用编辑器打开到那一行，Kaku 会把本地路径连同行号列号交给你设置的编<span class="nobr">辑器：</span></p>
+<p>Claude Code 会打印文件路径，常常还带着行号，也会给出文档或者 PR 的链接，能不能直接点开主要看两个细节。</p>
+<p>第一个是 Claude Code 运行时会占用鼠标，很多终端里这时普通点击会被它收走，链接打不开，Kaku 里 <code>Cmd + Click</code> 即使在程序占着鼠标时也能打开链接和路径。</p>
+<p>第二个是像 <code>src/main.rs:42:7</code> 这样的路径，应该直接用编辑器打开到那一行，Kaku 会把本地路径连同行号列号交给你设置的编辑器：</p>
 <pre><code class="language-lua">config.file_link_editor = <span class="tok-s">"zed"</span>
 <span class="tok-c">-- config.file_link_editor = "cursor --goto"</span></code></pre>
 <p>没设置的话，找得到 VS Code 就用 VS Code，再往后是 <code>$VISUAL</code> 和 <code>$EDITOR</code>。</p>
 <h2 id="重启之后会话还要在">重启之后会话还要在</h2>
-<p>agent 会话动辄跑几个小时，这期间终端难免要重启，哪怕只是装个更新，这里分两层。对话本身由 Claude Code 保存，<code>claude --continue</code> 会接上当前目录里最近的那次对话，对话之外的东西得靠终端，开着哪些标签和分屏，每个窗格在哪个目录，屏幕上原来是<span class="nobr">什么。</span></p>
-<p>Kaku 运行时会定时保存窗口布局，再启动时把标签和分屏都恢复回来，之前在跑 Claude Code 或 Codex 的窗格还会保留最后一屏，接着聊之前能先看到每个对话停在<span class="nobr">哪里。</span></p>
-<p>另一半是别误关，Kaku 里关闭前台在跑 Claude Code、Codex、编辑器或者构建任务的窗格和标签时会先确认一下，普通的 shell 就直接关，不<span class="nobr">多问。</span></p>
+<p>agent 会话动辄跑几个小时，这期间终端难免要重启，哪怕只是装个更新，这里分两层。对话本身由 Claude Code 保存，<code>claude --continue</code> 会接上当前目录里最近的那次对话，对话之外的东西得靠终端，开着哪些标签和分屏，每个窗格在哪个目录，屏幕上原来是什么。</p>
+<p>Kaku 运行时会定时保存窗口布局，再启动时把标签和分屏都恢复回来，之前在跑 Claude Code 或 Codex 的窗格还会保留最后一屏，接着聊之前能先看到每个对话停在哪里。</p>
+<p>另一半是别误关，Kaku 里关闭前台在跑 Claude Code、Codex、编辑器或者构建任务的窗格和标签时会先确认一下，普通的 shell 就直接关，不多问。</p>
 <h2 id="同时跑好几个">同时跑好几个</h2>
-<p>一个会话顺了之后，下一步往往是两个，一个 agent 在重构，另一个在补测试，或者一边跑 agent 一边留个 shell 跑应用，这就要靠分屏。Kaku 里 <code>Cmd + D</code> 向右分，<code>Cmd + Shift + D</code> 向下分，想细看哪个窗格就按 <code>Cmd + Shift + Enter</code> 放大，再按一次<span class="nobr">还原。</span></p>
+<p>一个会话顺了之后，下一步往往是两个，一个 agent 在重构，另一个在补测试，或者一边跑 agent 一边留个 shell 跑应用，这就要靠分屏。Kaku 里 <code>Cmd + D</code> 向右分，<code>Cmd + Shift + D</code> 向下分，想细看哪个窗格就按 <code>Cmd + Shift + Enter</code> 放大，再按一次还原。</p>
 <h2 id="在另一台电脑上接着用">在另一台电脑上接着用</h2>
-<p>有时候会话跑在桌上那台 Mac 里，人却不在旁边。Anthropic 自己提供了 Remote Control，付费套餐可以在 claude.ai 或 Claude App 里操作一个正在跑的 Claude Code 会话，还有跑在 Anthropic 机器上的云端会话。Kaku 这边是 <code>kaku remote</code>，可以在另一台电脑的桌面浏览器里打开这台 Mac 的终端，正在跑 Claude Code 的窗格也都在里面，配对方法见<a href="/zh/docs/cli#cli-kaku-remote">命令<span class="nobr">参考</span></a>。</p>
+<p>有时候会话跑在桌上那台 Mac 里，人却不在旁边。Anthropic 自己提供了 Remote Control，付费套餐可以在 claude.ai 或 Claude App 里操作一个正在跑的 Claude Code 会话，还有跑在 Anthropic 机器上的云端会话。Kaku 这边是 <code>kaku remote</code>，可以在另一台电脑的桌面浏览器里打开这台 Mac 的终端，正在跑 Claude Code 的窗格也都在里面，配对方法见<a href="/zh/docs/cli#cli-kaku-remote">命令参考</a>。</p>
 <h2 id="常见终端对比">常见终端对比</h2>
-<p>以下按 2026-10-17 的 Claude Code 终端文档<span class="nobr">核对。</span></p>
+<p>以下按 2026-10-17 的 Claude Code 终端文档核对。</p>
 <table>
 <thead>
 <tr>
@@ -201,12 +201,12 @@
 </tr>
 </tbody>
 </table>
-<p>Kaku 给 Claude Code、Codex 这些 AI 编程工具准备的东西，从 <code>kaku ai</code> 到重启后恢复会话，都收在文档的 <a href="/zh/docs/ai-coding">AI 编程工具</a>那<span class="nobr">一页。</span></p>
+<p>Kaku 给 Claude Code、Codex 这些 AI 编程工具准备的东西，从 <code>kaku ai</code> 到重启后恢复会话，都收在文档的 <a href="/zh/docs/ai-coding">AI 编程工具</a>那一页。</p>
 <h2 id="常见问题">常见问题</h2>
 <h3 id="为什么收不到-claude-code-的通知">为什么收不到 Claude Code 的通知？</h3>
-<p>默认的 <code>auto</code> 通道只给 iTerm2、Ghostty 和 Kitty 发通知，其他终端都要在 <code>~/.claude/settings.json</code> 里设好 <code>preferredNotifChannel</code>，只有 Kaku 0.25.0 及以上配 Claude Code 2.1.295 及以上不用设。每个终端该设成什么，tmux 里要加哪一行，<a href="/zh/blog/claude-code-notifications">Claude Code 通知</a>那篇都<span class="nobr">列了。</span></p>
+<p>默认的 <code>auto</code> 通道只给 iTerm2、Ghostty 和 Kitty 发通知，其他终端都要在 <code>~/.claude/settings.json</code> 里设好 <code>preferredNotifChannel</code>，只有 Kaku 0.25.0 及以上配 Claude Code 2.1.295 及以上不用设。每个终端该设成什么，tmux 里要加哪一行，<a href="/zh/blog/claude-code-notifications">Claude Code 通知</a>那篇都列了。</p>
 <h3 id="还能在-tmux-里用-claude-code-吗">还能在 tmux 里用 Claude Code 吗？</h3>
-<p>可以，tmux 里要让 Shift + Enter 生效需要 <code>set -s extended-keys on</code> 和 <code>set -as terminal-features 'xterm*:extkeys'</code>，通过 tmux passthrough 发通知时，还需要 <code>set -g allow-passthrough on</code>，发送端也得给序列加上 tmux 的<span class="nobr">包装。</span></p>
+<p>可以，tmux 里要让 Shift + Enter 生效需要 <code>set -s extended-keys on</code> 和 <code>set -as terminal-features 'xterm*:extkeys'</code>，通过 tmux passthrough 发通知时，还需要 <code>set -g allow-passthrough on</code>，发送端也得给序列加上 tmux 的包装。</p>
           <aside class="blog-cta"><img class="blog-cta-icon" src="/img/kaku-mark.png" width="40" height="40" alt=""><p>Kaku 是一个免费开源的 Mac 终端。</p><a class="btn btn-primary" href="/zh/docs">安装 Kaku</a></aside>
           <nav class="blog-related" aria-label="继续阅读"><h2 class="blog-related-title">继续阅读</h2><ul class="blog-related-list"><li><a href="/zh/blog/install-claude-code-mac"><span class="blog-related-cat">Claude Code 与 Codex</span><span class="blog-related-name">在 Mac 上安装和更新 Claude Code</span><span class="blog-related-meta"><time datetime="2026-10-02">2026年10月2日</time> · 约 6 分钟</span></a></li><li><a href="/zh/blog/claude-code-notifications"><span class="blog-related-cat">Claude Code 与 Codex</span><span class="blog-related-name">Claude Code 通知不弹出，在 Mac 上怎么修</span><span class="blog-related-meta"><time datetime="2026-09-20">2026年9月20日</time> · 约 5 分钟</span></a></li><li><a href="/zh/blog/claude-code-plan-mode"><span class="blog-related-cat">Claude Code 与 Codex</span><span class="blog-related-name">Claude Code 的 plan mode 什么时候用、怎么用</span><span class="blog-related-meta"><time datetime="2026-09-23">2026年9月23日</time> · 约 8 分钟</span></a></li></ul></nav>
         </article>

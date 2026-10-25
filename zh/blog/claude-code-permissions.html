@@ -141,9 +141,9 @@
       <div class="wide">
         <article class="doc-content blog-article">
           <figure class="blog-cover" aria-hidden="true"><img src="/img/blog/cards/claude-code-permissions.webp" width="1600" height="900" alt="" fetchpriority="high"></figure>
-<p>Claude Code 用两层来决定要不要问你，一层是定下基线的权限模式，另一层是 <code>settings.json</code> 里针对具体工具的 allow、ask、deny 规则，规则会盖过模式。<code>--dangerously-skip-permissions</code> 打开的是跳过检查的 <code>bypassPermissions</code> 模式，Anthropic 的文档说只该在容器或虚拟机里用，因为它对提示词注入和误操作没有任何保护。日常工作更稳的做法是中间路线，用 <code>acceptEdits</code> 或 auto 模式，配一小份 allow 列表、几条 deny 规则，再加一个 hook 拦住你绝不想让它跑的那条命令，这样仍然<span class="nobr">安静。</span></p>
+<p>Claude Code 用两层来决定要不要问你，一层是定下基线的权限模式，另一层是 <code>settings.json</code> 里针对具体工具的 allow、ask、deny 规则，规则会盖过模式。<code>--dangerously-skip-permissions</code> 打开的是跳过检查的 <code>bypassPermissions</code> 模式，Anthropic 的文档说只该在容器或虚拟机里用，因为它对提示词注入和误操作没有任何保护。日常工作更稳的做法是中间路线，用 <code>acceptEdits</code> 或 auto 模式，配一小份 allow 列表、几条 deny 规则，再加一个 hook 拦住你绝不想让它跑的那条命令，这样仍然安静。</p>
 <h2 id="权限模式">权限模式</h2>
-<p><a href="https://code.claude.com/docs/en/permission-modes" target="_blank" rel="noopener noreferrer">权限模式文档</a>（2026 年 10 月 19 日读的）按配置值列出这些<span class="nobr">模式：</span></p>
+<p><a href="https://code.claude.com/docs/en/permission-modes" target="_blank" rel="noopener noreferrer">权限模式文档</a>（2026 年 10 月 19 日读的）按配置值列出这些模式：</p>
 <table>
 <thead>
 <tr>
@@ -186,10 +186,10 @@
 </tbody>
 </table>
 <p>终端里按 <code>Shift+Tab</code> 循环切换模式，状态栏会显示当前是哪个，比如 <code>⏵⏵ accept edits on</code> 或 <code>⏸ plan mode on</code>。有两个模式不一定在循环里，<code>dontAsk</code> 永远不在，<code>bypassPermissions</code> 只有在你用对应的标志或设置启动时才会出现。也可以用 <code>claude --permission-mode plan</code> 启动，或者在设置文件里写 <code>permissions.defaultMode</code>。</p>
-<p>如果你对 Claude Code 的印象还停在几个月前，有一个变化要留意，2.1.283 或更新的版本里，auto 模式是交互式终端和 VS Code 会话的内置起始模式，文档把它描述成减少提示，而不是安全保证，所以别默认一个会话什么都会问，先看一眼状<span class="nobr">态栏。</span></p>
+<p>如果你对 Claude Code 的印象还停在几个月前，有一个变化要留意，2.1.283 或更新的版本里，auto 模式是交互式终端和 VS Code 会话的内置起始模式，文档把它描述成减少提示，而不是安全保证，所以别默认一个会话什么都会问，先看一眼状态栏。</p>
 <h2 id="allowaskdeny-规则">allow、ask、deny 规则</h2>
-<p>规则写在 <code>settings.json</code> 的 <code>permissions</code> 下，<code>/permissions</code> 会列出所有规则以及每条来自哪个文件。allow 规则让工具不用批准就能跑，ask 规则每次都弹提示，deny 规则直接拦住，检查顺序是 deny、ask、allow，第一个命中的算数，所以 deny 总是压过更具体的 allow，没法在 deny 里再开<span class="nobr">例外。</span></p>
-<p>规则的写法是 <code>Tool</code> 或 <code>Tool(specifier)</code>，裸的 <code>Bash</code> 匹配所有 shell 命令，括号里的限定词把范围<span class="nobr">收窄：</span></p>
+<p>规则写在 <code>settings.json</code> 的 <code>permissions</code> 下，<code>/permissions</code> 会列出所有规则以及每条来自哪个文件。allow 规则让工具不用批准就能跑，ask 规则每次都弹提示，deny 规则直接拦住，检查顺序是 deny、ask、allow，第一个命中的算数，所以 deny 总是压过更具体的 allow，没法在 deny 里再开例外。</p>
+<p>规则的写法是 <code>Tool</code> 或 <code>Tool(specifier)</code>，裸的 <code>Bash</code> 匹配所有 shell 命令，括号里的限定词把范围收窄：</p>
 <pre><code class="language-json">{
   "permissions": {
     "allow": [
@@ -209,17 +209,17 @@
 }</code></pre>
 <p>Bash 规则里的 <code>*</code> 匹配任意文本，要放在子命令后面，<code>Bash(git log *)</code> 只放行 <code>git log</code>，而 <code>Bash(git *)</code> 放行所有 git 命令。复合命令会在 <code>&amp;&amp;</code>、<code>||</code>、<code>;</code>、管道和换行处拆开，每一段都得各自匹配，所以 <code>Bash(safe-cmd *)</code> 不会放行 <code>safe-cmd &amp;&amp; other-cmd</code>。匹配之前，Claude Code 会先剥掉固定的几种包装命令，<code>timeout</code>、<code>time</code>、<code>nice</code>、<code>nohup</code>、<code>stdbuf</code> 和不带选项的 <code>xargs</code>，所以 <code>Bash(npm test *)</code> 也能匹配 <code>timeout 30 npm test</code>，<code>npx</code>、<code>docker exec</code>、<code>mise exec</code>、<code>devbox run</code> 这类执行器则不会被剥掉，<code>Bash(devbox run *)</code> 等于放行 <code>run</code> 后面的任何命令，反过来 <code>Bash(rm *)</code> 的 deny 也拦不住 <code>/bin/rm</code> 和 <code>find -delete</code>，因为规则比对的是命令文本，不是背后真正跑的程序。文件方面，<code>Read</code> 和 <code>Edit</code> 规则用 gitignore 风格的模式，<code>//path</code> 是绝对路径，<code>~/path</code> 从家目录算起，<code>./path</code> 相对当前目录，写给 <code>Write</code> 的规则会被接受但从不被查询，所以要写 <code>Edit</code>。</p>
 <h2 id="一次调用是怎么被决定的">一次调用是怎么被决定的</h2>
-<p>规则、hook 和模式组合起来时顺序很重要，下面是一次工具调用的<span class="nobr">路径。</span></p>
+<p>规则、hook 和模式组合起来时顺序很重要，下面是一次工具调用的路径。</p>
 <figure class="blog-diagram"><picture><source media="(max-width: 640px)" srcset="/img/blog/claude-code-permission-layers-mobile.webp" width="340" height="726"><img src="/img/blog/claude-code-permission-layers.webp" width="565" height="834" loading="lazy" alt="工具调用先过 PreToolUse hook，再过 deny、ask、allow 规则，规则都没命中才看权限模式，放行的 Bash 命令在沙盒里运行，hook 返回 2 或命中 deny 规则就会被拦下"></picture><figcaption>hook 能在任何规则被读到之前拦下调用，接着由规则决定，模式只处理规则没覆盖到的部分。</figcaption></figure>
 
-<p>PreToolUse hook 先跑，如果它以退出码 2 结束，调用在看任何规则之前就被拦下，哪怕有 allow 规则本来会放行。hook 放过去之后，不管它返回了什么，deny 和 ask 规则照样会被评估，所以 hook 返回 allow 也压不过 deny 规则。规则定不了的时候由模式的基线决定。对 Bash 来说，可选的沙箱是批准之后的另一层，在操作系统层面限制已批准的命令能碰什么，文档建议权限和沙箱一起用，因为提示词注入骗过模型之后，沙箱的限制仍然<span class="nobr">有效。</span></p>
-<p>权限规则是由 Claude Code 执行的，不是由模型执行的，文档说你在提示词或 <code>CLAUDE.md</code> 里写的指令会影响 Claude 想做什么，但不会改变 Claude Code 允许<span class="nobr">什么。</span></p>
+<p>PreToolUse hook 先跑，如果它以退出码 2 结束，调用在看任何规则之前就被拦下，哪怕有 allow 规则本来会放行。hook 放过去之后，不管它返回了什么，deny 和 ask 规则照样会被评估，所以 hook 返回 allow 也压不过 deny 规则。规则定不了的时候由模式的基线决定。对 Bash 来说，可选的沙箱是批准之后的另一层，在操作系统层面限制已批准的命令能碰什么，文档建议权限和沙箱一起用，因为提示词注入骗过模型之后，沙箱的限制仍然有效。</p>
+<p>权限规则是由 Claude Code 执行的，不是由模型执行的，文档说你在提示词或 <code>CLAUDE.md</code> 里写的指令会影响 Claude 想做什么，但不会改变 Claude Code 允许什么。</p>
 <h2 id="bypasspermissions-到底冒什么险">bypassPermissions 到底冒什么险</h2>
-<p><code>bypassPermissions</code> 关掉提示和安全检查，包括对 <code>.git</code>、<code>.claude</code>、<code>.zshrc</code>、<code>.mcp.json</code> 这类受保护路径的写入。deny 规则在这个模式下仍然拦截，allow 规则则没有作用，因为一切本来就被允许。有几样即使在这里也仍会提示，ask 规则、指向 <code>/</code> 或家目录这类关键路径的 <code>rm</code> 和 <code>rmdir</code>，以及需要你输入的<span class="nobr">工具。</span></p>
-<p>文档警告说，这个模式对提示词注入没有任何保护，也就是 Claude 读到的文件或网页里的文字被它当成指令执行。官方的建议是只在隔离环境里用，比如容器、虚拟机，或者没有网络的 dev container。标志是 <code>claude --dangerously-skip-permissions</code>，等价于 <code>--permission-mode bypassPermissions</code>，交互式会话第一次用要接受一个警告对话框，在 Linux 和 macOS 上以 root 或 <code>sudo</code> 运行时会拒绝启动，除非检测到受认可的沙箱。<a href="https://code.claude.com/docs/en/sandbox-environments" target="_blank" rel="noopener noreferrer">沙箱环境页面</a>比较了内置的沙箱 Bash 工具、沙箱运行时、dev container 和虚拟机，权限模式页面则说，想要少提示又不想承担这种风险，auto 模式保留了后台安全<span class="nobr">检查。</span></p>
-<p>管理员可以在托管设置里把 <code>permissions.disableBypassPermissionsMode</code> 设成 <code>"disable"</code>，你也可以在自己的设置里设，把自己锁在这个模式<span class="nobr">之外。</span></p>
+<p><code>bypassPermissions</code> 关掉提示和安全检查，包括对 <code>.git</code>、<code>.claude</code>、<code>.zshrc</code>、<code>.mcp.json</code> 这类受保护路径的写入。deny 规则在这个模式下仍然拦截，allow 规则则没有作用，因为一切本来就被允许。有几样即使在这里也仍会提示，ask 规则、指向 <code>/</code> 或家目录这类关键路径的 <code>rm</code> 和 <code>rmdir</code>，以及需要你输入的工具。</p>
+<p>文档警告说，这个模式对提示词注入没有任何保护，也就是 Claude 读到的文件或网页里的文字被它当成指令执行。官方的建议是只在隔离环境里用，比如容器、虚拟机，或者没有网络的 dev container。标志是 <code>claude --dangerously-skip-permissions</code>，等价于 <code>--permission-mode bypassPermissions</code>，交互式会话第一次用要接受一个警告对话框，在 Linux 和 macOS 上以 root 或 <code>sudo</code> 运行时会拒绝启动，除非检测到受认可的沙箱。<a href="https://code.claude.com/docs/en/sandbox-environments" target="_blank" rel="noopener noreferrer">沙箱环境页面</a>比较了内置的沙箱 Bash 工具、沙箱运行时、dev container 和虚拟机，权限模式页面则说，想要少提示又不想承担这种风险，auto 模式保留了后台安全检查。</p>
+<p>管理员可以在托管设置里把 <code>permissions.disableBypassPermissionsMode</code> 设成 <code>"disable"</code>，你也可以在自己的设置里设，把自己锁在这个模式之外。</p>
 <h2 id="更稳的中间路线">更稳的中间路线</h2>
-<p>一份让大部分提示消失、又不关掉检查的<span class="nobr">配置：</span></p>
+<p>一份让大部分提示消失、又不关掉检查的配置：</p>
 <pre><code class="language-json">{
   "permissions": {
     "defaultMode": <span class="tok-s">"acceptEdits"</span>,
@@ -241,9 +241,9 @@
     ]
   }
 }</code></pre>
-<p>项目里放进 <code>.claude/settings.json</code>，所有会话通用就放 <code>~/.claude/settings.json</code>。别写进 <code>~/.claude.json</code>，那个文件存的是应用状态和界面开关，写在里面的 <code>permissions</code> 和 <code>hooks</code> 会被忽略。项目 <code>.claude/settings.json</code> 里的 allow 规则，也要等你在这个文件夹接受了工作区信任对话框之后才会生效。<code>acceptEdits</code> 会自动批准工作目录里的编辑和 <code>rm</code>，<code>Bash(rm *)</code> 的 deny 规则就是为此加的。文档提到规则可能漏掉换了写法的命令，比如写成 <code>git -C . push</code> 的推送，<code>Bash(git push *)</code> 就匹配不到，所以把规则当成常见情况的护栏，别当安全边界，真正绝不能发生的事再加 hook 或 Bash <span class="nobr">沙箱。</span></p>
+<p>项目里放进 <code>.claude/settings.json</code>，所有会话通用就放 <code>~/.claude/settings.json</code>。别写进 <code>~/.claude.json</code>，那个文件存的是应用状态和界面开关，写在里面的 <code>permissions</code> 和 <code>hooks</code> 会被忽略。项目 <code>.claude/settings.json</code> 里的 allow 规则，也要等你在这个文件夹接受了工作区信任对话框之后才会生效。<code>acceptEdits</code> 会自动批准工作目录里的编辑和 <code>rm</code>，<code>Bash(rm *)</code> 的 deny 规则就是为此加的。文档提到规则可能漏掉换了写法的命令，比如写成 <code>git -C . push</code> 的推送，<code>Bash(git push *)</code> 就匹配不到，所以把规则当成常见情况的护栏，别当安全边界，真正绝不能发生的事再加 hook 或 Bash 沙箱。</p>
 <h2 id="用-hook-拦命令">用 hook 拦命令</h2>
-<p>hook 是 Claude Code 在工具调用之前运行的一个脚本，退出码 2 会拦住调用，脚本写到 stderr 的内容会作为理由回到 Claude 手里。文档自带的例子保护的是文件，下面是针对命令的<span class="nobr">变体：</span></p>
+<p>hook 是 Claude Code 在工具调用之前运行的一个脚本，退出码 2 会拦住调用，脚本写到 stderr 的内容会作为理由回到 Claude 手里。文档自带的例子保护的是文件，下面是针对命令的变体：</p>
 <pre><code class="language-bash"><span class="tok-c">#!/bin/bash
 # .claude/hooks/block-danger.sh
 </span>INPUT=<span class="tok-k">$(</span>cat<span class="tok-k">)</span>
@@ -268,14 +268,14 @@ CMD=<span class="tok-k">$(</span><span class="tok-b">echo</span> <span class="to
 }</code></pre>
 <p>先 <code>chmod +x .claude/hooks/block-danger.sh</code>，再让 Claude 跑一条被拦的命令，应该会被拒绝，Claude 会收到你写的消息作为理由。想放行除了几条之外的所有 Bash 命令时，文档推荐的就是这个写法，把 <code>Bash</code> 加进 allow 列表，再让 hook 拒绝例外。这种字符串匹配换个写法就能绕过，所以凡是可能毁数据的，都和 deny 规则配合用，hook 的事件和设置见 <a href="/zh/blog/claude-code-hooks">Claude Code hooks</a>。</p>
 <h2 id="知道有提示在等你">知道有提示在等你</h2>
-<p>少弹提示是目标，但剩下的那些提示在你切到别的窗口时会让会话停住。Claude Code 2.1.295 或更新的版本会把正在干活、等你还是已完成告诉 Kaku，所以 Kaku 0.25.0 或更新的版本在 Kaku 处于后台时无需任何设置就会发通知，更旧的版本和其他终端要配置通知渠道，见 <a href="/zh/blog/claude-code-notifications">Claude Code 通知</a>。如果你同时并排跑几个 agent，<a href="/zh/blog/claude-code-git-worktrees">git worktree</a> 能把它们的改动<span class="nobr">隔开。</span></p>
+<p>少弹提示是目标，但剩下的那些提示在你切到别的窗口时会让会话停住。Claude Code 2.1.295 或更新的版本会把正在干活、等你还是已完成告诉 Kaku，所以 Kaku 0.25.0 或更新的版本在 Kaku 处于后台时无需任何设置就会发通知，更旧的版本和其他终端要配置通知渠道，见 <a href="/zh/blog/claude-code-notifications">Claude Code 通知</a>。如果你同时并排跑几个 agent，<a href="/zh/blog/claude-code-git-worktrees">git worktree</a> 能把它们的改动隔开。</p>
 <h2 id="常见问题">常见问题</h2>
 <h3 id="-dangerously-skip-permissions-安全吗">--dangerously-skip-permissions 安全吗</h3>
-<p>在平时用的机器上不安全，文档把它限制在隔离环境里，并说它对提示词注入没有保护，本地工作用 auto 模式或上面的中间<span class="nobr">路线。</span></p>
+<p>在平时用的机器上不安全，文档把它限制在隔离环境里，并说它对提示词注入没有保护，本地工作用 auto 模式或上面的中间路线。</p>
 <h3 id="怎么只对一条命令关掉提示">怎么只对一条命令关掉提示</h3>
 <p>给它加一条 allow 规则，比如 <code>Bash(npm test *)</code>，或者在提示上选 Yes, and don't ask again，Bash 命令会把规则存进仓库根目录的 <code>.claude/settings.local.json</code>。</p>
 <h3 id="为什么-bypass-模式下-claude-还会问">为什么 bypass 模式下 Claude 还会问</h3>
-<p>没有哪个模式会自动批准 ask 规则、指向关键路径的 <code>rm</code> 或 <code>rmdir</code>，以及需要你输入的工具，所以 bypass 模式下它们照样会<span class="nobr">提示。</span></p>
+<p>没有哪个模式会自动批准 ask 规则、指向关键路径的 <code>rm</code> 或 <code>rmdir</code>，以及需要你输入的工具，所以 bypass 模式下它们照样会提示。</p>
 <h3 id="claudemd-能拦住命令吗">CLAUDE.md 能拦住命令吗</h3>
 <p>不能，它只影响 Claude 想做什么，真正改变 Claude Code 允许什么的是规则、模式和 hook。</p>
           <aside class="blog-cta"><img class="blog-cta-icon" src="/img/kaku-mark.png" width="40" height="40" alt=""><p>Kaku 是一个免费开源的 Mac 终端。</p><a class="btn btn-primary" href="/zh/docs">安装 Kaku</a></aside>

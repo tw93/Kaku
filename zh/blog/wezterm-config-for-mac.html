@@ -141,7 +141,7 @@
       <div class="wide">
         <article class="doc-content blog-article">
           <figure class="blog-cover" aria-hidden="true"><img src="/img/blog/cards/wezterm-config-for-mac.webp" width="1600" height="900" alt="" fetchpriority="high"></figure>
-<p>一份好用的 Mac 版 WezTerm 配置只需要十几行，一个带中文回退的字体，稍微加大一点的行高，左 Option 当 Meta 发出去，标题栏按钮放进标签栏，配色跟着系统走，再换成 Metal 渲染。配置文件是 <code>~/.wezterm.lua</code>，一段返回一张表的 Lua 脚本，每次保存 WezTerm 都会重新加载。Kaku 是 WezTerm 的分支，自带一整份配置。还在 WezTerm、Ghostty 和 iTerm2 之间犹豫的话，可以先看 <a href="/zh/blog/ghostty-vs-iterm2-vs-wezterm">Ghostty、iTerm2 和 WezTerm 怎<span class="nobr">么选</span></a>。</p>
+<p>一份好用的 Mac 版 WezTerm 配置只需要十几行，一个带中文回退的字体，稍微加大一点的行高，左 Option 当 Meta 发出去，标题栏按钮放进标签栏，配色跟着系统走，再换成 Metal 渲染。配置文件是 <code>~/.wezterm.lua</code>，一段返回一张表的 Lua 脚本，每次保存 WezTerm 都会重新加载。Kaku 是 WezTerm 的分支，自带一整份配置。还在 WezTerm、Ghostty 和 iTerm2 之间犹豫的话，可以先看 <a href="/zh/blog/ghostty-vs-iterm2-vs-wezterm">Ghostty、iTerm2 和 WezTerm 怎么选</a>。</p>
 <h2 id="从-config_builder-开始">从 config_builder 开始</h2>
 <pre><code class="language-lua"><span class="tok-k">local</span> wezterm = <span class="tok-b">require</span> <span class="tok-s">'wezterm'</span>
 <span class="tok-k">local</span> config = wezterm.<span class="tok-f">config_builder</span>()
@@ -149,7 +149,7 @@
 <span class="tok-c">-- 设置写在这里</span>
 
 <span class="tok-k">return</span> config</code></pre>
-<p><code>config_builder()</code> 返回的表会在你拼错选项名时报出来，而不是悄悄忽略，下面所有设置都写在这两行<span class="nobr">中间。</span></p>
+<p><code>config_builder()</code> 返回的表会在你拼错选项名时报出来，而不是悄悄忽略，下面所有设置都写在这两行中间。</p>
 <h2 id="字体和间距">字体和间距</h2>
 <pre><code class="language-lua">config.font = wezterm.font_with_fallback {
   <span class="tok-s">'JetBrains Mono'</span>,
@@ -159,9 +159,9 @@ config.font_size = <span class="tok-n">15</span>
 config.line_height = <span class="tok-n">1.15</span>
 config.harfbuzz_features = { <span class="tok-s">'calt=0'</span>, <span class="tok-s">'clig=0'</span>, <span class="tok-s">'liga=0'</span> }</code></pre>
 <ul>
-<li><strong><code>font_with_fallback</code></strong> 对每个字符按顺序挨个字体试，中文和日文会落到 PingFang SC 上，而不是让 macOS 随便挑<span class="nobr">一个。</span></li>
-<li><strong><code>line_height</code></strong> 大于 1.0 会在行与行之间加空隙，长输出读起来更舒服，但框线字符和方块字符会跟着行一起拉高，二维码和字符画都会<span class="nobr">变高。</span></li>
-<li><strong><code>harfbuzz_features</code></strong> 关掉连字，喜欢把 <code>=&gt;</code> 画成箭头的话就别加<span class="nobr">这行。</span></li>
+<li><strong><code>font_with_fallback</code></strong> 对每个字符按顺序挨个字体试，中文和日文会落到 PingFang SC 上，而不是让 macOS 随便挑一个。</li>
+<li><strong><code>line_height</code></strong> 大于 1.0 会在行与行之间加空隙，长输出读起来更舒服，但框线字符和方块字符会跟着行一起拉高，二维码和字符画都会变高。</li>
+<li><strong><code>harfbuzz_features</code></strong> 关掉连字，喜欢把 <code>=&gt;</code> 画成箭头的话就别加这行。</li>
 </ul>
 <h2 id="让按键用起来像-mac">让按键用起来像 Mac</h2>
 <pre><code class="language-lua">config.send_composed_key_when_left_alt_is_pressed = <span class="tok-b">false</span>
@@ -176,9 +176,9 @@ config.keys = {
 <pre><code class="language-lua">config.window_decorations = <span class="tok-s">'INTEGRATED_BUTTONS|RESIZE'</span>
 config.window_padding = { left = <span class="tok-n">16</span>, right = <span class="tok-n">16</span>, top = <span class="tok-n">16</span>, bottom = <span class="tok-n">0</span> }
 config.native_macos_fullscreen_mode = <span class="tok-b">true</span></code></pre>
-<p><code>INTEGRATED_BUTTONS</code> 把红黄绿三个按钮放进标签栏，不再单独占一条标题栏，<code>native_macos_fullscreen_mode</code> 用的是 macOS 自己那种独占一个桌面的全屏，而不是 WezTerm 的无边框<span class="nobr">全屏。</span></p>
+<p><code>INTEGRATED_BUTTONS</code> 把红黄绿三个按钮放进标签栏，不再单独占一条标题栏，<code>native_macos_fullscreen_mode</code> 用的是 macOS 自己那种独占一个桌面的全屏，而不是 WezTerm 的无边框全屏。</p>
 <h2 id="深色和浅色">深色和浅色</h2>
-<p>WezTerm 可以问 macOS 现在是什么外观，配色就能跟<span class="nobr">着走：</span></p>
+<p>WezTerm 可以问 macOS 现在是什么外观，配色就能跟着走：</p>
 <pre><code class="language-lua"><span class="tok-k">local</span> <span class="tok-k">function</span> <span class="tok-f">scheme_for</span>(appearance)
   <span class="tok-k">if</span> appearance:find <span class="tok-s">'Dark'</span> <span class="tok-k">then</span>
     <span class="tok-k">return</span> <span class="tok-s">'Builtin Solarized Dark'</span>
@@ -187,17 +187,17 @@ config.native_macos_fullscreen_mode = <span class="tok-b">true</span></code></pr
 <span class="tok-k">end</span>
 
 config.color_scheme = <span class="tok-f">scheme_for</span>(wezterm.gui.<span class="tok-f">get_appearance</span>())</code></pre>
-<p>外观一变配置就会重新加载，所以 macOS 在深浅色之间切换时，终端也跟<span class="nobr">着切。</span></p>
+<p>外观一变配置就会重新加载，所以 macOS 在深浅色之间切换时，终端也跟着切。</p>
 <h2 id="渲染">渲染</h2>
 <pre><code class="language-lua">config.front_end = <span class="tok-s">'WebGpu'</span>
 config.webgpu_power_preference = <span class="tok-s">'LowPower'</span>
 config.max_fps = <span class="tok-n">60</span></code></pre>
-<p>WezTerm 默认的前端是 OpenGL，<code>WebGpu</code> 在 Mac 上走 Metal 渲染，<code>LowPower</code> 在有两块显卡的机器上优先用集成<span class="nobr">显卡。</span></p>
+<p>WezTerm 默认的前端是 OpenGL，<code>WebGpu</code> 在 Mac 上走 Metal 渲染，<code>LowPower</code> 在有两块显卡的机器上优先用集成显卡。</p>
 <h2 id="kaku-替你设好了什么">Kaku 替你设好了什么</h2>
-<p>Kaku 保留了 WezTerm 的引擎和 Lua API，上面这些设置在 Kaku 里同样能用，不同的是起点，你的 <code>~/.config/kaku/kaku.lua</code> 会先加载 Kaku 自带的那份配置，再把你在下面写的内容叠<span class="nobr">上去。</span></p>
+<p>Kaku 保留了 WezTerm 的引擎和 Lua API，上面这些设置在 Kaku 里同样能用，不同的是起点，你的 <code>~/.config/kaku/kaku.lua</code> 会先加载 Kaku 自带的那份配置，再把你在下面写的内容叠上去。</p>
 <figure class="blog-diagram"><picture><source media="(max-width: 640px)" srcset="/img/blog/kaku-config-layers-mobile.webp" width="340" height="290"><img src="/img/blog/kaku-config-layers.webp" width="494" height="325" loading="lazy" alt="三层配置：kaku.lua 里你自己的覆盖最后生效，下面是 Kaku 自带配置，包含字体、按键和 1.28 行高，再下面是 WezTerm 的默认值"></picture><figcaption>只写你想不一样的地方，其余都来自自带的那一层。</figcaption></figure>
 
-<p>这篇讲的大部分东西，自带的那一层已经<span class="nobr">有了：</span></p>
+<p>这篇讲的大部分东西，自带的那一层已经有了：</p>
 <table>
 <thead>
 <tr>
@@ -248,20 +248,20 @@ config.max_fps = <span class="tok-n">60</span></code></pre>
 </tr>
 </tbody>
 </table>
-<p>被问得最多的是行高，1.28 比大多数终端都宽松，代价是二维码、<code>neofetch</code> 的 logo 这类字符画会高出大约 28%，介意的话覆盖掉<span class="nobr">就行：</span></p>
+<p>被问得最多的是行高，1.28 比大多数终端都宽松，代价是二维码、<code>neofetch</code> 的 logo 这类字符画会高出大约 28%，介意的话覆盖掉就行：</p>
 <pre><code class="language-lua">config.line_height = <span class="tok-n">1.1</span></code></pre>
-<p>新装的 Kaku 默认是 Kaku Dark，想跟着 macOS 外观走，就在 <code>kaku config</code> 里选 Auto，思路和上面那个配色函数<span class="nobr">一样。</span></p>
+<p>新装的 Kaku 默认是 Kaku Dark，想跟着 macOS 外观走，就在 <code>kaku config</code> 里选 Auto，思路和上面那个配色函数一样。</p>
 <h2 id="把-wezterm-配置搬过来">把 WezTerm 配置搬过来</h2>
-<p>把你在意的设置复制到 <code>kaku.lua</code> 里 <code>-- User overrides:</code> 那一行下面，别整个文件覆盖掉，这样自带的那一层还会加载。没写的设置用的是 Kaku 的值而不是 WezTerm 的，大多数时候这正是你想要的，不过如果哪里看着和以前不一样，可以先从这一点<span class="nobr">查起。</span></p>
+<p>把你在意的设置复制到 <code>kaku.lua</code> 里 <code>-- User overrides:</code> 那一行下面，别整个文件覆盖掉，这样自带的那一层还会加载。没写的设置用的是 Kaku 的值而不是 WezTerm 的，大多数时候这正是你想要的，不过如果哪里看着和以前不一样，可以先从这一点查起。</p>
 <h2 id="常见问题">常见问题</h2>
 <h3 id="mac-上-wezterm-的配置文件在哪">Mac 上 WezTerm 的配置文件在哪？</h3>
-<p><code>~/.wezterm.lua</code>，或者 <code>~/.config/wezterm/wezterm.lua</code>，也可以用环境变量 <code>WEZTERM_CONFIG_FILE</code> 指定一个<span class="nobr">路径。</span></p>
+<p><code>~/.wezterm.lua</code>，或者 <code>~/.config/wezterm/wezterm.lua</code>，也可以用环境变量 <code>WEZTERM_CONFIG_FILE</code> 指定一个路径。</p>
 <h3 id="wezterm-会自动重新加载配置吗">WezTerm 会自动重新加载配置吗？</h3>
-<p>会，保存文件时就重新加载，出错的话会弹一个带行号的窗口，上一份能用的配置继续<span class="nobr">生效。</span></p>
+<p>会，保存文件时就重新加载，出错的话会弹一个带行号的窗口，上一份能用的配置继续生效。</p>
 <h3 id="wezterm-里怎么让-option-当-alt-用">WezTerm 里怎么让 Option 当 Alt 用？</h3>
-<p>设 <code>send_composed_key_when_left_alt_is_pressed = false</code>，右边那个键如果从来不用来打带重音的字符，也可以一<span class="nobr">样设。</span></p>
+<p>设 <code>send_composed_key_when_left_alt_is_pressed = false</code>，右边那个键如果从来不用来打带重音的字符，也可以一样设。</p>
 <h3 id="我的-wezterm-配置能在-kaku-里用吗">我的 WezTerm 配置能在 Kaku 里用吗？</h3>
-<p>Kaku 用的是 WezTerm 的配置系统，大多数 macOS 设置都能写在 <code>kaku.lua</code> 里，Windows 专用选项已经弃用，不会生效。把设置写在 <code>-- User overrides:</code> 下面，Kaku 的默认值就还会在底下<span class="nobr">加载。</span></p>
+<p>Kaku 用的是 WezTerm 的配置系统，大多数 macOS 设置都能写在 <code>kaku.lua</code> 里，Windows 专用选项已经弃用，不会生效。把设置写在 <code>-- User overrides:</code> 下面，Kaku 的默认值就还会在底下加载。</p>
           <aside class="blog-cta"><img class="blog-cta-icon" src="/img/kaku-mark.png" width="40" height="40" alt=""><p>Kaku 是一个免费开源的 Mac 终端。</p><a class="btn btn-primary" href="/zh/docs">安装 Kaku</a></aside>
           <nav class="blog-related" aria-label="继续阅读"><h2 class="blog-related-title">继续阅读</h2><ul class="blog-related-list"><li><a href="/zh/blog/best-terminal-for-mac"><span class="blog-related-cat">终端</span><span class="blog-related-name">2026 年 Mac 上的终端怎么选</span><span class="blog-related-meta"><time datetime="2026-09-21">2026年9月21日</time> · 约 5 分钟</span></a></li><li><a href="/zh/blog/ghostty-vs-iterm2-vs-wezterm"><span class="blog-related-cat">终端</span><span class="blog-related-name">Ghostty、iTerm2 和 WezTerm 怎么选</span><span class="blog-related-meta"><time datetime="2026-09-22">2026年9月22日</time> · 约 4 分钟</span></a></li><li><a href="/zh/blog/tmux-alternative-mac"><span class="blog-related-cat">终端</span><span class="blog-related-name">在 Mac 上还需要 tmux 吗</span><span class="blog-related-meta"><time datetime="2026-10-01">2026年10月1日</time> · 约 5 分钟</span></a></li></ul></nav>
         </article>

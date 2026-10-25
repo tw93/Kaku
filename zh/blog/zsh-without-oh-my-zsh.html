@@ -141,11 +141,11 @@
       <div class="wide">
         <article class="doc-content blog-article">
           <figure class="blog-cover" aria-hidden="true"><img src="/img/blog/cards/zsh-without-oh-my-zsh.webp" width="1600" height="900" alt="" fetchpriority="high"></figure>
-<p>想要一个好用的 zsh，其实不需要 Oh My Zsh，大多数人装它图的那些东西，四个组件就够了。zsh-autosuggestions 根据历史给出灰色的建议，语法高亮在你打字时给命令上色，zsh-completions 补上额外的补全定义，Starship 负责提示符。按正确的顺序直接在 <code>.zshrc</code> 里加载，再给补全加上缓存，启动快，也一眼能<span class="nobr">看懂。</span></p>
+<p>想要一个好用的 zsh，其实不需要 Oh My Zsh，大多数人装它图的那些东西，四个组件就够了。zsh-autosuggestions 根据历史给出灰色的建议，语法高亮在你打字时给命令上色，zsh-completions 补上额外的补全定义，Starship 负责提示符。按正确的顺序直接在 <code>.zshrc</code> 里加载，再给补全加上缓存，启动快，也一眼能看懂。</p>
 <h2 id="装好这几个组件">装好这几个组件</h2>
 <p>用 Homebrew：</p>
 <pre><code class="language-bash">brew install zsh-autosuggestions zsh-syntax-highlighting zsh-completions starship</code></pre>
-<p>依赖就这些，没有要更新的框架，启动时也不会跑任何你没要求的<span class="nobr">东西。</span></p>
+<p>依赖就这些，没有要更新的框架，启动时也不会跑任何你没要求的东西。</p>
 <h2 id="按顺序加载的-zshrc">按顺序加载的 .zshrc</h2>
 <pre><code class="language-bash"><span class="tok-c"># 补全定义要在 compinit 之前放进 fpath
 </span>fpath=(<span class="tok-s">${</span>HOMEBREW_PREFIX<span class="tok-k">:-</span>/opt/homebrew<span class="tok-s">}</span>/share/zsh-completions $fpath)
@@ -173,42 +173,42 @@ setopt SHARE_HISTORY HIST_IGNORE_ALL_DUPS HIST_IGNORE_SPACE
 
 <span class="tok-c"># 语法高亮必须放在最后
 </span><span class="tok-b">source</span> <span class="tok-s">${</span>HOMEBREW_PREFIX<span class="tok-k">:-</span>/opt/homebrew<span class="tok-s">}</span>/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh</code></pre>
-<p><code>HOMEBREW_PREFIX</code> 由 <code>brew shellenv</code> 设置，后面的默认值对应 Apple Silicon 的默认路径，把路径直接写出来而不是调用 <code>$(brew --prefix)</code>，每开一个 shell 就少起一个<span class="nobr">进程。</span></p>
+<p><code>HOMEBREW_PREFIX</code> 由 <code>brew shellenv</code> 设置，后面的默认值对应 Apple Silicon 的默认路径，把路径直接写出来而不是调用 <code>$(brew --prefix)</code>，每开一个 shell 就少起一个进程。</p>
 <h2 id="顺序为什么重要">顺序为什么重要</h2>
-<p>大部分问题由三条规则<span class="nobr">决定：</span></p>
+<p>大部分问题由三条规则决定：</p>
 <ul>
-<li><strong>补全要在 <code>compinit</code> 之前。</strong> <code>compinit</code> 只扫一次 <code>fpath</code>，之后才加进去的，要等下次重建才看<span class="nobr">得到。</span></li>
-<li><strong>大多数时候用 <code>compinit -C</code>。</strong> 完整的 <code>compinit</code> 会检查每一个补全文件，加上 <code>-C</code> 就直接信任缓存的 <code>.zcompdump</code>，上面那个判断会在缓存超过 24 小时后完整检查一次，需要时才重建，成功后更新缓存时间，在 M5 Pro 上完整跑一次是 29.3 ms，走缓存是 16.2 ms。<code>(#q...)</code> 这个判断只有开了 <code>EXTENDED_GLOB</code> 才生效，不开的话这串字符根本不会被当成通配，判断永远为真，每个 shell 都会悄悄完整检查<span class="nobr">一遍。</span></li>
-<li><strong>语法高亮放最后。</strong> 它是靠包住 zsh 行编辑器的 widget 来工作的，在它之后定义的 widget，包括 autosuggestions 的，都不会被高亮，它自己的文档也要求放在最后<span class="nobr">加载。</span></li>
+<li><strong>补全要在 <code>compinit</code> 之前。</strong> <code>compinit</code> 只扫一次 <code>fpath</code>，之后才加进去的，要等下次重建才看得到。</li>
+<li><strong>大多数时候用 <code>compinit -C</code>。</strong> 完整的 <code>compinit</code> 会检查每一个补全文件，加上 <code>-C</code> 就直接信任缓存的 <code>.zcompdump</code>，上面那个判断会在缓存超过 24 小时后完整检查一次，需要时才重建，成功后更新缓存时间，在 M5 Pro 上完整跑一次是 29.3 ms，走缓存是 16.2 ms。<code>(#q...)</code> 这个判断只有开了 <code>EXTENDED_GLOB</code> 才生效，不开的话这串字符根本不会被当成通配，判断永远为真，每个 shell 都会悄悄完整检查一遍。</li>
+<li><strong>语法高亮放最后。</strong> 它是靠包住 zsh 行编辑器的 widget 来工作的，在它之后定义的 widget，包括 autosuggestions 的，都不会被高亮，它自己的文档也要求放在最后加载。</li>
 </ul>
 <h2 id="别猜测一下">别猜，测一下</h2>
 <pre><code class="language-bash"><span class="tok-b">time</span> zsh -i -c <span class="tok-b">exit</span></code></pre>
-<p>想要更稳的数字，用 <code>hyperfine</code> 多跑<span class="nobr">几次：</span></p>
+<p>想要更稳的数字，用 <code>hyperfine</code> 多跑几次：</p>
 <pre><code class="language-bash">brew install hyperfine
 hyperfine --warmup <span class="tok-n">5</span> <span class="tok-s">'zsh -i -c exit'</span></code></pre>
-<p><code>zsh -i -c exit</code> 测的是直到第一个提示符出现前的所有耗时，挂在提示符上的那部分不算，拿来每次对比一处改动正合适，哪个数字突然变大，就注释掉一半<span class="nobr">再测。</span></p>
+<p><code>zsh -i -c exit</code> 测的是直到第一个提示符出现前的所有耗时，挂在提示符上的那部分不算，拿来每次对比一处改动正合适，哪个数字突然变大，就注释掉一半再测。</p>
 <h2 id="kaku-是怎么做的">Kaku 是怎么做的</h2>
 <p>Kaku 自带这一套，在你的 <code>.zshrc</code> 里加两行来加载，一行管 <code>PATH</code>，一行 source <code>~/.config/kaku/zsh/kaku.zsh</code>，里面带的是 zsh-autosuggestions、fast-syntax-highlighting、zsh-completions，以及用来跳到常去目录的 zsh-z，提示符用 Starship。</p>
 <figure class="blog-diagram"><picture><source media="(max-width: 640px)" srcset="/img/blog/kaku-zsh-load-order-mobile.webp" width="340" height="444"><img src="/img/blog/kaku-zsh-load-order.webp" width="362" height="622" loading="lazy" alt="Kaku 的 zsh 配置按顺序分六步：PATH 和 Kaku 检测，用缓存的 init 启动 Starship 提示符，历史和按键，每天最多完整检查一次的 compinit -C，z 和 autosuggestions 以你自己的为准，语法高亮推迟到第一个提示符"></picture><figcaption>规则和上面一样，多了缓存的提示符 init，以及推迟到第一个提示符的高亮。</figcaption></figure>
 
-<p>在上面几条规则之外，它还多做了三<span class="nobr">件事：</span></p>
+<p>在上面几条规则之外，它还多做了三件事：</p>
 <ul>
-<li><strong>缓存 Starship 的 init 脚本</strong>，热启动时提示符不用再起额外的<span class="nobr">进程。</span></li>
-<li><strong>把语法高亮推迟</strong>到第一个提示符快要出现的时候，它还是最后一个加载，但不拖慢前面那<span class="nobr">一段。</span></li>
-<li><strong>用 <code>zcompile</code> 编译整个文件</strong>，zsh 读的是字节码，不用每次重新<span class="nobr">解析。</span></li>
+<li><strong>缓存 Starship 的 init 脚本</strong>，热启动时提示符不用再起额外的进程。</li>
+<li><strong>把语法高亮推迟</strong>到第一个提示符快要出现的时候，它还是最后一个加载，但不拖慢前面那一段。</li>
+<li><strong>用 <code>zcompile</code> 编译整个文件</strong>，zsh 读的是字节码，不用每次重新解析。</li>
 </ul>
 <p>它也会给你自己的配置让路，如果你的 <code>.zshrc</code> 已经加载了 autosuggestions、高亮插件，或者 zoxide 这类目录跳转工具，Kaku 就跳过自己那份，补全已经初始化过的话也会跳过 <code>compinit</code>。</p>
 <p>在 M5 Pro 上用 <code>hyperfine</code> 各跑 30 次，空的 <code>.zshrc</code> 启动是 10.8 ms，完整的 Kaku 配置是 43.3 ms。</p>
-<p>常见的两个顾虑各有一个开关，<code>KAKU_SKIP_TOOL_BOOTSTRAP=1 kaku init</code> 只配好 shell，不装那几个可选的 Homebrew 工具，<code>kaku reset</code> 会把 Kaku 管理的那几行和文件再删掉，你自己写的东西都<span class="nobr">留着。</span></p>
+<p>常见的两个顾虑各有一个开关，<code>KAKU_SKIP_TOOL_BOOTSTRAP=1 kaku init</code> 只配好 shell，不装那几个可选的 Homebrew 工具，<code>kaku reset</code> 会把 Kaku 管理的那几行和文件再删掉，你自己写的东西都留着。</p>
 <h2 id="常见问题">常见问题</h2>
 <h3 id="oh-my-zsh-慢吗">Oh My Zsh 慢吗？</h3>
-<p>要看你加载了多少插件、用的哪个主题，用 <code>time zsh -i -c exit</code> 测一下自己的启动时间，再和一份只加载你真正在用的组件的 <code>.zshrc</code> 比<span class="nobr">一比。</span></p>
+<p>要看你加载了多少插件、用的哪个主题，用 <code>time zsh -i -c exit</code> 测一下自己的启动时间，再和一份只加载你真正在用的组件的 <code>.zshrc</code> 比一比。</p>
 <h3 id="用-zsh-syntax-highlighting-还是-fast-syntax-highlighting">用 zsh-syntax-highlighting 还是 fast-syntax-highlighting？</h3>
-<p>两个都会在你打字时给命令行上色，zsh-syntax-highlighting 用的人更多，fast-syntax-highlighting 是另一个项目，有自己的主题，Kaku 带的是后者，不管用哪个，都放在 <code>.zshrc</code> <span class="nobr">最后。</span></p>
+<p>两个都会在你打字时给命令行上色，zsh-syntax-highlighting 用的人更多，fast-syntax-highlighting 是另一个项目，有自己的主题，Kaku 带的是后者，不管用哪个，都放在 <code>.zshrc</code> 最后。</p>
 <h3 id="zsh-补全为什么不出来">zsh 补全为什么不出来？</h3>
 <p>通常是补全目录在 <code>compinit</code> 跑完之后才加进 <code>fpath</code>，或者缓存的 <code>.zcompdump</code> 比它还旧，把 <code>fpath</code> 那行挪到 <code>compinit</code> 上面，再跑一次 <code>rm ~/.zcompdump; exec zsh</code>。</p>
 <h3 id="kaku-的-zsh-配置能和我自己的-starship-配置一起用吗">Kaku 的 zsh 配置能和我自己的 Starship 配置一起用吗？</h3>
-<p>可以，Kaku 只在没有 <code>~/.config/starship.toml</code>，或者它和 Kaku 0.10.0 到 0.22.0 带的那份一个字节都没差时才写入，你自己写的或软链接的配置不会被<span class="nobr">改动。</span></p>
+<p>可以，Kaku 只在没有 <code>~/.config/starship.toml</code>，或者它和 Kaku 0.10.0 到 0.22.0 带的那份一个字节都没差时才写入，你自己写的或软链接的配置不会被改动。</p>
           <aside class="blog-cta"><img class="blog-cta-icon" src="/img/kaku-mark.png" width="40" height="40" alt=""><p>Kaku 是一个免费开源的 Mac 终端。</p><a class="btn btn-primary" href="/zh/docs">安装 Kaku</a></aside>
           <nav class="blog-related" aria-label="继续阅读"><h2 class="blog-related-title">继续阅读</h2><ul class="blog-related-list"><li><a href="/zh/blog/lazygit-and-delta"><span class="blog-related-cat">Shell 与命令行工具</span><span class="blog-related-name">Lazygit 加 delta，在终端里用好 git</span><span class="blog-related-meta"><time datetime="2026-09-24">2026年9月24日</time> · 约 3 分钟</span></a></li><li><a href="/zh/blog/zsh-vs-bash"><span class="blog-related-cat">Shell 与命令行工具</span><span class="blog-related-name">Mac 上用 zsh 还是 bash</span><span class="blog-related-meta"><time datetime="2026-10-04">2026年10月4日</time> · 约 5 分钟</span></a></li><li><a href="/zh/blog/starship-prompt"><span class="blog-related-cat">Shell 与命令行工具</span><span class="blog-related-name">在 Mac 上用 Starship 提示符，安装、配置和保持够快</span><span class="blog-related-meta"><time datetime="2026-10-12">2026年10月12日</time> · 约 9 分钟</span></a></li></ul></nav>
         </article>
