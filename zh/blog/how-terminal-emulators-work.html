@@ -183,7 +183,7 @@ config.webgpu_power_preference = <span class="tok-s">'LowPower'</span></code></p
 <p>颜色、方向键或清屏不对，先打出 <code>TERM</code> 再跑 <code>infocmp</code>。远程主机会用它自己的 terminfo 去解释你传过去的名字，所以除非那台机器上有对应条目，否则把 <code>TERM</code> 留在 <code>xterm-256color</code>。</p>
 <p>换行位置不对，就看 <code>stty -a</code> 里的 <code>rows</code> 和 <code>columns</code> 跟窗格是否一致，它们在 <code>TIOCSWINSZ</code> 之后才变，不处理 <code>SIGWINCH</code> 的程序不会重画。回显停了，或者全屏程序崩溃后还停在备用屏，<code>tput reset</code> 会按 terminfo 把终端重新初始化，事先存下的 <code>stty -g</code> 那一行可以把模式标志设<span class="nobr">回去。</span></p>
 <p>两个字符画成一个字形，说明 <code>calt</code>、<code>clig</code>、<code>liga</code> 不再是 0。空框是缺字形。QR code 被拉高，是 <code>line_height</code> 停在 <code>1.28</code>。窗格跟着 shell 一起消失，是 master 上读到了 <code>EIO</code>。进程要在窗口关掉之后还活着，那是 tmux 的事，Kaku 恢复的是布局和文字，然后新开一个 shell。</p>
-<p><code>openpty</code> 在没有空闲伪终端时返回 <code>EAGAIN</code>，碰到 <code>kern.tty.ptmx_max</code> 这个 sysctl 上限时返回 <code>ENXIO</code>。这个上限在 macOS 上，不在 <code>kaku.lua</code>&nbsp;里。</p>
+<p><code>openpty</code> 在没有空闲伪终端时返回 <code>EAGAIN</code>，碰到 <code>kern.tty.ptmx_max</code> 这个 sysctl 上限时返回 <code>ENXIO</code>。这个上限在 macOS 上，不在 <code>kaku.lua</code> 里。</p>
 <h2 id="常见问题">常见问题</h2>
 <h3 id="tty-为什么会打出一个设备名">tty 为什么会打出一个设备名？</h3>
 <p>它打出的是 <code>openpty</code> 给这个窗格分的 replica，这个节点表现得像终端，<code>/dev/ttys</code> 后面并没有<span class="nobr">串口。</span></p>

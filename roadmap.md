@@ -1,6 +1,6 @@
 # Roadmap
 
-V0.24.0 added kaku remote, which opens this Mac's terminals in a browser on another computer, and V0.25.0 shipped agent titles, Claude Code alerts with no setup, and AI chat controls; this cycle focuses on settings discoverability, AI sandbox tightening, and the macOS install experience.
+V0.26.0 polished kaku remote browser access and font rendering, and V0.26.1 stabilized restarting to update; this cycle focuses on settings discoverability, AI sandbox tightening, and the macOS experience.
 
 ## Now
 

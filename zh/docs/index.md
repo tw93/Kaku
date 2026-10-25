@@ -45,7 +45,7 @@ exec zsh -l
 - 确认应用在 `/Applications/Kaku.app`，不要直接从 DMG 里运行。
 - 若 Homebrew 安装失败，可先执行 `brew update` 后重试。对于通过 Homebrew 安装的 Kaku，若运行 `kaku update` 提示 checksum 校验错误，请改用 `brew upgrade --cask kaku` 更新。
 - 初次配置环境请运行 `kaku init`，会自动配置 zsh/fish 集成；在交互式终端中还会询问是否通过 Homebrew 安装缺失的 Starship、Delta、Lazygit、Yazi 等可选工具。
-- AI 功能用不了时，打开 `kaku ai` 检查一下 Auth Type、Base URL、Simple Model、Deep Model 和 API key。
+- AI 用不了时，用 `kaku ai` 检查 Auth Type、Base URL、Simple 与 Deep Model 和 API key。
 - [提交 issue](https://github.com/tw93/Kaku/issues) 时带上安装方式、macOS 版本、Kaku 版本和复现步骤。
 
 ---

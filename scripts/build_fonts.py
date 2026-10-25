@@ -52,6 +52,8 @@ SUBSETS = [
 CJK_RANGES = [
     (0x2E80, 0x2EFF), (0x3000, 0x303F), (0x3400, 0x4DBF),
     (0x4E00, 0x9FFF), (0xF900, 0xFAFF), (0xFE30, 0xFE4F), (0xFF00, 0xFFEF),
+    # Curly quotes and the ellipsis, drawn full width as Chinese text sets them.
+    (0x201C, 0x201D), (0x2026, 0x2026),
 ]
 
 # Attribute values the browser paints as text.
@@ -117,7 +119,7 @@ def regenerate():
                 sys.executable, "-m", "fontTools.subset", str(cache / src),
                 f"--text-file={text_file}",
                 "--flavor=woff2",
-                "--layout-features=kern,liga",
+                "--layout-features=kern,liga,halt",
                 "--no-hinting",
                 "--desubroutinize",
                 f"--output-file={out}",

@@ -166,7 +166,7 @@
 <p>这些占位符和 zsh 的命令行补全怎么写，Apple 让你在终端里看 <code>man zsh</code>。想要一份现成的 <code>.zshrc</code>，把按历史给建议、语法高亮、额外补全和提示符都配好，可以看<a href="/zh/blog/zsh-without-oh-my-zsh">不用 Oh My Zsh 配好 zsh</a>。</p>
 <h2 id="脚本">脚本</h2>
 <p>在 macOS 10.15 或更新的系统上，把 <code>/var/select/sh</code> 改成 <code>/bin/bash</code>、<code>/bin/dash</code> 或 <code>/bin/zsh</code>，就可以测跟 Bourne shell 兼容的脚本。这条路径如果指到 bash 以外的 shell，用了 bashism（只有 bash 才有的语法）的脚本可能跑<span class="nobr">不对。</span></p>
-<p>只测这一次，直接让 zsh 按 sh&nbsp;跑：</p>
+<p>只测这一次，直接让 zsh 按 <span class="nobr">sh 跑：</span></p>
 <pre><code class="language-bash">zsh --emulate sh</code></pre>
 <h2 id="怎么切换-shell">怎么切换 shell</h2>
 <p>在终端里跑 <code>chsh -s</code> 改的是这个账户的默认登录 shell，路径得列在 <code>/etc/shells</code> 里，比如 <code>/bin/zsh</code>、<code>/bin/bash</code>、<code>/bin/csh</code>、<code>/bin/dash</code>、<code>/bin/ksh</code>、<code>/bin/sh</code> 或 <code>/bin/tcsh</code>。</p>

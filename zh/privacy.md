@@ -8,7 +8,7 @@ Kaku 是跑在你 Mac 本地的应用，不用注册，也没有使用统计和�
 
 ## App 会发起的网络请求
 
-- **更新检查。**Kaku 会定期向 GitHub 的 `api.github.com/repos/tw93/Kaku/releases/latest` 查询有没有新版本，有的话可能先在后台从 GitHub 下好安装包，等你确认后才安装，对 GitHub 来说这只是一次来自你 IP 的普通 HTTPS 请求。不需要的话在 `~/.config/kaku/kaku.lua` 里设 `config.check_for_updates = false`，检查频率用 `config.check_for_updates_interval_seconds` 调。
+- **更新检查。**Kaku 会定期向 GitHub 的 `api.github.com/repos/tw93/Kaku/releases/latest` 查询有没有新版本，有的话可能先在后台从 GitHub 下好安装包，等你确认后才安装，对 GitHub 来说这只是一次来自你 IP 的普通 HTTPS 请求。不需要的话在 `~/.config/kaku/kaku.lua` 里设 `config.check_for_updates = false`，检查频率用 `config.check_for_updates_interval_seconds` 调整。
 - **AI 助手。**用 `kaku ai` 配好 Kaku Assistant 之后，prompt 和对话上下文会直接发给你选的 AI 服务商，用的是你的 API key 或已有的登录，上下文里可能有命令输出和助手工具读到的文件内容，中间不经过项目方的服务器，数据怎么处理看服务商的隐私政策。`#` 生成命令、自动修复命令这类从 shell 触发的请求要先过本地 capability 校验，分屏里只是打印出来的文字触发不了。
 - **`kaku ai` 里的用量。**打开 `kaku ai` 时，它会显示你已经装好的 AI 编程工具的套餐用量，比如 Claude Code、Codex、Copilot 和 Kimi，做法是借用这些工具现成的登录，直接去问对应的服务商（`api.anthropic.com`、`chatgpt.com`、`api.github.com`、`api.kimi.com`），token 过期时会找服务商续期，结果缓存在 `~/.cache/kaku/`。模型列表来自 `models.dev` 的公开目录，这个请求不带任何账号信息。
 - **AI 网页工具。**助手搜索或读网页时，查询词和网址可能发给你配置的 Brave、Tavily 或 Pipellm（`api.search.brave.com`、`api.tavily.com`、`api.pipellm.ai` 或 `api.pipellm.com`）。默认的网页读取器把网址发给 `defuddle.md`，不行再换 `r.jina.ai`，自定义读取脚本用哪些服务由脚本自己决定。HTTP 请求工具直接访问目标网址，带上助手指定的请求头和请求体，这些服务都适用各自的隐私政策。

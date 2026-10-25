@@ -123,7 +123,7 @@
           "name": "怎么显示 5 小时和 7 天的限额？",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "订阅了 claude.ai Pro 或 Max 的人，以及设了消费上限的 Claude apps gateway，第一次 API 响应之后才会有 rate_limits。five_hour.used_percentage 和 seven_day.used_percentage 从 0 到 100，resets_at 是 Unix 秒，窗口没有，或者已经过了 resets_at，对应字段就不出现，5 小时的百分比用 jq -r '.rate_limits.five_hour.used_percentage // empty' 读。"
+            "text": "订阅了 claude.ai Pro 或 Max 的人，以及设了消费上限的 Claude apps gateway，第一次 API 响应之后才会有 rate_limits。five_hour.used_percentage 和 seven_day.used_percentage 从 0 到 100，resets_at 是 Unix 秒，窗口没有，或者已经过了 resets_at，对应字段就不出现，5 小时的百分比用 jq -r '.rate_limits.five_hour.used_percentage // empty' 读。"
           }
         },
         {
@@ -293,7 +293,7 @@ IFS=<span class="tok-s">'|'</span> <span class="tok-b">read</span> -r BRANCH STA
 <h3 id="状态栏花钱吗">状态栏花钱吗？</h3>
 <p>不花，脚本不用 API token，<code>cost.total_cost_usd</code> 是按标价估的，<code>/clear</code> 会重置成 $0，v2.1.211 之前这个总数会留<span class="nobr">下来。</span></p>
 <h3 id="怎么显示-5-小时和-7-天的限额">怎么显示 5 小时和 7 天的限额？</h3>
-<p>订阅了 claude.ai Pro 或 Max 的人，以及设了消费上限的 Claude apps gateway，第一次 API 响应之后才会有 <code>rate_limits</code>。<code>five_hour.used_percentage</code> 和 <code>seven_day.used_percentage</code> 从 0 到 100，<code>resets_at</code> 是 Unix 秒，窗口没有，或者已经过了 <code>resets_at</code>，对应字段就不出现，5 小时的百分比用 <code>jq -r '.rate_limits.five_hour.used_percentage // empty'</code>&nbsp;读。</p>
+<p>订阅了 claude.ai Pro 或 Max 的人，以及设了消费上限的 Claude apps gateway，第一次 API 响应之后才会有 <code>rate_limits</code>。<code>five_hour.used_percentage</code> 和 <code>seven_day.used_percentage</code> 从 0 到 100，<code>resets_at</code> 是 Unix 秒，窗口没有，或者已经过了 <code>resets_at</code>，对应字段就不出现，5 小时的百分比用 <code>jq -r '.rate_limits.five_hour.used_percentage // empty'</code> 读。</p>
 <h3 id="subagent-在干活时分支为什么不动">subagent 在干活时，分支为什么不动？</h3>
 <p>主会话闲着时这些事件会停，主会话在等 subagent 干活时同样会停，<code>refreshInterval</code> 至少设成 <code>1</code>，再配上按 <code>session_id</code> 做的缓存，git 就不会每次刷新<span class="nobr">都跑。</span></p>
           <aside class="blog-cta"><img class="blog-cta-icon" src="/img/kaku-mark.png" width="40" height="40" alt=""><p>Kaku 是一个免费开源的 Mac 终端。</p><a class="btn btn-primary" href="/zh/docs">安装 Kaku</a></aside>

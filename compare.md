@@ -25,7 +25,7 @@ People switch terminals for a handful of reasons. They want something usable wit
 | Platform | macOS only | macOS | macOS, Linux, Windows | macOS and Linux | macOS, iOS app in beta | macOS, Linux, Windows | macOS |
 | Account | None | None | Optional | None | Only for paid plans | None | None |
 | Defaults | Opinionated day-one setup | You assemble them | Product defaults | Fast, fewer presets | Ghostty engine, your Ghostty config | You assemble them | Stock Apple |
-| AI | Optional, your provider | Optional plugin, your key | Built in, runs on Warp's servers | None built in | Any CLI agent, cloud agents on paid plans | None built in | None built in |
+| AI | Optional, custom API | Optional plugin, your key | Built in, runs on Warp's servers | None built in | Any CLI agent, cloud agents on paid plans | None built in | None built in |
 | Shell tools | In the Kaku session | You add them | Built in | You add them | You add them | You add them | None |
 | Install | DMG or official brew cask | Download | Product installer | Download | DMG or brew tap | Download | Built in |
 | Stable (Oct 2026) | 0.26.1 | 3.7.3 | Weekly builds | 1.3.1 | 0.65.2 | 20240203, then nightly | Ships with macOS |

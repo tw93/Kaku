@@ -263,7 +263,7 @@ and report issues ordered by priority with a suggested fix for each.</code></pre
 <p><strong>搜索和调研。</strong> 让 subagent 去找某个配置值在哪里被读取，或者让三个 subagent 各管一块，同时去调研 auth、database 和 API 这几个模块，读过的文件都留在它们各自的窗口里，回到你这边的只是一段简短的结论，前提是这几条调研路线互相不<span class="nobr">依赖。</span></p>
 <p><strong>代码审查。</strong> 给 reviewer 配 <code>tools: Read, Glob, Grep, Bash</code>，它没有 Edit 和 Write，但 Bash 仍能运行改文件的命令，想让它只读，还得限制允许执行的命令。也可以串起来用，先让 reviewer 找性能问题，再让另一个 subagent 去修，中间由 Claude 把相关的发现传<span class="nobr">过去。</span></p>
 <p><strong>跑测试和看日志。</strong> <code>Use a subagent to run the test suite and report only the failing tests with their error messages</code> 是最典型的例子，几千行测试输出留在 subagent 那边，回到主对话的只有两行失败<span class="nobr">信息。</span></p>
-<p>要是担心它的改动跟你手上的活撞在一起，<code>isolation: worktree</code> 会给它一份单独的仓库副本，默认从你的默认分支拉出来，它什么都没改的话这个 worktree 会自动清掉，整个会话都这样跑的做法写在 <a href="/zh/blog/claude-code-git-worktrees">worktree 那篇</a>&nbsp;里。</p>
+<p>要是担心它的改动跟你手上的活撞在一起，<code>isolation: worktree</code> 会给它一份单独的仓库副本，默认从你的默认分支拉出来，它什么都没改的话这个 worktree 会自动清掉，整个会话都这样跑的做法写在 <a href="/zh/blog/claude-code-git-worktrees">worktree 那篇</a> 里。</p>
 <h2 id="反而碍事的时候">反而碍事的时候</h2>
 <p>任务需要你来回调整好几轮，或者规划、实现和测试几个阶段共用大量上下文，又或者只是一个很快的小改动，这些情况都留在主对话里更好，subagent 启动时手里只有 Claude 对任务的那段总结，前几轮很可能在重新摸索你早就知道的东西，这部分时间是白花的。<code>CLAUDE.md</code> 里有哪条规则必须让它知道，比如 <code>ignore the vendor/ directory</code>，委派时就再说一遍，因为设了 <code>omitClaudeMd</code> 的 subagent 和自带的 Explore、Plan 都看不<span class="nobr">到它。</span></p>
 <p>如果只是想问一个对话里已经有的东西，用 <code>/btw</code> 更合适，它能看到你完整的上下文，但没有任何工具权限，答案也不会写进<span class="nobr">历史。</span></p>
@@ -274,7 +274,7 @@ and report issues ordered by priority with a suggested fix for each.</code></pre
 <li>偏重探索的 subagent 设 <code>model: haiku</code>，用户级或项目级里放一个名字叫 <code>Explore</code> 的 subagent 会覆盖自带的那个，这样默认的搜索 agent 也能换到更便宜的模<span class="nobr">型上。</span></li>
 <li><code>description</code> 写短一些，它们一直待在上下文里给 Claude 做路由用，自定义 subagent 的描述加起来超过 15,000 token，Claude Code 启动时会给出<span class="nobr">警告。</span></li>
 <li>任务确实需要整段对话时用 fork，<code>/subtask draft unit tests for the parser changes so far</code> 会启动一个继承你全部历史的 subagent，还能复用父会话的 prompt cache，比一个需要同样背景的新 subagent 花<span class="nobr">得少。</span></li>
-<li>心里有个上限，subagent 最多能往下嵌套三层，同时在跑的默认上限是 20 个，可以用 <code>CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS</code>&nbsp;改。</li>
+<li>心里有个上限，subagent 最多能往下嵌套三层，同时在跑的默认上限是 20 个，可以用 <code>CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS</code> 改。</li>
 </ul>
 <h2 id="在-kaku-里盯着并行的活">在 Kaku 里盯着并行的活</h2>
 <p>后台 subagent 会出现在 Claude Code 输入框下面的面板里，<code>/tasks</code> 也能列出来，其中哪个需要权限时，提示会出现在主会话里，并写明是哪个 subagent 在问，这时候主会话就停下来等你了。同时开好几个 Claude Code 会话时，可以每个放进 <a href="/zh/docs/ai-coding">Kaku</a> 的一个标签，或者用 <code>Cmd + D</code> 和 <code>Cmd + Shift + D</code> 分屏，正在看的那个用 <code>Cmd + Shift + Enter</code> 放大，agent teams 的分屏显示需要 tmux 或 iTerm2，所以在不开 tmux 的 Kaku 里，队友会显示在 Claude Code 自己的那个面<span class="nobr">板里。</span></p>

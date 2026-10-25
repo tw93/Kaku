@@ -25,7 +25,7 @@ Kaku 想做的是装好就能用的 Mac 终端，这页写它和几款常见终�
 | 平台 | 仅 macOS | macOS | macOS、Linux、Windows | macOS 和 Linux | macOS，iOS 配套 App 在测试 | macOS、Linux、Windows | macOS |
 | 账号 | 无 | 无 | 可选 | 无 | 只有付费方案需要 | 无 | 无 |
 | 默认值 | 开箱即用 | 自己拼 | 产品默认 | 快，预设少 | Ghostty 引擎，沿用 Ghostty 配置 | 自己拼 | 系统自带 |
-| AI | 可选，用你的服务 | 可选插件，用你的 key | 内置，跑在 Warp 的服务器上 | 没有内置 | 任何命令行 agent，付费方案有云端 agent | 没有内置 | 没有内置 |
+| AI | 可选，接入自定义 API | 可选插件，用你的 key | 内置，跑在 Warp 的服务器上 | 没有内置 | 任何命令行 agent，付费方案有云端 agent | 没有内置 | 没有内置 |
 | Shell 工具 | Kaku 会话里自带 | 自己加 | 产品自带 | 自己加 | 自己加 | 自己加 | 无 |
 | 安装 | DMG 或官方 brew cask | 下载 | 产品安装器 | 下载 | DMG 或 brew tap | 下载 | 系统自带 |
 | 稳定版（2026 年 10 月） | 0.26.1 | 3.7.3 | 每周构建 | 1.3.1 | 0.65.2 | 20240203，之后只有 nightly | 随 macOS 更新 |

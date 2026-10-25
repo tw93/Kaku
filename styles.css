@@ -1,15 +1,16 @@
 /* Chinese text ships its own face: a Source Han Serif SC subset, as on every
    family site, built by scripts/build_fonts.py from every page's CJK
    characters; the hero's 書 is a one-glyph Source Han Serif TC cut. iOS has no Chinese serif, so
-   without it every iPhone fell back to PingFang. Latin uses the faces at the
-   start of the stack. */
+   without it every iPhone fell back to PingFang. Latin falls to Charter after
+   it; the range also takes the curly quotes and the ellipsis, which Charter
+   drew as narrow Latin marks against the Han (as on mole.fit, 2026-10-25). */
 @font-face {
   font-family: "Kaku Serif SC";
   src: url("/fonts/kaku-serif-sc-regular.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
-  unicode-range: U+2E80-2EFF, U+3000-303F, U+3400-4DBF, U+4E00-9FFF, U+F900-FAFF, U+FE30-FE4F, U+FF00-FFEF;
+  unicode-range: U+201C-201D, U+2026, U+2E80-2EFF, U+3000-303F, U+3400-4DBF, U+4E00-9FFF, U+F900-FAFF, U+FE30-FE4F, U+FF00-FFEF;
 }
 @font-face {
   font-family: "Kaku Mark";
@@ -25,7 +26,7 @@
   font-weight: 500 700;
   font-style: normal;
   font-display: swap;
-  unicode-range: U+2E80-2EFF, U+3000-303F, U+3400-4DBF, U+4E00-9FFF, U+F900-FAFF, U+FE30-FE4F, U+FF00-FFEF;
+  unicode-range: U+201C-201D, U+2026, U+2E80-2EFF, U+3000-303F, U+3400-4DBF, U+4E00-9FFF, U+F900-FAFF, U+FE30-FE4F, U+FF00-FFEF;
 }
 
 :root {
@@ -58,7 +59,7 @@
   --term-line: #2a2930;
   --term-text: #e7e4d9;
   --term-muted: #9b978c;
-  --serif: Charter, Georgia, Palatino, "Times New Roman", "Kaku Serif SC", "Source Han Serif SC", "Noto Serif CJK SC", "Songti SC", "STSong", serif;
+  --serif: "Kaku Serif SC", Charter, Georgia, Palatino, "Times New Roman", "Source Han Serif SC", "Noto Serif CJK SC", "Songti SC", "STSong", serif;
   --sans: var(--serif);
   --ui: var(--serif);
   --mono: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
@@ -99,6 +100,16 @@ body {
 /* No paragraph or list item ends on one lone character, as on mole.fit
    (maintainer 2026-10-23); class rules that balance still win. */
 p, li, dd, figcaption, blockquote { text-wrap: pretty; }
+html[lang^="zh"] :is(p, li, dd, figcaption, blockquote) { line-break: strict; }
+/* Chinese leading in three tiers, as on mole.fit: leads 1.6, answers and
+   card prose 1.75, articles, docs and release notes 1.8; phones step to 1.7. */
+html[lang^="zh"] :is(.section-head p, .page-hero p) { line-height: 1.6; }
+html[lang^="zh"] :is(.faq-answer, .workflow-item p, .feature span, .method p, .quick-card p, .doc-card p) { line-height: 1.75; }
+html[lang^="zh"] :is(.doc-content, .release-doc ol li), html[lang^="zh"] .release-doc ol li::before { line-height: 1.8; }
+@media (max-width: 640px) {
+  html[lang^="zh"] :is(.faq-answer, .workflow-item p, .feature span, .method p, .quick-card p, .doc-card p, .doc-content, .release-doc ol li),
+  html[lang^="zh"] .release-doc ol li::before { line-height: 1.7; }
+}
 /* The last two characters of a Chinese paragraph, glued by the generator's
    glue_cjk_tails so no line holds one character alone. */
 .nobr { white-space: nowrap; }
@@ -1334,6 +1345,8 @@ html[lang^="zh"] .gallery-caption .line { margin-bottom: 0; font-style: normal; 
 .foot-links b { margin-bottom: 2px; color: color-mix(in srgb, #fff 92%, transparent); font-size: 13px; font-weight: 600; letter-spacing: 0.2px; }
 /* Chinese blog text tracks at 0.02em, as on mole.fit (maintainer 2026-10-21: zero tracking read cramped);
    headings resolve it at their own size instead of the Latin -0.3px, code keeps 0. */
+/* Chinese headings take no Latin -0.3px, which pressed full-em glyphs together. */
+html[lang^="zh"] :is(.section-head h2, .page-hero h1) { letter-spacing: 0; }
 html[lang^="zh"] .blog-page, html[lang^="zh"] .blog-page :is(h1, h2, h3, h4) { letter-spacing: 0.02em; }
 html[lang^="zh"] .blog-page :is(pre, code, kbd) { letter-spacing: 0; }
 html[lang^="zh"] .foot-links b { letter-spacing: 0.6px; }
