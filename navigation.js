@@ -49,15 +49,19 @@ gtag('consent', 'default', { analytics_storage: 'denied', ad_storage: 'denied', 
   else arm();
 })();
 
-// GEOInflow counts page views without cookies; its script waits out a hover
-// prerender by itself, so it loads at once.
+// GEOInflow counts page views without cookies and waits out a hover prerender
+// by itself. It loads after the load event, so a slow fetch never holds the page.
 (function () {
-  var geo = document.createElement('script');
-  geo.async = true;
-  geo.src = 'https://geo.tw93.fun/geo.js';
-  geo.dataset.websiteId = '2ff722a4-bc30-4862-aaf8-e0fab2da66dc';
-  geo.dataset.domains = 'kaku.fun';
-  document.head.appendChild(geo);
+  function go() {
+    var geo = document.createElement('script');
+    geo.async = true;
+    geo.src = 'https://geo.tw93.fun/geo.js';
+    geo.dataset.websiteId = '2ff722a4-bc30-4862-aaf8-e0fab2da66dc';
+    geo.dataset.domains = 'kaku.fun';
+    document.head.appendChild(geo);
+  }
+  if (document.readyState === 'complete') go();
+  else window.addEventListener('load', go, { once: true });
 })();
 
 // Prerender an internal page while the pointer rests on its link, so the
