@@ -22,16 +22,66 @@ document.querySelectorAll('.lang-switch').forEach(switcher => {
 });
 
 // Google Analytics counts visits in consent mode with storage denied, so it
-// writes no cookies.
+// writes no cookies. Its 177KB script waits for the first scroll, pointer or
+// key, or 4s, so it never competes with the page itself.
 window.dataLayer = window.dataLayer || [];
 window.gtag = function () { window.dataLayer.push(arguments); };
 gtag('consent', 'default', { analytics_storage: 'denied', ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied' });
-gtag('js', new Date());
-gtag('config', 'G-V8NF2P2W71');
-const analytics = document.createElement('script');
-analytics.async = true;
-analytics.src = 'https://www.googletagmanager.com/gtag/js?id=G-V8NF2P2W71';
-document.head.appendChild(analytics);
+(function () {
+  var events = ['scroll', 'pointerdown', 'pointermove', 'keydown', 'touchstart'];
+  var timer;
+  function load() {
+    events.forEach(function (name) { window.removeEventListener(name, load); });
+    clearTimeout(timer);
+    gtag('js', new Date());
+    gtag('config', 'G-V8NF2P2W71');
+    var analytics = document.createElement('script');
+    analytics.async = true;
+    analytics.src = 'https://www.googletagmanager.com/gtag/js?id=G-V8NF2P2W71';
+    document.head.appendChild(analytics);
+  }
+  function arm() {
+    events.forEach(function (name) { window.addEventListener(name, load, { once: true, passive: true }); });
+    timer = setTimeout(load, 4000);
+  }
+  // A hover-prerendered page the reader never opens must not count as a visit.
+  if (document.prerendering) document.addEventListener('prerenderingchange', arm, { once: true });
+  else arm();
+})();
+
+// Prerender an internal page while the pointer rests on its link, so the
+// click swaps it in at once. Feeds, Markdown and other machine files stay out.
+(function () {
+  var skip = '[target=_blank], [download], [href^="/content/"], [href^="/feeds/"], [href$=".xml"], [href$=".md"], [href$=".txt"], [href$=".json"]';
+  if (HTMLScriptElement.supports && HTMLScriptElement.supports('speculationrules')) {
+    var rules = document.createElement('script');
+    rules.type = 'speculationrules';
+    rules.textContent = JSON.stringify({
+      prerender: [{
+        where: { and: [{ href_matches: '/*' }, { not: { selector_matches: skip } }] },
+        eagerness: 'moderate'
+      }]
+    });
+    document.head.appendChild(rules);
+    return;
+  }
+  // Safari and Firefox: fetch the hovered page into the HTTP cache instead.
+  var fetched = new Set([location.pathname]);
+  var pending;
+  document.addEventListener('mouseover', function (event) {
+    var link = event.target.closest && event.target.closest('a[href^="/"]');
+    if (!link || link.matches(skip) || fetched.has(link.pathname)) return;
+    clearTimeout(pending);
+    pending = setTimeout(function () {
+      fetched.add(link.pathname);
+      var hint = document.createElement('link');
+      hint.rel = 'prefetch';
+      hint.href = link.pathname;
+      document.head.appendChild(hint);
+    }, 100);
+  });
+  document.addEventListener('mouseout', function () { clearTimeout(pending); });
+})();
 
 (function () {
   // The contact counts are written in at build time and refreshed from
