@@ -1649,11 +1649,14 @@ html[lang^="zh"] .foot-links b { letter-spacing: 0.6px; }
 .blog-related-cat { color: var(--stone); font-size: 13px; line-height: 1.4; }
 
 /* The family's phone type ladder (Kata site.md, 2026-10-26): at 640px and
-   below, body copy is 17px, secondary copy 15px, meta 13px, nothing under 12px.
-   It only lifts phone sizes; headings and desktop keep their own values. */
+   below, body copy is 16px, secondary copy 15px, meta 13px, nothing under 12px.
+   The hero line, home ledes and paragraphs sit on the same 16 as the docs and
+   articles they link to. Headings and desktop keep their own values. */
 @media (max-width: 640px) {
-  .doc-content, .section-head p, .page-hero p, .workflow-item p, .faq-answer,
-  .release-doc ol li, .release-doc ol li::before { font-size: 17px; }
+  .doc-content, .hero-sub, .section-head p, .section-body p, .page-hero p, .workflow-item p,
+  .faq-answer, .blog-group-description,
+  .release-doc ol li, .release-doc ol li::before { font-size: 16px; }
   .foot, .foot-sub, .contact-head b, .contact .contact-desc, .blog-card-desc { font-size: 15px; }
   .blog-related-meta, .blog-card-date { font-size: 13px; }
+  .blog-card-title, .blog-card-desc { overflow-wrap: anywhere; }
 }
