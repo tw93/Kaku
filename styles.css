@@ -1433,7 +1433,6 @@ html[lang^="zh"] .foot-links b { letter-spacing: 0.6px; }
   }
   .workflow-item, .doc-card { grid-template-columns: 1fr; gap: 8px; }
   .workflow-item p { grid-column: auto; }
-  .doc-content { font-size: 16px; }
   .doc-content .anchor { display: none; }
   .doc-content h2 { font-size: 22px; }
   .doc-content pre { margin-left: -2px; margin-right: -2px; padding: 14px; }
@@ -1648,3 +1647,13 @@ html[lang^="zh"] .foot-links b { letter-spacing: 0.6px; }
 .page-hero .blog-meta a { color: var(--stone); }
 .page-hero .blog-meta a:hover { color: var(--brand); text-decoration: none; }
 .blog-related-cat { color: var(--stone); font-size: 13px; line-height: 1.4; }
+
+/* The family's phone type ladder (Kata site.md, 2026-10-26): at 640px and
+   below, body copy is 17px, secondary copy 15px, meta 13px, nothing under 12px.
+   It only lifts phone sizes; headings and desktop keep their own values. */
+@media (max-width: 640px) {
+  .doc-content, .section-head p, .page-hero p, .workflow-item p, .faq-answer,
+  .release-doc ol li, .release-doc ol li::before { font-size: 17px; }
+  .foot, .foot-sub, .contact-head b, .contact .contact-desc, .blog-card-desc { font-size: 15px; }
+  .blog-related-meta, .blog-card-date { font-size: 13px; }
+}
