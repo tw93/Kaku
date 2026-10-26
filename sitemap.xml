@@ -35,8 +35,10 @@
   <url><loc>https://kaku.fun/privacy</loc><lastmod>2026-10-22</lastmod><priority>0.5</priority></url>
   <url><loc>https://kaku.fun/zh/privacy</loc><lastmod>2026-10-25</lastmod><priority>0.5</priority></url>
   <!-- blog:start -->
-  <url><loc>https://kaku.fun/blog</loc><lastmod>2026-10-23</lastmod><priority>0.7</priority></url>
-  <url><loc>https://kaku.fun/zh/blog</loc><lastmod>2026-10-23</lastmod><priority>0.7</priority></url>
+  <url><loc>https://kaku.fun/blog</loc><lastmod>2026-10-26</lastmod><priority>0.7</priority></url>
+  <url><loc>https://kaku.fun/zh/blog</loc><lastmod>2026-10-26</lastmod><priority>0.7</priority></url>
+  <url><loc>https://kaku.fun/blog/gemini-cli-setup</loc><lastmod>2026-10-26</lastmod><priority>0.6</priority></url>
+  <url><loc>https://kaku.fun/zh/blog/gemini-cli-setup</loc><lastmod>2026-10-26</lastmod><priority>0.6</priority></url>
   <url><loc>https://kaku.fun/blog/claude-code-cost</loc><lastmod>2026-10-23</lastmod><priority>0.6</priority></url>
   <url><loc>https://kaku.fun/zh/blog/claude-code-cost</loc><lastmod>2026-10-23</lastmod><priority>0.6</priority></url>
   <url><loc>https://kaku.fun/blog/claude-code-slash-commands</loc><lastmod>2026-10-22</lastmod><priority>0.6</priority></url>

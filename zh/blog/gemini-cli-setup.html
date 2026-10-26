@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Mac 上安装和使用 Gemini CLI，2026 年登录方式有变化 · Kaku 博客</title>
+  <meta name="description" content="用 npm 或 Homebrew 安装，2026 年 6 月 18 日后还能用的登录方式，GEMINI.md、MCP、沙盒和 Kaku。">
+  <meta property="og:title" content="Mac 上安装和使用 Gemini CLI，2026 年登录方式有变化 · Kaku 博客">
+  <meta property="og:description" content="用 npm 或 Homebrew 安装，2026 年 6 月 18 日后还能用的登录方式，GEMINI.md、MCP、沙盒和 Kaku。">
+  <meta property="og:type" content="article">
+  <meta property="og:image" content="https://kaku.fun/img/blog/cards/gemini-cli-setup.webp">
+  <meta property="og:image:width" content="1600">
+  <meta property="og:image:height" content="900">
+  <meta property="og:image:alt" content="Mac 上安装和使用 Gemini CLI，2026 年登录方式有变化">
+  <meta property="og:url" content="https://kaku.fun/zh/blog/gemini-cli-setup">
+  <meta property="article:published_time" content="2026-10-26">
+  <meta property="article:modified_time" content="2026-10-26">
+  <meta property="article:author" content="Tw93">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://kaku.fun/img/blog/cards/gemini-cli-setup.webp">
+  <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-kaku-32.png"><link rel="icon" type="image/png" sizes="192x192" href="/img/favicon-kaku-192.png"><link rel="apple-touch-icon" href="/img/favicon-kaku-180.png">
+  <link rel="canonical" href="https://kaku.fun/zh/blog/gemini-cli-setup"><link rel="alternate" type="application/rss+xml" title="Kaku releases" href="https://kaku.fun/feed.xml">
+  <link rel="alternate" type="application/rss+xml" title="Kaku 博客" href="https://kaku.fun/zh/blog/feed.xml">
+  <link rel="alternate" hreflang="en" href="https://kaku.fun/blog/gemini-cli-setup">
+  <link rel="alternate" hreflang="zh-CN" href="https://kaku.fun/zh/blog/gemini-cli-setup">
+  <link rel="alternate" hreflang="x-default" href="https://kaku.fun/blog/gemini-cli-setup">
+  <link rel="alternate" type="text/markdown" href="https://kaku.fun/zh/blog/gemini-cli-setup.md">
+  <link rel="stylesheet" href="/styles.css">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Kaku",
+          "item": "https://kaku.fun/zh"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "博客",
+          "item": "https://kaku.fun/zh/blog"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Mac 上安装和使用 Gemini CLI，2026 年登录方式有变化",
+          "item": "https://kaku.fun/zh/blog/gemini-cli-setup"
+        }
+      ]
+    },
+    {
+      "@type": "BlogPosting",
+      "@id": "https://kaku.fun/zh/blog/gemini-cli-setup#article",
+      "headline": "Mac 上安装和使用 Gemini CLI，2026 年登录方式有变化",
+      "description": "用 npm 或 Homebrew 安装，2026 年 6 月 18 日后还能用的登录方式，GEMINI.md、MCP、沙盒和 Kaku。",
+      "url": "https://kaku.fun/zh/blog/gemini-cli-setup",
+      "mainEntityOfPage": "https://kaku.fun/zh/blog/gemini-cli-setup",
+      "datePublished": "2026-10-26",
+      "dateModified": "2026-10-26",
+      "inLanguage": "zh-CN",
+      "articleSection": "Claude Code 与 Codex",
+      "image": "https://kaku.fun/img/blog/cards/gemini-cli-setup.webp",
+      "timeRequired": "PT8M",
+      "author": {
+        "@type": "Person",
+        "name": "Tw93",
+        "url": "https://tw93.fun",
+        "sameAs": [
+          "https://x.com/HiTw93",
+          "https://github.com/tw93"
+        ]
+      },
+      "publisher": {
+        "@id": "https://kaku.fun/#organization"
+      },
+      "isPartOf": {
+        "@id": "https://kaku.fun/zh/blog#blog"
+      },
+      "about": {
+        "@id": "https://kaku.fun/#software"
+      },
+      "encoding": {
+        "@type": "MediaObject",
+        "encodingFormat": "text/markdown",
+        "contentUrl": "https://kaku.fun/zh/blog/gemini-cli-setup.md"
+      }
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Gemini CLI 现在还免费吗",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "对个人来说不再免费。Google 的公告在 2026 年 6 月 18 日终止了通过 Gemini Code Assist for individuals 的免费使用，README 的提示也把未付费档位的用户算在内。现在还能用的是付费的 Gemini 和 Gemini Enterprise Agent Platform API key。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "用 Homebrew 装还需要 Node.js 吗",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "文档把 Node.js 20.0.0 或更新列为运行环境要求，Homebrew 的 formula 依赖 node，会替你装好，装完用 gemini --version 确认就行。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Gemini CLI 的设置存在哪",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "用户设置在 ~/.gemini/settings.json，项目设置在项目里的 .gemini/settings.json。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "它能读我的 AGENTS.md 吗",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "可以，把它加进 settings.json 的 context.fileName。"
+          }
+        }
+      ]
+    }
+  ]
+}
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">跳到内容</a>
+  <nav class="site-nav" aria-label="主导航"><div class="wide nav-inner"><a class="brand" href="/zh"><strong>Kaku</strong></a><div class="nav-links"><a href="/zh/docs">文档</a><a href="/zh/compare">对比</a><a href="/zh/changelog">更新日志</a><a href="/zh/blog" aria-current="page">博客</a></div><div class="nav-actions"><details class="lang-switch"><summary class="lang-trigger" aria-label="切换语言"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/></svg><span class="lang-current-code" aria-hidden="true">中</span><span class="lang-current-name">简体中文</span></summary><div class="lang-menu"><a class="lang-option" aria-current="page" href="/zh/blog/gemini-cli-setup" hreflang="zh-CN">简体中文</a><a class="lang-option" href="/blog/gemini-cli-setup" hreflang="en">English</a></div></details><script src="/navigation.js" defer></script><a class="nav-icon" href="https://github.com/tw93/Kaku" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a><a class="nav-icon" href="https://x.com/HiTw93" target="_blank" rel="noopener noreferrer" aria-label="X"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a></div></div></nav>
+  <main id="main-content" class="docs-page blog-page">
+    <header class="page-hero doc-hero blog-hero"><div class="wide"><nav class="blog-crumb" aria-label="Breadcrumb"><a href="/zh/blog">博客</a></nav><h1>Mac 上安装和使用 Gemini CLI，2026 年登录方式有变化</h1><p class="blog-meta"><span><a href="/zh/blog#topic-agents">Claude Code 与 Codex</a></span><span>发布于 <time datetime="2026-10-26">2026年10月26日</time></span><span>约 8 分钟</span></p></div></header>
+    <section class="section">
+      <div class="wide">
+        <article class="doc-content blog-article">
+          <figure class="blog-cover" aria-hidden="true"><img src="/img/blog/cards/gemini-cli-setup.webp" width="1600" height="900" alt="" fetchpriority="high"></figure>
+<p>Mac 上装 Gemini CLI 用 <code>npm install -g @google/gemini-cli</code> 或者 <code>brew install gemini-cli</code>，装好后在项目目录里运行 <code>gemini</code> 就能开始。2026 年的麻烦出在登录上，Google 宣布 2026 年 6 月 18 日起，Gemini CLI 和 Gemini Code Assist 的 IDE 扩展不再为 Google AI Pro、Ultra 用户和通过 Gemini Code Assist for individuals 免费使用的人提供服务，并引导他们改用 Antigravity CLI，已经买了 Code Assist Standard 或 Enterprise 的组织可以用到合同结束，不过 Google 从 2026 年 10 月 9 日起不再卖新的订阅，Gemini CLI 也仍然可以配合付费的 Gemini 和 Gemini Enterprise Agent Platform API key 使用。</p>
+<h2 id="2026-年发生了什么变化">2026 年发生了什么变化</h2>
+<p><a href="https://github.com/google-gemini/gemini-cli" target="_blank" rel="noopener noreferrer">Gemini CLI 的 README</a> 现在开头就有一条提示，说对未付费档位和 Google One 用户，它在 2026 年 6 月 18 日已被 Antigravity CLI 取代，并且它没有针对最新的 Gemini 模型做优化。Google 的<a href="https://developers.googleblog.com/an-important-update-transitioning-gemini-cli-to-antigravity-cli" target="_blank" rel="noopener noreferrer">公告</a>把界线划得很清楚，个人用户中的 Google AI Pro、Ultra 和免费 Code Assist 档位失去访问，使用 Gemini Code Assist Standard 或 Enterprise 的组织当时继续保留，Gemini CLI 也仍然可以配合付费的 Gemini 和 Gemini Enterprise Agent Platform API key 使用。后来 Google 的<a href="https://docs.cloud.google.com/gemini/docs/codeassist/sunset" target="_blank" rel="noopener noreferrer">停售说明</a>把这两种订阅也排上了时间表，2026 年 10 月 9 日起不再卖新的，加授权和年付续费到 2027 年 1 月 31 日为止，月付续费到 2027 年 12 月 31 日为止，已有合同支持到期满，往后的方向是 Gemini Enterprise 里的 Antigravity。</p>
+<p>这一点很重要，因为很多老教程还在写「用 Google 账号登录，每天有免费额度」，对个人账号来说这条路在 2026 年 6 月 18 日已经结束了。新的个人用户建议直接从 Antigravity CLI 开始，它的命令是 <code>agy</code>，第一次启动会找到你原来的 Gemini CLI 配置，问你要转换哪些。按 Google 的<a href="https://antigravity.google/docs/cli/gcli-migration" target="_blank" rel="noopener noreferrer">迁移指南</a>，<code>GEMINI.md</code> 和 <code>AGENTS.md</code> 原样就能用，项目里的 skill 要从 <code>.gemini/skills/</code> 挪到 <code>.agents/skills/</code>，MCP 服务器不再写在 <code>settings.json</code> 里，改放到 <code>~/.gemini/config/mcp_config.json</code> 或者项目的 <code>.agents/mcp_config.json</code>，<code>url</code> 和 <code>httpUrl</code> 也要改成 <code>serverUrl</code>，扩展可以用 <code>agy plugin import gemini</code> 转成插件。手上有付费 API key、有组织账号，或者已经有基于 <code>gemini</code> 写的脚本，再往下看。</p>
+<h2 id="在-mac-上安装">在 Mac 上安装</h2>
+<p>文档推荐的环境是 macOS 15 或更新、Node.js 20.0.0 或更新，轻度使用 4 GB 内存。README 给出的安装方式有这几种：</p>
+<pre><code class="language-bash"><span class="tok-c"># 不安装，直接试用
+</span>npx @google/gemini-cli
+
+<span class="tok-c"># npm 全局安装
+</span>npm install -g @google/gemini-cli
+
+<span class="tok-c"># Homebrew 全局安装
+</span>brew install gemini-cli</code></pre>
+<p>MacPorts（<code>sudo port install gemini-cli</code>）也可以。装完用 <code>gemini --version</code> 确认。发布分三个渠道，<code>latest</code> 是每周的稳定版，<code>preview</code> 每周二发布，可能有回归，<code>nightly</code> 每天从 main 构建。想固定渠道可以用 <code>npm install -g @google/gemini-cli@preview</code>。</p>
+<h2 id="登录">登录</h2>
+<p>运行 <code>gemini</code>，在提示里选一种方式，之后也可以用 <code>/auth</code> 切换。README 记录了三种：</p>
+<table>
+<thead>
+<tr>
+<th>方式</th>
+<th>做法</th>
+<th>适合</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Sign in with Google</td>
+<td>浏览器登录，凭据缓存在本地</td>
+<td>有 Code Assist 授权的组织账号，要设置 <code>GOOGLE_CLOUD_PROJECT</code></td>
+</tr>
+<tr>
+<td>Gemini API key</td>
+<td>从 Google AI Studio 拿 key，<code>export GEMINI_API_KEY="..."</code></td>
+<td>想指定模型、按用量计费</td>
+</tr>
+<tr>
+<td>Vertex AI</td>
+<td>带 key 设置 <code>GOOGLE_GENAI_USE_VERTEXAI=true</code>，或 <code>gcloud auth application-default login</code></td>
+<td>企业团队</td>
+</tr>
+</tbody>
+</table>
+<p>用 Vertex AI 还要设置 <code>GOOGLE_CLOUD_PROJECT</code> 和 <code>GOOGLE_CLOUD_LOCATION</code>，无头运行用 API key 或者 Vertex AI。key 放在 shell 配置里，不要放进仓库，把它当成凭据对待。</p>
+<p>关于额度，付费 API key 的限额取决于你的定价档位，具体看 <a href="https://ai.google.dev/gemini-api/docs/rate-limits" target="_blank" rel="noopener noreferrer">Gemini API 速率限制</a> 页面。会话里 <code>/stats model</code> 会显示各个模型的 token 用量和额度信息。</p>
+<h2 id="它怎么加载上下文">它怎么加载上下文</h2>
+<p>Gemini CLI 的上下文来自 <code>GEMINI.md</code> 文件，相当于 <code>CLAUDE.md</code>。它把找到的所有文件拼起来，随每次提问一起发给模型，分三层，全局文件是 <code>~/.gemini/GEMINI.md</code>，工作区文件从你配置的工作区目录和它们的上级目录里找，即时文件则是工具访问某个文件或目录时，扫描该目录及其上级直到受信任的根目录。</p>
+<pre><code class="language-markdown"># Project: my-api
+
+<span class="tok-k">-</span> 缩进用 2 个空格。
+<span class="tok-k">-</span> 收尾前运行 <span class="tok-s">`pnpm test`</span>。
+
+@./docs/style-guide.md</code></pre>
+<p><code>@file.md</code> 可以把长文件拆开。<code>/init</code> 会根据当前目录生成一份 <code>GEMINI.md</code>，<code>/memory show</code> 打印模型实际收到的拼接后的上下文，<code>/memory list</code> 列出正在用的文件，底部状态栏会显示加载了几个上下文文件。仓库里已经有 <code>AGENTS.md</code> 的话，在 <code>settings.json</code> 里把 <code>context.fileName</code> 设成 <code>["AGENTS.md", "GEMINI.md"]</code>，Gemini CLI 就会一起读。关于长度的取舍和 Claude Code 的 <a href="/zh/blog/claude-md-memory"><code>CLAUDE.md</code></a> 是同一回事。</p>
+<h2 id="settingsjson斜杠命令和-mcp">settings.json、斜杠命令和 MCP</h2>
+<p>设置放在 <code>~/.gemini/settings.json</code>，项目里的放在 <code>.gemini/settings.json</code>，<code>/settings</code> 可以交互式修改。命令参考里常用的斜杠命令有 <code>/auth</code>、<code>/model</code>、<code>/memory</code>、<code>/mcp</code>、<code>/stats</code>、<code>/permissions</code>、<code>/plan</code>、<code>/resume</code>、<code>/rewind</code>、<code>/skills</code> 和 <code>/hooks</code>。</p>
+<p>MCP 服务器写在 <code>mcpServers</code> 下面，支持 Stdio、SSE 和 streamable HTTP 三种传输：</p>
+<pre><code class="language-json">{
+  "mcpServers": {
+    "github": {
+      "command": <span class="tok-s">"path/to/server"</span>,
+      "args": [<span class="tok-s">"--arg1"</span>, <span class="tok-s">"value1"</span>],
+      "env": { "API_KEY": <span class="tok-s">"$MY_API_TOKEN"</span> },
+      "trust": <span class="tok-b">false</span>
+    }
+  }
+}</code></pre>
+<p><code>gemini mcp add &lt;name&gt; &lt;commandOrUrl&gt;</code> 可以替你写入这一项，<code>/mcp list</code> 看连上了哪些。<code>trust</code> 保持 false，设成 true 会跳过这个服务器所有工具调用的确认。换个角度看同一件事，可以读 <a href="/zh/blog/claude-code-mcp-servers">Claude Code 的 MCP 服务器</a>。</p>
+<h2 id="沙盒">沙盒</h2>
+<p>沙盒把 shell 命令和文件改动与你 Mac 的其他部分隔离开。可以用 <code>gemini -s</code>、环境变量 <code>GEMINI_SANDBOX</code>（取值 <code>true</code>、<code>docker</code>、<code>podman</code> 或 <code>sandbox-exec</code>），或者在设置里写 <code>"tools": { "sandbox": "docker" }</code> 来打开。macOS 上内置的方式是通过 <code>sandbox-exec</code> 调用 Seatbelt，默认的 <code>permissive-open</code> 配置把写入限制在项目目录，读取和网络仍然放开。Docker 和 Podman 会把你的工作目录以同样的绝对路径挂进容器。</p>
+<h2 id="和-claude-codecodex-对比">和 Claude Code、Codex 对比</h2>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Gemini CLI</th>
+<th>Claude Code</th>
+<th>Codex CLI</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>安装</td>
+<td>npm 或 Homebrew</td>
+<td>原生安装器或 Homebrew cask</td>
+<td>安装脚本、npm 或 Homebrew</td>
+</tr>
+<tr>
+<td>上下文文件</td>
+<td><code>GEMINI.md</code></td>
+<td><code>CLAUDE.md</code></td>
+<td><code>AGENTS.md</code></td>
+</tr>
+<tr>
+<td>设置</td>
+<td><code>~/.gemini/settings.json</code></td>
+<td><code>~/.claude/settings.json</code></td>
+<td><code>~/.codex/config.toml</code></td>
+</tr>
+<tr>
+<td>沙盒与审批</td>
+<td>Seatbelt、Docker、Podman</td>
+<td><code>allow</code>、<code>ask</code>、<code>deny</code> 规则</td>
+<td><code>sandbox_mode</code></td>
+</tr>
+<tr>
+<td>个人订阅登录</td>
+<td>2026 年 6 月 18 日终止</td>
+<td>Pro、Max、Team、Enterprise</td>
+<td>ChatGPT Plus 及以上</td>
+</tr>
+</tbody>
+</table>
+<p>Gemini CLI 是 Apache 2.0 开源的，文档里写明了 Seatbelt、Docker 和 Podman 三种沙盒。它眼下的短板在方向上，它自己的 README 就写着，想用 Gemini 模型获得最好的编程体验，应该用 Antigravity CLI。另外两个工具的安装见 <a href="/zh/blog/install-claude-code-mac">在 Mac 上安装 Claude Code</a>、<a href="/zh/blog/codex-cli-setup">Codex CLI 安装</a> 和 <a href="/zh/blog/codex-vs-claude-code">Codex 和 Claude Code</a>。打算换到 Claude Code 的话，在会话里跑 <code>/import gemini --dry-run</code>（需要 Claude Code 2.1.213 或更新）可以先看它会从 Gemini CLI 搬过来哪些东西，包括指令文件、MCP 服务器、命令、subagent 和 skill，指令是一次性复制追加到对应的 <code>CLAUDE.md</code> 里的，之后再改 <code>GEMINI.md</code> 不会跟过去。</p>
+<h2 id="在-kaku-里运行">在 Kaku 里运行</h2>
+<p><code>kaku ai</code> 会打开 AI 设置面板，里面把 Gemini CLI 和 Claude Code、Codex、Copilot CLI、Kimi Code 并列。Kaku 0.25.0 的面板会读 <code>~/.gemini/settings.json</code>，显示当前选的模型和已登录的认证类型，在面板里改模型只会写 <code>model.name</code> 这一个字段。Gemini CLI 没有单独的登录子命令，所以 Kaku 的重新登录动作就是直接启动 <code>gemini</code>。只有你在面板里改动时，Kaku 才会修改对应工具的设置。<code>Cmd + D</code> 分屏可以让 Gemini CLI 挨着一个 shell 或者另一个 agent。Kaku 的通知文档只写了 Claude Code 和 Codex，没有列 Gemini CLI。</p>
+<h2 id="常见问题">常见问题</h2>
+<h3 id="gemini-cli-现在还免费吗">Gemini CLI 现在还免费吗</h3>
+<p>对个人来说不再免费。Google 的公告在 2026 年 6 月 18 日终止了通过 Gemini Code Assist for individuals 的免费使用，README 的提示也把未付费档位的用户算在内。现在还能用的是付费的 Gemini 和 Gemini Enterprise Agent Platform API key。</p>
+<h3 id="用-homebrew-装还需要-nodejs-吗">用 Homebrew 装还需要 Node.js 吗</h3>
+<p>文档把 Node.js 20.0.0 或更新列为运行环境要求，Homebrew 的 formula 依赖 <code>node</code>，会替你装好，装完用 <code>gemini --version</code> 确认就行。</p>
+<h3 id="gemini-cli-的设置存在哪">Gemini CLI 的设置存在哪</h3>
+<p>用户设置在 <code>~/.gemini/settings.json</code>，项目设置在项目里的 <code>.gemini/settings.json</code>。</p>
+<h3 id="它能读我的-agentsmd-吗">它能读我的 AGENTS.md 吗</h3>
+<p>可以，把它加进 <code>settings.json</code> 的 <code>context.fileName</code>。</p>
+          <aside class="blog-cta"><img class="blog-cta-icon" src="/img/kaku-mark.png" width="40" height="40" alt=""><p>Kaku 是一个免费开源的 Mac 终端。</p><a class="btn btn-primary" href="/zh/docs">安装 Kaku</a></aside>
+          <nav class="blog-related" aria-label="继续阅读"><h2 class="blog-related-title">继续阅读</h2><ul class="blog-related-list"><li><a href="/zh/blog/install-claude-code-mac"><span class="blog-related-cat">Claude Code 与 Codex</span><span class="blog-related-name">在 Mac 上安装和更新 Claude Code</span><span class="blog-related-meta"><time datetime="2026-10-02">2026年10月2日</time> · 约 6 分钟</span></a></li><li><a href="/zh/blog/claude-code-cost"><span class="blog-related-cat">Claude Code 与 Codex</span><span class="blog-related-name">Claude Code 费用：计费方式、/usage、ccusage 和省钱做法</span><span class="blog-related-meta"><time datetime="2026-10-23">2026年10月23日</time> · 约 8 分钟</span></a></li><li><a href="/zh/blog/claude-code-slash-commands"><span class="blog-related-cat">Claude Code 与 Codex</span><span class="blog-related-name">Claude Code 斜杠命令：常用命令和自定义命令写法</span><span class="blog-related-meta"><time datetime="2026-10-22">2026年10月22日</time> · 约 7 分钟</span></a></li></ul></nav>
+        </article>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer"><div class="wide foot"><div class="foot-brand"><p class="name">Kaku · <span class="foot-mark" lang="zh-Hant">書</span></p><p class="foot-sub">好看又快、开箱即用的 AI 友好终端</p></div><div class="foot-links"><div><b>产品</b><a href="/zh/docs">文档</a><a href="/zh/changelog">更新日志</a><a href="/zh/roadmap">路线图</a><a href="/zh/compare">对比</a><a href="/zh/blog">博客</a></div><div><b>项目</b><a href="/zh/about">关于</a><a href="/zh/privacy">隐私</a><a href="https://github.com/tw93/Kaku">GitHub</a><a href="https://github.com/tw93/Kaku/issues">问题反馈</a></div><div><b>联系</b><a href="/zh/contact">联系方式</a><a href="https://x.com/HiTw93">X</a></div></div></div></footer>
+</body>
+</html>

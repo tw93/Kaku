@@ -7,6 +7,14 @@
     <description>Guides and notes on Mac terminals, Claude Code, Codex and shell setup, and how Kaku is built.</description>
     <language>en</language>
     <item>
+      <title>Gemini CLI on Mac: Install, Sign In and What Changed in 2026</title>
+      <link>https://kaku.fun/blog/gemini-cli-setup</link>
+      <guid isPermaLink="true">https://kaku.fun/blog/gemini-cli-setup</guid>
+      <pubDate>Mon, 26 Oct 2026 09:00:00 +0800</pubDate>
+      <dc:creator>Tw93</dc:creator>
+      <description>Install Gemini CLI with npm or Homebrew, which sign-in paths still work after June 18, 2026, GEMINI.md, settings.json, MCP, sandboxing and Kaku.</description>
+    </item>
+    <item>
       <title>Claude Code Cost: Pricing, /usage, ccusage and Ways to Cut It</title>
       <link>https://kaku.fun/blog/claude-code-cost</link>
       <guid isPermaLink="true">https://kaku.fun/blog/claude-code-cost</guid>

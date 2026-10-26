@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Gemini CLI on Mac: Install, Sign In and What Changed in 2026 · Kaku Blog</title>
+  <meta name="description" content="Install Gemini CLI with npm or Homebrew, which sign-in paths still work after June 18, 2026, GEMINI.md, settings.json, MCP, sandboxing and Kaku.">
+  <meta property="og:title" content="Gemini CLI on Mac: Install, Sign In and What Changed in 2026 · Kaku Blog">
+  <meta property="og:description" content="Install Gemini CLI with npm or Homebrew, which sign-in paths still work after June 18, 2026, GEMINI.md, settings.json, MCP, sandboxing and Kaku.">
+  <meta property="og:type" content="article">
+  <meta property="og:image" content="https://kaku.fun/img/blog/cards/gemini-cli-setup.webp">
+  <meta property="og:image:width" content="1600">
+  <meta property="og:image:height" content="900">
+  <meta property="og:image:alt" content="Gemini CLI on Mac: Install, Sign In and What Changed in 2026">
+  <meta property="og:url" content="https://kaku.fun/blog/gemini-cli-setup">
+  <meta property="article:published_time" content="2026-10-26">
+  <meta property="article:modified_time" content="2026-10-26">
+  <meta property="article:author" content="Tw93">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://kaku.fun/img/blog/cards/gemini-cli-setup.webp">
+  <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-kaku-32.png"><link rel="icon" type="image/png" sizes="192x192" href="/img/favicon-kaku-192.png"><link rel="apple-touch-icon" href="/img/favicon-kaku-180.png">
+  <link rel="canonical" href="https://kaku.fun/blog/gemini-cli-setup"><link rel="alternate" type="application/rss+xml" title="Kaku releases" href="https://kaku.fun/feed.xml">
+  <link rel="alternate" type="application/rss+xml" title="Kaku Blog" href="https://kaku.fun/blog/feed.xml">
+  <link rel="alternate" hreflang="en" href="https://kaku.fun/blog/gemini-cli-setup">
+  <link rel="alternate" hreflang="zh-CN" href="https://kaku.fun/zh/blog/gemini-cli-setup">
+  <link rel="alternate" hreflang="x-default" href="https://kaku.fun/blog/gemini-cli-setup">
+  <link rel="alternate" type="text/markdown" href="https://kaku.fun/blog/gemini-cli-setup.md">
+  <link rel="stylesheet" href="/styles.css">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Kaku",
+          "item": "https://kaku.fun/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Blog",
+          "item": "https://kaku.fun/blog"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Gemini CLI on Mac: Install, Sign In and What Changed in 2026",
+          "item": "https://kaku.fun/blog/gemini-cli-setup"
+        }
+      ]
+    },
+    {
+      "@type": "BlogPosting",
+      "@id": "https://kaku.fun/blog/gemini-cli-setup#article",
+      "headline": "Gemini CLI on Mac: Install, Sign In and What Changed in 2026",
+      "description": "Install Gemini CLI with npm or Homebrew, which sign-in paths still work after June 18, 2026, GEMINI.md, settings.json, MCP, sandboxing and Kaku.",
+      "url": "https://kaku.fun/blog/gemini-cli-setup",
+      "mainEntityOfPage": "https://kaku.fun/blog/gemini-cli-setup",
+      "datePublished": "2026-10-26",
+      "dateModified": "2026-10-26",
+      "inLanguage": "en",
+      "articleSection": "Claude Code and Codex",
+      "image": "https://kaku.fun/img/blog/cards/gemini-cli-setup.webp",
+      "timeRequired": "PT7M",
+      "author": {
+        "@type": "Person",
+        "name": "Tw93",
+        "url": "https://tw93.fun",
+        "sameAs": [
+          "https://x.com/HiTw93",
+          "https://github.com/tw93"
+        ]
+      },
+      "publisher": {
+        "@id": "https://kaku.fun/#organization"
+      },
+      "isPartOf": {
+        "@id": "https://kaku.fun/blog#blog"
+      },
+      "about": {
+        "@id": "https://kaku.fun/#software"
+      },
+      "encoding": {
+        "@type": "MediaObject",
+        "encodingFormat": "text/markdown",
+        "contentUrl": "https://kaku.fun/blog/gemini-cli-setup.md"
+      }
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Is Gemini CLI still free?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Not for individuals. Google's announcement ended free use through Gemini Code Assist for individuals on June 18, 2026, and the README note covers unpaid tier users too. Gemini CLI remains accessible with paid Gemini and Gemini Enterprise Agent Platform API keys."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Do I need Node.js if I use Homebrew?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "The docs list Node.js 20.0.0 or later as the runtime requirement. The Homebrew formula depends on node and installs it for you, so check gemini --version after installing."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Where does Gemini CLI store its settings?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "~/.gemini/settings.json for user settings and .gemini/settings.json in a project."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can it read my AGENTS.md?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes, by adding it to context.fileName in settings.json."
+          }
+        }
+      ]
+    }
+  ]
+}
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <nav class="site-nav" aria-label="Primary navigation"><div class="wide nav-inner"><a class="brand" href="/"><strong>Kaku</strong></a><div class="nav-links"><a href="/docs">Docs</a><a href="/compare">Compare</a><a href="/changelog">Changelog</a><a href="/blog" aria-current="page">Blog</a></div><div class="nav-actions"><details class="lang-switch"><summary class="lang-trigger" aria-label="Choose a language"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/></svg><span class="lang-current-code" aria-hidden="true">EN</span><span class="lang-current-name">English</span></summary><div class="lang-menu"><a class="lang-option" href="/zh/blog/gemini-cli-setup" hreflang="zh-CN">简体中文</a><a class="lang-option" aria-current="page" href="/blog/gemini-cli-setup" hreflang="en">English</a></div></details><script src="/navigation.js" defer></script><a class="nav-icon" href="https://github.com/tw93/Kaku" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a><a class="nav-icon" href="https://x.com/HiTw93" target="_blank" rel="noopener noreferrer" aria-label="X"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a></div></div></nav>
+  <main id="main-content" class="docs-page blog-page">
+    <header class="page-hero doc-hero blog-hero"><div class="wide"><nav class="blog-crumb" aria-label="Breadcrumb"><a href="/blog">Blog</a></nav><h1>Gemini CLI on Mac: Install, Sign In and What Changed in 2026</h1><p class="blog-meta"><span><a href="/blog#topic-agents">Claude Code and Codex</a></span><span>Published <time datetime="2026-10-26">Oct 26, 2026</time></span><span>7 min read</span></p></div></header>
+    <section class="section">
+      <div class="wide">
+        <article class="doc-content blog-article">
+          <figure class="blog-cover" aria-hidden="true"><img src="/img/blog/cards/gemini-cli-setup.webp" width="1600" height="900" alt="" fetchpriority="high"></figure>
+<p>Gemini CLI installs on a Mac with <code>npm install -g @google/gemini-cli</code> or <code>brew install gemini-cli</code>, and you start it by running <code>gemini</code> in a project folder. The catch in 2026 is sign-in: Google announced that on June 18, 2026 Gemini CLI and the Gemini Code Assist IDE extensions would stop serving requests for Google AI Pro and Ultra, and for people using them free of charge through Gemini Code Assist for individuals, and points those users to Antigravity CLI. Organizations with an existing Code Assist Standard or Enterprise subscription keep access until their contract ends, though Google stopped selling new ones on October 9, 2026, and Gemini CLI stays usable with paid Gemini and Gemini Enterprise Agent Platform API keys.</p>
+<h2 id="what-changed-in-2026">What changed in 2026</h2>
+<p>The <a href="https://github.com/google-gemini/gemini-cli" target="_blank" rel="noopener noreferrer">Gemini CLI README</a> now opens with a note that for unpaid tier and Google One users it was replaced by Antigravity CLI on June 18, 2026, and that it is not optimized for the latest Gemini models. Google's <a href="https://developers.googleblog.com/an-important-update-transitioning-gemini-cli-to-antigravity-cli" target="_blank" rel="noopener noreferrer">announcement</a> lays out the split. Consumers on Google AI Pro, Ultra or the free Code Assist tier lose access. Organizations on Gemini Code Assist Standard or Enterprise kept it at the time, and Gemini CLI stays usable with paid Gemini and Gemini Enterprise Agent Platform API keys. Google's <a href="https://docs.cloud.google.com/gemini/docs/codeassist/sunset" target="_blank" rel="noopener noreferrer">sunset page</a> has since put those subscriptions on a schedule too: no new purchases from October 9, 2026, added licenses and annual renewals until January 31, 2027, monthly renewals until December 31, 2027, and existing contracts supported to their end, with Antigravity in Gemini Enterprise named as the way forward.</p>
+<p>This matters because many older tutorials still say "sign in with Google and get a free daily quota", and for personal accounts that flow ended on June 18, 2026. If you are a new individual user, start with Antigravity CLI. Its command is <code>agy</code>, and on first launch it finds your Gemini CLI setup and offers to convert it. Per Google's <a href="https://antigravity.google/docs/cli/gcli-migration" target="_blank" rel="noopener noreferrer">migration guide</a>, <code>GEMINI.md</code> and <code>AGENTS.md</code> keep working as they are, workspace skills have to move from <code>.gemini/skills/</code> to <code>.agents/skills/</code>, MCP servers move out of <code>settings.json</code> into <code>~/.gemini/config/mcp_config.json</code> or a project's <code>.agents/mcp_config.json</code> with <code>serverUrl</code> replacing <code>url</code> and <code>httpUrl</code>, and <code>agy plugin import gemini</code> turns extensions into plugins. If you have a paid API key or an organization account, or you maintain scripts built on <code>gemini</code>, read on.</p>
+<h2 id="install-on-a-mac">Install on a Mac</h2>
+<p>The docs recommend macOS 15 or later, Node.js 20.0.0 or later, and 4 GB of RAM for light use. The README lists these options:</p>
+<pre><code class="language-bash"><span class="tok-c"># Try it without installing
+</span>npx @google/gemini-cli
+
+<span class="tok-c"># Global install with npm
+</span>npm install -g @google/gemini-cli
+
+<span class="tok-c"># Global install with Homebrew
+</span>brew install gemini-cli</code></pre>
+<p>MacPorts (<code>sudo port install gemini-cli</code>) also works. Check with <code>gemini --version</code>. Releases come in three channels: <code>latest</code> is the weekly stable build, <code>preview</code> is published each Tuesday and may contain regressions, and <code>nightly</code> is built daily from main. Pin one with <code>npm install -g @google/gemini-cli@preview</code>.</p>
+<h2 id="signing-in">Signing in</h2>
+<p>Run <code>gemini</code> and pick a method from the prompt, or change it later with <code>/auth</code>. The README documents three:</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>How</th>
+<th>Best for</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Sign in with Google</td>
+<td>Browser login, credentials cached locally</td>
+<td>Organization accounts with a Code Assist license; set <code>GOOGLE_CLOUD_PROJECT</code></td>
+</tr>
+<tr>
+<td>Gemini API key</td>
+<td><code>export GEMINI_API_KEY="..."</code> from Google AI Studio</td>
+<td>Model control, usage-based billing</td>
+</tr>
+<tr>
+<td>Vertex AI</td>
+<td><code>GOOGLE_GENAI_USE_VERTEXAI=true</code> with a key, or <code>gcloud auth application-default login</code></td>
+<td>Enterprise teams</td>
+</tr>
+</tbody>
+</table>
+<p>For Vertex AI you also set <code>GOOGLE_CLOUD_PROJECT</code> and <code>GOOGLE_CLOUD_LOCATION</code>. Headless runs use an API key or Vertex AI. Put keys in your shell profile rather than in a repository, and treat them as credentials.</p>
+<p>On limits, a paid API key's quota depends on your pricing tier, listed on the <a href="https://ai.google.dev/gemini-api/docs/rate-limits" target="_blank" rel="noopener noreferrer">Gemini API rate limits</a> page. Inside a session, <code>/stats model</code> shows token counts and quota information for the models you use.</p>
+<h2 id="how-it-loads-context">How it loads context</h2>
+<p>Gemini CLI builds its context from <code>GEMINI.md</code> files, the equivalent of <code>CLAUDE.md</code>. It concatenates every file it finds and sends them with each prompt, in three tiers. The global file is <code>~/.gemini/GEMINI.md</code>. Workspace files are found in your workspace directories and their parents. Just-in-time files are picked up when a tool touches a file or directory, scanning that directory and its ancestors up to a trusted root.</p>
+<pre><code class="language-markdown"># Project: my-api
+
+<span class="tok-k">-</span> Use 2 spaces for indentation.
+<span class="tok-k">-</span> Run <span class="tok-s">`pnpm test`</span> before finishing.
+
+@./docs/style-guide.md</code></pre>
+<p><code>@file.md</code> imports split a long file apart. <code>/init</code> generates a starting <code>GEMINI.md</code> from the current directory, <code>/memory show</code> prints the concatenated context the model receives, and <code>/memory list</code> lists the files in use. The footer shows how many context files loaded. If your repository already has an <code>AGENTS.md</code>, set <code>context.fileName</code> in <code>settings.json</code> to <code>["AGENTS.md", "GEMINI.md"]</code> so Gemini CLI reads it too. The same trade-offs about length apply as for Claude Code's <a href="/blog/claude-md-memory"><code>CLAUDE.md</code></a>.</p>
+<h2 id="settingsjson-slash-commands-and-mcp">settings.json, slash commands and MCP</h2>
+<p>Settings live in <code>~/.gemini/settings.json</code> for you and <code>.gemini/settings.json</code> inside a project. <code>/settings</code> edits them interactively. Useful slash commands from the command reference include <code>/auth</code>, <code>/model</code>, <code>/memory</code>, <code>/mcp</code>, <code>/stats</code>, <code>/permissions</code>, <code>/plan</code>, <code>/resume</code>, <code>/rewind</code>, <code>/skills</code> and <code>/hooks</code>.</p>
+<p>MCP servers go under <code>mcpServers</code>, using Stdio, SSE or streamable HTTP transports:</p>
+<pre><code class="language-json">{
+  "mcpServers": {
+    "github": {
+      "command": <span class="tok-s">"path/to/server"</span>,
+      "args": [<span class="tok-s">"--arg1"</span>, <span class="tok-s">"value1"</span>],
+      "env": { "API_KEY": <span class="tok-s">"$MY_API_TOKEN"</span> },
+      "trust": <span class="tok-b">false</span>
+    }
+  }
+}</code></pre>
+<p><code>gemini mcp add &lt;name&gt; &lt;commandOrUrl&gt;</code> writes the entry for you, and <code>/mcp list</code> shows what connected. Leave <code>trust</code> at false, since true skips every tool confirmation for that server. The <a href="/blog/claude-code-mcp-servers">MCP servers guide for Claude Code</a> covers the same idea from the other side.</p>
+<h2 id="sandboxing">Sandboxing</h2>
+<p>Sandboxing isolates shell commands and file changes from the rest of your Mac. Turn it on with <code>gemini -s</code>, the <code>GEMINI_SANDBOX</code> environment variable (<code>true</code>, <code>docker</code>, <code>podman</code> or <code>sandbox-exec</code>) or <code>"tools": { "sandbox": "docker" }</code> in settings. On macOS the built-in method is Seatbelt through <code>sandbox-exec</code>, with a default <code>permissive-open</code> profile that confines writes to the project directory while allowing reads and network. Docker and Podman mount your working directory at the same absolute path inside the container.</p>
+<h2 id="compared-with-claude-code-and-codex">Compared with Claude Code and Codex</h2>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Gemini CLI</th>
+<th>Claude Code</th>
+<th>Codex CLI</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Install</td>
+<td>npm or Homebrew</td>
+<td>native installer or Homebrew cask</td>
+<td>install script, npm or Homebrew</td>
+</tr>
+<tr>
+<td>Context file</td>
+<td><code>GEMINI.md</code></td>
+<td><code>CLAUDE.md</code></td>
+<td><code>AGENTS.md</code></td>
+</tr>
+<tr>
+<td>Settings</td>
+<td><code>~/.gemini/settings.json</code></td>
+<td><code>~/.claude/settings.json</code></td>
+<td><code>~/.codex/config.toml</code></td>
+</tr>
+<tr>
+<td>Sandbox and approvals</td>
+<td>Seatbelt, Docker, Podman</td>
+<td><code>allow</code>, <code>ask</code>, <code>deny</code> rules</td>
+<td><code>sandbox_mode</code></td>
+</tr>
+<tr>
+<td>Consumer subscription sign-in</td>
+<td>Ended June 18, 2026</td>
+<td>Pro, Max, Team, Enterprise</td>
+<td>ChatGPT Plus and up</td>
+</tr>
+</tbody>
+</table>
+<p>Gemini CLI is open source under Apache 2.0, and it documents Seatbelt, Docker and Podman sandboxes. Its weakness today is direction: its own README says that for the best coding experience with Gemini models you should use Antigravity CLI. For setup steps on the others, see <a href="/blog/install-claude-code-mac">install Claude Code on Mac</a>, <a href="/blog/codex-cli-setup">Codex CLI setup</a> and <a href="/blog/codex-vs-claude-code">Codex vs Claude Code</a>. If you move to Claude Code, <code>/import gemini --dry-run</code> inside a session (Claude Code 2.1.213 or later) previews what it would bring over from Gemini CLI: instruction files, MCP servers, commands, subagents and skills. Instructions are appended to the matching <code>CLAUDE.md</code> as a one-time copy, so later edits to <code>GEMINI.md</code> do not follow.</p>
+<h2 id="running-it-in-kaku">Running it in Kaku</h2>
+<p><code>kaku ai</code> opens the AI settings panel, which lists Gemini CLI next to Claude Code, Codex, Copilot CLI and Kimi Code. In Kaku 0.25.0 the panel reads <code>~/.gemini/settings.json</code> to show the selected model and the signed-in auth type, and changing the model there writes only the <code>model.name</code> field. Gemini CLI has no separate login command, so Kaku's re-sign-in action simply launches <code>gemini</code>. Kaku only edits a tool's settings when you change them in the panel. Splits (<code>Cmd + D</code>) put Gemini CLI beside a shell or another agent. Kaku's notification docs cover Claude Code and Codex; Gemini CLI is not listed there.</p>
+<h2 id="faq">FAQ</h2>
+<h3 id="is-gemini-cli-still-free">Is Gemini CLI still free?</h3>
+<p>Not for individuals. Google's announcement ended free use through Gemini Code Assist for individuals on June 18, 2026, and the README note covers unpaid tier users too. Gemini CLI remains accessible with paid Gemini and Gemini Enterprise Agent Platform API keys.</p>
+<h3 id="do-i-need-nodejs-if-i-use-homebrew">Do I need Node.js if I use Homebrew?</h3>
+<p>The docs list Node.js 20.0.0 or later as the runtime requirement. The Homebrew formula depends on <code>node</code> and installs it for you, so check <code>gemini --version</code> after installing.</p>
+<h3 id="where-does-gemini-cli-store-its-settings">Where does Gemini CLI store its settings?</h3>
+<p><code>~/.gemini/settings.json</code> for user settings and <code>.gemini/settings.json</code> in a project.</p>
+<h3 id="can-it-read-my-agentsmd">Can it read my AGENTS.md?</h3>
+<p>Yes, by adding it to <code>context.fileName</code> in <code>settings.json</code>.</p>
+          <aside class="blog-cta"><img class="blog-cta-icon" src="/img/kaku-mark.png" width="40" height="40" alt=""><p>Kaku is a free, open-source Mac terminal.</p><a class="btn btn-primary" href="/docs">Install Kaku</a></aside>
+          <nav class="blog-related" aria-label="Keep reading"><h2 class="blog-related-title">Keep reading</h2><ul class="blog-related-list"><li><a href="/blog/install-claude-code-mac"><span class="blog-related-cat">Claude Code and Codex</span><span class="blog-related-name">Install Claude Code on Mac: Installer, Homebrew and Updates</span><span class="blog-related-meta"><time datetime="2026-10-02">Oct 2, 2026</time> · 6 min read</span></a></li><li><a href="/blog/claude-code-cost"><span class="blog-related-cat">Claude Code and Codex</span><span class="blog-related-name">Claude Code Cost: Pricing, /usage, ccusage and Ways to Cut It</span><span class="blog-related-meta"><time datetime="2026-10-23">Oct 23, 2026</time> · 8 min read</span></a></li><li><a href="/blog/claude-code-slash-commands"><span class="blog-related-cat">Claude Code and Codex</span><span class="blog-related-name">Claude Code Slash Commands: The Ones That Matter and How to Write Your Own</span><span class="blog-related-meta"><time datetime="2026-10-22">Oct 22, 2026</time> · 7 min read</span></a></li></ul></nav>
+        </article>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer"><div class="wide foot"><div class="foot-brand"><p class="name">Kaku · <span class="foot-mark" lang="zh-Hant">書</span></p><p class="foot-sub">A fast, good-looking, AI-friendly terminal for the Mac.</p></div><div class="foot-links"><div><b>Product</b><a href="/docs">Docs</a><a href="/changelog">Changelog</a><a href="/roadmap">Roadmap</a><a href="/compare">Compare</a><a href="/blog">Blog</a></div><div><b>Project</b><a href="/about">About</a><a href="/privacy">Privacy</a><a href="https://github.com/tw93/Kaku">GitHub</a><a href="https://github.com/tw93/Kaku/issues">Issues</a></div><div><b>Connect</b><a href="/contact">Contact</a><a href="https://x.com/HiTw93">X</a></div></div></div></footer>
+</body>
+</html>

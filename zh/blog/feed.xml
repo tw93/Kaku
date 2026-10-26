@@ -7,6 +7,14 @@
     <description>关于 Mac 终端、Claude Code、Codex、shell 配置的指南，以及 Kaku 是怎么做出来的。</description>
     <language>zh-CN</language>
     <item>
+      <title>Mac 上安装和使用 Gemini CLI，2026 年登录方式有变化</title>
+      <link>https://kaku.fun/zh/blog/gemini-cli-setup</link>
+      <guid isPermaLink="true">https://kaku.fun/zh/blog/gemini-cli-setup</guid>
+      <pubDate>Mon, 26 Oct 2026 09:00:00 +0800</pubDate>
+      <dc:creator>Tw93</dc:creator>
+      <description>用 npm 或 Homebrew 安装，2026 年 6 月 18 日后还能用的登录方式，GEMINI.md、MCP、沙盒和 Kaku。</description>
+    </item>
+    <item>
       <title>Claude Code 费用：计费方式、/usage、ccusage 和省钱做法</title>
       <link>https://kaku.fun/zh/blog/claude-code-cost</link>
       <guid isPermaLink="true">https://kaku.fun/zh/blog/claude-code-cost</guid>

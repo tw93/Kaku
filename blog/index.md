@@ -6,6 +6,7 @@ Notes on Mac terminals, AI coding tools and how Kaku is built, by Tw93.
 
 Install, configure and run AI coding agents in the terminal.
 
+- [Gemini CLI on Mac: Install, Sign In and What Changed in 2026](https://kaku.fun/blog/gemini-cli-setup.md) (2026-10-26): Install Gemini CLI with npm or Homebrew, which sign-in paths still work after June 18, 2026, GEMINI.md, settings.json, MCP, sandboxing and Kaku.
 - [Claude Code Cost: Pricing, /usage, ccusage and Ways to Cut It](https://kaku.fun/blog/claude-code-cost.md) (2026-10-23): How Claude Code is billed on plans and API keys, where /usage and ccusage show spend, what drives cost, and the habits that cut it.
 - [Claude Code Slash Commands: The Ones That Matter and How to Write Your Own](https://kaku.fun/blog/claude-code-slash-commands.md) (2026-10-22): The Claude Code slash commands worth knowing, their keyboard shortcuts, and how to write custom commands with arguments, plus three to copy.
 - [Claude Code Permissions: Modes, Rules and --dangerously-skip-permissions](https://kaku.fun/blog/claude-code-permissions.md) (2026-10-21): Claude Code permission modes, allow/ask/deny rules, what bypassPermissions risks, a safer middle-ground config and a hook that blocks commands.
