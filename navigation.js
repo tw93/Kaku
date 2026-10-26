@@ -49,6 +49,17 @@ gtag('consent', 'default', { analytics_storage: 'denied', ad_storage: 'denied', 
   else arm();
 })();
 
+// GEOInflow counts page views without cookies; its script waits out a hover
+// prerender by itself, so it loads at once.
+(function () {
+  var geo = document.createElement('script');
+  geo.async = true;
+  geo.src = 'https://geo.tw93.fun/geo.js';
+  geo.dataset.websiteId = '2ff722a4-bc30-4862-aaf8-e0fab2da66dc';
+  geo.dataset.domains = 'kaku.fun';
+  document.head.appendChild(geo);
+})();
+
 // Prerender an internal page while the pointer rests on its link, so the
 // click swaps it in at once. Feeds, Markdown and other machine files stay out.
 (function () {
