@@ -5,8 +5,31 @@
 <link>https://kaku.fun/changelog</link>
 <description>Stable Kaku releases. Nightly builds are not included.</description>
 <language>en</language>
-<lastBuildDate>Thu, 22 Oct 2026 04:58:13 +0000</lastBuildDate>
+<lastBuildDate>Mon, 26 Oct 2026 01:27:01 +0000</lastBuildDate>
 <atom:link href="https://kaku.fun/feed.xml" rel="self" type="application/rss+xml"/>
+<item>
+<title>V0.27.0 Reach</title>
+<link>https://kaku.fun/changelog#v0.27.0</link>
+<guid isPermaLink="true">https://kaku.fun/changelog#v0.27.0</guid>
+<pubDate>Mon, 26 Oct 2026 01:27:01 +0000</pubDate>
+<description><![CDATA[<h2>Changelog</h2><ol>
+<li><b>Wrapped Links</b>: A file path or URL that Claude Code and other TUIs break across two lines now opens in full with Cmd+Click, from either half.</li>
+<li><b>Voice Input</b>: WeType and other input tools that look for the focused text field now find Kaku's cursor reliably, also after switching tabs or panes.</li>
+<li><b>Remote Speed</b>: Remote terminals connect directly when the network allows, so typing no longer detours through the relay, which stays as the fallback.</li>
+<li><b>Remote Page</b>: The page installs as its own app on Android, says when the Mac behind the desktop view is locked, keeps tab titles readable, and no longer flashes at the wrong size after a reload or stays shrunk after leaving the desktop view.</li>
+<li><b>Remote Command</b>: <code>kaku remote</code> keeps working when another copy of Kaku starts with remote access off, and every <code>kaku</code> command now says why it failed instead of exiting silently.</li>
+<li><b>Kaku Assistant</b>: Answer <code>a</code> in <code>k</code> to approve the rest of a session's requests at once, and Cmd+Shift+E no longer runs a fix that quits or kills apps, it pastes it for review instead.</li>
+<li><b>macOS</b>: Kaku no longer blocks log out, restart or shut down, closing from the right-click menu asks only once, the hotkey drawer keeps its height across displays, and pi sessions show their agent mark and topic in the tab.</li>
+</ol><h2>更新日志</h2><ol>
+<li><b>折行链接</b>：Claude Code 等 TUI 折成两行的文件路径和网址，现在 Cmd+点击任意一半都能完整打开。</li>
+<li><b>语音输入</b>：微信输入法等依赖焦点文本框的输入工具，现在能稳定找到 Kaku 的光标，切换标签或分屏后也一样。</li>
+<li><b>远程速度</b>：网络允许时远程终端会直接连接，打字不再绕道中继，中继保留为备用路线。</li>
+<li><b>远程网页</b>：网页在 Android 上可以安装成独立应用，桌面视图背后的 Mac 锁屏时会提示，标签标题保持可读，刷新后不再闪现错误尺寸，离开桌面视图后也不再缩着。</li>
+<li><b>远程命令</b>：另一个关闭了远程访问的 Kaku 启动后，<code>kaku remote</code> 照常可用，所有 <code>kaku</code> 命令失败时都会说明原因，不再静默退出。</li>
+<li><b>Kaku 助手</b>：在 <code>k</code> 里回答 <code>a</code> 可一次同意本次会话后续的所有请求，Cmd+Shift+E 不再直接执行会退出或结束应用的修复命令，而是粘贴出来让你确认。</li>
+<li><b>macOS</b>：Kaku 不再阻止注销、重启和关机，右键菜单关闭只确认一次，快捷键抽屉在不同显示器间保持高度，pi 会话的标签会显示 Agent 标记和主题。</li>
+</ol><p>Special thanks to @sunbird89629 and @vw2x for their contributions to this release.</p>]]></description>
+</item>
 <item>
 <title>V0.26.1 Steady</title>
 <link>https://kaku.fun/changelog#v0.26.1</link>

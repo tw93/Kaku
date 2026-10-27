@@ -28,7 +28,7 @@ People switch terminals for a handful of reasons. They want something usable wit
 | AI | Optional, custom API | Optional plugin, your key | Built in, runs on Warp's servers | None built in | Any CLI agent, cloud agents on paid plans | None built in | None built in |
 | Shell tools | In the Kaku session | You add them | Built in | You add them | You add them | You add them | None |
 | Install | DMG or official brew cask | Download | Product installer | Download | DMG or brew tap | Download | Built in |
-| Stable (Oct 2026) | 0.26.1 | 3.7.3 | Weekly builds | 1.3.1 | 0.65.2 | 20240203, then nightly | Ships with macOS |
+| Stable (Oct 2026) | 0.27.0 | 3.7.3 | Weekly builds | 1.3.1 | 0.65.2 | 20240203, then nightly | Ships with macOS |
 | Checkup | `kaku doctor` | None | Product UI | None | Config file check | None | None |
 
 ## Kaku vs iTerm2

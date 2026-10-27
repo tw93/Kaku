@@ -2,6 +2,22 @@
 
 Stable Kaku releases, newest first. Nightly builds stay on GitHub. Subscribe with [RSS](https://kaku.fun/feed.xml).
 
+## V0.27.0 Reach 2026-10-26
+
+1. **Wrapped Links**: A file path or URL that Claude Code and other TUIs break across two lines now opens in full with Cmd+Click, from either half.
+2. **Voice Input**: WeType and other input tools that look for the focused text field now find Kaku's cursor reliably, also after switching tabs or panes.
+3. **Remote Speed**: Remote terminals connect directly when the network allows, so typing no longer detours through the relay, which stays as the fallback.
+4. **Remote Page**: The page installs as its own app on Android, says when the Mac behind the desktop view is locked, keeps tab titles readable, and no longer flashes at the wrong size after a reload or stays shrunk after leaving the desktop view.
+5. **Remote Command**: `kaku remote` keeps working when another copy of Kaku starts with remote access off, and every `kaku` command now says why it failed instead of exiting silently.
+6. **Kaku Assistant**: Answer `a` in `k` to approve the rest of a session's requests at once, and Cmd+Shift+E no longer runs a fix that quits or kills apps, it pastes it for review instead.
+7. **macOS**: Kaku no longer blocks log out, restart or shut down, closing from the right-click menu asks only once, the hotkey drawer keeps its height across displays, and pi sessions show their agent mark and topic in the tab.
+
+[GitHub](https://github.com/tw93/Kaku/releases/tag/V0.27.0) · [DMG](https://github.com/tw93/Kaku/releases/download/V0.27.0/Kaku.dmg)
+
+Special thanks to @sunbird89629 and @vw2x for their contributions to this release.
+
+---
+
 ## V0.26.1 Steady 2026-10-22
 
 1. **Updates**: Restart to Update installs the new version and opens it again, instead of quitting and coming back on the old one. If V0.26.0 still reopens unchanged, run `kaku update` in a Kaku tab once.

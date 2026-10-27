@@ -78,6 +78,19 @@
   <nav class="site-nav" aria-label="主导航"><div class="wide nav-inner"><a class="brand" href="/zh"><strong>Kaku</strong></a><div class="nav-links"><a href="/zh/docs">文档</a><a href="/zh/compare">对比</a><a href="/zh/changelog" aria-current="page">更新日志</a><a href="/zh/blog">博客</a></div><div class="nav-actions"><details class="lang-switch"><summary class="lang-trigger" aria-label="切换语言"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/></svg><span class="lang-current-code" aria-hidden="true">中</span><span class="lang-current-name">简体中文</span></summary><div class="lang-menu"><a class="lang-option" aria-current="page" href="/zh/changelog" hreflang="zh-CN">简体中文</a><a class="lang-option" href="/changelog" hreflang="en">English</a></div></details><script src="/navigation.js" defer></script><a class="nav-icon" href="https://github.com/tw93/Kaku" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a><a class="nav-icon" href="https://x.com/HiTw93" target="_blank" rel="noopener noreferrer" aria-label="X"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a></div></div></nav>
   <main id="main-content"><header class="page-hero"><div class="wide"><h1>更新日志</h1><p>Kaku 正式版更新，从新到旧。Nightly 仍在 GitHub，可以用 <a href="/feed.xml">RSS</a> 订阅。</p></div></header>
 <section class="section"><div class="wide"><div class="release-doc">
+<h2 id="v0.27.0">V0.27.0 Reach <span class="release-date">2026-10-26</span></h2>
+<ol>
+<li><b>折行链接</b>：Claude Code 等 TUI 折成两行的文件路径和网址，现在 Cmd+点击任意一半都能完整打开。</li>
+<li><b>语音输入</b>：微信输入法等依赖焦点文本框的输入工具，现在能稳定找到 Kaku 的光标，切换标签或分屏后也一样。</li>
+<li><b>远程速度</b>：网络允许时远程终端会直接连接，打字不再绕道中继，中继保留为备用路线。</li>
+<li><b>远程网页</b>：网页在 Android 上可以安装成独立应用，桌面视图背后的 Mac 锁屏时会提示，标签标题保持可读，刷新后不再闪现错误尺寸，离开桌面视图后也不再缩着。</li>
+<li><b>远程命令</b>：另一个关闭了远程访问的 Kaku 启动后，<code>kaku remote</code> 照常可用，所有 <code>kaku</code> 命令失败时都会说明原因，不再静默退出。</li>
+<li><b>Kaku 助手</b>：在 <code>k</code> 里回答 <code>a</code> 可一次同意本次会话后续的所有请求，Cmd+Shift+E 不再直接执行会退出或结束应用的修复命令，而是粘贴出来让你确认。</li>
+<li><b>macOS</b>：Kaku 不再阻止注销、重启和关机，右键菜单关闭只确认一次，快捷键抽屉在不同显示器间保持高度，pi 会话的标签会显示 Agent 标记和主题。</li>
+</ol>
+<p class="release-more"><a href="https://github.com/tw93/Kaku/releases/tag/V0.27.0">GitHub</a> · <a href="https://github.com/tw93/Kaku/releases/download/V0.27.0/Kaku.dmg">DMG</a></p>
+<p class="release-more">Special thanks to @sunbird89629 and @vw2x for their contributions to this release.</p>
+<hr>
 <h2 id="v0.26.1">V0.26.1 Steady <span class="release-date">2026-10-22</span></h2>
 <ol>
 <li><b>更新</b>：重启以更新会装好新版本并重新打开，不再退出后回到旧版本。V0.26.0 如果仍回到旧版本，在 Kaku 标签里运行一次 <code>kaku update</code> 即可。</li>
