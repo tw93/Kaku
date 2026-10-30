@@ -1405,12 +1405,17 @@ html[lang^="zh"] .foot-links b { letter-spacing: 0.6px; }
   .section-tight { margin-bottom: 33px; }
   .hero { padding: 32px 0 0; }
   .hero h1 { font-size: 56px; margin-bottom: 24px; }
-  /* Phone hero buttons keep their label's width with 24px sides and wrap to a
-     second row when a long label (German Windows) does not fit; stretched
-     halves left a wide empty band around a short label. 44px tall, the touch
-     minimum, rather than the desktop 51 (maintainer 2026-10-23). */
+  /* Phone hero buttons keep their label's width, 40px tall with 22px sides and
+     at least 128px wide (maintainer 2026-10-30, from rendered candidates: 44
+     read tall and label-width pills read narrow; 128 pairs the Chinese labels
+     evenly), 14px sides under 375px. The quiet button's hairline mixes 60% --line into ivory, since
+     1px of --line is three device pixels on a phone and read heavy. */
   .hero-actions { flex-wrap: wrap; gap: 8px; }
-  .hero-actions .btn { flex: 0 0 auto; min-width: 0; padding: 10px 24px; white-space: nowrap; }
+  .hero-actions .btn { flex: 0 0 auto; min-width: 128px; min-height: 0; height: 40px; padding: 0 22px; white-space: nowrap; }
+  .hero-actions .btn-secondary { border-color: color-mix(in srgb, var(--line) 60%, var(--ivory)); }
+  @media (max-width: 374px) {
+    .hero-actions .btn { min-width: 0; padding: 0 14px; }
+  }
   .feature-grid, .quick-grid, .doc-grid, .doc-pager, .gallery { grid-template-columns: 1fr; }
   .docs-sidebar { gap: 12px; }
   .docs-menu {
