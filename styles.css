@@ -1405,13 +1405,13 @@ html[lang^="zh"] .foot-links b { letter-spacing: 0.6px; }
   .section-tight { margin-bottom: 33px; }
   .hero { padding: 32px 0 0; }
   .hero h1 { font-size: 56px; margin-bottom: 24px; }
-  /* Phone hero buttons keep their label's width, 40px tall with 22px sides and
-     at least 128px wide (maintainer 2026-10-30, from rendered candidates: 44
+  /* Phone hero buttons keep their label's width, 42px tall with 22px sides,
+     at least 128px wide and 12px apart (maintainer 2026-10-30, from rendered candidates: 44
      read tall and label-width pills read narrow; 128 pairs the Chinese labels
      evenly), 14px sides under 375px. The quiet button's hairline mixes 60% --line into ivory, since
      1px of --line is three device pixels on a phone and read heavy. */
-  .hero-actions { flex-wrap: wrap; gap: 8px; }
-  .hero-actions .btn { flex: 0 0 auto; min-width: 128px; min-height: 0; height: 40px; padding: 0 22px; white-space: nowrap; }
+  .hero-actions { flex-wrap: wrap; gap: 12px; }
+  .hero-actions .btn { flex: 0 0 auto; min-width: 128px; min-height: 0; height: 42px; padding: 0 22px; white-space: nowrap; }
   .hero-actions .btn-secondary { border-color: color-mix(in srgb, var(--line) 60%, var(--ivory)); }
   @media (max-width: 374px) {
     .hero-actions .btn { min-width: 0; padding: 0 14px; }
