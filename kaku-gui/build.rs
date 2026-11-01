@@ -55,7 +55,9 @@ fn main() {
         };
 
         let dest_plist = build_target_dir.join("Info.plist");
-        println!("cargo:rerun-if-changed=assets/macos/Kaku.app/Contents/Info.plist");
+        // Cargo resolves a relative rerun path from kaku-gui/, where this file does not
+        // exist, and a missing path makes the build script stale on every build.
+        println!("cargo:rerun-if-changed={}", src_plist.display());
 
         // Ensure the destination directory exists before copying
         if let Some(parent) = dest_plist.parent() {
