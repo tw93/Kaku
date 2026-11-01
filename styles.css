@@ -783,6 +783,9 @@ html[lang^="zh"] .gallery-caption .line { margin-bottom: 0; }
 .page-hero .label { display: none; }
 .page-hero .blog-crumb + h1 { margin-top: 14px; }
 @media (max-width: 640px) { .page-hero { padding: 33px 0 36px; } }
+/* An article head ends on its meta line, 24 above the cover at every width,
+   mole.fit's article gap rather than the page-head gap. */
+.page-hero.blog-hero { padding-bottom: 24px; }
 .page-hero h1 {
   max-width: none;
   margin: 0 0 12px;
