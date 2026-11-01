@@ -3959,21 +3959,20 @@ impl TermWindow {
         if let Some(win) = self.window.as_ref() {
             let cursor = pos.pane.get_cursor_position();
             let top = pos.pane.get_dimensions().physical_top;
-            let tab_bar_height = if self.show_tab_bar && !self.config.tab_bar_at_bottom {
-                self.tab_bar_pixel_height().unwrap()
-            } else {
-                0.0
-            };
-            let (padding_left, padding_top) = self.padding_left_top();
+            // Use the same origin the pane renderer uses, so the IME candidate
+            // window and accessibility caret land on the drawn cursor cell. The
+            // os border carries the integrated-buttons top clearance (#615).
+            let (_, padding_top) = self.padding_left_top();
+            let content_left = self.content_left_inset();
+            let first_row_y = self.terminal_first_row_offset() + padding_top;
 
             let r = Rect::new(
                 Point::new(
                     (((cursor.x + pos.left) as isize).max(0) * self.render_metrics.cell_size.width)
-                        .add(padding_left as isize),
+                        .add(content_left as isize),
                     ((cursor.y + pos.top as isize - top).max(0)
                         * self.render_metrics.cell_size.height)
-                        .add(tab_bar_height as isize)
-                        .add(padding_top as isize),
+                        .add(first_row_y as isize),
                 ),
                 self.render_metrics.cell_size,
             );

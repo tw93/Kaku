@@ -345,6 +345,22 @@ mod tests {
     }
 
     #[test]
+    fn ime_caret_uses_the_rendered_content_origin() {
+        // #615: the IME candidate window covered the preedit because the caret
+        // rect skipped the integrated-buttons top clearance in the os border.
+        let caret = include_str!("../mod.rs")
+            .split("fn update_text_cursor(&mut self, pos: &PositionedPane)")
+            .nth(1)
+            .unwrap()
+            .split("\n    fn ")
+            .next()
+            .unwrap();
+        assert!(caret.contains("self.terminal_first_row_offset()"));
+        assert!(caret.contains("self.content_left_inset()"));
+        assert!(!caret.contains("tab_bar_pixel_height("));
+    }
+
+    #[test]
     fn first_row_offset_keeps_supplied_notch_and_top_tab_bar() {
         assert_eq!(terminal_first_row_offset(56., 64), 120.);
         assert_eq!(terminal_first_row_offset(0., 64), 64.);
