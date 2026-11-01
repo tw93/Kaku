@@ -65,9 +65,9 @@ Use this Mac's terminals from a browser on another device, through Kaku's relay.
 ```bash
 kaku remote               # turn remote access on (asks first) and print a pairing link
 kaku remote devices       # list paired browsers
-kaku remote revoke <id>   # remove a browser; its open sessions end within seconds
+kaku remote revoke <id>   # unpair a browser; its open sessions end within seconds
 kaku remote off           # turn remote access off
-kaku remote --reset       # new identity, every paired browser removed
+kaku remote --reset       # new identity, every browser unpaired
 ```
 
 The page is made for desktop browsers for now. Open the link in the browser you want to pair, check that the browser and `kaku remote` show the same six-digit code, and press Enter in the terminal to allow it, or Ctrl+C to refuse. Someone who gets hold of the link cannot pair without that Enter. A link works once, for 10 minutes, so run `kaku remote` again for each device. After pairing, bookmark the page: the browser keeps its own key and comes back without a new link. What you type and see is encrypted between the browser and Kaku, and the relay only forwards it. Kaku posts a notification when a paired browser returns after a while. `kaku doctor` shows whether Kaku is connected to the relay.

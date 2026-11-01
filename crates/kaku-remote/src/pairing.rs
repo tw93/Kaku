@@ -634,7 +634,7 @@ pub(crate) fn announce_return(device: &Device) {
     }
     let title = format!("{} is using this Mac's terminals", device.name);
     let message = format!(
-        "Connected through Kaku remote. To remove it, run: kaku remote revoke {}",
+        "Connected through Kaku remote. To unpair it, run: kaku remote revoke {}",
         device.id
     );
     promise::spawn::spawn_into_main_thread(async move {

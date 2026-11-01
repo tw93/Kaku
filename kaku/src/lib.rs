@@ -113,7 +113,7 @@ impl CompletionGenerator for Shell {
 enum RemoteAction {
     /// List the browsers paired with this Kaku
     Devices,
-    /// Remove a paired browser; its open sessions end within seconds
+    /// Unpair a browser; its open sessions end within seconds
     Revoke {
         /// The id `kaku remote devices` shows
         id: String,
@@ -336,7 +336,7 @@ fn run_remote(reset: bool, action: Option<RemoteAction>) -> anyhow::Result<()> {
             if !kaku_remote::revoke_device(&id)? {
                 anyhow::bail!("no paired browser {id}; see `kaku remote devices`");
             }
-            println!("Removed {id}. Its open sessions end within a few seconds.");
+            println!("Unpaired {id}. Its open sessions end within a few seconds.");
             return Ok(());
         }
         Some(RemoteAction::Off) => {
