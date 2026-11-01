@@ -1781,7 +1781,7 @@ test('the close confirmation points at the tab or spot it asks about', async t =
   await p.locator('#menu button').getByText('Close Pane', { exact: true }).click();
   assert.equal(await p.locator('#dialog .title').innerText(), 'Close this pane?');
   g = await geometry();
-  assert.ok(Math.abs(g.card.top - (spot.y + 200) - 16) <= 1, 'card under the menu spot');
+  assert.ok(Math.abs(g.card.top - (spot.y + 200) - 16) <= 1, `card ${g.card.top} under the menu spot at ${spot.y + 200}`);
   assert.ok(Math.abs(g.tip.x - (spot.x + 300)) <= 1, 'tip on the menu spot');
 });
 
