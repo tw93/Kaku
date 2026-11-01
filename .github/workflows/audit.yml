@@ -1,7 +1,8 @@
 name: Security Audit
 
-# Weekly cargo-audit run over Cargo.lock. Reports RustSec advisories that
-# affect any transitive dependency in the workspace. Not a PR gate; a red run
+# Weekly cargo-audit run over the workspace Cargo.lock and the relay's own
+# crates/kaku-relay/Cargo.lock (the relay is a separate crate deployed on its
+# own, so the workspace audit never sees its dependencies). Not a PR gate; a red run
 # on main is the triage signal. cargo-audit is a prebuilt binary from
 # taiki-e/install-action because building it from source (rustsec/audit-check
 # does) breaks whenever its dependency tree bumps MSRV past the runner's rustc.
@@ -39,3 +40,7 @@ jobs:
 
       - name: Run cargo audit
         run: cargo audit
+
+      - name: Run cargo audit on the relay
+        if: ${{ !cancelled() }}
+        run: cargo audit --file crates/kaku-relay/Cargo.lock
