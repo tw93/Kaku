@@ -772,13 +772,20 @@ html[lang^="zh"] .gallery-caption .line { margin-bottom: 0; }
 .doc-card:hover h2 { color: var(--brand); }
 .doc-card > span { display: none; }
 .page-hero {
-  padding: 46px 0 32px;
+  /* mole.fit's distances (maintainer 2026-11-01): 47px of ink from the nav pill
+     to the title, about 45 from the lede to the content (32 / 38 on phones).
+     It read 59 above and 34 below, the lede closer to the content than the
+     title was to the nav. The title's 14 top margin only spaces it from a
+     breadcrumb above it. */
+  padding: 48px 0 44px;
   background: var(--parchment);
 }
 .page-hero .label { display: none; }
+.page-hero .blog-crumb + h1 { margin-top: 14px; }
+@media (max-width: 640px) { .page-hero { padding: 33px 0 36px; } }
 .page-hero h1 {
   max-width: none;
-  margin: 14px 0 12px;
+  margin: 0 0 12px;
   color: var(--dark-warm);
   font-size: var(--text-section);
   font-weight: 500;
@@ -795,7 +802,7 @@ html[lang^="zh"] .gallery-caption .line { margin-bottom: 0; }
 .error-hero { padding: 104px 0 140px; }
 .error-hero .section-num { margin-bottom: 10px; }
 .error-actions { margin-top: 30px; }
-.docs-section { padding-top: 42px; }
+.docs-section { padding-top: 0; }
 .docs-layout {
   display: grid;
   grid-template-columns: 178px minmax(0, 1fr);
@@ -901,8 +908,14 @@ html[lang^="zh"] .gallery-caption .line { margin-bottom: 0; }
   font-weight: 500;
   letter-spacing: 0;
   line-height: 1.22;
-  scroll-margin-top: 90px;
+  scroll-margin-top: var(--anchor-clear);
 }
+/* A heading reached by its link lands 47px under the pill, 34 on phones, the
+   distance the pill keeps above a page title (it was 19 / 27 at 90). Release
+   versions linked from the feed land the same way. */
+:root { --anchor-clear: 118px; }
+@media (max-width: 640px) { :root { --anchor-clear: 97px; } }
+.release-doc h2[id] { scroll-margin-top: var(--anchor-clear); }
 .doc-content h2 {
   margin: 56px 0 12px;
   font-size: var(--text-title);
