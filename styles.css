@@ -1395,11 +1395,13 @@ html[lang^="zh"] .foot-links b { letter-spacing: 0.6px; }
   .hero { min-height: auto; padding: 40px 0 0; }
   .hero h1 .cn { margin-left: 12px; }
   .cn-orbit::after { left: calc(50% + 6px); }
+  .hero-sub { font-size: 18px; }
 }
 @media (max-width: 880px) {
   .feature-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .wide, .hero-wrap, .hero-centered { padding-inline: 28px; }
   .site-nav { padding-inline: 14px; }
+  .section-head h2 { font-size: 26px; }
 }
 /* Phones keep the sizes they had before the desktop ladder (decide 1030-13,
    maintainer 2026-11-01): the ladder above 640px does not change them. */
@@ -1634,7 +1636,7 @@ html[lang^="zh"] .foot-links b { letter-spacing: 0.6px; }
   flex-direction: column;
   padding: 14px 18px 16px;
 }
-.blog-card-title { margin: 0 0 4px; color: var(--near-black); font-size: var(--text-title); font-weight: 600; line-height: 1.3; }
+.blog-card-title { margin: 0 0 4px; color: var(--near-black); font-size: var(--text-lede); font-weight: 600; line-height: 1.3; }
 .blog-card-desc { margin: 0 0 12px; color: var(--dark-warm); font-size: var(--text-body); line-height: 1.55; }
 @media (hover: hover) {
   .blog-card:hover, .doc-content .blog-related-list a:hover { border-color: var(--line); box-shadow: 0 2px 8px rgba(20, 19, 19, 0.05); }
