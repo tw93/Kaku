@@ -1537,8 +1537,6 @@ html[lang^="zh"] .foot-links b { letter-spacing: 0.6px; }
   max-width: 100%;
   height: auto;
   margin: 0 auto;
-  border: 1px solid var(--border-soft);
-  border-radius: var(--radius-md);
 }
 .blog-diagram figcaption {
   margin-top: 10px;
