@@ -2542,7 +2542,7 @@ impl App {
         }
         let status_val = status_value_for_display(&field_key, &new_val);
         match save_field(tool_kind, &field_key, &new_val) {
-            Ok(()) => self.set_status(format!("Saved {} → {}", field_key, status_val)),
+            Ok(()) => self.set_status(format!("Saved {} as {}", field_key, status_val)),
             Err(e) => {
                 self.set_status(format!("Save failed: {}", e));
                 self.set_error(format!("Save failed: {}", e));
@@ -2604,7 +2604,7 @@ impl App {
 
         let status_val = status_value_for_display(&field_key, &new_val);
         match save_field(tool_kind, &field_key, &new_val) {
-            Ok(()) => self.set_status(format!("Saved {} → {}", field_key, status_val)),
+            Ok(()) => self.set_status(format!("Saved {} as {}", field_key, status_val)),
             Err(e) => {
                 self.set_status(format!("Save failed: {}", e));
                 self.set_error(format!("Save failed: {}", e));
