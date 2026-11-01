@@ -149,7 +149,7 @@ fn dark_palette() -> ThemePalette {
         accent: rgb("#DAAE76"),
         error: rgb("#D85D5D"),
         text: rgb("#D5D4D6"),
-        muted: rgb("#6D6D6D"),
+        muted: rgb("#7E7E7E"),
         bg: rgb("#15141B"),
         is_light: false,
     }
@@ -162,7 +162,7 @@ fn light_palette() -> ThemePalette {
         accent: rgb("#9A7400"),
         error: rgb("#AF3029"),
         text: rgb("#403E3C"),
-        muted: rgb("#7A7872"),
+        muted: rgb("#76746F"),
         bg: rgb("#FFFCF0"),
         is_light: true,
     }
