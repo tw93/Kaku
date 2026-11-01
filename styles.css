@@ -622,6 +622,7 @@ button, input { font: inherit; }
 .gallery-panel.is-active { opacity: 1; visibility: visible; z-index: 2; }
 .gallery-panel.was-active { opacity: 0; visibility: visible; z-index: 3; pointer-events: none; }
 .gallery-panel img { display: block; width: 100%; height: 100%; object-fit: cover; }
+@media (max-width: 640px) { .gallery-frame { aspect-ratio: 2432 / 1576; } }
 .gallery-caption {
   grid-column: 1;
   grid-row: 2;

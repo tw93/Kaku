@@ -4,6 +4,7 @@ Run after adding, removing or replacing a capture in shots/home/: it refreshes
 the captions, tabs and the ?v= content hashes in both languages.
 """
 import hashlib, html, pathlib, re
+from PIL import Image
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 SHOTS = [
@@ -34,6 +35,21 @@ SHOTS = [
 ]
 
 
+# Phones get the same capture cropped to the window plus a 16px margin (the window sits at
+# +92+98 and is 2400 x 1544 px on the 2584 x 1741 plate), so the terminal text is not
+# shrunk by the wallpaper around it. Nothing inside the window is cut.
+PHONE_BOX = (76, 82, 2508, 1658)
+PHONE_WIDTHS = (800, 1200)
+
+
+def make_phone(key):
+    src = Image.open(ROOT / "shots/home" / f"{key}.webp").convert("RGB").crop(PHONE_BOX)
+    w, h = src.size
+    for width in PHONE_WIDTHS:
+        src.resize((width, round(h * width / w)), Image.LANCZOS).save(
+            ROOT / "shots/home" / f"{key}-phone-{width}w.webp", "WEBP", quality=82, method=6)
+
+
 def ver(name):
     data = (ROOT / "shots/home" / f"{name}.webp").read_bytes()
     return hashlib.sha256(data).hexdigest()[:12]
@@ -45,16 +61,20 @@ def block(lang):
     for i, (key, en_tab, zh_tab, en_line, zh_line) in enumerate(SHOTS):
         tab, line = (zh_tab, zh_line) if zh else (en_tab, en_line)
         v = ver(key)
+        make_phone(key)
+        pv = ver(f"{key}-phone-1200w")
         base = f"/shots/home/{key}"
         srcset = f"{base}-1080w.webp?v={v} 1080w, {base}-1980w.webp?v={v} 1980w, {base}.webp?v={v} 2584w"
+        phone = ", ".join(f"{base}-phone-{w}w.webp?v={pv} {w}w" for w in PHONE_WIDTHS)
         first = i == 0
         load = 'fetchpriority="high"' if first else 'loading="lazy"'
         state = ' is-active' if first else ''
         hidden = '' if first else ' aria-hidden="true"'
         panels.append(
             f'          <figure class="gallery-panel{state}" id="shot-{key}" role="tabpanel" aria-labelledby="tab-{key}"{hidden}>'
+            f'<picture><source media="(max-width: 640px)" srcset="{phone}" sizes="calc(100vw - 32px)" width="2432" height="1576">'
             f'<img src="{base}-1980w.webp?v={v}" srcset="{srcset}" '
-            f'sizes="(max-width: 1120px) calc(100vw - 32px), 992px" width="2584" height="1741" {load} decoding="async" alt="{html.escape(line)}"></figure>')
+            f'sizes="(max-width: 1120px) calc(100vw - 32px), 992px" width="2584" height="1741" {load} decoding="async" alt="{html.escape(line)}"></picture></figure>')
         sel = 'true' if first else 'false'
         ti = '' if first else ' tabindex="-1"'
         cls = ' class="is-active"' if first else ''
