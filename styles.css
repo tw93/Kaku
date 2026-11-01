@@ -42,7 +42,7 @@
 
 :root {
   /* Desktop type ladder (decide 1030-13, maintainer 2026-11-01): five sizes, nothing between. */
-  --text-meta: 13px;
+  --text-meta: 14px;
   --text-body: 15px;
   --text-lede: 16px;
   --text-title: 21px;
@@ -673,7 +673,7 @@ html[lang^="zh"] .gallery-caption .line { margin-bottom: 0; }
   font-family: var(--serif);
   font-size: var(--text-meta);
   line-height: 1;
-  padding: 8px;
+  padding: 6px 14px;
   white-space: nowrap;
   cursor: pointer;
   transition: color 0.18s ease, border-color 0.18s ease, background 0.18s ease;
@@ -697,7 +697,7 @@ html[lang^="zh"] .gallery-caption .line { margin-bottom: 0; }
     scrollbar-width: none;
   }
   .gallery-tabs::-webkit-scrollbar { display: none; }
-  .gallery-tabs button { flex: 0 0 auto; padding: 8px 10px; }
+  .gallery-tabs button { flex: 0 0 auto; padding: 6px 14px; }
 }
 @media (max-width: 560px) {
   /* Compare and Changelog stay in the footer; the bar keeps Docs and Blog on phones. */
@@ -1684,4 +1684,15 @@ html[lang^="zh"] .foot-links b { letter-spacing: 0.6px; }
   .blog-card-title { font-size: 17px; }
   .blog-group-title, .doc-content .blog-related-title { font-size: 22px; }
   .release-doc h2 .release-date { font-size: 15px; }
+}
+
+/* Meta is 14px on desktop (maintainer 2026-11-01: 13 read small beside the
+   hero's tagline); phones keep the 13px meta of their own ladder. */
+@media (max-width: 640px) {
+  :root { --text-meta: 13px; }
+}
+/* CJK hero tagline on desktop: 20px, the ladder's one exception (maintainer
+   2026-11-01, from 16/18/20/21 drawn on mole.fit's Chinese home). */
+@media (min-width: 881px) {
+  html:is([lang^="zh"], [lang="ja"], [lang="ko"]) .hero-sub { font-size: 20px; }
 }
