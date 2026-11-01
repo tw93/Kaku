@@ -18,7 +18,7 @@
   <a href="https://github.com/tw93/Kaku/releases"><img src="https://img.shields.io/github/v/tag/tw93/Kaku?label=version&style=flat-square" alt="Version"></a>
   <a href="LICENSE.md"><img src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square" alt="License"></a>
   <a href="https://github.com/tw93/Kaku/commits"><img src="https://img.shields.io/github/commit-activity/m/tw93/Kaku?style=flat-square" alt="Commits"></a>
-  <a href="https://twitter.com/HiTw93"><img src="https://img.shields.io/badge/follow-Tw93-red?style=flat-square&logo=Twitter" alt="Twitter"></a>
+  <a href="https://x.com/HiTw93"><img src="https://img.shields.io/badge/follow-Tw93-red?style=flat-square&logo=Twitter" alt="Twitter"></a>
 </div>
 
 <p align="center">
@@ -116,7 +116,7 @@ WezTerm 很穩，也很好改，我很感謝它的引擎和生態，於是在它
 ## 支持
 
 - 最直接的支持方式是購買我製作的 Mac 付費清理工具 [Mole for Mac](https://mole.fit)
-- 如果 Kaku 對你有幫助，歡迎給它一個 Star、[分享推薦](https://twitter.com/intent/tweet?url=https://github.com/tw93/Kaku&text=Kaku%20-%20A%20modern%2C%20AI-friendly%20Mac%20terminal.)，或提交 Issue 與 PR
+- 如果 Kaku 對你有幫助，歡迎給它一個 Star、[分享推薦](https://x.com/intent/tweet?url=https://github.com/tw93/Kaku&text=Kaku%20-%20A%20modern%2C%20AI-friendly%20Mac%20terminal.)，或提交 Issue 與 PR
 - 我養了兩隻貓，湯圓和可樂，如果 Kaku 讓你覺得好用，歡迎請她們吃一頓 <a href="https://cats.tw93.fun?name=Kaku" target="_blank">罐頭 🥩</a>
 
 已經請客的好心人 🐱
