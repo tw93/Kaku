@@ -99,6 +99,9 @@ const HEADER_READ_TIMEOUT: Duration = Duration::from_secs(20);
 /// many people use it can be read from `fly logs`, which keeps about an
 /// hour, without keeping any id.
 const USAGE_EVERY: Duration = Duration::from_secs(10 * 60);
+/// How long a stopping relay waits for its Macs to take the restart close
+/// before it exits; Fly gives a stopping machine 5 s before it kills it.
+const SHUTDOWN_GRACE: Duration = Duration::from_secs(3);
 
 /// A token bucket. `take` may go into debt and returns how long the caller
 /// should wait for it to clear, which paces a stream without refusing a
@@ -414,6 +417,22 @@ struct AppState {
 }
 
 impl AppState {
+    /// Tell every registered Mac the relay is going away for a restart
+    /// (close 1012), so it retries every second until the new relay is up
+    /// instead of backing off. Returns how many registrations were told.
+    fn announce_restart(&self) -> usize {
+        let hosts: Vec<Arc<Host>> = self.hosts.lock().values().flatten().cloned().collect();
+        hosts
+            .iter()
+            .filter(|host| {
+                host.send(ws::Message::Close(Some(ws::CloseFrame {
+                    code: 1012,
+                    reason: "relay restarting".into(),
+                })))
+            })
+            .count()
+    }
+
     /// Macs online (ids, not registrations), browsers connected to them,
     /// and of those the ones their Mac admitted.
     fn usage(&self) -> (usize, usize, usize) {
@@ -1333,7 +1352,35 @@ async fn main() {
             info!("in use: {macs} Macs, {browsers} browsers ({admitted} paired)");
         }
     });
-    serve(listener, app(state), HEADER_READ_TIMEOUT).await;
+    let stopping = state.clone();
+    tokio::select! {
+        _ = serve(listener, app(state), HEADER_READ_TIMEOUT) => {}
+        signal = stop_signal() => {
+            // Dropping `serve` drops the listener, so no new socket lands on
+            // this process while it goes.
+            let told = stopping.announce_restart();
+            info!("{signal}: told {told} Macs the relay is restarting");
+            let deadline = tokio::time::Instant::now() + SHUTDOWN_GRACE;
+            while !stopping.hosts.lock().is_empty() && tokio::time::Instant::now() < deadline {
+                tokio::time::sleep(Duration::from_millis(50)).await;
+            }
+        }
+    }
+}
+
+/// SIGINT (Fly's default stop signal) or SIGTERM (Docker's).
+async fn stop_signal() -> &'static str {
+    use tokio::signal::unix::{signal, SignalKind};
+    let (Ok(mut int), Ok(mut term)) = (
+        signal(SignalKind::interrupt()),
+        signal(SignalKind::terminate()),
+    ) else {
+        return std::future::pending().await;
+    };
+    tokio::select! {
+        _ = int.recv() => "SIGINT",
+        _ = term.recv() => "SIGTERM",
+    }
 }
 
 #[cfg(test)]
@@ -1943,6 +1990,20 @@ mod tests {
         let after = data_at_mac(&mut mac, Duration::from_millis(300)).await;
         let all: Vec<u8> = before.iter().chain(&after).map(|m| m[0]).collect();
         assert_eq!(all, (0..total as u8).collect::<Vec<_>>());
+    }
+
+    /// A stopping relay closes each Mac's link with 1012, which is what
+    /// tells the Mac to retry every second rather than back off.
+    #[tokio::test]
+    async fn a_restart_closes_every_mac_with_1012() {
+        let state = AppState::default();
+        let relay = start_relay(state.clone(), HEADER_READ_TIMEOUT).await;
+        let (mut mac, _browser, _) = mac_and_browser(&state, relay).await;
+        assert_eq!(state.announce_restart(), 1);
+        let Some(T::Close(Some(frame))) = next(&mut mac, Duration::from_secs(5)).await else {
+            panic!("the Mac gets a close frame")
+        };
+        assert_eq!(u16::from(frame.code), 1012);
     }
 
     #[tokio::test]

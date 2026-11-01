@@ -50,6 +50,12 @@ const MAX_BACKOFF: Duration = Duration::from_secs(30);
 /// upstream is gone; without a limit the bridge waited there for hours and
 /// the link stayed offline until Kaku restarted.
 const CONNECT_TIMEOUT: Duration = Duration::from_secs(20);
+/// After the relay says it is restarting (a deploy), how long to keep
+/// retrying every `RESTART_RETRY` instead of backing off: a doubling backoff
+/// that misses the first second or two of the new relay could keep this Mac
+/// offline for up to `MAX_BACKOFF` after it is back.
+const RESTART_WINDOW: Duration = Duration::from_secs(60);
+const RESTART_RETRY: Duration = Duration::from_secs(1);
 
 // ── Identity ──────────────────────────────────────────────────────────────────
 
@@ -635,6 +641,7 @@ impl Drop for AssetRequests {
 /// Keep this Kaku registered with the relay for as long as the bridge runs.
 pub(crate) async fn run(relay_url: String, dirty: WebDirty) {
     let mut backoff = Duration::from_secs(1);
+    let mut restart_until: Option<tokio::time::Instant> = None;
     loop {
         let identity = match load_or_create_identity() {
             Ok(identity) => identity,
@@ -646,8 +653,12 @@ pub(crate) async fn run(relay_url: String, dirty: WebDirty) {
         };
         let mut connected_at = None;
         match serve(&relay_url, &identity, &dirty, &mut connected_at).await {
-            Ok(()) => {
+            Ok(ended) => {
                 backoff = Duration::from_secs(1);
+                if ended == Ended::RelayRestarting {
+                    log::info!("kaku-share: relay is restarting, retrying every second");
+                    restart_until = Some(tokio::time::Instant::now() + RESTART_WINDOW);
+                }
                 crate::record_relay_status(&relay_url, false, None);
             }
             Err(e) => {
@@ -659,6 +670,11 @@ pub(crate) async fn run(relay_url: String, dirty: WebDirty) {
             backoff,
             connected_at.map(|at: tokio::time::Instant| at.elapsed()),
         );
+        if restart_until.is_some_and(|until| tokio::time::Instant::now() < until) {
+            tokio::time::sleep(RESTART_RETRY).await;
+            continue;
+        }
+        restart_until = None;
         if wait_unless_access_changes(backoff).await {
             backoff = Duration::from_secs(1);
         } else {
@@ -687,6 +703,24 @@ async fn wait_unless_access_changes(delay: Duration) -> bool {
         tokio::time::sleep(step).await;
     }
     false
+}
+
+/// How a relay connection that did not fail ended.
+#[derive(Debug, PartialEq)]
+enum Ended {
+    Closed,
+    /// The relay closed with 1012 (service restart) on its way down.
+    RelayRestarting,
+}
+
+impl Ended {
+    fn from_close(frame: Option<&tokio_tungstenite::tungstenite::protocol::CloseFrame>) -> Self {
+        use tokio_tungstenite::tungstenite::protocol::frame::coding::CloseCode;
+        match frame {
+            Some(frame) if frame.code == CloseCode::Restart => Ended::RelayRestarting,
+            _ => Ended::Closed,
+        }
+    }
 }
 
 fn retry_delay(previous: Duration, connected_for: Option<Duration>) -> Duration {
@@ -845,7 +879,7 @@ async fn serve(
     identity: &ShareIdentity,
     dirty: &WebDirty,
     connected_at: &mut Option<tokio::time::Instant>,
-) -> anyhow::Result<()> {
+) -> anyhow::Result<Ended> {
     let mac_key = identity.mac_key()?;
     let id = identity.id();
     let mut request = format!("{}/host/{id}", relay_url.trim_end_matches('/'))
@@ -916,7 +950,7 @@ async fn serve(
                 let msg = match msg {
                     Some(Ok(msg)) => msg,
                     Some(Err(e)) => break Err(anyhow::Error::from(e)),
-                    None => break Ok(()),
+                    None => break Ok(Ended::Closed),
                 };
                 last_heard = tokio::time::Instant::now();
                 match msg {
@@ -996,7 +1030,7 @@ async fn serve(
                             }
                         }
                     }
-                    Message::Close(_) => break Ok(()),
+                    Message::Close(frame) => break Ok(Ended::from_close(frame.as_ref())),
                     _ => {}
                 }
             }
@@ -1005,7 +1039,7 @@ async fn serve(
                     break Err(anyhow::anyhow!("relay went silent"));
                 }
                 if to_relay.interactive.try_send(Outbound::Protocol(Message::Ping(Vec::new().into()))).is_err() {
-                    break Ok(());
+                    break Ok(Ended::Closed);
                 }
             }
             _ = confirm_check.tick() => {
@@ -1051,7 +1085,7 @@ async fn serve(
                 // the old one stops working.
                 if read_identity().as_ref() != Some(identity) {
                     log::info!("kaku-share: share link changed, re-registering");
-                    break Ok(());
+                    break Ok(Ended::Closed);
                 }
             }
         }
@@ -1947,5 +1981,22 @@ mod tests {
         let mut old = b"KCB2".to_vec();
         old.extend_from_slice(&[0u8; 16]);
         assert!(matches!(fx.step(&mut browser, &old), Step::Close(OLD_PAGE)));
+    }
+
+    #[test]
+    fn only_a_restart_close_means_the_relay_is_restarting() {
+        use tokio_tungstenite::tungstenite::protocol::frame::coding::CloseCode;
+        use tokio_tungstenite::tungstenite::protocol::CloseFrame;
+        let close = |code| CloseFrame {
+            code,
+            reason: "".into(),
+        };
+        assert_eq!(
+            Ended::from_close(Some(&close(CloseCode::Restart))),
+            Ended::RelayRestarting
+        );
+        assert_eq!(Ended::from_close(Some(&close(CloseCode::Normal))), Ended::Closed);
+        assert_eq!(Ended::from_close(Some(&close(CloseCode::Away))), Ended::Closed);
+        assert_eq!(Ended::from_close(None), Ended::Closed);
     }
 }
