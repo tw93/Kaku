@@ -41,6 +41,12 @@
 }
 
 :root {
+  /* Desktop type ladder (decide 1030-13, maintainer 2026-11-01): five sizes, nothing between. */
+  --text-meta: 13px;
+  --text-body: 15px;
+  --text-lede: 16px;
+  --text-title: 21px;
+  --text-section: 32px;
   --parchment: #f5f4ed;
   --ivory: #faf9f5;
   --warm-sand: #e8e6dc;
@@ -101,7 +107,7 @@ body {
   background: var(--parchment);
   color: var(--near-black);
   font-family: var(--serif);
-  font-size: 17px;
+  font-size: var(--text-lede);
   line-height: 1.7;
   letter-spacing: 0;
   -webkit-font-smoothing: antialiased;
@@ -129,7 +135,7 @@ img { max-width: 100%; height: auto; }
 code, pre { font-family: var(--mono); }
 .sk {
   font-family: var(--ui);
-  font-size: 0.86em;
+  font-size: var(--text-meta);
   font-weight: 500;
   letter-spacing: 0.2px;
   color: var(--dark-warm);
@@ -152,7 +158,7 @@ button, input { font: inherit; }
   color: var(--ivory);
   padding: 8px 14px;
   font-family: var(--ui);
-  font-size: 14px;
+  font-size: var(--text-meta);
   transition: transform 160ms var(--ease);
 }
 .skip-link:focus { transform: translateY(0); }
@@ -165,7 +171,7 @@ button, input { font: inherit; }
 .label {
   color: var(--stone);
   font-family: var(--ui);
-  font-size: 14px;
+  font-size: var(--text-meta);
   font-weight: 500;
   letter-spacing: 0;
   line-height: 1;
@@ -174,7 +180,7 @@ button, input { font: inherit; }
   margin: 0 0 18px;
   color: var(--stone);
   font-family: var(--ui);
-  font-size: 14px;
+  font-size: var(--text-meta);
   font-weight: 500;
   letter-spacing: 0;
 }
@@ -186,7 +192,7 @@ button, input { font: inherit; }
 .section-head h2 {
   margin: 0;
   color: var(--dark-warm);
-  font-size: 32px;
+  font-size: var(--text-section);
   font-weight: 500;
   line-height: 1.2;
   letter-spacing: -0.3px;
@@ -194,7 +200,7 @@ button, input { font: inherit; }
 .section-head p {
   margin: 12px 0 0;
   color: var(--olive);
-  font-size: 16px;
+  font-size: var(--text-lede);
   line-height: 1.55;
 }
 /* The 404 hero's label, the one eyebrow left: section heads carry none since
@@ -203,7 +209,7 @@ button, input { font: inherit; }
 .section-num {
   display: block;
   font-family: var(--ui);
-  font-size: 15px;
+  font-size: var(--text-meta);
   font-weight: 500;
   letter-spacing: 0.4px;
   color: var(--stone);
@@ -221,7 +227,7 @@ button, input { font: inherit; }
   padding: 13px 28px;
   min-width: 158px;
   font-family: var(--serif);
-  font-size: 15px;
+  font-size: var(--text-body);
   font-weight: 500;
   letter-spacing: 0.2px;
   line-height: 1.55;
@@ -268,7 +274,7 @@ button, input { font: inherit; }
   border-radius: 999px;
   background: var(--ivory);
   font-family: var(--serif);
-  font-size: 14px;
+  font-size: var(--text-meta);
   font-weight: 500;
   letter-spacing: 0;
   color: var(--stone);
@@ -287,7 +293,7 @@ button, input { font: inherit; }
 }
 .brand strong {
   font-family: var(--serif);
-  font-size: 16px;
+  font-size: var(--text-lede);
   font-weight: 600;
   letter-spacing: 0.1px;
   text-transform: none;
@@ -300,7 +306,7 @@ button, input { font: inherit; }
   line-height: 1;
   color: var(--dark-warm);
   font-family: var(--serif);
-  font-size: 14px;
+  font-size: var(--text-meta);
   font-weight: 500;
   letter-spacing: 0;
   transition: color 160ms var(--ease);
@@ -314,7 +320,7 @@ button, input { font: inherit; }
   gap: 5px;
   min-height: 44px;
   color: var(--stone);
-  font-size: 13px;
+  font-size: var(--text-meta);
   line-height: 1;
   list-style: none;
   cursor: pointer;
@@ -352,7 +358,7 @@ button, input { font: inherit; }
   padding: 6px 10px;
   border-radius: 6px;
   color: var(--dark-warm);
-  font-size: 13px;
+  font-size: var(--text-meta);
   line-height: 1.35;
 }
 .lang-option:hover { color: var(--brand); background: var(--brand-tint); text-decoration: none; }
@@ -401,7 +407,7 @@ button, input { font: inherit; }
   max-width: none;
   margin: 0 0 32px;
   color: var(--olive);
-  font-size: clamp(18px, 2.3vw, 21px);
+  font-size: var(--text-title);
   line-height: 1.4;
   letter-spacing: 0;
 }
@@ -420,7 +426,7 @@ button, input { font: inherit; }
   gap: 0;
   margin: 0 0 30px;
   font-family: var(--serif);
-  font-size: 15px;
+  font-size: var(--text-body);
   color: var(--stone);
 }
 .hero-trust span:not(:last-child)::after {
@@ -469,8 +475,8 @@ button, input { font: inherit; }
   padding: 1px 4px;
 }
 .prose h2, .prose h3 { color: var(--near-black); font-weight: 500; letter-spacing: 0; line-height: 1.2; }
-.prose h2 { margin: 0 0 16px; font-size: clamp(26px, 3vw, 32px); }
-.prose h3 { margin: 0 0 10px; font-size: 22px; }
+.prose h2 { margin: 0 0 16px; font-size: var(--text-section); }
+.prose h3 { margin: 0 0 10px; font-size: var(--text-title); }
 .prose p { color: var(--dark-warm); margin: 0 0 18px; }
 .prose .label { margin-bottom: 18px; display: block; }
 
@@ -487,8 +493,8 @@ button, input { font: inherit; }
   border-top: 1px solid var(--border-soft);
   transition: color 160ms var(--ease);
 }
-.feature strong { color: var(--near-black); font-size: 18px; font-weight: 500; line-height: 1.28; }
-.feature span { color: var(--dark-warm); font-family: var(--serif); font-size: 16px; line-height: 1.6; }
+.feature strong { color: var(--near-black); font-size: var(--text-title); font-weight: 500; line-height: 1.28; }
+.feature span { color: var(--dark-warm); font-family: var(--serif); font-size: var(--text-body); line-height: 1.6; }
 .feature:hover strong { color: var(--brand); }
 
 .split {
@@ -512,7 +518,7 @@ button, input { font: inherit; }
   margin-bottom: 4px;
   color: var(--term-muted);
   font-family: var(--ui);
-  font-size: 12px;
+  font-size: var(--text-meta);
   letter-spacing: 0;
 }
 /* Homepage compare: the compare page's glance table cut to the four usual picks. */
@@ -524,16 +530,16 @@ button, input { font: inherit; }
   text-align: left;
   vertical-align: top;
   font-family: var(--serif);
-  font-size: 15px;
+  font-size: var(--text-body);
   line-height: 1.5;
 }
 .home-compare tr:first-child > * { border-top: 0; }
-.home-compare thead th { color: var(--stone); font-size: 14px; font-weight: 500; white-space: nowrap; }
-.home-compare tbody th { width: 112px; color: var(--stone); font-size: 14px; font-weight: 500; white-space: nowrap; }
+.home-compare thead th { color: var(--stone); font-size: var(--text-meta); font-weight: 500; white-space: nowrap; }
+.home-compare tbody th { width: 112px; color: var(--stone); font-size: var(--text-meta); font-weight: 500; white-space: nowrap; }
 .home-compare td { color: var(--dark-warm); }
 .home-compare thead th:nth-child(2), .home-compare td:nth-child(2) { color: var(--near-black); font-weight: 500; }
 .home-compare th:last-child, .home-compare td:last-child { padding-right: 0; }
-.section-more { margin: 16px 0 0; font-size: 15px; }
+.section-more { margin: 16px 0 0; font-size: var(--text-body); }
 .section-more a { color: var(--brand); }
 .section-more a:hover { color: var(--brand-light); }
 .workflow-list {
@@ -553,7 +559,7 @@ button, input { font: inherit; }
 .workflow-item h3 {
   margin: 0;
   color: var(--near-black);
-  font-size: 24px;
+  font-size: var(--text-title);
   font-weight: 500;
   line-height: 1.2;
 }
@@ -561,7 +567,7 @@ button, input { font: inherit; }
   margin: 0;
   color: var(--dark-warm);
   font-family: var(--serif);
-  font-size: 16px;
+  font-size: var(--text-body);
   line-height: 1.65;
 }
 
@@ -586,7 +592,7 @@ button, input { font: inherit; }
   padding: 10px 2px 0;
   color: var(--stone);
   font-family: var(--ui);
-  font-size: 14px;
+  font-size: var(--text-meta);
   letter-spacing: 0.2px;
 }
 
@@ -637,7 +643,7 @@ button, input { font: inherit; }
   margin: 0;
   color: var(--brand);
   font-family: var(--serif);
-  font-size: 17px;
+  font-size: var(--text-lede);
   font-weight: 500;
   letter-spacing: 0.1px;
 }
@@ -645,7 +651,7 @@ button, input { font: inherit; }
   margin: 0 0 1.25px;
   color: var(--olive);
   font-family: var(--serif);
-  font-size: 14px;
+  font-size: var(--text-meta);
 }
 html[lang^="zh"] .gallery-caption { align-items: center; }
 html[lang^="zh"] .gallery-caption .line { margin-bottom: 0; }
@@ -665,7 +671,7 @@ html[lang^="zh"] .gallery-caption .line { margin-bottom: 0; }
   background: transparent;
   color: var(--olive);
   font-family: var(--serif);
-  font-size: 13px;
+  font-size: var(--text-meta);
   line-height: 1;
   padding: 8px;
   white-space: nowrap;
@@ -730,7 +736,7 @@ html[lang^="zh"] .gallery-caption .line { margin-bottom: 0; }
 .method h2, .quick-card h3 {
   margin: 0 0 12px;
   color: var(--near-black);
-  font-size: 22px;
+  font-size: var(--text-title);
   font-weight: 500;
   line-height: 1.25;
   letter-spacing: 0;
@@ -738,13 +744,13 @@ html[lang^="zh"] .gallery-caption .line { margin-bottom: 0; }
 /* Quick card titles are h2 for heading order, styled as the h3 they replaced. */
 .doc-content .quick-card h2 {
   margin: 32px 0 8px;
-  font-size: 18px;
+  font-size: var(--text-title);
   font-weight: 500;
 }
 .doc-card h2 {
   margin: 0;
   color: var(--near-black);
-  font-size: 18px;
+  font-size: var(--text-title);
   font-weight: 500;
   line-height: 1.28;
   letter-spacing: 0;
@@ -753,14 +759,14 @@ html[lang^="zh"] .gallery-caption .line { margin-bottom: 0; }
   margin: 0 0 18px;
   color: var(--dark-warm);
   font-family: var(--serif);
-  font-size: 16px;
+  font-size: var(--text-body);
   line-height: 1.6;
 }
 .doc-card p {
   margin: 0;
   color: var(--dark-warm);
   font-family: var(--serif);
-  font-size: 16px;
+  font-size: var(--text-body);
   line-height: 1.6;
 }
 .doc-card:hover h2 { color: var(--brand); }
@@ -774,7 +780,7 @@ html[lang^="zh"] .gallery-caption .line { margin-bottom: 0; }
   max-width: none;
   margin: 14px 0 12px;
   color: var(--dark-warm);
-  font-size: 32px;
+  font-size: var(--text-section);
   font-weight: 500;
   line-height: 1.2;
   letter-spacing: -0.3px;
@@ -783,7 +789,7 @@ html[lang^="zh"] .gallery-caption .line { margin-bottom: 0; }
   max-width: none;
   margin: 0;
   color: var(--olive);
-  font-size: 16px;
+  font-size: var(--text-lede);
   line-height: 1.55;
 }
 .error-hero { padding: 104px 0 140px; }
@@ -815,7 +821,7 @@ html[lang^="zh"] .gallery-caption .line { margin-bottom: 0; }
   border-bottom: 0;
   color: var(--stone);
   font-family: var(--ui);
-  font-size: 14px;
+  font-size: var(--text-meta);
   font-weight: 500;
   letter-spacing: 0;
 }
@@ -842,13 +848,13 @@ html[lang^="zh"] .gallery-caption .line { margin-bottom: 0; }
 }
 .docs-menu span {
   color: inherit;
-  font-size: 15px;
+  font-size: var(--text-body);
   font-weight: 500;
   line-height: 1.2;
 }
 .docs-menu small {
   color: var(--stone);
-  font-size: 13px;
+  font-size: var(--text-meta);
   line-height: 1.45;
   display: none;
 }
@@ -863,14 +869,14 @@ html[lang^="zh"] .gallery-caption .line { margin-bottom: 0; }
   margin: 0 0 6px;
   color: var(--stone);
   font-family: var(--ui);
-  font-size: 13px;
+  font-size: var(--text-meta);
   font-weight: 500;
   letter-spacing: 0;
 }
 .section-toc a {
   padding: 4px 0;
   color: var(--stone);
-  font-size: 14px;
+  font-size: var(--text-meta);
   line-height: 1.35;
 }
 .section-toc a.depth-3 { padding-left: 12px; }
@@ -879,7 +885,7 @@ html[lang^="zh"] .gallery-caption .line { margin-bottom: 0; }
   min-width: 0;
   color: var(--dark-warm);
   font-family: var(--sans);
-  font-size: 16px;
+  font-size: var(--text-lede);
   line-height: 1.65;
 }
 .doc-content > :first-child { margin-top: 0; }
@@ -899,7 +905,7 @@ html[lang^="zh"] .gallery-caption .line { margin-bottom: 0; }
 }
 .doc-content h2 {
   margin: 56px 0 12px;
-  font-size: 22px;
+  font-size: var(--text-title);
 }
 .doc-content > h2:first-child {
   margin-top: 0;
@@ -910,11 +916,11 @@ html[lang^="zh"] .gallery-caption .line { margin-bottom: 0; }
 }
 .doc-content h3 {
   margin: 32px 0 8px;
-  font-size: 19px;
+  font-size: var(--text-lede);
 }
 .doc-content h4 {
   margin: 26px 0 8px;
-  font-size: 17px;
+  font-size: var(--text-lede);
 }
 .doc-content .anchor {
   position: absolute;
@@ -922,7 +928,7 @@ html[lang^="zh"] .gallery-caption .line { margin-bottom: 0; }
   opacity: 0;
   color: var(--brand-light);
   font-family: var(--mono);
-  font-size: 16px;
+  font-size: var(--text-lede);
   transition: opacity 160ms var(--ease);
 }
 .doc-content h2:hover .anchor, .doc-content h3:hover .anchor, .doc-content h4:hover .anchor {
@@ -950,9 +956,11 @@ html[lang^="zh"] .gallery-caption .line { margin-bottom: 0; }
   background: var(--ivory);
   color: var(--brand);
   padding: 0.08em 0.32em;
-  font-size: 0.9em;
+  font-size: var(--text-body);
   word-break: break-word;
 }
+/* Code under a 13px caption stays on the meta rung instead of rising above it. */
+.doc-content figcaption code { font-size: var(--text-meta); }
 .doc-content pre {
   overflow-x: auto;
   margin: 20px 0 24px;
@@ -969,7 +977,7 @@ html[lang^="zh"] .gallery-caption .line { margin-bottom: 0; }
   background: transparent;
   color: var(--term-text);
   padding: 0;
-  font-size: 14px;
+  font-size: var(--text-meta);
   line-height: 1.65;
   word-break: normal;
 }
@@ -995,7 +1003,7 @@ html[lang^="zh"] .gallery-caption .line { margin-bottom: 0; }
 .doc-content th {
   color: var(--stone);
   font-family: var(--ui);
-  font-size: 13px;
+  font-size: var(--text-meta);
   font-weight: 500;
   letter-spacing: 0;
   white-space: nowrap;
@@ -1095,14 +1103,14 @@ html[lang^="zh"] .gallery-caption .line { margin-bottom: 0; }
 .doc-pager span {
   color: var(--stone);
   font-family: var(--ui);
-  font-size: 13px;
+  font-size: var(--text-meta);
   font-weight: 500;
   letter-spacing: 0;
 }
 .doc-pager strong {
   color: var(--brand);
   font-family: var(--serif);
-  font-size: 16px;
+  font-size: var(--text-lede);
   font-weight: 500;
   line-height: 1.2;
   transition: color 160ms var(--ease);
@@ -1112,7 +1120,7 @@ html[lang^="zh"] .gallery-caption .line { margin-bottom: 0; }
   margin: 44px 0 14px;
   color: var(--dark-warm);
   font-family: var(--serif);
-  font-size: 22px;
+  font-size: var(--text-title);
   font-weight: 500;
   line-height: 1.22;
 }
@@ -1122,7 +1130,7 @@ html[lang^="zh"] .gallery-caption .line { margin-bottom: 0; }
   margin-left: 12px;
   color: var(--stone);
   font-family: var(--serif);
-  font-size: 15px;
+  font-size: var(--text-meta);
   font-weight: 400;
   letter-spacing: 0.4px;
 }
@@ -1143,7 +1151,7 @@ html[lang^="zh"] .gallery-caption .line { margin-bottom: 0; }
   padding: 0 0 0 28px;
   color: var(--dark-warm);
   font-family: var(--serif);
-  font-size: 16px;
+  font-size: var(--text-lede);
   line-height: 1.65;
   counter-increment: rel-item;
 }
@@ -1156,7 +1164,7 @@ html[lang^="zh"] .gallery-caption .line { margin-bottom: 0; }
   width: 24px;
   color: var(--stone);
   font-family: var(--serif);
-  font-size: 16px;
+  font-size: var(--text-lede);
   line-height: 1.65;
   font-variant-numeric: tabular-nums;
 }
@@ -1168,7 +1176,7 @@ html[lang^="zh"] .gallery-caption .line { margin-bottom: 0; }
   overflow-wrap: anywhere;
   word-break: break-word;
   font-family: var(--mono);
-  font-size: 14px;
+  font-size: var(--text-body);
   color: var(--brand);
   background: var(--brand-tint);
   padding: 1px 5px;
@@ -1178,7 +1186,7 @@ html[lang^="zh"] .gallery-caption .line { margin-bottom: 0; }
   margin: 28px 0 0;
   color: var(--stone);
   font-family: var(--serif);
-  font-size: 15px;
+  font-size: var(--text-body);
 }
 .faq { border-top: 1px solid var(--line-faint); interpolate-size: allow-keywords; }
 .faq-item { border-bottom: 1px solid var(--line-faint); padding: 20px 0; }
@@ -1195,7 +1203,7 @@ html[lang^="zh"] .gallery-caption .line { margin-bottom: 0; }
   margin: 0;
   color: var(--dark-warm);
   font-family: var(--serif);
-  font-size: 17px;
+  font-size: var(--text-lede);
   font-weight: 500;
   line-height: 1.35;
 }
@@ -1242,12 +1250,12 @@ html[lang^="zh"] .gallery-caption .line { margin-bottom: 0; }
   padding: 12px 0 4px;
   color: var(--stone);
   font-family: var(--serif);
-  font-size: 16px;
+  font-size: var(--text-body);
   line-height: 1.7;
 }
 .faq-answer code {
   font-family: var(--mono);
-  font-size: 14px;
+  font-size: var(--text-meta);
   color: var(--near-black);
   background: var(--line-faint);
   border-radius: 4px;
@@ -1259,8 +1267,8 @@ html[lang^="zh"] .gallery-caption .line { margin-bottom: 0; }
 .contact { margin-top: 48px; text-align: left; }
 .contact-heading { display: flex; align-items: center; gap: 12px; }
 .contact-author { display: block; flex: 0 0 auto; width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }
-.contact .contact-title { margin: 0; padding: 0; font-family: var(--serif); font-size: 22px; font-weight: 500; line-height: 1.2; color: var(--dark-warm); transform: translateY(1.5px); }
-.contact .contact-sub { margin: 8px 0 0; padding: 0; font-family: var(--serif); font-size: 15px; line-height: 1.55; color: var(--olive); }
+.contact .contact-title { margin: 0; padding: 0; font-family: var(--serif); font-size: var(--text-title); font-weight: 500; line-height: 1.2; color: var(--dark-warm); transform: translateY(1.5px); }
+.contact .contact-sub { margin: 8px 0 0; padding: 0; font-family: var(--serif); font-size: var(--text-body); line-height: 1.55; color: var(--olive); }
 .contact-sub a { color: var(--brand); text-decoration: none; }
 .contact-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 24px; }
 .contact-card {
@@ -1294,8 +1302,8 @@ html[lang^="zh"] .gallery-caption .line { margin-bottom: 0; }
 .contact-glyph { width: 22px; height: 22px; transition: opacity 0.18s ease; }
 .contact-avatar { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.18s ease; }
 .contact-meta { display: flex; flex-direction: column; min-width: 0; }
-.contact-head b { font-family: var(--ui, var(--serif)); font-size: 14px; font-weight: 600; line-height: 1.3; color: var(--near-black); }
-.contact-handle { font-family: var(--ui, var(--serif)); font-size: 13px; line-height: 1.3; color: var(--stone); }
+.contact-head b { font-family: var(--ui, var(--serif)); font-size: var(--text-body); font-weight: 600; line-height: 1.3; color: var(--near-black); }
+.contact-handle { font-family: var(--ui, var(--serif)); font-size: var(--text-meta); line-height: 1.3; color: var(--stone); }
 .contact-stat {
   margin-left: auto;
   flex: 0 0 auto;
@@ -1304,11 +1312,11 @@ html[lang^="zh"] .gallery-caption .line { margin-bottom: 0; }
   background: var(--brand-tint);
   color: var(--brand);
   font-variant-numeric: tabular-nums;
-  font-size: 13px;
+  font-size: var(--text-meta);
   font-weight: 700;
   white-space: nowrap;
 }
-.contact .contact-desc { margin: 4px 0 0; padding: 0; font-family: var(--serif); font-size: 14px; line-height: 1.55; color: var(--olive); }
+.contact .contact-desc { margin: 4px 0 0; padding: 0; font-family: var(--serif); font-size: var(--text-body); line-height: 1.55; color: var(--olive); }
 @media (hover: hover) {
   .contact-card:hover { border-color: var(--line); box-shadow: 0 2px 8px rgba(20, 19, 19, 0.05); }
   .contact-card:hover .contact-glyph { opacity: 0; }
@@ -1335,13 +1343,13 @@ html[lang^="zh"] .gallery-caption .line { margin-bottom: 0; }
    name and a one-line description on the left, small titled link columns on
    the right. Languages switch only in the nav. */
 .site-footer { background: var(--kaku-slate); color: color-mix(in srgb, var(--foot-ink) 62%, transparent); }
-.foot { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 24px; padding-top: 60px; padding-bottom: 48px; font-family: var(--serif); font-size: 14px; }
-.foot-brand .name { margin: 0 0 8px; color: #fff; font-size: 22px; font-weight: 500; line-height: 1.1; }
+.foot { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 24px; padding-top: 60px; padding-bottom: 48px; font-family: var(--serif); font-size: var(--text-meta); }
+.foot-brand .name { margin: 0 0 8px; color: #fff; font-size: var(--text-title); font-weight: 500; line-height: 1.1; }
 .foot-mark { font-family: "Kaku Mark", "Kaku Serif SC", "Songti TC", serif; font-weight: 400; }
-.foot-sub { margin: 10px 0 0; font-size: 14px; line-height: 1.5; }
+.foot-sub { margin: 10px 0 0; font-size: var(--text-meta); line-height: 1.5; }
 .foot-links { display: flex; gap: 44px; }
 .foot-links div { display: grid; gap: 12px; align-content: start; }
-.foot-links b { margin-bottom: 2px; color: color-mix(in srgb, #fff 92%, transparent); font-size: 13px; font-weight: 600; letter-spacing: 0.2px; }
+.foot-links b { margin-bottom: 2px; color: color-mix(in srgb, #fff 92%, transparent); font-size: var(--text-meta); font-weight: 600; letter-spacing: 0.2px; }
 /* Chinese blog text tracks at 0.02em, as on mole.fit (maintainer 2026-10-21: zero tracking read cramped);
    headings resolve it at their own size instead of the Latin -0.3px, code keeps 0. */
 /* Chinese headings take no Latin -0.3px, which pressed full-em glyphs together. */
@@ -1387,13 +1395,28 @@ html[lang^="zh"] .foot-links b { letter-spacing: 0.6px; }
   .hero { min-height: auto; padding: 40px 0 0; }
   .hero h1 .cn { margin-left: 12px; }
   .cn-orbit::after { left: calc(50% + 6px); }
-  .hero-sub { font-size: 18px; }
 }
 @media (max-width: 880px) {
   .feature-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .wide, .hero-wrap, .hero-centered { padding-inline: 28px; }
   .site-nav { padding-inline: 14px; }
-  .section-head h2 { font-size: 26px; }
+}
+/* Phones keep the sizes they had before the desktop ladder (decide 1030-13,
+   maintainer 2026-11-01): the ladder above 640px does not change them. */
+@media (max-width: 640px) {
+  .skip-link, .nav-links a, .docs-home, .gallery-caption .line, .shot figcaption, .doc-content pre code { font-size: 14px; }
+  .section-num, .release-doc h2 .rel-date { font-size: 15px; }
+  .gallery-caption .title, .faq-item h3, .doc-content h4 { font-size: 17px; }
+  .feature strong, .doc-content .quick-card h2, .doc-card h2 { font-size: 18px; }
+  .doc-content h3 { font-size: 19px; }
+  .contact .contact-title, .foot-brand .name, .method h2, .quick-card h3, .doc-content h2,
+  .release-doc h2, .prose h3 { font-size: 22px; }
+  .workflow-item h3 { font-size: 24px; }
+  .section-head h2, .prose h2 { font-size: 26px; }
+  .feature span, .method p, .quick-card p, .doc-card p { font-size: 16px; }
+  .doc-content code, .doc-content figcaption code { font-size: 0.9em; }
+  .release-doc ol li code, .faq-answer code { font-size: 14px; }
+  .sk { font-size: 0.86em; }
 }
 @media (max-width: 560px) {
   .wide, .hero-wrap, .hero-centered { padding-inline: 16px; }
@@ -1500,7 +1523,7 @@ html[lang^="zh"] .foot-links b { letter-spacing: 0.6px; }
 .doc-content.blog-article table td { width: auto !important; white-space: normal !important; }
 .blog-crumb {
   margin: 0;
-  font-size: 13px;
+  font-size: var(--text-meta);
   line-height: 1.4;
 }
 .blog-crumb a { color: var(--stone); }
@@ -1510,7 +1533,7 @@ html[lang^="zh"] .foot-links b { letter-spacing: 0.6px; }
   flex-wrap: wrap;
   gap: 4px 14px;
   color: var(--stone);
-  font-size: 13px;
+  font-size: var(--text-meta);
   letter-spacing: 0.4px;
   line-height: 1.5;
 }
@@ -1541,7 +1564,7 @@ html[lang^="zh"] .foot-links b { letter-spacing: 0.6px; }
 .blog-diagram figcaption {
   margin-top: 10px;
   color: var(--stone);
-  font-size: 14px;
+  font-size: var(--text-meta);
   line-height: 1.55;
 }
 .blog-cta {
@@ -1556,10 +1579,10 @@ html[lang^="zh"] .foot-links b { letter-spacing: 0.6px; }
   background: var(--line-faint);
 }
 .blog-cta-icon { width: 40px; height: 40px; }
-.doc-content .blog-cta p { margin: 0; color: var(--dark-warm); font-size: 16px; line-height: 1.5; }
+.doc-content .blog-cta p { margin: 0; color: var(--dark-warm); font-size: var(--text-lede); line-height: 1.5; }
 .blog-article .blog-cta a.btn { border-bottom: 0; color: #fff; }
 .blog-related { margin-top: 84px; }
-.doc-content .blog-related-title { margin: 0 0 24px; font-size: 22px; font-weight: 500; }
+.doc-content .blog-related-title { margin: 0 0 24px; font-size: var(--text-title); font-weight: 500; }
 .blog-related-list, .blog-cards {
   display: grid;
   margin: 0;
@@ -1581,11 +1604,11 @@ html[lang^="zh"] .foot-links b { letter-spacing: 0.6px; }
   color: var(--near-black);
   font-weight: 400;
 }
-.blog-related-name { font-size: 16px; font-weight: 600; line-height: 1.35; }
+.blog-related-name { font-size: var(--text-lede); font-weight: 600; line-height: 1.35; }
 .blog-related-meta, .blog-card-date {
   margin-top: auto;
   color: var(--stone);
-  font-size: 12px;
+  font-size: var(--text-meta);
   font-variant-numeric: tabular-nums;
 }
 .blog-cards { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
@@ -1611,8 +1634,8 @@ html[lang^="zh"] .foot-links b { letter-spacing: 0.6px; }
   flex-direction: column;
   padding: 14px 18px 16px;
 }
-.blog-card-title { margin: 0 0 4px; color: var(--near-black); font-size: 17px; font-weight: 600; line-height: 1.3; }
-.blog-card-desc { margin: 0 0 12px; color: var(--dark-warm); font-size: 14px; line-height: 1.55; }
+.blog-card-title { margin: 0 0 4px; color: var(--near-black); font-size: var(--text-title); font-weight: 600; line-height: 1.3; }
+.blog-card-desc { margin: 0 0 12px; color: var(--dark-warm); font-size: var(--text-body); line-height: 1.55; }
 @media (hover: hover) {
   .blog-card:hover, .doc-content .blog-related-list a:hover { border-color: var(--line); box-shadow: 0 2px 8px rgba(20, 19, 19, 0.05); }
   .blog-card a:hover .blog-card-media img { transform: scale(1.03); }
@@ -1633,11 +1656,11 @@ html[lang^="zh"] .foot-links b { letter-spacing: 0.6px; }
    article meta line and related cards name it. Labels stay serif and unuppercased. */
 .blog-group + .blog-group { margin-top: 64px; }
 .blog-group-head { margin: 0 0 20px; }
-.blog-group-title { margin: 0 0 8px; color: var(--dark-warm); font-size: 22px; font-weight: 500; line-height: 1.25; }
-.blog-group-description { margin: 0; color: var(--stone); font-size: 15px; line-height: 1.55; }
+.blog-group-title { margin: 0 0 8px; color: var(--dark-warm); font-size: var(--text-title); font-weight: 500; line-height: 1.25; }
+.blog-group-description { margin: 0; color: var(--stone); font-size: var(--text-lede); line-height: 1.55; }
 .page-hero .blog-meta a { color: var(--stone); }
 .page-hero .blog-meta a:hover { color: var(--brand); text-decoration: none; }
-.blog-related-cat { color: var(--stone); font-size: 13px; line-height: 1.4; }
+.blog-related-cat { color: var(--stone); font-size: var(--text-meta); line-height: 1.4; }
 
 /* The family's phone type ladder (Kata site.md, 2026-10-26): at 640px and
    below, body copy is 16px, secondary copy 15px, meta 13px, nothing under 12px.
@@ -1650,4 +1673,13 @@ html[lang^="zh"] .foot-links b { letter-spacing: 0.6px; }
   .foot, .foot-sub, .contact-head b, .contact .contact-desc, .blog-card-desc { font-size: 15px; }
   .blog-related-meta, .blog-card-date { font-size: 13px; }
   .blog-card-title, .blog-card-desc { overflow-wrap: anywhere; }
+}
+
+/* Phone sizes from before the desktop ladder, for rules defined above this
+   point at equal or higher specificity. */
+@media (max-width: 640px) {
+  .home-compare thead th, .home-compare tbody th, .doc-content .blog-diagram figcaption { font-size: 14px; }
+  .blog-card-title { font-size: 17px; }
+  .blog-group-title, .doc-content .blog-related-title { font-size: 22px; }
+  .release-doc h2 .release-date { font-size: 15px; }
 }
