@@ -173,6 +173,7 @@ Resume flags require the corresponding artifacts in `dist/` to still be present.
 - GitHub Release URL: `https://github.com/tw93/Kaku/releases/tag/V<version>`.
 - Official Homebrew cask users get the new version after Homebrew livecheck/bump; verify with `brew update && brew info --cask kaku`. Personal-tap users get it once the tap workflow finishes; verify with `brew info --cask tw93/tap/kakuku`.
 - In-app updates (`kaku-gui/src/update.rs`, Kaku's own updater, not Sparkle) download `kaku_for_update.zip` and its `.sha256` from the latest GitHub Release.
+- Sync the site on the `vercel` worktree (`~/www/kaku-site`) the same day: run `python3 scripts/build_releases.py`, set `agent.json` `version` and the `Latest version` line in `llms-full.txt` to the new version, regenerate per that worktree's AGENTS.md, and run its public-facts checks. Its checks compare against live releases, so skipping this turns Public facts red on every later site push (0.27.1, 10-27 to 11-01).
 - Add the six positive reactions to the new release; this is part of shipping. Skip `-1` and `confused`.
 
   ```bash
