@@ -6,6 +6,86 @@
   "source": "https://github.com/tw93/Kaku/releases",
   "releases": [
     {
+      "version": "0.27.1",
+      "tag": "V0.27.1",
+      "name": "V0.27.1 Guard",
+      "codename": "Guard",
+      "publishedAt": "2026-10-27T09:16:58Z",
+      "url": "https://kaku.fun/changelog#v0.27.1",
+      "urlZh": "https://kaku.fun/zh/changelog#v0.27.1",
+      "github": "https://github.com/tw93/Kaku/releases/tag/V0.27.1",
+      "items": [
+        {
+          "label": "Crash Fix",
+          "text": "Kaku no longer quits with every tab open while drawing certain lines that contain links."
+        },
+        {
+          "label": "Remote Pairing",
+          "text": "A new browser pairs only after both it and `kaku remote` show the same six-digit code and you press Enter in the terminal, so someone who gets hold of the link cannot get in alone."
+        },
+        {
+          "label": "Remote Direct",
+          "text": "Remote terminals now connect directly even with a TUN-mode proxy such as Stash or Clash running, and a stranger can no longer cut that direct connection."
+        },
+        {
+          "label": "Remote Colors",
+          "text": "In the web terminal, Claude Code's scrolled transcript and other ANSI black backgrounds now draw dark like the Mac window, instead of light grey under white text."
+        },
+        {
+          "label": "Custom Themes",
+          "text": "Settings lists the color schemes in `~/.config/kaku/colors` and applies them just like the built-in ones."
+        },
+        {
+          "label": "Yazi and Lazygit",
+          "text": "Cmd+Shift+Y and Cmd+Shift+G open the tool in a new tab when Codex, Claude Code or vim holds the pane, instead of typing the command into it."
+        },
+        {
+          "label": "Tab Bar",
+          "text": "With the tab bar at the bottom, clicking the last terminal row no longer switches tabs."
+        },
+        {
+          "label": "Kaku Assistant",
+          "text": "The chat no longer redraws the whole screen while it waits for a reply, and saving its settings writes the file in one step, so an interrupted save no longer leaves it half written."
+        }
+      ],
+      "itemsZh": [
+        {
+          "label": "崩溃修复",
+          "text": "绘制某些带链接的行时，Kaku 不会再连同所有标签一起退出。"
+        },
+        {
+          "label": "远程配对",
+          "text": "新浏览器要等它和 `kaku remote` 显示同一个六位码、并在终端按下回车后才会配对，别人拿到链接也进不来。"
+        },
+        {
+          "label": "远程直连",
+          "text": "开着 Stash、Clash 这类 TUN 模式代理时，远程终端也能直接连接，外人也无法再掐断这条直连。"
+        },
+        {
+          "label": "远程配色",
+          "text": "网页终端里 Claude Code 往上滚动的内容和其他 ANSI 黑色背景，现在和 Mac 窗口一样画成深色，不再是浅灰底配白字。"
+        },
+        {
+          "label": "自定义主题",
+          "text": "Settings 会列出 `~/.config/kaku/colors` 里的配色方案，可以像内置主题一样直接应用。"
+        },
+        {
+          "label": "Yazi 和 Lazygit",
+          "text": "Codex、Claude Code 或 vim 占着当前分屏时，Cmd+Shift+Y 和 Cmd+Shift+G 会在新标签页打开工具，不再把命令打进去。"
+        },
+        {
+          "label": "标签栏",
+          "text": "标签栏放在底部时，点击终端最后一行不会再切换标签。"
+        },
+        {
+          "label": "Kaku 助手",
+          "text": "等待回复时不再反复重绘整个界面，保存设置时一次写完整个文件，中途打断也不会留下写了一半的配置。"
+        }
+      ],
+      "download": "https://github.com/tw93/Kaku/releases/download/V0.27.1/Kaku.dmg",
+      "thanks": "Special thanks to @Konata9, @sunbird89629 and @darion-yaphet for their contributions to this release."
+    },
+    {
       "version": "0.27.0",
       "tag": "V0.27.0",
       "name": "V0.27.0 Reach",

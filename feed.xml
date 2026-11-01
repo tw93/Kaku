@@ -5,8 +5,33 @@
 <link>https://kaku.fun/changelog</link>
 <description>Stable Kaku releases. Nightly builds are not included.</description>
 <language>en</language>
-<lastBuildDate>Mon, 26 Oct 2026 01:27:01 +0000</lastBuildDate>
+<lastBuildDate>Tue, 27 Oct 2026 09:16:58 +0000</lastBuildDate>
 <atom:link href="https://kaku.fun/feed.xml" rel="self" type="application/rss+xml"/>
+<item>
+<title>V0.27.1 Guard</title>
+<link>https://kaku.fun/changelog#v0.27.1</link>
+<guid isPermaLink="true">https://kaku.fun/changelog#v0.27.1</guid>
+<pubDate>Tue, 27 Oct 2026 09:16:58 +0000</pubDate>
+<description><![CDATA[<h2>Changelog</h2><ol>
+<li><b>Crash Fix</b>: Kaku no longer quits with every tab open while drawing certain lines that contain links.</li>
+<li><b>Remote Pairing</b>: A new browser pairs only after both it and <code>kaku remote</code> show the same six-digit code and you press Enter in the terminal, so someone who gets hold of the link cannot get in alone.</li>
+<li><b>Remote Direct</b>: Remote terminals now connect directly even with a TUN-mode proxy such as Stash or Clash running, and a stranger can no longer cut that direct connection.</li>
+<li><b>Remote Colors</b>: In the web terminal, Claude Code's scrolled transcript and other ANSI black backgrounds now draw dark like the Mac window, instead of light grey under white text.</li>
+<li><b>Custom Themes</b>: Settings lists the color schemes in <code>~/.config/kaku/colors</code> and applies them just like the built-in ones.</li>
+<li><b>Yazi and Lazygit</b>: Cmd+Shift+Y and Cmd+Shift+G open the tool in a new tab when Codex, Claude Code or vim holds the pane, instead of typing the command into it.</li>
+<li><b>Tab Bar</b>: With the tab bar at the bottom, clicking the last terminal row no longer switches tabs.</li>
+<li><b>Kaku Assistant</b>: The chat no longer redraws the whole screen while it waits for a reply, and saving its settings writes the file in one step, so an interrupted save no longer leaves it half written.</li>
+</ol><h2>更新日志</h2><ol>
+<li><b>崩溃修复</b>：绘制某些带链接的行时，Kaku 不会再连同所有标签一起退出。</li>
+<li><b>远程配对</b>：新浏览器要等它和 <code>kaku remote</code> 显示同一个六位码、并在终端按下回车后才会配对，别人拿到链接也进不来。</li>
+<li><b>远程直连</b>：开着 Stash、Clash 这类 TUN 模式代理时，远程终端也能直接连接，外人也无法再掐断这条直连。</li>
+<li><b>远程配色</b>：网页终端里 Claude Code 往上滚动的内容和其他 ANSI 黑色背景，现在和 Mac 窗口一样画成深色，不再是浅灰底配白字。</li>
+<li><b>自定义主题</b>：Settings 会列出 <code>~/.config/kaku/colors</code> 里的配色方案，可以像内置主题一样直接应用。</li>
+<li><b>Yazi 和 Lazygit</b>：Codex、Claude Code 或 vim 占着当前分屏时，Cmd+Shift+Y 和 Cmd+Shift+G 会在新标签页打开工具，不再把命令打进去。</li>
+<li><b>标签栏</b>：标签栏放在底部时，点击终端最后一行不会再切换标签。</li>
+<li><b>Kaku 助手</b>：等待回复时不再反复重绘整个界面，保存设置时一次写完整个文件，中途打断也不会留下写了一半的配置。</li>
+</ol><p>Special thanks to @Konata9, @sunbird89629 and @darion-yaphet for their contributions to this release.</p>]]></description>
+</item>
 <item>
 <title>V0.27.0 Reach</title>
 <link>https://kaku.fun/changelog#v0.27.0</link>

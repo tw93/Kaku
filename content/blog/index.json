@@ -418,7 +418,7 @@
         "title": "终端模拟器是怎么工作的",
         "description": "终端管着 pty 和字符网格，shell 是写字节的子进程。顺着这条路径，字节变成格子，再变成像素。"
       },
-      "modified": "2026-10-20"
+      "modified": "2026-11-01"
     },
     {
       "slug": "shell-integration-osc",

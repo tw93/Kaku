@@ -2,6 +2,23 @@
 
 Kaku 正式版更新，从新到旧。Nightly 仍在 GitHub，可以用 [RSS](https://kaku.fun/feed.xml) 订阅。
 
+## V0.27.1 Guard 2026-10-27
+
+1. **崩溃修复**：绘制某些带链接的行时，Kaku 不会再连同所有标签一起退出。
+2. **远程配对**：新浏览器要等它和 `kaku remote` 显示同一个六位码、并在终端按下回车后才会配对，别人拿到链接也进不来。
+3. **远程直连**：开着 Stash、Clash 这类 TUN 模式代理时，远程终端也能直接连接，外人也无法再掐断这条直连。
+4. **远程配色**：网页终端里 Claude Code 往上滚动的内容和其他 ANSI 黑色背景，现在和 Mac 窗口一样画成深色，不再是浅灰底配白字。
+5. **自定义主题**：Settings 会列出 `~/.config/kaku/colors` 里的配色方案，可以像内置主题一样直接应用。
+6. **Yazi 和 Lazygit**：Codex、Claude Code 或 vim 占着当前分屏时，Cmd+Shift+Y 和 Cmd+Shift+G 会在新标签页打开工具，不再把命令打进去。
+7. **标签栏**：标签栏放在底部时，点击终端最后一行不会再切换标签。
+8. **Kaku 助手**：等待回复时不再反复重绘整个界面，保存设置时一次写完整个文件，中途打断也不会留下写了一半的配置。
+
+[GitHub](https://github.com/tw93/Kaku/releases/tag/V0.27.1) · [DMG](https://github.com/tw93/Kaku/releases/download/V0.27.1/Kaku.dmg)
+
+Special thanks to @Konata9, @sunbird89629 and @darion-yaphet for their contributions to this release.
+
+---
+
 ## V0.27.0 Reach 2026-10-26
 
 1. **折行链接**：Claude Code 等 TUI 折成两行的文件路径和网址，现在 Cmd+点击任意一半都能完整打开。

@@ -2,6 +2,23 @@
 
 Stable Kaku releases, newest first. Nightly builds stay on GitHub. Subscribe with [RSS](https://kaku.fun/feed.xml).
 
+## V0.27.1 Guard 2026-10-27
+
+1. **Crash Fix**: Kaku no longer quits with every tab open while drawing certain lines that contain links.
+2. **Remote Pairing**: A new browser pairs only after both it and `kaku remote` show the same six-digit code and you press Enter in the terminal, so someone who gets hold of the link cannot get in alone.
+3. **Remote Direct**: Remote terminals now connect directly even with a TUN-mode proxy such as Stash or Clash running, and a stranger can no longer cut that direct connection.
+4. **Remote Colors**: In the web terminal, Claude Code's scrolled transcript and other ANSI black backgrounds now draw dark like the Mac window, instead of light grey under white text.
+5. **Custom Themes**: Settings lists the color schemes in `~/.config/kaku/colors` and applies them just like the built-in ones.
+6. **Yazi and Lazygit**: Cmd+Shift+Y and Cmd+Shift+G open the tool in a new tab when Codex, Claude Code or vim holds the pane, instead of typing the command into it.
+7. **Tab Bar**: With the tab bar at the bottom, clicking the last terminal row no longer switches tabs.
+8. **Kaku Assistant**: The chat no longer redraws the whole screen while it waits for a reply, and saving its settings writes the file in one step, so an interrupted save no longer leaves it half written.
+
+[GitHub](https://github.com/tw93/Kaku/releases/tag/V0.27.1) · [DMG](https://github.com/tw93/Kaku/releases/download/V0.27.1/Kaku.dmg)
+
+Special thanks to @Konata9, @sunbird89629 and @darion-yaphet for their contributions to this release.
+
+---
+
 ## V0.27.0 Reach 2026-10-26
 
 1. **Wrapped Links**: A file path or URL that Claude Code and other TUIs break across two lines now opens in full with Cmd+Click, from either half.
