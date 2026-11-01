@@ -40,7 +40,9 @@ concurrency:
 jobs:
   fmt:
     name: Format
-    runs-on: macos-latest
+    # rustfmt follows mod declarations without evaluating cfg, so Linux
+    # formats the macOS-only modules too and leaves a macOS slot free.
+    runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
@@ -113,17 +115,11 @@ jobs:
           cargo nextest run --locked -E 'not test(shapecache::test::ligatures_jetbrains)'
           cargo nextest run --locked -p wezterm-escape-parser
 
-      - name: Browser terminal regressions
-        env:
-          NODE_PATH: ${{ runner.temp }}/kaku-browser/node_modules
-        run: |
-          npm install --prefix "$RUNNER_TEMP/kaku-browser" --no-save playwright@1.48.2
-          "$RUNNER_TEMP/kaku-browser/node_modules/.bin/playwright" install chromium
-          node --test crates/kaku-remote/tests/web.test.cjs
-
   relay-check:
     name: Relay Build
-    runs-on: macos-latest
+    # The relay ships in a Linux image (crates/kaku-relay/Dockerfile), so it
+    # is checked on Linux too.
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -282,3 +278,15 @@ jobs:
 
       - name: Startup script lint
         run: shellcheck scripts/measure_startup_kaku.sh scripts/bench_startup.sh scripts/check_startup_budget.sh scripts/test_startup.sh
+
+      # The browser tests read only crates/kaku-remote/assets/web, so they run
+      # last in this job instead of after the Rust tests, where a failure no
+      # longer hides the checks above; they stay on macOS for the WebGL and
+      # Metal cases.
+      - name: Browser terminal regressions
+        env:
+          NODE_PATH: ${{ runner.temp }}/kaku-browser/node_modules
+        run: |
+          npm install --prefix "$RUNNER_TEMP/kaku-browser" --no-save playwright@1.48.2
+          "$RUNNER_TEMP/kaku-browser/node_modules/.bin/playwright" install chromium
+          node --test crates/kaku-remote/tests/web.test.cjs

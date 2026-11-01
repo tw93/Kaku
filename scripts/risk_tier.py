@@ -42,7 +42,7 @@ TIERS = [
          "crates/wezterm-toast-notification/src/macos.rs",
      ]),
     ("workflow",
-     "watch the pushed run with gh run watch <id> --exit-status; keep checks.yml at five macOS jobs", [
+     "watch the pushed run with gh run watch <id> --exit-status; keep macOS jobs across checks.yml and build-validation.yml at five or fewer", [
          ".github/workflows/*",
      ]),
     ("config",
