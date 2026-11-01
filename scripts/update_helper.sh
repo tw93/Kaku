@@ -20,7 +20,7 @@ NEW_APP_NORM=$(strip_trailing_slashes "$NEW_APP")
 # Use normalized paths consistently for all later path joins and file operations.
 TARGET_APP="$TARGET_APP_NORM"
 NEW_APP="$NEW_APP_NORM"
-BACKUP_APP="${TARGET_APP}.backup.$(date +%s)"
+BACKUP_APP="${TARGET_APP}.backup.$(date +%s).$$"
 TARGET_GUI="$TARGET_APP/Contents/MacOS/kaku-gui"
 TARGET_CLI="$TARGET_APP/Contents/MacOS/kaku"
 
@@ -40,12 +40,86 @@ log() {
   printf '[%s] %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$1" >>"$LOG_FILE"
 }
 
-rollback() {
-  log "restore from backup"
-  /bin/rm -rf "$TARGET_APP" || true
-  if [[ -d "$BACKUP_APP" ]]; then
-    /bin/mv "$BACKUP_APP" "$TARGET_APP" || true
+# The new bundle is staged beside the installed one, so a rename never crosses
+# a volume and the swap below is two back-to-back renames.
+INCOMING_APP="${TARGET_APP}.incoming.$(date +%s).$$"
+
+# Whatever ends this run (an error, a signal, the end of the script), leave an
+# app at TARGET_APP: finish a half-done swap from the staged copy, else put the
+# previous app back. SIGKILL is the one exit this cannot cover, which is why the
+# window between the two renames is kept to two mv calls (#591).
+ensure_app_present() {
+  if [[ -d "$TARGET_APP" ]]; then
+    return 0
   fi
+  if [[ -d "$INCOMING_APP" ]] && /bin/mv "$INCOMING_APP" "$TARGET_APP"; then
+    log "finished swap on exit"
+    return 0
+  fi
+  if [[ -d "$BACKUP_APP" ]] && /bin/mv "$BACKUP_APP" "$TARGET_APP"; then
+    log "restored previous app"
+    return 0
+  fi
+  log "error: no app left at $TARGET_APP"
+}
+
+schedule_job_removal() {
+  # A finished one-shot job stays loaded until logout; unload it once this
+  # process is gone. AbandonProcessGroup keeps launchd from killing this child.
+  if [[ -n "${KAKU_UPDATE_JOB_LABEL:-}" ]]; then
+    /usr/bin/nohup /bin/bash -c '/bin/sleep 2; /bin/launchctl remove "$1"' _ "$KAKU_UPDATE_JOB_LABEL" \
+      </dev/null >/dev/null 2>&1 &
+  fi
+}
+
+KAKU_STOPPED=0
+INTERRUPTED=0
+# One helper at a time per installed app: a second Restart to Update (two GUI
+# processes, or a retry while the first job still runs) would otherwise delete
+# the first one's staged copy or swap into a half-restored bundle.
+LOCK_DIR="${TARGET_APP}.updating"
+HOLDS_LOCK=0
+
+acquire_lock() {
+  local owner
+  if /bin/mkdir "$LOCK_DIR" 2>/dev/null; then
+    printf '%s\n' "$$" >"$LOCK_DIR/pid"
+    HOLDS_LOCK=1
+    return 0
+  fi
+  owner=$(/bin/cat "$LOCK_DIR/pid" 2>/dev/null || true)
+  if [[ -n "$owner" ]] && kill -0 "$owner" 2>/dev/null; then
+    return 1
+  fi
+  # The previous holder died without releasing it.
+  /bin/rm -rf "$LOCK_DIR"
+  if /bin/mkdir "$LOCK_DIR" 2>/dev/null; then
+    printf '%s\n' "$$" >"$LOCK_DIR/pid"
+    HOLDS_LOCK=1
+    return 0
+  fi
+  return 1
+}
+
+on_exit() {
+  local rc=$?
+  set +e
+  ensure_app_present
+  if [[ -d "$INCOMING_APP" ]]; then
+    /bin/rm -rf "$INCOMING_APP"
+  fi
+  # A failure after Kaku was stopped must not leave the user without Kaku
+  # running; reopen whichever app is installed now. Not after a signal: that
+  # is usually logout or shutdown, and reopening would fight it.
+  if [[ "$rc" != 0 && "$KAKU_STOPPED" == 1 && "$INTERRUPTED" == 0 && -d "$TARGET_APP" ]]; then
+    log "update failed, reopening $TARGET_APP"
+    /usr/bin/open "$TARGET_APP" || true
+  fi
+  if [[ "$HOLDS_LOCK" == 1 ]]; then
+    /bin/rm -rf "$LOCK_DIR"
+  fi
+  schedule_job_removal
+  exit "$rc"
 }
 
 read_persisted_managed_shell() {
@@ -119,7 +193,86 @@ EOF
   printf '%s\n' "$wrapper_path"
 }
 
+# Run as a one-shot launchd job rather than as Kaku's child. On macOS 27 the
+# helper was still killed about a second after Kaku quit, while it was halfway
+# through replacing the app, though it already led its own process group: a new
+# group does not leave the app's coalition, and the system may reap an app's
+# subordinate processes (#591). A launchd job belongs to no app. When the gui
+# domain refuses the job (an ssh session, say), keep running inline.
+detach_to_launchd() {
+  if [[ -n "${KAKU_UPDATE_JOB_LABEL:-}" || "${KAKU_UPDATE_INLINE:-}" == 1 ]]; then
+    return 1
+  fi
+  local label plist name
+  label="fun.tw93.kaku.update.$(date +%s).$$"
+  plist="$WORK_DIR/$label.plist"
+  printf '%s\n' '<?xml version="1.0" encoding="UTF-8"?>' \
+    '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">' \
+    '<plist version="1.0"><dict><key>ProgramArguments</key><array/><key>EnvironmentVariables</key><dict/></dict></plist>' \
+    >"$plist" || return 1
+  if ! {
+    /usr/bin/plutil -insert Label -string "$label" "$plist" &&
+      /usr/bin/plutil -insert RunAtLoad -bool true "$plist" &&
+      /usr/bin/plutil -insert LaunchOnlyOnce -bool true "$plist" &&
+      /usr/bin/plutil -insert AbandonProcessGroup -bool true "$plist" &&
+      /usr/bin/plutil -insert ProgramArguments.0 -string /bin/bash "$plist" &&
+      /usr/bin/plutil -insert ProgramArguments.1 -string "$0" "$plist" &&
+      /usr/bin/plutil -insert ProgramArguments.2 -string "$TARGET_APP" "$plist" &&
+      /usr/bin/plutil -insert ProgramArguments.3 -string "$NEW_APP" "$plist" &&
+      /usr/bin/plutil -insert ProgramArguments.4 -string "$WORK_DIR" "$plist" &&
+      /usr/bin/plutil -insert EnvironmentVariables.KAKU_UPDATE_JOB_LABEL -string "$label" "$plist"
+  } >/dev/null 2>&1; then
+    /bin/rm -f "$plist"
+    log "could not write the launchd job, applying inline"
+    return 1
+  fi
+  # The job gets launchd's bare environment otherwise; keep what the helper
+  # and `kaku init` read from the caller.
+  for name in $(compgen -e); do
+    case "$name" in
+      HOME | USER | LOGNAME | SHELL | ZDOTDIR | PATH | TMPDIR | LANG | LC_* | XDG_* | KAKU_*)
+        [[ "$name" == KAKU_UPDATE_JOB_LABEL ]] && continue
+        /usr/bin/plutil -insert "EnvironmentVariables.$name" -string "${!name}" "$plist" >/dev/null 2>&1 || true
+        ;;
+    esac
+  done
+  if /bin/launchctl bootstrap "gui/$(/usr/bin/id -u)" "$plist" 2>>"$LOG_FILE"; then
+    /bin/rm -f "$plist"
+    log "handed off to launchd job $label"
+    return 0
+  fi
+  /bin/rm -f "$plist"
+  log "launchd job refused, applying inline"
+  return 1
+}
+
+if detach_to_launchd; then
+  exit 0
+fi
+
+trap on_exit EXIT
+trap 'INTERRUPTED=1; log "interrupted by signal"; exit 1' TERM HUP INT
+
 log "start apply update"
+if ! acquire_lock; then
+  log "another update is already running, leaving it to finish"
+  exit 0
+fi
+
+# Stage the new bundle while Kaku still runs: a failed copy leaves Kaku running
+# and untouched, and the installed app is only missing between two renames
+# instead of for a whole copy (#591).
+for stale in "${TARGET_APP}".incoming.*; do
+  if [[ -d "$stale" && "$stale" != "$INCOMING_APP" ]]; then
+    /bin/rm -rf "$stale"
+  fi
+done
+log "stage new app"
+if ! /usr/bin/ditto "$NEW_APP" "$INCOMING_APP"; then
+  log "error: failed to stage new app"
+  exit 1
+fi
+/usr/bin/xattr -cr "$INCOMING_APP" >/dev/null 2>&1 || true
 
 # pgrep/pkill -f treats the pattern as a regex, but TARGET_GUI/TARGET_CLI may contain
 # regex metacharacters. Match against the full command line via ps and shell pattern
@@ -134,6 +287,7 @@ collect_kaku_pids() {
   done | sort -u
 }
 
+KAKU_STOPPED=1
 KAKU_PIDS=""
 for _ in $(seq 1 20); do
   KAKU_PIDS=$(collect_kaku_pids | tr '\n' ' ')
@@ -157,18 +311,11 @@ if [[ -n "$KAKU_PIDS" ]]; then
   done
 fi
 
+log "swap in new app"
 if [[ -d "$TARGET_APP" ]]; then
-  log "backup existing app"
   /bin/mv "$TARGET_APP" "$BACKUP_APP"
 fi
-
-log "copy new app"
-if ! /usr/bin/ditto "$NEW_APP" "$TARGET_APP"; then
-  rollback
-  exit 1
-fi
-
-/usr/bin/xattr -cr "$TARGET_APP" >/dev/null 2>&1 || true
+/bin/mv "$INCOMING_APP" "$TARGET_APP"
 
 if [[ -d "$BACKUP_APP" ]]; then
   /bin/rm -rf "$BACKUP_APP" || true

@@ -210,6 +210,9 @@ jobs:
       - name: Restart process selection tests
         run: python3 scripts/test_restart_kaku.py
 
+      - name: Update helper tests
+        run: python3 scripts/test_update_helper.py
+
       - name: Incident ledger and risk tier tests
         run: |
           python3 scripts/test_review_gates.py

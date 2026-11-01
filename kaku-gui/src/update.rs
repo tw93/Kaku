@@ -884,7 +884,9 @@ pub fn spawn_update_helper(
         .stderr(Stdio::null())
         // Kaku.app runs as a launchd job, and launchd kills what is left of
         // its process group when kaku-gui exits: the helper stops Kaku first,
-        // so in Kaku's group it died before replacing the app (#591).
+        // so in Kaku's group it died before replacing the app (#591). The
+        // group only covers the moment until the helper hands itself to its
+        // own launchd job; see scripts/update_helper.sh.
         .process_group(0)
         .spawn()
         .map_err(|e| anyhow!("failed to spawn update helper: {}", e))?;

@@ -877,7 +877,8 @@ mod imp {
             .stdout(Stdio::null())
             .stderr(Stdio::null())
             // Own process group, so the helper survives Kaku exiting even when
-            // its caller belongs to a launchd job's group (#591).
+            // its caller belongs to a launchd job's group (#591), until it
+            // hands itself to its own launchd job (scripts/update_helper.sh).
             .process_group(0)
             .spawn()
             .context("launch detached updater helper")?;

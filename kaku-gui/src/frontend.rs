@@ -422,8 +422,9 @@ pub fn restart_to_update() {
     }
 
     // Reset the guard on any non-success exit so the user can retry. On
-    // success the helper kills us before the function returns, so the guard
-    // value no longer matters.
+    // success the guard stays set until the helper stops this process, or
+    // for UPDATE_HELPER_GRACE when it never does, so a second click cannot
+    // start another helper meanwhile.
     let release_guard = || UPDATE_RUNNING.store(false, Ordering::SeqCst);
 
     fn fallback_with_toast(msg: &str) {
@@ -493,7 +494,20 @@ pub fn restart_to_update() {
         info.tag,
         target_app.display()
     );
+
+    // The helper hands itself to a launchd job and stages the new app before
+    // stopping Kaku, so a failed copy leaves this process running. Let the
+    // user try again rather than ignoring every later click (#591).
+    std::thread::spawn(|| {
+        std::thread::sleep(UPDATE_HELPER_GRACE);
+        log::warn!(
+            "restart_to_update: Kaku still running after the helper started; allowing a retry"
+        );
+        UPDATE_RUNNING.store(false, Ordering::SeqCst);
+    });
 }
+
+const UPDATE_HELPER_GRACE: std::time::Duration = std::time::Duration::from_secs(60);
 
 pub fn run_kaku_doctor_in_new_tab() {
     run_kaku_subcommand_in_new_tab("doctor", None, false);
