@@ -95,7 +95,8 @@ html[lang="en"] {
 }
 
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+/* Nav links jump straight to their section, with no glide, as on mole.fit
+   (maintainer 2026-11-02: the glide looked worse than the instant jump). */
 /* Short pages: main takes the spare height so the dark footer meets the viewport bottom. */
 body > main { flex: 1 0 auto; }
 body {
