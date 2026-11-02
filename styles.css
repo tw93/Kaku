@@ -377,7 +377,7 @@ button, input { font: inherit; }
 .hero > .hero-wrap::after { content: ""; display: block; margin-top: 28px; border-bottom: 1px solid var(--border-soft); }
 .hero {
   min-height: auto;
-  padding: 60px 0 0;
+  padding: 72px 0 0;
   margin-bottom: var(--section-gap);
   background: var(--parchment);
   overflow: hidden;
@@ -1409,7 +1409,7 @@ html[lang^="zh"] .foot-links b { letter-spacing: 0.6px; }
   .workflow-item { grid-template-columns: minmax(0, 1fr); gap: 10px; }
   .section { margin-bottom: 54px; }
   .section-tight { margin-bottom: 42px; }
-  .hero { min-height: auto; padding: 40px 0 0; }
+  .hero { min-height: auto; padding: 52px 0 0; }
   .hero h1 .cn { margin-left: 12px; }
   .cn-orbit::after { left: calc(50% + 6px); }
   .hero-sub { font-size: 18px; }
@@ -1446,7 +1446,7 @@ html[lang^="zh"] .foot-links b { letter-spacing: 0.6px; }
   .brand strong { font-size: 15px; }
   .section { margin-bottom: 42px; }
   .section-tight { margin-bottom: 33px; }
-  .hero { padding: 32px 0 0; }
+  .hero { padding: 44px 0 0; }
   .hero h1 { font-size: 56px; margin-bottom: 24px; }
   /* Phone hero buttons keep their label's width, 42px tall with 22px sides,
      at least 128px wide and 12px apart (maintainer 2026-10-30, from rendered candidates: 44
