@@ -4,8 +4,9 @@ on:
   push:
     branches:
       - main
-    # paths, not paths-ignore: a later positive pattern brings a path back,
-    # and docs/incidents.md is read by scripts/check_incidents.py.
+    # paths, not paths-ignore: a later positive pattern brings a path back.
+    # Each one is a skipped-class file a check reads or the build embeds;
+    # scripts/test_ci_paths.py fails when one is missing.
     paths:
       - '**'
       - '!**.md'
@@ -14,9 +15,12 @@ on:
       - '!assets/logo.*'
       - '!.github/ISSUE_TEMPLATE/**'
       - 'docs/incidents.md'
+      - '.github/RELEASE_NOTES.md'
+      - 'assets/logo.png'
   pull_request:
-    # paths, not paths-ignore: a later positive pattern brings a path back,
-    # and docs/incidents.md is read by scripts/check_incidents.py.
+    # paths, not paths-ignore: a later positive pattern brings a path back.
+    # Each one is a skipped-class file a check reads or the build embeds;
+    # scripts/test_ci_paths.py fails when one is missing.
     paths:
       - '**'
       - '!**.md'
@@ -25,6 +29,8 @@ on:
       - '!assets/logo.*'
       - '!.github/ISSUE_TEMPLATE/**'
       - 'docs/incidents.md'
+      - '.github/RELEASE_NOTES.md'
+      - 'assets/logo.png'
 
 permissions:
   contents: read
@@ -212,6 +218,9 @@ jobs:
 
       - name: Update helper tests
         run: python3 scripts/test_update_helper.py
+
+      - name: CI path filter tests
+        run: python3 scripts/test_ci_paths.py
 
       - name: Incident ledger and risk tier tests
         run: |
