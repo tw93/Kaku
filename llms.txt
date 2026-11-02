@@ -47,6 +47,7 @@ Kaku is driven from the shell, not over HTTP:
 <!-- blog:start -->
 ## Blog
 
+- [OpenCode Setup on Mac: Install, Providers, AGENTS.md and Permissions](https://kaku.fun/blog/opencode-setup.md): Install OpenCode on a Mac, connect a provider with /connect, write AGENTS.md with /init, set permissions, and use it in Kaku.
 - [Gemini CLI on Mac: Install, Sign In and What Changed in 2026](https://kaku.fun/blog/gemini-cli-setup.md): Install Gemini CLI with npm or Homebrew, which sign-in paths still work after June 18, 2026, GEMINI.md, settings.json, MCP, sandboxing and Kaku.
 - [Claude Code Cost: Pricing, /usage, ccusage and Ways to Cut It](https://kaku.fun/blog/claude-code-cost.md): How Claude Code is billed on plans and API keys, where /usage and ccusage show spend, what drives cost, and the habits that cut it.
 - [Claude Code Slash Commands: The Ones That Matter and How to Write Your Own](https://kaku.fun/blog/claude-code-slash-commands.md): The Claude Code slash commands worth knowing, their keyboard shortcuts, and how to write custom commands with arguments, plus three to copy.

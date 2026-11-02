@@ -7,6 +7,14 @@
     <description>关于 Mac 终端、Claude Code、Codex、shell 配置的指南，以及 Kaku 是怎么做出来的。</description>
     <language>zh-CN</language>
     <item>
+      <title>OpenCode 在 Mac 上怎么安装和配置</title>
+      <link>https://kaku.fun/zh/blog/opencode-setup</link>
+      <guid isPermaLink="true">https://kaku.fun/zh/blog/opencode-setup</guid>
+      <pubDate>Mon, 02 Nov 2026 09:00:00 +0800</pubDate>
+      <dc:creator>Tw93</dc:creator>
+      <description>在 Mac 上安装 OpenCode，用 /connect 连模型服务商，/init 生成 AGENTS.md，配权限，以及在 Kaku 里怎么用。</description>
+    </item>
+    <item>
       <title>Mac 上安装和使用 Gemini CLI，2026 年登录方式有变化</title>
       <link>https://kaku.fun/zh/blog/gemini-cli-setup</link>
       <guid isPermaLink="true">https://kaku.fun/zh/blog/gemini-cli-setup</guid>

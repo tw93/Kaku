@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f4ed">
+  <meta name="color-scheme" content="light">
+  <title>OpenCode Setup on Mac: Install, Providers, AGENTS.md and Permissions · Kaku Blog</title>
+  <meta name="description" content="Install OpenCode on a Mac, connect a provider with /connect, write AGENTS.md with /init, set permissions, and use it in Kaku.">
+  <meta property="og:title" content="OpenCode Setup on Mac: Install, Providers, AGENTS.md and Permissions · Kaku Blog">
+  <meta property="og:description" content="Install OpenCode on a Mac, connect a provider with /connect, write AGENTS.md with /init, set permissions, and use it in Kaku.">
+  <meta property="og:type" content="article">
+  <meta property="og:image" content="https://kaku.fun/img/blog/cards/opencode-setup.webp">
+  <meta property="og:image:width" content="1600">
+  <meta property="og:image:height" content="900">
+  <meta property="og:image:alt" content="OpenCode Setup on Mac: Install, Providers, AGENTS.md and Permissions">
+  <meta property="og:url" content="https://kaku.fun/blog/opencode-setup">
+  <meta property="article:published_time" content="2026-11-02">
+  <meta property="article:modified_time" content="2026-11-02">
+  <meta property="article:author" content="Tw93">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://kaku.fun/img/blog/cards/opencode-setup.webp">
+  <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-kaku-32.png"><link rel="icon" type="image/png" sizes="192x192" href="/img/favicon-kaku-192.png"><link rel="apple-touch-icon" href="/img/favicon-kaku-180.png">
+  <link rel="canonical" href="https://kaku.fun/blog/opencode-setup"><link rel="alternate" type="application/rss+xml" title="Kaku releases" href="https://kaku.fun/feed.xml">
+  <link rel="alternate" type="application/rss+xml" title="Kaku Blog" href="https://kaku.fun/blog/feed.xml">
+  <link rel="alternate" hreflang="en" href="https://kaku.fun/blog/opencode-setup">
+  <link rel="alternate" hreflang="zh-CN" href="https://kaku.fun/zh/blog/opencode-setup">
+  <link rel="alternate" hreflang="x-default" href="https://kaku.fun/blog/opencode-setup">
+  <link rel="alternate" type="text/markdown" href="https://kaku.fun/blog/opencode-setup.md">
+  <link rel="stylesheet" href="/styles.css">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Kaku",
+          "item": "https://kaku.fun/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Blog",
+          "item": "https://kaku.fun/blog"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "OpenCode Setup on Mac: Install, Providers, AGENTS.md and Permissions",
+          "item": "https://kaku.fun/blog/opencode-setup"
+        }
+      ]
+    },
+    {
+      "@type": "BlogPosting",
+      "@id": "https://kaku.fun/blog/opencode-setup#article",
+      "headline": "OpenCode Setup on Mac: Install, Providers, AGENTS.md and Permissions",
+      "description": "Install OpenCode on a Mac, connect a provider with /connect, write AGENTS.md with /init, set permissions, and use it in Kaku.",
+      "url": "https://kaku.fun/blog/opencode-setup",
+      "mainEntityOfPage": "https://kaku.fun/blog/opencode-setup",
+      "datePublished": "2026-11-02",
+      "dateModified": "2026-11-02",
+      "inLanguage": "en",
+      "articleSection": "Claude Code and Codex",
+      "image": "https://kaku.fun/img/blog/cards/opencode-setup.webp",
+      "timeRequired": "PT9M",
+      "author": {
+        "@type": "Person",
+        "name": "Tw93",
+        "url": "https://tw93.fun",
+        "sameAs": [
+          "https://x.com/HiTw93",
+          "https://github.com/tw93"
+        ]
+      },
+      "publisher": {
+        "@id": "https://kaku.fun/#organization"
+      },
+      "isPartOf": {
+        "@id": "https://kaku.fun/blog#blog"
+      },
+      "about": {
+        "@id": "https://kaku.fun/#software"
+      },
+      "encoding": {
+        "@type": "MediaObject",
+        "encodingFormat": "text/markdown",
+        "contentUrl": "https://kaku.fun/blog/opencode-setup.md"
+      }
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Is OpenCode free?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "The software is MIT licensed. You still pay whichever provider you connect, or sign in with an account a provider offers."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Where is the OpenCode config file on Mac?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "~/.config/opencode/opencode.json for your user, and opencode.json in a project for that project. Saved provider keys live in ~/.local/share/opencode/opencode.db."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does OpenCode read CLAUDE.md?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "OpenCode 2 does not read it on its own. Add it under instructions in opencode.json, or move its content into AGENTS.md."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How do I continue the last session?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "opencode -c from the shell, or /sessions inside the interface."
+          }
+        }
+      ]
+    }
+  ]
+}
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <nav class="site-nav" aria-label="Primary navigation"><div class="wide nav-inner"><a class="brand" href="/"><strong>Kaku</strong></a><div class="nav-links"><a href="/docs">Docs</a><a href="/compare">Compare</a><a href="/changelog">Changelog</a><a href="/blog" aria-current="page">Blog</a></div><div class="nav-actions"><details class="lang-switch"><summary class="lang-trigger" aria-label="Choose a language"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/></svg><span class="lang-current-code" aria-hidden="true">EN</span><span class="lang-current-name">English</span></summary><div class="lang-menu"><a class="lang-option" href="/zh/blog/opencode-setup" hreflang="zh-CN">简体中文</a><a class="lang-option" aria-current="page" href="/blog/opencode-setup" hreflang="en">English</a></div></details><script src="/navigation.js" defer></script><a class="nav-icon" href="https://github.com/tw93/Kaku" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a><a class="nav-icon" href="https://x.com/HiTw93" target="_blank" rel="noopener noreferrer" aria-label="X"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a></div></div></nav>
+  <main id="main-content" class="docs-page blog-page">
+    <header class="page-hero doc-hero blog-hero"><div class="wide"><nav class="blog-crumb" aria-label="Breadcrumb"><a href="/blog">Blog</a></nav><h1>OpenCode Setup on Mac: Install, Providers, AGENTS.md and Permissions</h1><p class="blog-meta"><span><a href="/blog#topic-agents">Claude Code and Codex</a></span><span>Published <time datetime="2026-11-02">Nov 2, 2026</time></span><span>9 min read</span></p></div></header>
+    <section class="section">
+      <div class="wide">
+        <article class="doc-content blog-article">
+          <figure class="blog-cover" aria-hidden="true"><img src="/img/blog/cards/opencode-setup.webp" width="1600" height="900" alt="" fetchpriority="high"></figure>
+<p>OpenCode is an open source terminal coding agent from <a href="https://opencode.ai" target="_blank" rel="noopener noreferrer">opencode.ai</a>. To set it up on a Mac, install it with the official script, run <code>opencode</code> inside a project, connect a provider with <code>/connect</code>, then run <code>/init</code> so it writes an <code>AGENTS.md</code> for the repository. Its two main differences from Claude Code are that it is not tied to one model vendor, and that it allows most actions by default until you tell it to ask. This post covers OpenCode 2, the version the project's README now installs, and goes through the install, the config file, agents and permissions, and how it behaves inside Kaku. The commands follow the official docs as read in October 2026.</p>
+<h2 id="which-project-this-is">Which project this is</h2>
+<p>Several things have carried the name opencode. The one this post covers is the agent at opencode.ai, whose repository is <a href="https://github.com/anomalyco/opencode" target="_blank" rel="noopener noreferrer">github.com/anomalyco/opencode</a> under the MIT license; older links to <code>sst/opencode</code> land on that repository. A different Go project, <code>opencode-ai/opencode</code>, was <a href="https://github.com/opencode-ai/opencode" target="_blank" rel="noopener noreferrer">archived in September 2025</a>, and its README says development continued as Crush. If a tutorial tells you to install from that repository, it is describing the older project.</p>
+<h2 id="install">Install</h2>
+<p>The <a href="https://opencode.ai/v2/docs/" target="_blank" rel="noopener noreferrer">OpenCode 2 docs</a> list several routes. On a Mac the common ones are:</p>
+<pre><code class="language-bash"><span class="tok-c"># Official script
+</span>curl -fsSL https://opencode.ai/v2/install | bash
+
+<span class="tok-c"># Homebrew, from the project's own tap
+</span>brew install anomalyco/tap/opencode-v2
+
+<span class="tok-c"># npm
+</span>npm install -g @opencode/cli</code></pre>
+<p>The README recommends the <code>anomalyco/tap</code> formula over the plain <code>opencode</code> formula in Homebrew's core repository, which is updated less often. OpenCode 1 still gets releases and still installs from <code>opencode.ai/install</code>, <code>anomalyco/tap/opencode</code> and the <code>opencode-ai</code> npm package, which older tutorials show. Both versions use the <code>opencode</code> command, so keep one: the V2 script replaces a V1 binary, and the docs ask you to remove a V1 installed by a package manager first. Check the result with <code>opencode --version</code>.</p>
+<h2 id="connect-a-provider">Connect a provider</h2>
+<p>Start OpenCode in a project and run <code>/connect</code>:</p>
+<pre><code class="language-bash"><span class="tok-b">cd</span> ~/code/my-project
+opencode</code></pre>
+<p>Inside the terminal UI, <code>/connect</code> lists the providers, and you pick one and follow its prompts, usually pasting an API key. <code>opencode auth login</code> does the same from the shell, and <code>opencode auth list</code> shows what is set up. Saved keys go into OpenCode's local database, <code>~/.local/share/opencode/opencode.db</code> by default, and a V2 install imports the keys an older version kept in <code>auth.json</code>. Then <code>/models</code> picks a model from the providers you connected, and <code>opencode models</code> lists the available models.</p>
+<p>Some providers offer a browser sign-in instead of a key. For OpenAI, <code>/connect</code> also offers a sign-in with your ChatGPT account, alongside the API key.</p>
+<p>OpenCode also sells model access of its own, OpenCode Go, a subscription for coding models its team has tested, and the OpenCode Console. You do not need either.</p>
+<h2 id="the-terminal-ui">The terminal UI</h2>
+<p>Running <code>opencode</code> with no arguments opens the terminal UI. These pieces are worth learning first:</p>
+<ul>
+<li><strong><code>Shift + Tab</code></strong> cycles through the primary agents, <code>build</code> and <code>plan</code>. <code>/agents</code> lists them.</li>
+<li><strong><code>@</code></strong> fuzzy-searches files in the project and attaches one to your message.</li>
+<li><strong><code>!</code></strong> at the start of an empty prompt enters shell mode, and the command's output stays in the session.</li>
+<li><strong><code>/undo</code> and <code>/redo</code></strong> roll back a message together with its file changes, and restore it. Restoring files needs the project to be a Git repository; outside one, <code>/undo</code> only rolls back the conversation.</li>
+<li><strong><code>/sessions</code></strong> lists and switches sessions, and <code>/new</code> starts a fresh one. The default leader key is <code>ctrl+x</code>, so <code>ctrl+x u</code> is undo and <code>ctrl+x m</code> opens the model list.</li>
+</ul>
+<p>From the shell, <code>opencode run "your prompt"</code> runs one prompt without the interface, and <code>opencode -c</code> continues the last session.</p>
+<h2 id="rules-in-agentsmd">Rules in AGENTS.md</h2>
+<p>Run <code>/init</code> inside a project and OpenCode reads the repository and writes <code>AGENTS.md</code>, asking a few questions if the code does not answer them. If the file exists, it improves it in place. The docs suggest committing it, since it holds the build commands and conventions the agent should follow.</p>
+<p>Global rules go in <code>~/.config/opencode/AGENTS.md</code>. OpenCode loads that file plus every <code>AGENTS.md</code> from the current directory up to the project root, and combines them rather than letting one replace another. The <code>instructions</code> key in the config can add more files, such as <code>CONTRIBUTING.md</code> or a glob like <code>docs/guidelines/*.md</code>.</p>
+<p>People coming from Claude Code should know one change: OpenCode 2 reads only <code>AGENTS.md</code> and no longer falls back to <code>CLAUDE.md</code>. Either move your rules into <code>AGENTS.md</code>, or list <code>CLAUDE.md</code> under <code>instructions</code>. One <code>AGENTS.md</code> can serve OpenCode, <a href="/blog/codex-cli-setup">Codex</a> and others, while Claude Code keeps reading its own <code>CLAUDE.md</code>.</p>
+<h2 id="the-config-file">The config file</h2>
+<p>OpenCode merges settings from several places instead of replacing one with another. The ones you will use are the global <code>~/.config/opencode/opencode.json</code> and an <code>opencode.json</code> in the project; the project file overrides the global one for keys that conflict. Both also accept the <code>.jsonc</code> extension if you want comments.</p>
+<pre><code class="language-json">{
+  "$schema": <span class="tok-s">"https://opencode.ai/config.json"</span>,
+  "model": <span class="tok-s">"anthropic/claude-sonnet-4-5"</span>,
+  "permissions": [
+    { "action": <span class="tok-s">"edit"</span>, "resource": <span class="tok-s">"*"</span>, "effect": <span class="tok-s">"ask"</span> },
+    { "action": <span class="tok-s">"shell"</span>, "resource": <span class="tok-s">"*"</span>, "effect": <span class="tok-s">"ask"</span> }
+  ]
+}</code></pre>
+<p>The <code>$schema</code> line gives your editor validation, and <code>model</code> is the main model, written as <code>provider/model</code>. The model name here comes from the docs' own example, so replace it with something <code>opencode models</code> actually lists for your providers.</p>
+<h2 id="agents-and-permissions">Agents and permissions</h2>
+<p>Two primary agents ship with it. <code>build</code> is the default and runs its tools without asking. <code>plan</code> explores and plans: it cannot edit your project files, and its shell commands follow your permission rules. There are also two subagents a primary agent can hand work to: <code>general</code> for research and multi-step work, and <code>explore</code> for searching and reading code without editing. To write your own, put a Markdown file in <code>~/.config/opencode/agents/</code> or <code>.opencode/agents/</code>; the file name becomes the agent name. The same idea exists in <a href="/blog/claude-code-subagents">Claude Code subagents</a>.</p>
+<p>Each permission rule has an <code>action</code>, a <code>resource</code> and an <code>effect</code>, and the effect is <code>allow</code>, <code>ask</code> or <code>deny</code>. By default almost everything is allowed, including paths outside the project, and reading <code>.env</code> files asks first. A stricter setup looks like this:</p>
+<pre><code class="language-json">{
+  "permissions": [
+    { "action": <span class="tok-s">"*"</span>, "resource": <span class="tok-s">"*"</span>, "effect": <span class="tok-s">"ask"</span> },
+    { "action": <span class="tok-s">"read"</span>, "resource": <span class="tok-s">"*"</span>, "effect": <span class="tok-s">"allow"</span> },
+    { "action": <span class="tok-s">"shell"</span>, "resource": <span class="tok-s">"git status *"</span>, "effect": <span class="tok-s">"allow"</span> },
+    { "action": <span class="tok-s">"external_directory"</span>, "resource": <span class="tok-s">"*"</span>, "effect": <span class="tok-s">"ask"</span> }
+  ]
+}</code></pre>
+<p>The last matching rule wins, so the broad rule goes first and the exceptions after it. The prompt answers are allow once, always allow, which is saved for the project, or reject, and starting with <code>opencode --auto</code> approves requests that would ask, while explicit <code>deny</code> rules still apply. Always allow saves the pattern the tool proposes rather than the exact request, so approving <code>git status --short</code> can save <code>git status *</code>. Saved approvals never override a configured <code>deny</code>, and reject also turns down every other request still pending in that session. Config files from OpenCode 1 that use <code>permission</code> and <code>bash</code> still load, but new rules are easier to read in the form above.</p>
+<p>Rules for one agent go under <code>agents.&lt;id&gt;.permissions</code> and are appended after the top-level ones, so they win for that agent, and a custom subagent runs on its own rules rather than a subset of its parent's. Shell rules match the command text, and OpenCode's guess at which directories a command touches is best effort, so the docs recommend a short allowlist of shell commands over patterns that try to catch every dangerous one.</p>
+<h2 id="how-it-differs-from-claude-code-and-codex">How it differs from Claude Code and Codex</h2>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>OpenCode</th>
+<th>Claude Code</th>
+<th>Codex CLI</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Models</td>
+<td>Many providers, chosen with <code>/connect</code></td>
+<td>Anthropic's models</td>
+<td>A ChatGPT plan or an OpenAI API key</td>
+</tr>
+<tr>
+<td>Edits and shell commands</td>
+<td>Allowed until you set <code>ask</code></td>
+<td>Ask first in the default mode</td>
+<td>Set by <code>approval_policy</code> and <code>sandbox_mode</code></td>
+</tr>
+<tr>
+<td>Rules file</td>
+<td><code>AGENTS.md</code></td>
+<td><code>CLAUDE.md</code></td>
+<td>See the <a href="/blog/codex-cli-setup">Codex setup post</a></td>
+</tr>
+</tbody>
+</table>
+<p>OpenCode is MIT licensed and Codex CLI is Apache-2.0. The choice is usually about the model and the review habit. Pick OpenCode if you want one terminal tool across several providers. Pick Claude Code if you rely on its <a href="/blog/claude-code-hooks">hooks</a> and <a href="/blog/claude-code-plan-mode">plan mode</a>, which this post does not map onto OpenCode. <a href="/blog/codex-vs-claude-code">Codex vs Claude Code</a> covers those two in more depth.</p>
+<h2 id="running-it-in-kaku">Running it in Kaku</h2>
+<p>OpenCode is a normal terminal program, so it works in Kaku like in any other terminal. What Kaku adds is around it. <code>Cmd + D</code> and <code>Cmd + Shift + D</code> split the window, which suits <code>build</code> in one pane and a shell in the next, and <code>Cmd + Shift + Enter</code> zooms the pane you are reading. <code>Shift + Enter</code> and <code>Cmd + Enter</code> insert a newline in a prompt. Closing a pane where a long-running program is in the foreground asks first. After a restart, Kaku brings back your tabs and splits, but not OpenCode's screen or process, since it keeps the last screen of a full-screen program only for Claude Code and Codex, so start OpenCode again with <code>opencode -c</code>.</p>
+<p><code>kaku ai</code> sets up tools such as Claude Code, Codex, Gemini CLI and Kimi Code, and OpenCode is not among them at version 0.25.0, so its provider and config stay in OpenCode's own files.</p>
+<h2 id="what-goes-wrong">What goes wrong</h2>
+<ul>
+<li><strong>You installed the wrong project or version.</strong> Check <code>opencode --version</code>, and that the install line came from opencode.ai or the <code>anomalyco</code> repository.</li>
+<li><strong>The model list is empty.</strong> <code>/models</code> only shows providers you connected. Run <code>opencode auth list</code> to see what is stored.</li>
+<li><strong>Edits happen without asking.</strong> That is the default. Add the <code>permissions</code> rules above, or switch to <code>plan</code> with <code>Shift + Tab</code>.</li>
+<li><strong><code>/undo</code> brings back the prompt but not the files.</strong> File restore needs a Git repository.</li>
+<li><strong>Your CLAUDE.md is ignored.</strong> OpenCode 2 reads only <code>AGENTS.md</code>; list <code>CLAUDE.md</code> under <code>instructions</code> or move the rules.</li>
+</ul>
+<h2 id="faq">FAQ</h2>
+<h3 id="is-opencode-free">Is OpenCode free?</h3>
+<p>The software is MIT licensed. You still pay whichever provider you connect, or sign in with an account a provider offers.</p>
+<h3 id="where-is-the-opencode-config-file-on-mac">Where is the OpenCode config file on Mac?</h3>
+<p><code>~/.config/opencode/opencode.json</code> for your user, and <code>opencode.json</code> in a project for that project. Saved provider keys live in <code>~/.local/share/opencode/opencode.db</code>.</p>
+<h3 id="does-opencode-read-claudemd">Does OpenCode read CLAUDE.md?</h3>
+<p>OpenCode 2 does not read it on its own. Add it under <code>instructions</code> in <code>opencode.json</code>, or move its content into <code>AGENTS.md</code>.</p>
+<h3 id="how-do-i-continue-the-last-session">How do I continue the last session?</h3>
+<p><code>opencode -c</code> from the shell, or <code>/sessions</code> inside the interface.</p>
+          <aside class="blog-cta"><img class="blog-cta-icon" src="/img/kaku-mark.png" width="40" height="40" alt=""><p>Kaku is a free, open-source Mac terminal.</p><a class="btn btn-primary" href="/docs">Install Kaku</a></aside>
+          <nav class="blog-related" aria-label="Keep reading"><h2 class="blog-related-title">Keep reading</h2><ul class="blog-related-list"><li><a href="/blog/install-claude-code-mac"><span class="blog-related-cat">Claude Code and Codex</span><span class="blog-related-name">Install Claude Code on Mac: Installer, Homebrew and Updates</span><span class="blog-related-meta"><time datetime="2026-10-02">Oct 2, 2026</time> · 6 min read</span></a></li><li><a href="/blog/gemini-cli-setup"><span class="blog-related-cat">Claude Code and Codex</span><span class="blog-related-name">Gemini CLI on Mac: Install, Sign In and What Changed in 2026</span><span class="blog-related-meta"><time datetime="2026-10-26">Oct 26, 2026</time> · 7 min read</span></a></li><li><a href="/blog/claude-code-cost"><span class="blog-related-cat">Claude Code and Codex</span><span class="blog-related-name">Claude Code Cost: Pricing, /usage, ccusage and Ways to Cut It</span><span class="blog-related-meta"><time datetime="2026-10-23">Oct 23, 2026</time> · 8 min read</span></a></li></ul></nav>
+        </article>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer"><div class="wide foot"><div class="foot-brand"><p class="name">Kaku · <span class="foot-mark" lang="zh-Hant">書</span></p><p class="foot-sub">A fast, good-looking, AI-friendly terminal for the Mac.</p></div><div class="foot-links"><div><b>Product</b><a href="/docs">Docs</a><a href="/changelog">Changelog</a><a href="/roadmap">Roadmap</a><a href="/compare">Compare</a><a href="/blog">Blog</a></div><div><b>Project</b><a href="/about">About</a><a href="/privacy">Privacy</a><a href="https://github.com/tw93/Kaku">GitHub</a><a href="https://github.com/tw93/Kaku/issues">Issues</a></div><div><b>Connect</b><a href="/contact">Contact</a><a href="https://x.com/HiTw93">X</a></div></div></div></footer>
+</body>
+</html>

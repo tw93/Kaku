@@ -7,6 +7,14 @@
     <description>Guides and notes on Mac terminals, Claude Code, Codex and shell setup, and how Kaku is built.</description>
     <language>en</language>
     <item>
+      <title>OpenCode Setup on Mac: Install, Providers, AGENTS.md and Permissions</title>
+      <link>https://kaku.fun/blog/opencode-setup</link>
+      <guid isPermaLink="true">https://kaku.fun/blog/opencode-setup</guid>
+      <pubDate>Mon, 02 Nov 2026 09:00:00 +0800</pubDate>
+      <dc:creator>Tw93</dc:creator>
+      <description>Install OpenCode on a Mac, connect a provider with /connect, write AGENTS.md with /init, set permissions, and use it in Kaku.</description>
+    </item>
+    <item>
       <title>Gemini CLI on Mac: Install, Sign In and What Changed in 2026</title>
       <link>https://kaku.fun/blog/gemini-cli-setup</link>
       <guid isPermaLink="true">https://kaku.fun/blog/gemini-cli-setup</guid>

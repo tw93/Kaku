@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f4ed">
+  <meta name="color-scheme" content="light">
+  <title>OpenCode 在 Mac 上怎么安装和配置 · Kaku 博客</title>
+  <meta name="description" content="在 Mac 上安装 OpenCode，用 /connect 连模型服务商，/init 生成 AGENTS.md，配权限，以及在 Kaku 里怎么用。">
+  <meta property="og:title" content="OpenCode 在 Mac 上怎么安装和配置 · Kaku 博客">
+  <meta property="og:description" content="在 Mac 上安装 OpenCode，用 /connect 连模型服务商，/init 生成 AGENTS.md，配权限，以及在 Kaku 里怎么用。">
+  <meta property="og:type" content="article">
+  <meta property="og:image" content="https://kaku.fun/img/blog/cards/opencode-setup.webp">
+  <meta property="og:image:width" content="1600">
+  <meta property="og:image:height" content="900">
+  <meta property="og:image:alt" content="OpenCode 在 Mac 上怎么安装和配置">
+  <meta property="og:url" content="https://kaku.fun/zh/blog/opencode-setup">
+  <meta property="article:published_time" content="2026-11-02">
+  <meta property="article:modified_time" content="2026-11-02">
+  <meta property="article:author" content="Tw93">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://kaku.fun/img/blog/cards/opencode-setup.webp">
+  <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-kaku-32.png"><link rel="icon" type="image/png" sizes="192x192" href="/img/favicon-kaku-192.png"><link rel="apple-touch-icon" href="/img/favicon-kaku-180.png">
+  <link rel="canonical" href="https://kaku.fun/zh/blog/opencode-setup"><link rel="alternate" type="application/rss+xml" title="Kaku releases" href="https://kaku.fun/feed.xml">
+  <link rel="alternate" type="application/rss+xml" title="Kaku 博客" href="https://kaku.fun/zh/blog/feed.xml">
+  <link rel="alternate" hreflang="en" href="https://kaku.fun/blog/opencode-setup">
+  <link rel="alternate" hreflang="zh-CN" href="https://kaku.fun/zh/blog/opencode-setup">
+  <link rel="alternate" hreflang="x-default" href="https://kaku.fun/blog/opencode-setup">
+  <link rel="alternate" type="text/markdown" href="https://kaku.fun/zh/blog/opencode-setup.md">
+  <link rel="stylesheet" href="/styles.css">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Kaku",
+          "item": "https://kaku.fun/zh"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "博客",
+          "item": "https://kaku.fun/zh/blog"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "OpenCode 在 Mac 上怎么安装和配置",
+          "item": "https://kaku.fun/zh/blog/opencode-setup"
+        }
+      ]
+    },
+    {
+      "@type": "BlogPosting",
+      "@id": "https://kaku.fun/zh/blog/opencode-setup#article",
+      "headline": "OpenCode 在 Mac 上怎么安装和配置",
+      "description": "在 Mac 上安装 OpenCode，用 /connect 连模型服务商，/init 生成 AGENTS.md，配权限，以及在 Kaku 里怎么用。",
+      "url": "https://kaku.fun/zh/blog/opencode-setup",
+      "mainEntityOfPage": "https://kaku.fun/zh/blog/opencode-setup",
+      "datePublished": "2026-11-02",
+      "dateModified": "2026-11-02",
+      "inLanguage": "zh-CN",
+      "articleSection": "Claude Code 与 Codex",
+      "image": "https://kaku.fun/img/blog/cards/opencode-setup.webp",
+      "timeRequired": "PT9M",
+      "author": {
+        "@type": "Person",
+        "name": "Tw93",
+        "url": "https://tw93.fun",
+        "sameAs": [
+          "https://x.com/HiTw93",
+          "https://github.com/tw93"
+        ]
+      },
+      "publisher": {
+        "@id": "https://kaku.fun/#organization"
+      },
+      "isPartOf": {
+        "@id": "https://kaku.fun/zh/blog#blog"
+      },
+      "about": {
+        "@id": "https://kaku.fun/#software"
+      },
+      "encoding": {
+        "@type": "MediaObject",
+        "encodingFormat": "text/markdown",
+        "contentUrl": "https://kaku.fun/zh/blog/opencode-setup.md"
+      }
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "OpenCode 免费吗？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "软件是 MIT 协议，但你连接的服务商照常收费，或者用服务商提供的账号登录。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "OpenCode 的配置文件在 Mac 的哪里？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "用户级是 ~/.config/opencode/opencode.json，项目级是项目里的 opencode.json，保存的服务商 key 在 ~/.local/share/opencode/opencode.db。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "OpenCode 会读 CLAUDE.md 吗？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "OpenCode 2 不会自己去读，要在 opencode.json 的 instructions 里加上它，或者把内容挪进 AGENTS.md。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "怎么接着上一个会话继续？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "在 shell 里用 opencode -c，或者在界面里用 /sessions。"
+          }
+        }
+      ]
+    }
+  ]
+}
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">跳到内容</a>
+  <nav class="site-nav" aria-label="主导航"><div class="wide nav-inner"><a class="brand" href="/zh"><strong>Kaku</strong></a><div class="nav-links"><a href="/zh/docs">文档</a><a href="/zh/compare">对比</a><a href="/zh/changelog">更新日志</a><a href="/zh/blog" aria-current="page">博客</a></div><div class="nav-actions"><details class="lang-switch"><summary class="lang-trigger" aria-label="切换语言"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/></svg><span class="lang-current-code" aria-hidden="true">中</span><span class="lang-current-name">简体中文</span></summary><div class="lang-menu"><a class="lang-option" aria-current="page" href="/zh/blog/opencode-setup" hreflang="zh-CN">简体中文</a><a class="lang-option" href="/blog/opencode-setup" hreflang="en">English</a></div></details><script src="/navigation.js" defer></script><a class="nav-icon" href="https://github.com/tw93/Kaku" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a><a class="nav-icon" href="https://x.com/HiTw93" target="_blank" rel="noopener noreferrer" aria-label="X"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a></div></div></nav>
+  <main id="main-content" class="docs-page blog-page">
+    <header class="page-hero doc-hero blog-hero"><div class="wide"><nav class="blog-crumb" aria-label="Breadcrumb"><a href="/zh/blog">博客</a></nav><h1>OpenCode 在 Mac 上怎么安装和配置</h1><p class="blog-meta"><span><a href="/zh/blog#topic-agents">Claude Code 与 Codex</a></span><span>发布于 <time datetime="2026-11-02">2026年11月2日</time></span><span>约 9 分钟</span></p></div></header>
+    <section class="section">
+      <div class="wide">
+        <article class="doc-content blog-article">
+          <figure class="blog-cover" aria-hidden="true"><img src="/img/blog/cards/opencode-setup.webp" width="1600" height="900" alt="" fetchpriority="high"></figure>
+<p>OpenCode 是 <a href="https://opencode.ai" target="_blank" rel="noopener noreferrer">opencode.ai</a> 出的开源终端编程 agent，在 Mac 上用官方脚本装好，进项目目录运行 <code>opencode</code>，用 <code>/connect</code> 连上一个模型服务商，再跑一次 <code>/init</code> 让它给仓库生成 <code>AGENTS.md</code>，就能开始用了。它和 Claude Code 最大的两点不同，一是不绑定某一家模型厂商，二是大多数操作默认直接放行，要它先问你得自己配。这篇讲的是 OpenCode 2，也就是项目 README 现在默认安装的版本，内容包括安装、配置文件、agent 和权限，以及它在 Kaku 里怎么用，命令按官方文档 2026 年 10 月的内容核对。</p>
+<h2 id="先确认是哪个-opencode">先确认是哪个 opencode</h2>
+<p>叫 opencode 的东西不止一个，这篇讲的是 opencode.ai 上的这个，仓库是 <a href="https://github.com/anomalyco/opencode" target="_blank" rel="noopener noreferrer">github.com/anomalyco/opencode</a>，MIT 协议，旧的 <code>sst/opencode</code> 链接会跳到这个仓库。另有一个 Go 写的 <code>opencode-ai/opencode</code>，<a href="https://github.com/opencode-ai/opencode" target="_blank" rel="noopener noreferrer">2025 年 9 月已经归档</a>，它的 README 说后续以 Crush 的名字继续开发，如果某篇教程让你从那个仓库安装，讲的就是老项目。</p>
+<h2 id="安装">安装</h2>
+<p><a href="https://opencode.ai/v2/docs/" target="_blank" rel="noopener noreferrer">OpenCode 2 的文档</a>列了好几种方式，Mac 上常用的是这三种：</p>
+<pre><code class="language-bash"><span class="tok-c"># 官方脚本
+</span>curl -fsSL https://opencode.ai/v2/install | bash
+
+<span class="tok-c"># Homebrew，用项目自己的 tap
+</span>brew install anomalyco/tap/opencode-v2
+
+<span class="tok-c"># npm
+</span>npm install -g @opencode/cli</code></pre>
+<p>README 推荐用 <code>anomalyco/tap</code> 这个 formula，Homebrew 核心仓库里的 <code>opencode</code> 更新得慢一些。OpenCode 1 还在发版，老教程里的 <code>opencode.ai/install</code>、<code>anomalyco/tap/opencode</code> 和 npm 上的 <code>opencode-ai</code> 装的都是它。两个版本用的都是 <code>opencode</code> 这个命令，只能留一个，V2 的安装脚本会直接替换 V1 的程序，文档也要求先卸掉用包管理器装的 V1。装完用 <code>opencode --version</code> 检查。</p>
+<h2 id="连接模型服务商">连接模型服务商</h2>
+<p>在项目目录里启动 OpenCode，然后输入 <code>/connect</code>：</p>
+<pre><code class="language-bash"><span class="tok-b">cd</span> ~/code/my-project
+opencode</code></pre>
+<p>在终端界面里，<code>/connect</code> 会列出服务商，选一个按提示操作，通常是粘贴 API key，从 shell 里用 <code>opencode auth login</code> 效果一样，<code>opencode auth list</code> 能看到配了哪些。保存的 key 放在 OpenCode 的本地数据库里，默认是 <code>~/.local/share/opencode/opencode.db</code>，老版本存在 <code>auth.json</code> 里的 key 会在装上 V2 后导入进来。之后 <code>/models</code> 从已连接的服务商里选模型，<code>opencode models</code> 会列出可用的模型。</p>
+<p>有些服务商提供浏览器登录，不用 key。比如 OpenAI，<code>/connect</code> 里除了 API key 还可以用 ChatGPT 账号登录。</p>
+<p>OpenCode 自己也卖模型服务，一个是 OpenCode Go，团队测试过的编程模型的订阅，另一个是 OpenCode Console，都不是必须的。</p>
+<h2 id="终端界面">终端界面</h2>
+<p>不带参数运行 <code>opencode</code> 就是终端界面，先学这几样：</p>
+<ul>
+<li><strong><code>Shift + Tab</code></strong> 在主 agent <code>build</code> 和 <code>plan</code> 之间轮换，<code>/agents</code> 可以列出全部。</li>
+<li><strong><code>@</code></strong> 在项目里模糊搜索文件，把选中的文件附到消息里。</li>
+<li><strong>空输入框开头打 <code>!</code></strong> 进入 shell 模式，命令的输出留在会话里。</li>
+<li><strong><code>/undo</code> 和 <code>/redo</code></strong> 把一条消息连同它改的文件一起撤回，或者再恢复回来。恢复文件要求项目是 Git 仓库，不在仓库里的话 <code>/undo</code> 只能撤回对话。</li>
+<li><strong><code>/sessions</code></strong> 列出并切换会话，<code>/new</code> 新开一个。默认的 leader 键是 <code>ctrl+x</code>，所以 <code>ctrl+x u</code> 是撤销，<code>ctrl+x m</code> 打开模型列表。</li>
+</ul>
+<p>在 shell 里，<code>opencode run "你的提示词"</code> 不开界面直接跑一条提示，<code>opencode -c</code> 接着上一个会话继续。</p>
+<h2 id="用-agentsmd-写规则">用 AGENTS.md 写规则</h2>
+<p>在项目里运行 <code>/init</code>，OpenCode 会读一遍仓库，写出 <code>AGENTS.md</code>，代码回答不了的地方它会问你几个问题，文件已经存在就原地改进。文档建议把它提交进 Git，里面放的是构建命令和约定。</p>
+<p>全局规则放在 <code>~/.config/opencode/AGENTS.md</code>，OpenCode 会加载它，再加上从当前目录往上到项目根目录的每一个 <code>AGENTS.md</code>，这些文件是合并使用的，不会互相替换。配置里的 <code>instructions</code> 还能再加文件，比如 <code>CONTRIBUTING.md</code>，或者 <code>docs/guidelines/*.md</code> 这样的通配。</p>
+<p>从 Claude Code 过来的人要注意一点，OpenCode 2 只认 <code>AGENTS.md</code>，不再兜底读 <code>CLAUDE.md</code>，要么把规则挪进 <code>AGENTS.md</code>，要么在 <code>instructions</code> 里写上 <code>CLAUDE.md</code>。一份 <code>AGENTS.md</code> 可以同时给 OpenCode 和 <a href="/zh/blog/codex-cli-setup">Codex</a> 用，Claude Code 仍然读它自己的 <code>CLAUDE.md</code>。</p>
+<h2 id="配置文件">配置文件</h2>
+<p>OpenCode 会把几处来源的设置合并起来，而不是用一个替换另一个。常用的是全局的 <code>~/.config/opencode/opencode.json</code> 和项目里的 <code>opencode.json</code>，键冲突时项目文件覆盖全局文件，想写注释的话两处都可以用 <code>.jsonc</code> 后缀。</p>
+<pre><code class="language-json">{
+  "$schema": <span class="tok-s">"https://opencode.ai/config.json"</span>,
+  "model": <span class="tok-s">"anthropic/claude-sonnet-4-5"</span>,
+  "permissions": [
+    { "action": <span class="tok-s">"edit"</span>, "resource": <span class="tok-s">"*"</span>, "effect": <span class="tok-s">"ask"</span> },
+    { "action": <span class="tok-s">"shell"</span>, "resource": <span class="tok-s">"*"</span>, "effect": <span class="tok-s">"ask"</span> }
+  ]
+}</code></pre>
+<p><code>$schema</code> 这行让编辑器能做校验，<code>model</code> 是主模型，写成 <code>provider/model</code> 的形式。这里的模型名取自文档里的示例，换成 <code>opencode models</code> 实际列出的你自己服务商的模型。</p>
+<h2 id="agent-和权限">agent 和权限</h2>
+<p>自带两个主 agent，<code>build</code> 是默认的，跑工具不问你，<code>plan</code> 负责摸清代码和出方案，不能改项目文件，跑 shell 命令按你配的权限规则走。还有两个子 agent，主 agent 可以把活交给它们，<code>general</code> 做调研和多步骤任务，<code>explore</code> 只搜索和读代码，不改文件。自己写的话，在 <code>~/.config/opencode/agents/</code> 或 <code>.opencode/agents/</code> 里放一个 Markdown 文件，文件名就是 agent 名。思路和 <a href="/zh/blog/claude-code-subagents">Claude Code 的 subagent</a> 是一样的。</p>
+<p>每条权限规则有 <code>action</code>、<code>resource</code> 和 <code>effect</code> 三个字段，<code>effect</code> 取 <code>allow</code>、<code>ask</code> 或 <code>deny</code>。默认几乎都是放行，包括访问项目以外的路径，读 <code>.env</code> 文件会先问。更严格的写法是这样：</p>
+<pre><code class="language-json">{
+  "permissions": [
+    { "action": <span class="tok-s">"*"</span>, "resource": <span class="tok-s">"*"</span>, "effect": <span class="tok-s">"ask"</span> },
+    { "action": <span class="tok-s">"read"</span>, "resource": <span class="tok-s">"*"</span>, "effect": <span class="tok-s">"allow"</span> },
+    { "action": <span class="tok-s">"shell"</span>, "resource": <span class="tok-s">"git status *"</span>, "effect": <span class="tok-s">"allow"</span> },
+    { "action": <span class="tok-s">"external_directory"</span>, "resource": <span class="tok-s">"*"</span>, "effect": <span class="tok-s">"ask"</span> }
+  ]
+}</code></pre>
+<p>最后一条命中的规则生效，所以宽泛的规则写在前面，例外写在后面。弹窗的回答有允许一次、一直允许（按项目保存）和拒绝，用 <code>opencode --auto</code> 启动会批准原本要询问的请求，显式的 <code>deny</code> 规则仍然有效。一直允许存下来的是工具提出的模式，不是这一次的原样请求，批准 <code>git status --short</code> 可能存下的是 <code>git status *</code>，存下来的批准永远压不过配置里的 <code>deny</code>，选拒绝则会把这个会话里其他还在等的请求一起拒掉。OpenCode 1 那种用 <code>permission</code> 和 <code>bash</code> 写的配置照样能加载，不过新写的规则按上面的格式更好读。</p>
+<p>只针对某个 agent 的规则写在 <code>agents.&lt;id&gt;.permissions</code> 下，排在顶层规则后面，所以对那个 agent 来说它们说了算，自定义的 subagent 用的是它自己的规则，不是父 agent 规则的子集。shell 规则比对的是命令文本，OpenCode 从命令里推断会碰到哪些目录也只是尽力而为，所以文档建议给 shell 命令写一份短的放行清单，而不是想靠模式把每种危险命令都拦下来。</p>
+<h2 id="和-claude-codecodex-的区别">和 Claude Code、Codex 的区别</h2>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>OpenCode</th>
+<th>Claude Code</th>
+<th>Codex CLI</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>模型</td>
+<td>多家服务商，用 <code>/connect</code> 选</td>
+<td>Anthropic 的模型</td>
+<td>ChatGPT 套餐或 OpenAI API key</td>
+</tr>
+<tr>
+<td>改文件和跑命令</td>
+<td>默认放行，设成 <code>ask</code> 才问</td>
+<td>默认模式下先问</td>
+<td>由 <code>approval_policy</code> 和 <code>sandbox_mode</code> 决定</td>
+</tr>
+<tr>
+<td>规则文件</td>
+<td><code>AGENTS.md</code></td>
+<td><code>CLAUDE.md</code></td>
+<td>见 <a href="/zh/blog/codex-cli-setup">Codex 配置那篇</a></td>
+</tr>
+</tbody>
+</table>
+<p>OpenCode 是 MIT 协议，Codex CLI 是 Apache-2.0。选哪个通常看模型和审查习惯，想用一个终端工具对接好几家服务商就选 OpenCode，依赖 <a href="/zh/blog/claude-code-hooks">hooks</a> 和 <a href="/zh/blog/claude-code-plan-mode">plan mode</a> 的话就留在 Claude Code，这篇没有把它们逐项对应到 OpenCode 上。<a href="/zh/blog/codex-vs-claude-code">Codex 和 Claude Code 的对比</a>讲了后两者。</p>
+<h2 id="在-kaku-里用">在 Kaku 里用</h2>
+<p>OpenCode 是普通的终端程序，在 Kaku 里和在别的终端里一样能跑，Kaku 加的是外围的东西。<code>Cmd + D</code> 和 <code>Cmd + Shift + D</code> 分屏，适合一边跑 <code>build</code> 一边留一个 shell，<code>Cmd + Shift + Enter</code> 放大当前正在看的窗格，<code>Shift + Enter</code> 和 <code>Cmd + Enter</code> 在提示词里换行。关闭一个前台正在跑长任务的窗格时会先确认。重启之后 Kaku 会恢复标签和分屏，但不会留下 OpenCode 的画面和进程，全屏程序的最后一屏只给 Claude Code 和 Codex 保留，所以要重新启动 OpenCode，用 <code>opencode -c</code> 接上。</p>
+<p><code>kaku ai</code> 能配置 Claude Code、Codex、Gemini CLI、Kimi Code 这些工具，0.25.0 版里没有 OpenCode，它的服务商和配置仍然留在 OpenCode 自己的文件里。</p>
+<h2 id="常见问题排查">常见问题排查</h2>
+<ul>
+<li><strong>装错了项目或版本。</strong> 看 <code>opencode --version</code>，确认安装命令来自 opencode.ai 或 <code>anomalyco</code> 仓库。</li>
+<li><strong>模型列表是空的。</strong> <code>/models</code> 只显示你连接过的服务商，用 <code>opencode auth list</code> 看存了哪些。</li>
+<li><strong>改文件没有先问。</strong> 这是默认行为，加上面的 <code>permissions</code> 规则，或者用 <code>Shift + Tab</code> 切到 <code>plan</code>。</li>
+<li><strong><code>/undo</code> 只撤回了提示词，文件没变回去。</strong> 恢复文件要求是 Git 仓库。</li>
+<li><strong><code>CLAUDE.md</code> 没被读到。</strong> OpenCode 2 只认 <code>AGENTS.md</code>，在 <code>instructions</code> 里写上 <code>CLAUDE.md</code>，或者把规则挪过去。</li>
+</ul>
+<h2 id="常见问题">常见问题</h2>
+<h3 id="opencode-免费吗">OpenCode 免费吗？</h3>
+<p>软件是 MIT 协议，但你连接的服务商照常收费，或者用服务商提供的账号登录。</p>
+<h3 id="opencode-的配置文件在-mac-的哪里">OpenCode 的配置文件在 Mac 的哪里？</h3>
+<p>用户级是 <code>~/.config/opencode/opencode.json</code>，项目级是项目里的 <code>opencode.json</code>，保存的服务商 key 在 <code>~/.local/share/opencode/opencode.db</code>。</p>
+<h3 id="opencode-会读-claudemd-吗">OpenCode 会读 CLAUDE.md 吗？</h3>
+<p>OpenCode 2 不会自己去读，要在 <code>opencode.json</code> 的 <code>instructions</code> 里加上它，或者把内容挪进 <code>AGENTS.md</code>。</p>
+<h3 id="怎么接着上一个会话继续">怎么接着上一个会话继续？</h3>
+<p>在 shell 里用 <code>opencode -c</code>，或者在界面里用 <code>/sessions</code>。</p>
+          <aside class="blog-cta"><img class="blog-cta-icon" src="/img/kaku-mark.png" width="40" height="40" alt=""><p>Kaku 是一个免费开源的 Mac 终端。</p><a class="btn btn-primary" href="/zh/docs">安装 Kaku</a></aside>
+          <nav class="blog-related" aria-label="继续阅读"><h2 class="blog-related-title">继续阅读</h2><ul class="blog-related-list"><li><a href="/zh/blog/install-claude-code-mac"><span class="blog-related-cat">Claude Code 与 Codex</span><span class="blog-related-name">在 Mac 上安装和更新 Claude Code</span><span class="blog-related-meta"><time datetime="2026-10-02">2026年10月2日</time> · 约 6 分钟</span></a></li><li><a href="/zh/blog/gemini-cli-setup"><span class="blog-related-cat">Claude Code 与 Codex</span><span class="blog-related-name">Mac 上安装和使用 Gemini CLI，2026 年登录方式有变化</span><span class="blog-related-meta"><time datetime="2026-10-26">2026年10月26日</time> · 约 8 分钟</span></a></li><li><a href="/zh/blog/claude-code-cost"><span class="blog-related-cat">Claude Code 与 Codex</span><span class="blog-related-name">Claude Code 费用：计费方式、/usage、ccusage 和省钱做法</span><span class="blog-related-meta"><time datetime="2026-10-23">2026年10月23日</time> · 约 8 分钟</span></a></li></ul></nav>
+        </article>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer"><div class="wide foot"><div class="foot-brand"><p class="name">Kaku · <span class="foot-mark" lang="zh-Hant">書</span></p><p class="foot-sub">好看又快、开箱即用的 AI 友好终端</p></div><div class="foot-links"><div><b>产品</b><a href="/zh/docs">文档</a><a href="/zh/changelog">更新日志</a><a href="/zh/roadmap">路线图</a><a href="/zh/compare">对比</a><a href="/zh/blog">博客</a></div><div><b>项目</b><a href="/zh/about">关于</a><a href="/zh/privacy">隐私</a><a href="https://github.com/tw93/Kaku">GitHub</a><a href="https://github.com/tw93/Kaku/issues">问题反馈</a></div><div><b>联系</b><a href="/zh/contact">联系方式</a><a href="https://x.com/HiTw93">X</a></div></div></div></footer>
+</body>
+</html>
