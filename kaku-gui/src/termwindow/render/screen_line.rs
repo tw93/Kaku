@@ -388,6 +388,7 @@ impl crate::TermWindow {
                 cursor_border_mix,
                 ..
             } = self.compute_cell_fg_bg(ComputeCellFgBgParams {
+                is_half_intensity: false,
                 cursor: Some(params.cursor),
                 selected: false,
                 fg_color,
@@ -702,6 +703,8 @@ impl crate::TermWindow {
                                 fg_color_mix,
                                 ..
                             } = self.compute_cell_fg_bg(ComputeCellFgBgParams {
+                                is_half_intensity: cluster.attrs.intensity()
+                                    == wezterm_term::Intensity::Half,
                                 cursor: if is_cursor { Some(params.cursor) } else { None },
                                 selected,
                                 fg_color: item.fg_color,

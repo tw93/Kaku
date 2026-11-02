@@ -292,6 +292,8 @@ pub struct ComputeCellFgBgParams<'a> {
     pub cursor: Option<&'a StableCursorPosition>,
     pub fg_color: LinearRgba,
     pub bg_color: LinearRgba,
+    // The resolved foreground already includes Half-intensity dimming.
+    pub is_half_intensity: bool,
     pub is_active_pane: bool,
     pub config: &'a ConfigHandle,
     pub selection_fg: LinearRgba,
@@ -853,10 +855,24 @@ impl crate::TermWindow {
             _ => (params.fg_color, params.bg_color, params.cursor_border_color),
         };
 
+        // Selection and block cursors supply their own foreground colors.
+        let preserve_dim = params.is_half_intensity
+            && !params.selected
+            && !(focused_and_active
+                && visibility == CursorVisibility::Visible
+                && matches!(
+                    cursor_shape,
+                    CursorShape::BlinkingBlock | CursorShape::SteadyBlock
+                ));
         let fg_color = if params.is_block_glyph {
             fg_color
         } else {
-            self.ensure_min_contrast(fg_color, bg_color)
+            ensure_contrast_preserving_dim(
+                fg_color,
+                bg_color,
+                self.config.text_min_contrast_ratio,
+                preserve_dim,
+            )
         };
 
         let blinking = params.cursor.is_some()
@@ -1105,11 +1121,38 @@ impl crate::TermWindow {
 
 const HALF_INTENSITY_DIM_FACTOR: f32 = 0.75;
 
+fn ensure_contrast_preserving_dim(
+    color: LinearRgba,
+    background: LinearRgba,
+    min_ratio: Option<f32>,
+    is_half_intensity: bool,
+) -> LinearRgba {
+    min_ratio
+        .and_then(|ratio| color.ensure_contrast_ratio(&background, ratio))
+        // Contrast correction can replace both normal and dim text with the
+        // same white. Preserve Half intensity on the replacement color, but
+        // never dim an unchanged foreground a second time.
+        .map(|adjusted| {
+            if is_half_intensity {
+                let dim = dim_color(adjusted);
+                if dim.contrast_ratio(&background) >= min_ratio.unwrap_or(0.0) {
+                    return dim;
+                }
+            }
+            adjusted
+        })
+        .unwrap_or(color)
+}
+
 fn dim_color_for_half_intensity(attrs: &CellAttributes, color: LinearRgba) -> LinearRgba {
     if attrs.intensity() != wezterm_term::Intensity::Half {
         return color;
     }
 
+    dim_color(color)
+}
+
+fn dim_color(color: LinearRgba) -> LinearRgba {
     let (r, g, b, a) = color.tuple();
     LinearRgba::with_components(
         r * HALF_INTENSITY_DIM_FACTOR,
@@ -1122,8 +1165,8 @@ fn dim_color_for_half_intensity(attrs: &CellAttributes, color: LinearRgba) -> Li
 #[cfg(test)]
 mod tests {
     use super::{
-        dim_color_for_half_intensity, resolve_fg_color_attr, row_slack_inside_os_borders,
-        split_row_slack,
+        dim_color_for_half_intensity, ensure_contrast_preserving_dim, resolve_fg_color_attr,
+        row_slack_inside_os_borders, split_row_slack,
     };
     use config::{configuration, use_test_configuration, TextStyle};
     use wezterm_term::color::{ColorAttribute, ColorPalette};
@@ -1184,6 +1227,56 @@ mod tests {
         let (half_r, half_g, half_b, half_a) = half.tuple();
         assert!(half_r < normal_r || half_g < normal_g || half_b < normal_b);
         assert_eq!(half_a, normal_a);
+    }
+
+    #[test]
+    fn contrast_correction_preserves_dim_on_dark_backgrounds() {
+        use window::color::LinearRgba;
+        let original = LinearRgba::with_srgba(0x10, 0x0f, 0x0f, 0xff);
+        let mut half_attrs = CellAttributes::blank();
+        half_attrs.set_intensity(Intensity::Half);
+        for value in [0, 30] {
+            let background = LinearRgba::with_srgba(value, value, value, 0xff);
+            let normal = ensure_contrast_preserving_dim(original, background, Some(3.0), false);
+            let dim = ensure_contrast_preserving_dim(
+                dim_color_for_half_intensity(&half_attrs, original),
+                background,
+                Some(3.0),
+                true,
+            );
+            assert!(
+                dim.relative_luminance() < normal.relative_luminance(),
+                "contrast correction erased dim on background {}",
+                value
+            );
+            assert_eq!(dim.tuple().3, normal.tuple().3);
+            assert!(dim.contrast_ratio(&background) >= 3.0);
+        }
+    }
+
+    #[test]
+    fn contrast_correction_does_not_dim_twice_or_change_normal_text() {
+        use window::color::LinearRgba;
+        let background = LinearRgba::with_srgba(0, 0, 0, 255);
+        let original = LinearRgba::with_srgba(213, 212, 214, 255);
+        let mut attrs = CellAttributes::blank();
+        attrs.set_intensity(Intensity::Half);
+        let dim = dim_color_for_half_intensity(&attrs, original);
+        assert_eq!(
+            ensure_contrast_preserving_dim(dim, background, Some(3.0), true),
+            dim
+        );
+        let dark = LinearRgba::with_srgba(16, 15, 15, 255);
+        assert_eq!(
+            ensure_contrast_preserving_dim(dark, background, None, true),
+            dark
+        );
+        assert_eq!(
+            ensure_contrast_preserving_dim(dark, background, Some(3.0), false),
+            dark.ensure_contrast_ratio(&background, 3.0).unwrap()
+        );
+        let strict = ensure_contrast_preserving_dim(dark, background, Some(20.0), true);
+        assert!(strict.contrast_ratio(&background) >= 20.0);
     }
 
     #[test]

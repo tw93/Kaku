@@ -38,6 +38,7 @@
 ## Practical Rules
 
 - Keep rendering decisions in rendering modules, not scattered across event code.
+- Minimum-contrast correction must preserve Half intensity when it replaces a dim foreground. Reapply dim only to the replacement color; do not dim an unchanged foreground twice or apply it to selection and block-cursor foreground overrides.
 - Paint-time Kaku TUI detection must reject non-Kaku foreground executables using the cached leader name before requesting the full process tree. Keep the executable and argument confirmation for `kaku ai` and `kaku config`; cover pane, window and tab-bar consumers together (#583).
 - Keep initial window dimension math in `TermWindow::new_window()` consistent with `get_os_border()` behavior.
 - In-app update must confirm before replacing the running app. User-facing paths (menu Check for Updates, menu Restart to Update, toast click) go through `check_for_updates_from_menu()` / `confirm_and_apply_update()` in `src/frontend.rs`, not straight to `restart_to_update()`. Exploratory menu check opens a tab without `KAKU_UPDATE_AUTO_CONFIRM`; only the overlay-confirmed path may auto-confirm. CLI direct and brew paths confirm in `kaku/src/update.rs`. Guards: `frontend::tests::user_facing_update_events_route_through_confirm` and `update::imp::tests::brew_and_direct_paths_confirm_before_replace`.
