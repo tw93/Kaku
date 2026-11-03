@@ -4140,7 +4140,7 @@ impl TermWindow {
         if tab_idx != active_idx {
             self.activate_tab(tab_idx as isize)?;
         }
-        tabs[tab_idx].set_active_pane(&pane);
+        tabs[tab_idx].focus_pane_unzooming(&pane);
         self.update_title();
         if let Some(window) = self.window.as_ref() {
             window.invalidate();

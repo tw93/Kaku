@@ -887,6 +887,14 @@ impl Tab {
         Self::notify_focused_pane(focused_pane_id);
     }
 
+    /// Focuses `pane` even in a zoomed tab: unlike `set_active_pane`, which
+    /// leaves a zoomed tab alone when `unzoom_on_switch_pane` is off, this is
+    /// for an explicit request to reach that one pane (Cmd+J).
+    pub fn focus_pane_unzooming(&self, pane: &Arc<dyn Pane>) {
+        let focused_pane_id = self.inner.lock().focus_pane_unzooming(pane);
+        Self::notify_focused_pane(focused_pane_id);
+    }
+
     pub fn set_active_idx(&self, pane_index: usize) {
         let focused_pane_id = self.inner.lock().set_active_idx(pane_index);
         Self::notify_focused_pane(focused_pane_id);
@@ -2212,6 +2220,16 @@ impl TabInner {
         self.active
     }
 
+    fn focus_pane_unzooming(&mut self, pane: &Arc<dyn Pane>) -> Option<PaneId> {
+        if self
+            .get_zoomed_pane()
+            .is_some_and(|zoomed| zoomed.pane_id() != pane.pane_id())
+        {
+            self.set_zoomed(false);
+        }
+        self.set_active_pane(pane)
+    }
+
     fn set_active_pane(&mut self, pane: &Arc<dyn Pane>) -> Option<PaneId> {
         let prior = self.get_active_pane();
 
@@ -2854,6 +2872,44 @@ mod test {
             observed_layout.lock().as_slice(),
             &[vec![(0, 11), (12, 12)]],
         );
+    }
+
+    #[test]
+    fn focus_pane_unzooming_reaches_a_pane_hidden_by_zoom() {
+        let size = TerminalSize {
+            rows: 24,
+            cols: 80,
+            pixel_width: 800,
+            pixel_height: 600,
+            dpi: 96,
+        };
+        // The case Cmd+J has to handle: switching panes keeps the zoom. Other
+        // tests reset the global config concurrently under `cargo test`, which
+        // can only make this setting true; nextest runs each test alone.
+        config::use_this_configuration(config::Config {
+            unzoom_on_switch_pane: false,
+            ..config::Config::default_config()
+        });
+        let tab = Tab::new(&size);
+        let first = FakePane::new_arc(PaneId::new(1), size);
+        tab.assign_pane(&first);
+        let split_size = tab.compute_split_size(0, SplitRequest::default()).unwrap();
+        let second = FakePane::new_arc(PaneId::new(2), split_size.second);
+        tab.split_and_insert(0, SplitRequest::default(), Arc::clone(&second))
+            .unwrap();
+        tab.inner.lock().set_active_pane(&first);
+        tab.inner.lock().set_zoomed(true);
+        assert_eq!(tab.get_zoomed_pane().unwrap().pane_id(), PaneId::new(1));
+
+        tab.inner.lock().focus_pane_unzooming(&second);
+        assert!(tab.get_zoomed_pane().is_none());
+        assert_eq!(tab.get_active_pane().unwrap().pane_id(), PaneId::new(2));
+
+        // Already the zoomed pane: it stays zoomed. The focus changes above
+        // go through TabInner so no Mux is needed for their notifications.
+        tab.inner.lock().set_zoomed(true);
+        tab.inner.lock().focus_pane_unzooming(&second);
+        assert_eq!(tab.get_zoomed_pane().unwrap().pane_id(), PaneId::new(2));
     }
 
     #[test]
