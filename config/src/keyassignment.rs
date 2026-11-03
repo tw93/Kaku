@@ -675,6 +675,7 @@ pub enum KeyAssignment {
     ResetFontAndWindowSize,
     ActivateTab(isize),
     ActivateLastTab,
+    ActivateNextAttentionTab,
     /// Deprecated compatibility action. Pane input broadcast was removed;
     /// this action is accepted from older configs but has no effect.
     ToggleCurrentTabPanesInputBroadcast,

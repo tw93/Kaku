@@ -25,6 +25,7 @@
 | Switch to tab 1–8 / last tab | `Cmd + 1` – `Cmd + 8` / `Cmd + 9` |
 | Previous tab | `Cmd + Shift + [` |
 | Next tab | `Cmd + Shift + ]` |
+| Next tab needing you (dot lit) | `Cmd + J` |
 | Open Tab Navigator | `Cmd + Shift + O` |
 | Close tab | `Cmd + Shift + W` |
 | Reopen closed tab | `Cmd + Shift + T` |

@@ -249,6 +249,7 @@ impl CommandDef {
             ActivateTabRelative(-1),
             ActivateTabRelative(1),
             ActivateLastTab,
+            ActivateNextAttentionTab,
             MoveTabRelative(-1),
             MoveTabRelative(1),
             MoveTabToNewWindow,
@@ -771,6 +772,7 @@ impl CommandDef {
                     ActivateTabRelative(-1) => 30,
                     ActivateTabRelative(1) => 31,
                     ActivateLastTab => 32,
+                    ActivateNextAttentionTab => 35,
                     ShowTabNavigator => 33,
                     RenameCurrentTab => 34,
                     MoveTabRelative(-1) => 40,
@@ -2139,6 +2141,16 @@ pub fn derive_command_from_key_assignment(action: &KeyAssignment) -> Option<Comm
             menubar: &["Window"],
             icon: None,
         },
+        ActivateNextAttentionTab => CommandDef {
+            brief: "Next Tab Needing You".into(),
+            doc:
+                "Switch to the next tab whose dot says a program is waiting on you, done or failed"
+                    .into(),
+            keys: vec![(Modifiers::SUPER, "j".into())],
+            args: &[ArgType::ActiveWindow],
+            menubar: &["Window"],
+            icon: None,
+        },
         ActivateLastTab => CommandDef {
             brief: "Last Active Tab".into(),
             doc: "Switch to last active tab".into(),
@@ -2697,6 +2709,7 @@ fn compute_default_actions() -> Vec<KeyAssignment> {
         ActivatePaneDirection(PaneDirection::Down),
         TogglePaneZoomState,
         ActivateLastTab,
+        ActivateNextAttentionTab,
         ShowTabNavigator,
         RenameCurrentTab,
         // ----------------- Help

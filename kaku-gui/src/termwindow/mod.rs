@@ -814,6 +814,21 @@ pub struct PaneState {
     last_output_visible_seqno: Option<SequenceNo>,
 }
 
+/// The tab and pane index to jump to: the first pane that wants
+/// attention in tab order after `active_tab`, wrapping around and ending
+/// with the active tab's own other panes.
+fn next_attention_pane(active_tab: usize, tabs: &[Vec<bool>]) -> Option<(usize, usize)> {
+    let count = tabs.len();
+    (1..=count)
+        .map(|offset| (active_tab + offset) % count)
+        .find_map(|tab| {
+            tabs[tab]
+                .iter()
+                .position(|wants| *wants)
+                .map(|pane| (tab, pane))
+        })
+}
+
 /// The trailing tab cell only reports attention, never a running state:
 /// a running indicator needs someone to keep feeding the terminal progress
 /// events, while attention is a one-shot signal any program can emit.
@@ -4073,6 +4088,66 @@ impl TermWindow {
         Ok(())
     }
 
+    /// Cmd+J: go to the next pane, in tab order after the current one,
+    /// whose tab dot is lit (`tab_wants_attention`'s rule), activating its
+    /// tab and then the pane itself. Does nothing when no pane wants you.
+    fn activate_next_attention_tab(&mut self) -> anyhow::Result<()> {
+        let mux = Mux::get();
+        let (active_idx, tabs) = {
+            let window = mux
+                .get_window(self.mux_window_id)
+                .ok_or_else(|| anyhow!("no such window"))?;
+            (
+                window.get_active_idx(),
+                window.iter().cloned().collect::<Vec<_>>(),
+            )
+        };
+        let active_pane = self.get_active_pane_no_overlay().map(|p| p.pane_id());
+        let wants = {
+            let pane_state = self.pane_state.borrow();
+            tabs.iter()
+                .map(|tab| {
+                    tab.iter_panes_ignoring_zoom()
+                        .into_iter()
+                        .map(|pos| {
+                            let state = pane_state.get(&pos.pane.pane_id());
+                            let unread = state.is_some_and(|state| {
+                                state.has_unread_notification
+                                    || (self.config.bell_tab_indicator && state.has_unread_bell)
+                            });
+                            (
+                                pos.pane.clone(),
+                                Some(pos.pane.pane_id()) != active_pane
+                                    && (unread
+                                        || matches!(
+                                            pos.pane.get_progress(),
+                                            Progress::Paused | Progress::Error(_)
+                                        )),
+                            )
+                        })
+                        .collect::<Vec<_>>()
+                })
+                .collect::<Vec<_>>()
+        };
+        let flags: Vec<Vec<bool>> = wants
+            .iter()
+            .map(|panes| panes.iter().map(|(_, wants)| *wants).collect())
+            .collect();
+        let Some((tab_idx, pane_idx)) = next_attention_pane(active_idx, &flags) else {
+            return Ok(());
+        };
+        let pane = wants[tab_idx][pane_idx].0.clone();
+        if tab_idx != active_idx {
+            self.activate_tab(tab_idx as isize)?;
+        }
+        tabs[tab_idx].set_active_pane(&pane);
+        self.update_title();
+        if let Some(window) = self.window.as_ref() {
+            window.invalidate();
+        }
+        Ok(())
+    }
+
     fn activate_tab_relative(&mut self, delta: isize, wrap: bool) -> anyhow::Result<()> {
         let mux = Mux::get();
         let window = mux
@@ -4916,6 +4991,7 @@ impl TermWindow {
                 self.activate_tab_relative(*n, false)?;
             }
             ActivateLastTab => self.activate_last_tab()?,
+            ActivateNextAttentionTab => self.activate_next_attention_tab()?,
             DecreaseFontSize => self.decrease_font_size(),
             IncreaseFontSize => self.increase_font_size(),
             ResetFontSize => self.reset_font_size(),
@@ -6880,13 +6956,29 @@ impl Drop for TermWindow {
 #[cfg(test)]
 mod tests {
     use super::{
-        aggregate_tab_progress, bell_notification_message, scrollback_erase_mode_for_pane,
-        FileLinkTarget, MouseCapture, RenderableDimensions, TermWindow,
+        aggregate_tab_progress, bell_notification_message, next_attention_pane,
+        scrollback_erase_mode_for_pane, FileLinkTarget, MouseCapture, RenderableDimensions,
+        TermWindow,
     };
     use config::keyassignment::ScrollbackEraseMode;
     use mux::pane::PaneId;
     use std::path::PathBuf;
     use wezterm_term::{Progress, StableRowIndex};
+
+    #[test]
+    fn next_attention_pane_goes_forward_and_wraps() {
+        // Tabs after the active one come first, in order.
+        let tabs = vec![vec![true], vec![false], vec![false, true], vec![true]];
+        assert_eq!(next_attention_pane(1, &tabs), Some((2, 1)));
+        // Past the last tab it wraps to the first.
+        assert_eq!(next_attention_pane(3, &tabs), Some((0, 0)));
+        // The active tab's own other panes come last.
+        let tabs = vec![vec![false, true], vec![false]];
+        assert_eq!(next_attention_pane(0, &tabs), Some((0, 1)));
+        // Nothing wants attention: no jump.
+        assert_eq!(next_attention_pane(0, &[vec![false], vec![false]]), None);
+        assert_eq!(next_attention_pane(0, &[]), None);
+    }
 
     #[test]
     fn hotkey_config_is_resolved_for_creation_and_reload() {

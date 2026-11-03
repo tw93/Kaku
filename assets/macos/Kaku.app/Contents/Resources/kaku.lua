@@ -4787,6 +4787,11 @@ config.keys = (function() return {
     mods = 'CMD|SHIFT',
     action = wezterm.action.ActivateTabRelative(1),
   },
+  {
+    key = 'j',
+    mods = 'CMD',
+    action = wezterm.action.ActivateNextAttentionTab,
+  },
 
   -- Pane Navigation
   -- Cmd+Option+Arrow: navigate between splits
