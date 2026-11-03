@@ -311,6 +311,11 @@ pub trait Pane: Downcast + Send + Sync {
     fn get_progress(&self) -> Progress {
         Progress::None
     }
+    /// The program's own OSC 7501 state ("working", "blocked", "done",
+    /// "error" or "idle"), read by `kaku cli list`, `wait` and `events`.
+    fn get_program_status(&self) -> Option<String> {
+        None
+    }
     fn send_paste(&self, text: &str) -> anyhow::Result<()>;
     /// Already encoded input, without paste framing or newline conversion.
     fn send_text(&self, text: &str) -> anyhow::Result<()> {

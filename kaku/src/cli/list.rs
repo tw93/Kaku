@@ -13,35 +13,44 @@ pub struct ListCommand {
     format: CliOutputFormatKind,
 }
 
+/// Every pane the mux knows, in tab order, with its tab and window titles.
+/// `wait` and `events` poll this too.
+pub(crate) async fn list_pane_entries(
+    client: &Client,
+) -> anyhow::Result<Vec<(mux::tab::PaneEntry, String, String)>> {
+    let panes = client.list_panes().await?;
+    let mut entries = vec![];
+    for (tabroot, tab_title) in panes.tabs.into_iter().zip(panes.tab_titles.iter()) {
+        let mut cursor = tabroot.into_tree().cursor();
+        loop {
+            if let Some(entry) = cursor.leaf_mut() {
+                let window_title = panes
+                    .window_titles
+                    .get(&entry.window_id)
+                    .cloned()
+                    .unwrap_or_default();
+                entries.push((entry.clone(), tab_title.clone(), window_title));
+            }
+            match cursor.preorder_next() {
+                Ok(c) => cursor = c,
+                Err(_) => break,
+            }
+        }
+    }
+    Ok(entries)
+}
+
 impl ListCommand {
     pub async fn run(&self, client: Client) -> anyhow::Result<()> {
         let out = std::io::stdout();
 
-        let mut output_items = vec![];
-        let panes = client.list_panes().await?;
-
-        for (tabroot, tab_title) in panes.tabs.into_iter().zip(panes.tab_titles.iter()) {
-            let mut cursor = tabroot.into_tree().cursor();
-
-            loop {
-                if let Some(entry) = cursor.leaf_mut() {
-                    let window_title = panes
-                        .window_titles
-                        .get(&entry.window_id)
-                        .map(|s| s.as_str())
-                        .unwrap_or("");
-                    output_items.push(CliListResultItem::from(
-                        entry.clone(),
-                        tab_title,
-                        window_title,
-                    ));
-                }
-                match cursor.preorder_next() {
-                    Ok(c) => cursor = c,
-                    Err(_) => break,
-                }
-            }
-        }
+        let output_items: Vec<CliListResultItem> = list_pane_entries(&client)
+            .await?
+            .into_iter()
+            .map(|(entry, tab_title, window_title)| {
+                CliListResultItem::from(entry, &tab_title, &window_title)
+            })
+            .collect();
         match self.format {
             CliOutputFormatKind::Json => {
                 let mut writer = serde_json::Serializer::pretty(out.lock());
@@ -139,6 +148,8 @@ struct CliListResultItem {
     is_active: bool,
     is_zoomed: bool,
     tty_name: Option<String>,
+    /// The program's own OSC 7501 state, when it reported one.
+    program_status: Option<String>,
 }
 
 impl CliListResultItem {
@@ -157,6 +168,7 @@ impl CliListResultItem {
             is_active_pane,
             is_zoomed_pane,
             tty_name,
+            program_status,
             size:
                 TerminalSize {
                     rows,
@@ -197,6 +209,7 @@ impl CliListResultItem {
             is_active: is_active_pane,
             is_zoomed: is_zoomed_pane,
             tty_name,
+            program_status,
         }
     }
 }

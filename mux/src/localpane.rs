@@ -517,6 +517,13 @@ impl Pane for LocalPane {
         self.terminal.lock().get_progress()
     }
 
+    fn get_program_status(&self) -> Option<String> {
+        self.terminal
+            .lock()
+            .program_status()
+            .map(|state| state.as_str().to_string())
+    }
+
     fn palette(&self) -> ColorPalette {
         self.terminal.lock().palette()
     }

@@ -101,3 +101,17 @@ kaku cli split-pane --help                   # help for a specific subcommand
 ```
 
 Useful for integrating Kaku with AI tools or shell scripts that need to open panes or tabs programmatically.
+
+`wait` and `events` read the state Claude Code and Codex report over OSC 7501 (`working`, `blocked`, `done`, `error`, `idle`), which `list --format json` shows as `program_status`:
+
+```bash
+kaku cli wait --pane-id 5 --for done,blocked --next --timeout 20m   # until that agent finishes or needs you
+kaku cli events --for blocked                                       # a line each time a pane starts waiting on you
+```
+
+[agent-skill.md](agent-skill.md) teaches a coding agent to use these commands. It is a skill file; to give it to Claude Code:
+
+```bash
+mkdir -p ~/.claude/skills/kaku
+curl -fsSL https://raw.githubusercontent.com/tw93/Kaku/main/docs/agent-skill.md -o ~/.claude/skills/kaku/SKILL.md
+```

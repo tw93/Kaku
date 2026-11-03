@@ -764,6 +764,13 @@ impl TerminalState {
         self.progress.clone()
     }
 
+    /// The last OSC 7501 state the program in this terminal reported for
+    /// itself: working and blocked end at the next shell prompt, done,
+    /// error and idle stay until it reports again.
+    pub fn program_status(&self) -> Option<ProgramState> {
+        self.program_status
+    }
+
     /// Returns the current working directory associated with the
     /// terminal session.  The working directory can be changed by
     /// the applicaiton using the OSC 7 escape sequence.

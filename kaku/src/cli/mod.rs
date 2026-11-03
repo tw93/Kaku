@@ -7,6 +7,7 @@ mod activate_pane;
 mod activate_pane_direction;
 mod activate_tab;
 mod adjust_pane_size;
+mod events;
 mod get_pane_direction;
 mod get_text;
 mod kill_pane;
@@ -21,6 +22,7 @@ mod set_window_title;
 mod spawn_command;
 mod split_pane;
 mod tls_creds;
+mod wait;
 mod zoom_pane;
 
 #[derive(Debug, Parser, Clone, Copy)]
@@ -121,6 +123,17 @@ Outputs the pane-id for the newly created pane on success"
     #[command(name = "get-text", rename_all = "kebab")]
     GetText(get_text::GetText),
 
+    /// Wait until a pane's program reports one of the given states over
+    /// OSC 7501 (working, blocked, done, error, idle), or the pane closes
+    /// (exit). Prints the state that ended the wait.
+    #[command(name = "wait", rename_all = "kebab")]
+    Wait(wait::Wait),
+
+    /// Print a line each time a pane's reported state changes or a pane
+    /// closes, until interrupted.
+    #[command(name = "events", rename_all = "kebab")]
+    Events(events::Events),
+
     /// Activate an adjacent pane in the specified direction.
     #[command(name = "activate-pane-direction", rename_all = "kebab")]
     ActivatePaneDirection(activate_pane_direction::ActivatePaneDirection),
@@ -186,6 +199,8 @@ async fn run_cli_async(opts: &crate::Opt, cli: CliCommand) -> anyhow::Result<()>
         CliSubCommand::SplitPane(cmd) => cmd.run(client).await,
         CliSubCommand::SendText(cmd) => cmd.run(client).await,
         CliSubCommand::GetText(cmd) => cmd.run(client).await,
+        CliSubCommand::Wait(cmd) => cmd.run(client).await,
+        CliSubCommand::Events(cmd) => cmd.run(client).await,
         CliSubCommand::SpawnCommand(cmd) => cmd.run(client, &crate::init_config(opts)?).await,
         CliSubCommand::Proxy(cmd) => cmd.run(client, &crate::init_config(opts)?).await,
         CliSubCommand::TlsCreds(cmd) => cmd.run(client).await,

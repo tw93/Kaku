@@ -344,6 +344,7 @@ fn pane_tree(
                 left_col,
                 top_row,
                 tty_name: pane.tty_name(),
+                program_status: pane.get_program_status(),
             })
         }
     }
@@ -2628,6 +2629,9 @@ pub struct PaneEntry {
     pub top_row: usize,
     pub left_col: usize,
     pub tty_name: Option<String>,
+    /// The program's own OSC 7501 state, see `Pane::get_program_status`.
+    #[serde(default)]
+    pub program_status: Option<String>,
 }
 
 #[derive(Deserialize, Clone, Serialize, PartialEq, Debug)]

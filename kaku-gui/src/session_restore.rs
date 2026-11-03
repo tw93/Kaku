@@ -262,6 +262,7 @@ impl SavedPaneEntry {
             top_row: 0,
             left_col: 0,
             tty_name: None,
+            program_status: None,
         }
     }
 }

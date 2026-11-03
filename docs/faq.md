@@ -159,7 +159,7 @@ Claude Code 2.1.295 and later tell Kaku whether they are working, waiting on you
 { "preferredNotifChannel": "ghostty" }
 ```
 
-Codex works without changes: it rings the terminal bell and Kaku turns that into a notification. To see Codex's own message instead of a generic one, add this to `~/.codex/config.toml`:
+Codex works without changes. Codex 0.163 and later report their state over OSC 7501 as Claude Code does; older versions ring the terminal bell, which Kaku also turns into a notification. To see Codex's own message instead of a generic one, add this to `~/.codex/config.toml`:
 
 ```toml
 [tui]
