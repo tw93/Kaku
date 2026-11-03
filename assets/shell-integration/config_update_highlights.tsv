@@ -116,3 +116,5 @@
 43	TUI 折成两行的路径和网址可以完整打开
 44	Settings applies your own color schemes from ~/.config/kaku/colors
 44	Settings 可以直接应用 ~/.config/kaku/colors 里自己的配色方案
+45	Kaku no longer crashes again and again after restoring a long session
+45	恢复很长的会话后，Kaku 不会再反复崩溃
