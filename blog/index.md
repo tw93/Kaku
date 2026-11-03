@@ -46,6 +46,7 @@ Choose and configure a Mac terminal: fonts, splits, shortcuts.
 
 Set up zsh, the prompt and the command-line tools around it.
 
+- [tmux Cheat Sheet: Default Keys, Copy Mode and a Minimal Config](https://kaku.fun/blog/tmux-cheat-sheet.md) (2026-11-03): The default tmux prefix and keys for sessions, windows, panes and copy mode, plus a minimal ~/.tmux.conf and how tmux behaves inside Kaku.
 - [SSH Config on Mac: Hosts, Keys and the Keychain](https://kaku.fun/blog/ssh-config-mac.md) (2026-10-18): Put specific Host blocks in ~/.ssh/config, check them with ssh -G, and keep Apple keychain options on /usr/bin/ssh.
 - [Yazi on Mac: A Fast Terminal File Manager Setup](https://kaku.fun/blog/yazi-file-manager.md) (2026-10-15): Install Yazi and its preview tools on macOS, learn the keys that matter, add the y wrapper that changes directory on quit, and configure it.
 - [Set Up fzf with Zsh on Mac: History, Files and Directories](https://kaku.fun/blog/fzf-zsh-mac.md) (2026-10-14): Install fzf, turn on its zsh key bindings for history, files and directories, fix Alt+C on a Mac, and add previews and fzf-tab.

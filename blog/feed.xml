@@ -7,6 +7,14 @@
     <description>Guides and notes on Mac terminals, Claude Code, Codex and shell setup, and how Kaku is built.</description>
     <language>en</language>
     <item>
+      <title>tmux Cheat Sheet: Default Keys, Copy Mode and a Minimal Config</title>
+      <link>https://kaku.fun/blog/tmux-cheat-sheet</link>
+      <guid isPermaLink="true">https://kaku.fun/blog/tmux-cheat-sheet</guid>
+      <pubDate>Tue, 03 Nov 2026 09:00:00 +0800</pubDate>
+      <dc:creator>Tw93</dc:creator>
+      <description>The default tmux prefix and keys for sessions, windows, panes and copy mode, plus a minimal ~/.tmux.conf and how tmux behaves inside Kaku.</description>
+    </item>
+    <item>
       <title>OpenCode Setup on Mac: Install, Providers, AGENTS.md and Permissions</title>
       <link>https://kaku.fun/blog/opencode-setup</link>
       <guid isPermaLink="true">https://kaku.fun/blog/opencode-setup</guid>

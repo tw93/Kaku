@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f4ed">
+  <meta name="color-scheme" content="light">
+  <title>tmux 快捷键速查，附复制模式和最小配置 · Kaku 博客</title>
+  <meta name="description" content="tmux 默认前缀和会话、窗口、窗格、复制模式的快捷键，一份最小的 ~/.tmux.conf，以及在 Kaku 里怎么用。">
+  <meta property="og:title" content="tmux 快捷键速查，附复制模式和最小配置 · Kaku 博客">
+  <meta property="og:description" content="tmux 默认前缀和会话、窗口、窗格、复制模式的快捷键，一份最小的 ~/.tmux.conf，以及在 Kaku 里怎么用。">
+  <meta property="og:type" content="article">
+  <meta property="og:image" content="https://kaku.fun/img/blog/cards/tmux-cheat-sheet.webp">
+  <meta property="og:image:width" content="1600">
+  <meta property="og:image:height" content="900">
+  <meta property="og:image:alt" content="tmux 快捷键速查，附复制模式和最小配置">
+  <meta property="og:url" content="https://kaku.fun/zh/blog/tmux-cheat-sheet">
+  <meta property="article:published_time" content="2026-11-03">
+  <meta property="article:modified_time" content="2026-11-03">
+  <meta property="article:author" content="Tw93">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://kaku.fun/img/blog/cards/tmux-cheat-sheet.webp">
+  <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-kaku-32.png"><link rel="icon" type="image/png" sizes="192x192" href="/img/favicon-kaku-192.png"><link rel="apple-touch-icon" href="/img/favicon-kaku-180.png">
+  <link rel="canonical" href="https://kaku.fun/zh/blog/tmux-cheat-sheet"><link rel="alternate" type="application/rss+xml" title="Kaku releases" href="https://kaku.fun/feed.xml">
+  <link rel="alternate" type="application/rss+xml" title="Kaku 博客" href="https://kaku.fun/zh/blog/feed.xml">
+  <link rel="alternate" hreflang="en" href="https://kaku.fun/blog/tmux-cheat-sheet">
+  <link rel="alternate" hreflang="zh-CN" href="https://kaku.fun/zh/blog/tmux-cheat-sheet">
+  <link rel="alternate" hreflang="x-default" href="https://kaku.fun/blog/tmux-cheat-sheet">
+  <link rel="alternate" type="text/markdown" href="https://kaku.fun/zh/blog/tmux-cheat-sheet.md">
+  <link rel="stylesheet" href="/styles.css">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Kaku",
+          "item": "https://kaku.fun/zh"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "博客",
+          "item": "https://kaku.fun/zh/blog"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "tmux 快捷键速查，附复制模式和最小配置",
+          "item": "https://kaku.fun/zh/blog/tmux-cheat-sheet"
+        }
+      ]
+    },
+    {
+      "@type": "BlogPosting",
+      "@id": "https://kaku.fun/zh/blog/tmux-cheat-sheet#article",
+      "headline": "tmux 快捷键速查，附复制模式和最小配置",
+      "description": "tmux 默认前缀和会话、窗口、窗格、复制模式的快捷键，一份最小的 ~/.tmux.conf，以及在 Kaku 里怎么用。",
+      "url": "https://kaku.fun/zh/blog/tmux-cheat-sheet",
+      "mainEntityOfPage": "https://kaku.fun/zh/blog/tmux-cheat-sheet",
+      "datePublished": "2026-11-03",
+      "dateModified": "2026-11-03",
+      "inLanguage": "zh-CN",
+      "articleSection": "Shell 与命令行工具",
+      "image": "https://kaku.fun/img/blog/cards/tmux-cheat-sheet.webp",
+      "timeRequired": "PT6M",
+      "author": {
+        "@type": "Person",
+        "name": "Tw93",
+        "url": "https://tw93.fun",
+        "sameAs": [
+          "https://x.com/HiTw93",
+          "https://github.com/tw93"
+        ]
+      },
+      "publisher": {
+        "@id": "https://kaku.fun/#organization"
+      },
+      "isPartOf": {
+        "@id": "https://kaku.fun/zh/blog#blog"
+      },
+      "about": {
+        "@id": "https://kaku.fun/#software"
+      },
+      "encoding": {
+        "@type": "MediaObject",
+        "encodingFormat": "text/markdown",
+        "contentUrl": "https://kaku.fun/zh/blog/tmux-cheat-sheet.md"
+      }
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "tmux 默认的前缀键是什么？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Ctrl + B，在 ~/.tmux.conf 里用 set -g prefix 改。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "在 tmux 里怎么滚动？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "用 prefix 然后 [ 或者 Page Up 进入复制模式，再用方向键、Page Up 或上面的 vi 键，打开 mouse on 之后滚轮也行。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "怎么关一个窗格或者结束一个会话？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "在 shell 里输入 exit，或者 prefix 然后 x 关掉窗格，tmux kill-session -t name 结束会话。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "怎么让 tmux 继续跑，之后再回来？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "按 prefix 然后 d，回来时运行 tmux attach，在服务器上用 tmux new -A -s main 开始，这样同一条命令永远能用。"
+          }
+        }
+      ]
+    }
+  ]
+}
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">跳到内容</a>
+  <nav class="site-nav" aria-label="主导航"><div class="wide nav-inner"><a class="brand" href="/zh"><strong>Kaku</strong></a><div class="nav-links"><a href="/zh/docs">文档</a><a href="/zh/compare">对比</a><a href="/zh/changelog">更新日志</a><a href="/zh/blog" aria-current="page">博客</a></div><div class="nav-actions"><details class="lang-switch"><summary class="lang-trigger" aria-label="切换语言"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/></svg><span class="lang-current-code" aria-hidden="true">中</span><span class="lang-current-name">简体中文</span></summary><div class="lang-menu"><a class="lang-option" aria-current="page" href="/zh/blog/tmux-cheat-sheet" hreflang="zh-CN">简体中文</a><a class="lang-option" href="/blog/tmux-cheat-sheet" hreflang="en">English</a></div></details><script src="/navigation.js" defer></script><a class="nav-icon" href="https://github.com/tw93/Kaku" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a><a class="nav-icon" href="https://x.com/HiTw93" target="_blank" rel="noopener noreferrer" aria-label="X"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a></div></div></nav>
+  <main id="main-content" class="docs-page blog-page">
+    <header class="page-hero doc-hero blog-hero"><div class="wide"><nav class="blog-crumb" aria-label="Breadcrumb"><a href="/zh/blog">博客</a></nav><h1>tmux 快捷键速查，附复制模式和最小配置</h1><p class="blog-meta"><span><a href="/zh/blog#topic-shell">Shell 与命令行工具</a></span><span>发布于 <time datetime="2026-11-03">2026年11月3日</time></span><span>约 6 分钟</span></p></div></header>
+    <section class="section">
+      <div class="wide">
+        <article class="doc-content blog-article">
+          <figure class="blog-cover" aria-hidden="true"><img src="/img/blog/cards/tmux-cheat-sheet.webp" width="1600" height="900" alt="" fetchpriority="high"></figure>
+<p>tmux 的每条命令都以前缀键开头，默认是 <code>Ctrl + B</code>，按下再松开，然后再按命令键。最先要记住的是 <code>c</code> 新建窗口、<code>%</code> 和 <code>"</code> 分屏、方向键在窗格之间移动、<code>d</code> 脱离会话、<code>[</code> 进入复制模式，这页其余的内容都是这几个的变化，对照 <a href="https://man.openbsd.org/tmux" target="_blank" rel="noopener noreferrer">tmux 手册</a> 2026 年 10 月核对过。后面还有一份很短的 <code>~/.tmux.conf</code>，把鼠标打开，并且把前缀键换到更顺手的位置。</p>
+<h2 id="前缀键是怎么工作的">前缀键是怎么工作的</h2>
+<p>tmux 跑着一个 server，你的 shell 归它管，终端只是一个负责画面的 client。你按下前缀键之后，client 会切换到一张按键表，下一个键就被当作 tmux 命令来读，不再发给 shell。需要往程序里输入一个真正的 <code>Ctrl + B</code> 时，连按两次。Claude Code 就是这样的程序，它用 <code>Ctrl + B</code> 把正在跑的命令放到后台，文档里专门写了 tmux 用户要按两次。<code>prefix</code> 然后 <code>?</code> 会列出你这台机器上所有的绑定，这很有用，因为配置文件可以改掉下面任何一个默认值。</p>
+<h2 id="会话">会话</h2>
+<p>会话是一组窗口，终端关掉它也还在。下面是 shell 里的命令，不是前缀键：</p>
+<pre><code class="language-bash">tmux new -s work          <span class="tok-c"># 新建名为 work 的会话
+</span>tmux new -A -s work       <span class="tok-c"># work 存在就接入，不存在就新建
+</span>tmux ls                   <span class="tok-c"># 列出会话
+</span>tmux attach -t work       <span class="tok-c"># 接入已有会话
+</span>tmux kill-session -t work <span class="tok-c"># 销毁一个会话
+</span>tmux kill-server          <span class="tok-c"># 销毁 server 和所有会话
+</span></code></pre>
+<p>在 tmux 里，<code>prefix</code> 然后 <code>d</code> 脱离会话并让一切继续运行，<code>prefix</code> 然后 <code>s</code> 从列表里选另一个会话，<code>prefix</code> 然后 <code>$</code> 重命名当前会话。</p>
+<h2 id="窗口">窗口</h2>
+<p>窗口相当于会话里的一个全屏标签页。</p>
+<table>
+<thead>
+<tr>
+<th>前缀之后按</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>c</code></td>
+<td>新建窗口</td>
+</tr>
+<tr>
+<td><code>,</code></td>
+<td>重命名窗口</td>
+</tr>
+<tr>
+<td><code>n</code> 和 <code>p</code></td>
+<td>下一个和上一个窗口</td>
+</tr>
+<tr>
+<td><code>0</code> 到 <code>9</code></td>
+<td>跳到对应编号的窗口</td>
+</tr>
+<tr>
+<td><code>l</code></td>
+<td>回到上一次选中的窗口</td>
+</tr>
+<tr>
+<td><code>w</code></td>
+<td>从列表里选窗口</td>
+</tr>
+<tr>
+<td><code>&amp;</code></td>
+<td>关闭窗口</td>
+</tr>
+</tbody>
+</table>
+<h2 id="窗格">窗格</h2>
+<p>窗格是窗口里的一块分屏，名字很容易混，<code>%</code> 是把窗格分成左右两半，<code>"</code> 是分成上下两半。</p>
+<table>
+<thead>
+<tr>
+<th>前缀之后按</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>%</code></td>
+<td>左右分屏</td>
+</tr>
+<tr>
+<td><code>"</code></td>
+<td>上下分屏</td>
+</tr>
+<tr>
+<td>方向键</td>
+<td>移到那个方向的窗格</td>
+</tr>
+<tr>
+<td><code>o</code></td>
+<td>下一个窗格</td>
+</tr>
+<tr>
+<td><code>q</code></td>
+<td>短暂显示窗格编号</td>
+</tr>
+<tr>
+<td><code>z</code></td>
+<td>窗格放大到整个窗口，再按一次还原</td>
+</tr>
+<tr>
+<td><code>x</code></td>
+<td>关闭窗格</td>
+</tr>
+<tr>
+<td><code>!</code></td>
+<td>把窗格拆成独立窗口</td>
+</tr>
+<tr>
+<td><code>Space</code></td>
+<td>轮换预设布局</td>
+</tr>
+<tr>
+<td><code>Ctrl + 方向键</code></td>
+<td>调整一格</td>
+</tr>
+<tr>
+<td><code>Alt + 方向键</code></td>
+<td>调整五格</td>
+</tr>
+</tbody>
+</table>
+<p><code>Ctrl + 方向键</code> 和 <code>Alt + 方向键</code> 也是在按完前缀之后按的，如果被 macOS 的快捷键或者终端拦走，tmux 就收不到，用 <code>prefix</code> 然后 <code>?</code> 可以快速确认这个绑定存在。</p>
+<h2 id="复制模式">复制模式</h2>
+<p>tmux 有自己的回滚缓冲区，所以终端自带的滚轮滚不动它。这个缓冲区默认每个窗格只留 2000 行，也就是 tmux 3.8 上 <code>tmux show -g history-limit</code> 打出来的值，一段长的构建日志或者 agent 会话，开头早就被挤掉了，在 <code>~/.tmux.conf</code> 里加一行 <code>set -g history-limit 50000</code> 能多留一些。<code>prefix</code> 然后 <code>[</code> 进入复制模式，<code>Page Up</code> 也能进入并向上翻一页。默认按键是 emacs 风格，把 <code>mode-keys</code> 设成 <code>vi</code> 就换成 vi 风格，如果你的 <code>VISUAL</code> 或 <code>EDITOR</code> 变量里含有 vi，tmux 本来就会选 vi 键。</p>
+<table>
+<thead>
+<tr>
+<th>vi 模式下的键</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>h</code> <code>j</code> <code>k</code> <code>l</code></td>
+<td>移动光标</td>
+</tr>
+<tr>
+<td><code>Ctrl + U</code> 和 <code>Ctrl + D</code></td>
+<td>向上和向下翻半页</td>
+</tr>
+<tr>
+<td><code>g</code> 和 <code>G</code></td>
+<td>历史的顶部和底部</td>
+</tr>
+<tr>
+<td><code>/</code> 和 <code>?</code></td>
+<td>向前和向后搜索</td>
+</tr>
+<tr>
+<td><code>n</code> 和 <code>N</code></td>
+<td>下一个和上一个匹配</td>
+</tr>
+<tr>
+<td><code>Space</code></td>
+<td>开始选择</td>
+</tr>
+<tr>
+<td><code>v</code></td>
+<td>切换矩形选择</td>
+</tr>
+<tr>
+<td><code>Enter</code></td>
+<td>复制选中内容并退出复制模式</td>
+</tr>
+<tr>
+<td><code>q</code></td>
+<td>退出复制模式</td>
+</tr>
+</tbody>
+</table>
+<p><code>prefix</code> 然后 <code>]</code> 粘贴最近一次复制的缓冲区。这个缓冲区在 tmux 内部，它是否同时进入 macOS 剪贴板，要看终端和 tmux 的剪贴板设置，这页没有展开。</p>
+<h2 id="一份最小的-tmuxconf">一份最小的 ~/.tmux.conf</h2>
+<p>tmux 不会自己创建这个文件，新建一个并写入：</p>
+<pre><code class="language-bash"><span class="tok-c"># ~/.tmux.conf
+</span><span class="tok-b">set</span> -g mouse on
+<span class="tok-b">set</span> -g mode-keys vi
+<span class="tok-b">set</span> -g base-index <span class="tok-n">1</span>
+<span class="tok-b">set</span> -g pane-base-index <span class="tok-n">1</span>
+
+<span class="tok-c"># 可选：把前缀换成 Ctrl + A
+</span><span class="tok-b">set</span> -g prefix C-a
+unbind C-b
+<span class="tok-b">bind</span> C-a send-prefix</code></pre>
+<p><code>mouse on</code> 打开鼠标支持，手册说它默认是关的。<code>base-index 1</code> 和 <code>pane-base-index 1</code> 让编号从 1 开始，和键盘上的数字行对得上，默认是从 0 开始。<code>send-prefix</code> 让你按 <code>prefix</code> 再按 <code>Ctrl + A</code> 时，把一个真正的 <code>Ctrl + A</code> 发给 shell，这是需要的，因为 <code>Ctrl + A</code> 在 shell 里同时是回到行首。不重启就重新加载：</p>
+<pre><code class="language-bash">tmux source-file ~/.tmux.conf</code></pre>
+<p>如果你在 tmux 里跑 Claude Code，通知和 <code>Shift + Enter</code> 需要额外三行设置，写在 <a href="/zh/blog/tmux-alternative-mac">tmux 替代方案那篇</a>里，这里不再重复。</p>
+<h2 id="在-kaku-里用-tmux">在 Kaku 里用 tmux</h2>
+<p>tmux 在 Kaku 里和在别的终端里一样能跑，不需要上面的配置，不过装了 tmux 的话，<code>kaku init</code> 会往你的 <code>~/.tmux.conf</code> 里加一行 <code>source-file</code>，指向一个托管文件 <code>~/.config/kaku/tmux/kaku.tmux.conf</code>。这个文件打开 <code>mouse</code>，把 <code>KAKU_SESSION</code> 传进来，让你从 Kaku 接入之后新开的窗格保留 Kaku 的提示符，并且让 <code>Shift</code> 加滚轮进入复制模式。别手动改它，Kaku 可能会覆盖，你自己的设置写在 <code>~/.tmux.conf</code> 的其余部分。</p>
+<p>Kaku 自己的 <code>Cmd + D</code> 和 <code>Cmd + Shift + D</code> 分屏和 tmux 窗格是两回事，本地工作用前者，需要比终端活得更久的会话用 tmux，分界线在哪里，<a href="/zh/blog/tmux-alternative-mac">Mac 上的 tmux 替代方案</a>讲过，从别处接回一个会话可以看 <a href="/zh/blog/claude-code-remote">Claude Code remote</a>。</p>
+<h2 id="常见问题排查">常见问题排查</h2>
+<ul>
+<li><strong>按了键没反应。</strong> 前缀键没有先按下再松开，按住 <code>Ctrl</code>，点一下 <code>B</code>，两个都松开，再按下一个键。</li>
+<li><strong>鼠标能选文字但滚不动。</strong> 鼠标支持是关的，加上 <code>set -g mouse on</code> 再重新加载。</li>
+<li><strong>改了配置像没生效。</strong> <code>source-file</code> 是在正在运行的 server 里执行这个文件，每次编辑后都要跑一次 <code>tmux source-file ~/.tmux.conf</code>，或者 <code>tmux kill-server</code> 重新开始。</li>
+<li><strong>会话不见了。</strong> 重启电脑之后 <code>tmux ls</code> 什么都没有，因为 server 是一个进程，不会跨重启存活。</li>
+</ul>
+<h2 id="常见问题">常见问题</h2>
+<h3 id="tmux-默认的前缀键是什么">tmux 默认的前缀键是什么？</h3>
+<p><code>Ctrl + B</code>，在 <code>~/.tmux.conf</code> 里用 <code>set -g prefix</code> 改。</p>
+<h3 id="在-tmux-里怎么滚动">在 tmux 里怎么滚动？</h3>
+<p>用 <code>prefix</code> 然后 <code>[</code> 或者 <code>Page Up</code> 进入复制模式，再用方向键、<code>Page Up</code> 或上面的 vi 键，打开 <code>mouse on</code> 之后滚轮也行。</p>
+<h3 id="怎么关一个窗格或者结束一个会话">怎么关一个窗格或者结束一个会话？</h3>
+<p>在 shell 里输入 <code>exit</code>，或者 <code>prefix</code> 然后 <code>x</code> 关掉窗格，<code>tmux kill-session -t name</code> 结束会话。</p>
+<h3 id="怎么让-tmux-继续跑之后再回来">怎么让 tmux 继续跑，之后再回来？</h3>
+<p>按 <code>prefix</code> 然后 <code>d</code>，回来时运行 <code>tmux attach</code>，在服务器上用 <code>tmux new -A -s main</code> 开始，这样同一条命令永远能用。</p>
+          <aside class="blog-cta"><img class="blog-cta-icon" src="/img/kaku-mark.png" width="40" height="40" alt=""><p>Kaku 是一个免费开源的 Mac 终端。</p><a class="btn btn-primary" href="/zh/docs">安装 Kaku</a></aside>
+          <nav class="blog-related" aria-label="继续阅读"><h2 class="blog-related-title">继续阅读</h2><ul class="blog-related-list"><li><a href="/zh/blog/zsh-without-oh-my-zsh"><span class="blog-related-cat">Shell 与命令行工具</span><span class="blog-related-name">不用 Oh My Zsh，把 zsh 配得又快又好用</span><span class="blog-related-meta"><time datetime="2026-09-27">2026年9月27日</time> · 约 4 分钟</span></a></li><li><a href="/zh/blog/ssh-config-mac"><span class="blog-related-cat">Shell 与命令行工具</span><span class="blog-related-name">在 Mac 上配置 SSH config</span><span class="blog-related-meta"><time datetime="2026-10-18">2026年10月18日</time> · 约 9 分钟</span></a></li><li><a href="/zh/blog/yazi-file-manager"><span class="blog-related-cat">Shell 与命令行工具</span><span class="blog-related-name">在 Mac 上用 Yazi，快速的终端文件管理器</span><span class="blog-related-meta"><time datetime="2026-10-15">2026年10月15日</time> · 约 8 分钟</span></a></li></ul></nav>
+        </article>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer"><div class="wide foot"><div class="foot-brand"><p class="name">Kaku · <span class="foot-mark" lang="zh-Hant">書</span></p><p class="foot-sub">好看又快、开箱即用的 AI 友好终端</p></div><div class="foot-links"><div><b>产品</b><a href="/zh/docs">文档</a><a href="/zh/changelog">更新日志</a><a href="/zh/roadmap">路线图</a><a href="/zh/compare">对比</a><a href="/zh/blog">博客</a></div><div><b>项目</b><a href="/zh/about">关于</a><a href="/zh/privacy">隐私</a><a href="https://github.com/tw93/Kaku">GitHub</a><a href="https://github.com/tw93/Kaku/issues">问题反馈</a></div><div><b>联系</b><a href="/zh/contact">联系方式</a><a href="https://x.com/HiTw93">X</a></div></div></div></footer>
+</body>
+</html>

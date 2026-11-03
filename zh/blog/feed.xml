@@ -7,6 +7,14 @@
     <description>关于 Mac 终端、Claude Code、Codex、shell 配置的指南，以及 Kaku 是怎么做出来的。</description>
     <language>zh-CN</language>
     <item>
+      <title>tmux 快捷键速查，附复制模式和最小配置</title>
+      <link>https://kaku.fun/zh/blog/tmux-cheat-sheet</link>
+      <guid isPermaLink="true">https://kaku.fun/zh/blog/tmux-cheat-sheet</guid>
+      <pubDate>Tue, 03 Nov 2026 09:00:00 +0800</pubDate>
+      <dc:creator>Tw93</dc:creator>
+      <description>tmux 默认前缀和会话、窗口、窗格、复制模式的快捷键，一份最小的 ~/.tmux.conf，以及在 Kaku 里怎么用。</description>
+    </item>
+    <item>
       <title>OpenCode 在 Mac 上怎么安装和配置</title>
       <link>https://kaku.fun/zh/blog/opencode-setup</link>
       <guid isPermaLink="true">https://kaku.fun/zh/blog/opencode-setup</guid>

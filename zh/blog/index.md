@@ -46,6 +46,7 @@
 
 配置 zsh、提示符和围绕它的命令行工具。
 
+- [tmux 快捷键速查，附复制模式和最小配置](https://kaku.fun/zh/blog/tmux-cheat-sheet.md) (2026-11-03): tmux 默认前缀和会话、窗口、窗格、复制模式的快捷键，一份最小的 ~/.tmux.conf，以及在 Kaku 里怎么用。
 - [在 Mac 上配置 SSH config](https://kaku.fun/zh/blog/ssh-config-mac.md) (2026-10-18): 具体 Host 写在 Host * 前面，用 ssh -G 核对，钥匙串选项只留给系统自带的 ssh。
 - [在 Mac 上用 Yazi，快速的终端文件管理器](https://kaku.fun/zh/blog/yazi-file-manager.md) (2026-10-15): 在 macOS 上装好 Yazi 和预览依赖，记住常用按键，加上退出时切换目录的 y 包装函数，再做些配置。
 - [在 Mac 上给 zsh 配好 fzf，搜历史、找文件、跳目录](https://kaku.fun/zh/blog/fzf-zsh-mac.md) (2026-10-14): 安装 fzf，打开它在 zsh 里搜历史、找文件、跳目录的快捷键，解决 Mac 上 Alt+C 不生效的问题，再加上预览和 fzf-tab。

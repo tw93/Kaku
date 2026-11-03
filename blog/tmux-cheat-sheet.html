@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f4ed">
+  <meta name="color-scheme" content="light">
+  <title>tmux Cheat Sheet: Default Keys, Copy Mode and a Minimal Config · Kaku Blog</title>
+  <meta name="description" content="The default tmux prefix and keys for sessions, windows, panes and copy mode, plus a minimal ~/.tmux.conf and how tmux behaves inside Kaku.">
+  <meta property="og:title" content="tmux Cheat Sheet: Default Keys, Copy Mode and a Minimal Config · Kaku Blog">
+  <meta property="og:description" content="The default tmux prefix and keys for sessions, windows, panes and copy mode, plus a minimal ~/.tmux.conf and how tmux behaves inside Kaku.">
+  <meta property="og:type" content="article">
+  <meta property="og:image" content="https://kaku.fun/img/blog/cards/tmux-cheat-sheet.webp">
+  <meta property="og:image:width" content="1600">
+  <meta property="og:image:height" content="900">
+  <meta property="og:image:alt" content="tmux Cheat Sheet: Default Keys, Copy Mode and a Minimal Config">
+  <meta property="og:url" content="https://kaku.fun/blog/tmux-cheat-sheet">
+  <meta property="article:published_time" content="2026-11-03">
+  <meta property="article:modified_time" content="2026-11-03">
+  <meta property="article:author" content="Tw93">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://kaku.fun/img/blog/cards/tmux-cheat-sheet.webp">
+  <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-kaku-32.png"><link rel="icon" type="image/png" sizes="192x192" href="/img/favicon-kaku-192.png"><link rel="apple-touch-icon" href="/img/favicon-kaku-180.png">
+  <link rel="canonical" href="https://kaku.fun/blog/tmux-cheat-sheet"><link rel="alternate" type="application/rss+xml" title="Kaku releases" href="https://kaku.fun/feed.xml">
+  <link rel="alternate" type="application/rss+xml" title="Kaku Blog" href="https://kaku.fun/blog/feed.xml">
+  <link rel="alternate" hreflang="en" href="https://kaku.fun/blog/tmux-cheat-sheet">
+  <link rel="alternate" hreflang="zh-CN" href="https://kaku.fun/zh/blog/tmux-cheat-sheet">
+  <link rel="alternate" hreflang="x-default" href="https://kaku.fun/blog/tmux-cheat-sheet">
+  <link rel="alternate" type="text/markdown" href="https://kaku.fun/blog/tmux-cheat-sheet.md">
+  <link rel="stylesheet" href="/styles.css">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Kaku",
+          "item": "https://kaku.fun/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Blog",
+          "item": "https://kaku.fun/blog"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "tmux Cheat Sheet: Default Keys, Copy Mode and a Minimal Config",
+          "item": "https://kaku.fun/blog/tmux-cheat-sheet"
+        }
+      ]
+    },
+    {
+      "@type": "BlogPosting",
+      "@id": "https://kaku.fun/blog/tmux-cheat-sheet#article",
+      "headline": "tmux Cheat Sheet: Default Keys, Copy Mode and a Minimal Config",
+      "description": "The default tmux prefix and keys for sessions, windows, panes and copy mode, plus a minimal ~/.tmux.conf and how tmux behaves inside Kaku.",
+      "url": "https://kaku.fun/blog/tmux-cheat-sheet",
+      "mainEntityOfPage": "https://kaku.fun/blog/tmux-cheat-sheet",
+      "datePublished": "2026-11-03",
+      "dateModified": "2026-11-03",
+      "inLanguage": "en",
+      "articleSection": "Shell and tools",
+      "image": "https://kaku.fun/img/blog/cards/tmux-cheat-sheet.webp",
+      "timeRequired": "PT6M",
+      "author": {
+        "@type": "Person",
+        "name": "Tw93",
+        "url": "https://tw93.fun",
+        "sameAs": [
+          "https://x.com/HiTw93",
+          "https://github.com/tw93"
+        ]
+      },
+      "publisher": {
+        "@id": "https://kaku.fun/#organization"
+      },
+      "isPartOf": {
+        "@id": "https://kaku.fun/blog#blog"
+      },
+      "about": {
+        "@id": "https://kaku.fun/#software"
+      },
+      "encoding": {
+        "@type": "MediaObject",
+        "encodingFormat": "text/markdown",
+        "contentUrl": "https://kaku.fun/blog/tmux-cheat-sheet.md"
+      }
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What is the default tmux prefix key?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Ctrl + B. Change it with set -g prefix in ~/.tmux.conf."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How do I scroll in tmux?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Enter copy mode with prefix then [ or with Page Up, then use the arrow keys, Page Up or the vi keys above. With mouse on, the wheel does it."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How do I close a pane or kill a session?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Type exit in the shell, or prefix then x to kill the pane. tmux kill-session -t name ends a session."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How do I leave tmux running and come back later?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Press prefix then d, and run tmux attach to return. On a server, start with tmux new -A -s main so the same command always works."
+          }
+        }
+      ]
+    }
+  ]
+}
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <nav class="site-nav" aria-label="Primary navigation"><div class="wide nav-inner"><a class="brand" href="/"><strong>Kaku</strong></a><div class="nav-links"><a href="/docs">Docs</a><a href="/compare">Compare</a><a href="/changelog">Changelog</a><a href="/blog" aria-current="page">Blog</a></div><div class="nav-actions"><details class="lang-switch"><summary class="lang-trigger" aria-label="Choose a language"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/></svg><span class="lang-current-code" aria-hidden="true">EN</span><span class="lang-current-name">English</span></summary><div class="lang-menu"><a class="lang-option" href="/zh/blog/tmux-cheat-sheet" hreflang="zh-CN">简体中文</a><a class="lang-option" aria-current="page" href="/blog/tmux-cheat-sheet" hreflang="en">English</a></div></details><script src="/navigation.js" defer></script><a class="nav-icon" href="https://github.com/tw93/Kaku" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a><a class="nav-icon" href="https://x.com/HiTw93" target="_blank" rel="noopener noreferrer" aria-label="X"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a></div></div></nav>
+  <main id="main-content" class="docs-page blog-page">
+    <header class="page-hero doc-hero blog-hero"><div class="wide"><nav class="blog-crumb" aria-label="Breadcrumb"><a href="/blog">Blog</a></nav><h1>tmux Cheat Sheet: Default Keys, Copy Mode and a Minimal Config</h1><p class="blog-meta"><span><a href="/blog#topic-shell">Shell and tools</a></span><span>Published <time datetime="2026-11-03">Nov 3, 2026</time></span><span>6 min read</span></p></div></header>
+    <section class="section">
+      <div class="wide">
+        <article class="doc-content blog-article">
+          <figure class="blog-cover" aria-hidden="true"><img src="/img/blog/cards/tmux-cheat-sheet.webp" width="1600" height="900" alt="" fetchpriority="high"></figure>
+<p>Every tmux command starts with the prefix, <code>Ctrl + B</code> by default: press it, release it, then press the command key. The ones to learn first are <code>c</code> for a new window, <code>%</code> and <code>"</code> to split a pane, the arrow keys to move between panes, <code>d</code> to detach, and <code>[</code> for copy mode. Everything else on this page is a variation of those, checked against the <a href="https://man.openbsd.org/tmux" target="_blank" rel="noopener noreferrer">tmux manual</a> in October 2026. Further down is a short <code>~/.tmux.conf</code> that turns on the mouse and moves the prefix somewhere more comfortable.</p>
+<h2 id="how-the-prefix-works">How the prefix works</h2>
+<p>tmux runs a server that owns your shells, and the terminal is a client that draws them. When you press the prefix, the client switches to a key table and the next key is read as a tmux command instead of being sent to the shell. If you ever need to type a literal <code>Ctrl + B</code> into a program, press it twice. Claude Code is one such program: its <code>Ctrl + B</code> sends a running command to the background, and its docs tell tmux users to press it twice. The <code>list-keys</code> view, <code>prefix</code> then <code>?</code>, shows every binding on your own machine, which matters because a config file can change any of the defaults below.</p>
+<h2 id="sessions">Sessions</h2>
+<p>A session is a set of windows that survives the terminal closing. These are shell commands, not prefix keys:</p>
+<pre><code class="language-bash">tmux new -s work          <span class="tok-c"># start a session named work
+</span>tmux new -A -s work       <span class="tok-c"># attach to work if it exists, create it if not
+</span>tmux ls                   <span class="tok-c"># list sessions
+</span>tmux attach -t work       <span class="tok-c"># attach to an existing session
+</span>tmux kill-session -t work <span class="tok-c"># destroy one session
+</span>tmux kill-server          <span class="tok-c"># destroy the server and every session
+</span></code></pre>
+<p>Inside tmux, <code>prefix</code> then <code>d</code> detaches and leaves everything running, <code>prefix</code> then <code>s</code> picks another session from a list, and <code>prefix</code> then <code>$</code> renames the current one.</p>
+<h2 id="windows">Windows</h2>
+<p>A window is one full-screen tab inside a session.</p>
+<table>
+<thead>
+<tr>
+<th>Keys after the prefix</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>c</code></td>
+<td>New window</td>
+</tr>
+<tr>
+<td><code>,</code></td>
+<td>Rename the window</td>
+</tr>
+<tr>
+<td><code>n</code> and <code>p</code></td>
+<td>Next and previous window</td>
+</tr>
+<tr>
+<td><code>0</code> to <code>9</code></td>
+<td>Jump to that window number</td>
+</tr>
+<tr>
+<td><code>l</code></td>
+<td>Back to the previously selected window</td>
+</tr>
+<tr>
+<td><code>w</code></td>
+<td>Choose a window from a list</td>
+</tr>
+<tr>
+<td><code>&amp;</code></td>
+<td>Kill the window</td>
+</tr>
+</tbody>
+</table>
+<h2 id="panes">Panes</h2>
+<p>A pane is one split of a window. The names are easy to mix up, because <code>%</code> splits the pane into left and right halves, and <code>"</code> splits it into top and bottom.</p>
+<table>
+<thead>
+<tr>
+<th>Keys after the prefix</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>%</code></td>
+<td>Split left and right</td>
+</tr>
+<tr>
+<td><code>"</code></td>
+<td>Split top and bottom</td>
+</tr>
+<tr>
+<td>Arrow keys</td>
+<td>Move to the pane in that direction</td>
+</tr>
+<tr>
+<td><code>o</code></td>
+<td>Next pane</td>
+</tr>
+<tr>
+<td><code>q</code></td>
+<td>Show pane numbers briefly</td>
+</tr>
+<tr>
+<td><code>z</code></td>
+<td>Zoom the pane to full window, press again to restore</td>
+</tr>
+<tr>
+<td><code>x</code></td>
+<td>Kill the pane</td>
+</tr>
+<tr>
+<td><code>!</code></td>
+<td>Break the pane out into its own window</td>
+</tr>
+<tr>
+<td><code>Space</code></td>
+<td>Cycle through the preset layouts</td>
+</tr>
+<tr>
+<td><code>Ctrl + arrow</code></td>
+<td>Resize by one cell</td>
+</tr>
+<tr>
+<td><code>Alt + arrow</code></td>
+<td>Resize by five cells</td>
+</tr>
+</tbody>
+</table>
+<p><code>Ctrl + arrow</code> and <code>Alt + arrow</code> are pressed after the prefix. If a macOS shortcut or your terminal intercepts them, they never reach tmux, and <code>prefix</code> then <code>?</code> is a quick way to confirm the binding exists.</p>
+<h2 id="copy-mode">Copy mode</h2>
+<p>tmux keeps its own scrollback, so the scroll wheel of your terminal does not scroll it. That scrollback holds 2,000 lines per pane by default, the <code>history-limit</code> value that <code>tmux show -g history-limit</code> prints on tmux 3.8, so the start of a long build log or agent session is gone; <code>set -g history-limit 50000</code> in <code>~/.tmux.conf</code> keeps more. <code>prefix</code> then <code>[</code> enters copy mode, and <code>Page Up</code> also enters it and scrolls one page. By default the keys are emacs style. Setting <code>mode-keys</code> to <code>vi</code> switches them, and tmux already picks vi keys if your <code>VISUAL</code> or <code>EDITOR</code> variable contains vi.</p>
+<table>
+<thead>
+<tr>
+<th>Key in vi mode</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>h</code> <code>j</code> <code>k</code> <code>l</code></td>
+<td>Move the cursor</td>
+</tr>
+<tr>
+<td><code>Ctrl + U</code> and <code>Ctrl + D</code></td>
+<td>Half page up and down</td>
+</tr>
+<tr>
+<td><code>g</code> and <code>G</code></td>
+<td>Top and bottom of the history</td>
+</tr>
+<tr>
+<td><code>/</code> and <code>?</code></td>
+<td>Search forward and backward</td>
+</tr>
+<tr>
+<td><code>n</code> and <code>N</code></td>
+<td>Next and previous match</td>
+</tr>
+<tr>
+<td><code>Space</code></td>
+<td>Start a selection</td>
+</tr>
+<tr>
+<td><code>v</code></td>
+<td>Toggle a rectangular selection</td>
+</tr>
+<tr>
+<td><code>Enter</code></td>
+<td>Copy the selection and leave copy mode</td>
+</tr>
+<tr>
+<td><code>q</code></td>
+<td>Leave copy mode</td>
+</tr>
+</tbody>
+</table>
+<p><code>prefix</code> then <code>]</code> pastes the most recent buffer. That buffer lives inside tmux, so whether it also reaches the macOS clipboard depends on your terminal and on tmux's clipboard settings, which this page does not cover.</p>
+<h2 id="a-minimal-tmuxconf">A minimal ~/.tmux.conf</h2>
+<p>tmux does not create this file. Create it and add:</p>
+<pre><code class="language-bash"><span class="tok-c"># ~/.tmux.conf
+</span><span class="tok-b">set</span> -g mouse on
+<span class="tok-b">set</span> -g mode-keys vi
+<span class="tok-b">set</span> -g base-index <span class="tok-n">1</span>
+<span class="tok-b">set</span> -g pane-base-index <span class="tok-n">1</span>
+
+<span class="tok-c"># Optional: use Ctrl + A as the prefix
+</span><span class="tok-b">set</span> -g prefix C-a
+unbind C-b
+<span class="tok-b">bind</span> C-a send-prefix</code></pre>
+<p><code>mouse on</code> turns on mouse support, which the manual says is off by default. <code>base-index 1</code> and <code>pane-base-index 1</code> start numbering at 1, which matches the keyboard row, and the default is zero. <code>send-prefix</code> lets <code>prefix</code> then <code>Ctrl + A</code> send a literal <code>Ctrl + A</code> to the shell, which you need because <code>Ctrl + A</code> also means beginning of line. Reload without restarting:</p>
+<pre><code class="language-bash">tmux source-file ~/.tmux.conf</code></pre>
+<p>If you run Claude Code inside tmux, the <a href="/blog/tmux-alternative-mac">alternatives post</a> lists the three extra lines for notifications and <code>Shift + Enter</code>, so they are not repeated here.</p>
+<h2 id="tmux-inside-kaku">tmux inside Kaku</h2>
+<p>tmux runs in Kaku like in any terminal. Kaku does not need the config above, but when tmux is installed, <code>kaku init</code> adds one <code>source-file</code> line to your <code>~/.tmux.conf</code> that points at a managed file, <code>~/.config/kaku/tmux/kaku.tmux.conf</code>. That file turns on <code>mouse</code>, passes <code>KAKU_SESSION</code> through so panes opened after you attach from Kaku keep the Kaku prompt, and lets <code>Shift</code> plus the scroll wheel enter copy mode. Do not edit it by hand, since Kaku can overwrite it. Your own settings go in the rest of <code>~/.tmux.conf</code>.</p>
+<p>Kaku's own <code>Cmd + D</code> and <code>Cmd + Shift + D</code> splits are separate from tmux panes. Use them for local work, and tmux for sessions that must outlive the terminal; <a href="/blog/tmux-alternative-mac">tmux alternative on Mac</a> explains where that line falls, and <a href="/blog/claude-code-remote">Claude Code remote</a> covers reaching a session from elsewhere.</p>
+<h2 id="what-goes-wrong">What goes wrong</h2>
+<ul>
+<li><strong>A key does nothing.</strong> The prefix was not pressed and released first. Hold <code>Ctrl</code>, tap <code>B</code>, let go of both, then press the next key.</li>
+<li><strong>The mouse selects text but scrolling does nothing.</strong> Mouse support is off. Add <code>set -g mouse on</code> and reload.</li>
+<li><strong>Config changes seem ignored.</strong> <code>source-file</code> runs the file in the running server, so run <code>tmux source-file ~/.tmux.conf</code> after every edit, or <code>tmux kill-server</code> and start again.</li>
+<li><strong>A session vanished.</strong> After a reboot, <code>tmux ls</code> shows nothing, because the server is a process and does not survive a restart.</li>
+</ul>
+<h2 id="faq">FAQ</h2>
+<h3 id="what-is-the-default-tmux-prefix-key">What is the default tmux prefix key?</h3>
+<p><code>Ctrl + B</code>. Change it with <code>set -g prefix</code> in <code>~/.tmux.conf</code>.</p>
+<h3 id="how-do-i-scroll-in-tmux">How do I scroll in tmux?</h3>
+<p>Enter copy mode with <code>prefix</code> then <code>[</code> or with <code>Page Up</code>, then use the arrow keys, <code>Page Up</code> or the vi keys above. With <code>mouse on</code>, the wheel does it.</p>
+<h3 id="how-do-i-close-a-pane-or-kill-a-session">How do I close a pane or kill a session?</h3>
+<p>Type <code>exit</code> in the shell, or <code>prefix</code> then <code>x</code> to kill the pane. <code>tmux kill-session -t name</code> ends a session.</p>
+<h3 id="how-do-i-leave-tmux-running-and-come-back-later">How do I leave tmux running and come back later?</h3>
+<p>Press <code>prefix</code> then <code>d</code>, and run <code>tmux attach</code> to return. On a server, start with <code>tmux new -A -s main</code> so the same command always works.</p>
+          <aside class="blog-cta"><img class="blog-cta-icon" src="/img/kaku-mark.png" width="40" height="40" alt=""><p>Kaku is a free, open-source Mac terminal.</p><a class="btn btn-primary" href="/docs">Install Kaku</a></aside>
+          <nav class="blog-related" aria-label="Keep reading"><h2 class="blog-related-title">Keep reading</h2><ul class="blog-related-list"><li><a href="/blog/zsh-without-oh-my-zsh"><span class="blog-related-cat">Shell and tools</span><span class="blog-related-name">A Fast Zsh Setup Without Oh My Zsh</span><span class="blog-related-meta"><time datetime="2026-09-27">Sep 27, 2026</time> · 4 min read</span></a></li><li><a href="/blog/ssh-config-mac"><span class="blog-related-cat">Shell and tools</span><span class="blog-related-name">SSH Config on Mac: Hosts, Keys and the Keychain</span><span class="blog-related-meta"><time datetime="2026-10-18">Oct 18, 2026</time> · 7 min read</span></a></li><li><a href="/blog/yazi-file-manager"><span class="blog-related-cat">Shell and tools</span><span class="blog-related-name">Yazi on Mac: A Fast Terminal File Manager Setup</span><span class="blog-related-meta"><time datetime="2026-10-15">Oct 15, 2026</time> · 8 min read</span></a></li></ul></nav>
+        </article>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer"><div class="wide foot"><div class="foot-brand"><p class="name">Kaku · <span class="foot-mark" lang="zh-Hant">書</span></p><p class="foot-sub">A fast, good-looking, AI-friendly terminal for the Mac.</p></div><div class="foot-links"><div><b>Product</b><a href="/docs">Docs</a><a href="/changelog">Changelog</a><a href="/roadmap">Roadmap</a><a href="/compare">Compare</a><a href="/blog">Blog</a></div><div><b>Project</b><a href="/about">About</a><a href="/privacy">Privacy</a><a href="https://github.com/tw93/Kaku">GitHub</a><a href="https://github.com/tw93/Kaku/issues">Issues</a></div><div><b>Connect</b><a href="/contact">Contact</a><a href="https://x.com/HiTw93">X</a></div></div></div></footer>
+</body>
+</html>

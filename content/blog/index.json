@@ -551,7 +551,7 @@
     {
       "slug": "tmux-cheat-sheet",
       "category": "shell",
-      "date": null,
+      "date": "2026-11-03",
       "keyword": "tmux cheat sheet",
       "en": {
         "title": "tmux Cheat Sheet: Default Keys, Copy Mode and a Minimal Config",
