@@ -6,6 +6,94 @@
   "source": "https://github.com/tw93/Kaku/releases",
   "releases": [
     {
+      "version": "0.28.0",
+      "tag": "V0.28.0",
+      "name": "V0.28.0 Steady",
+      "codename": "Steady",
+      "publishedAt": "2026-11-03T08:12:29Z",
+      "url": "https://kaku.fun/changelog#v0.28.0",
+      "urlZh": "https://kaku.fun/zh/changelog#v0.28.0",
+      "github": "https://github.com/tw93/Kaku/releases/tag/V0.28.0",
+      "items": [
+        {
+          "label": "Crash Fix",
+          "text": "Kaku no longer quits a minute after restoring a session with a long scrollback, which made it crash again on every reopen, and no longer quits when a menu action reaches a fullscreen window."
+        },
+        {
+          "label": "Safe Updates",
+          "text": "Restart to Update always leaves a working Kaku.app in Applications, even when the update is interrupted halfway."
+        },
+        {
+          "label": "Chinese Input",
+          "text": "The input method's candidate window now sits below the line you are typing, instead of covering half of the pinyin."
+        },
+        {
+          "label": "Inline Images",
+          "text": "Images placed with kitty Unicode placeholders, such as the diagrams from Claude Code's figures plugin, now draw instead of showing boxes."
+        },
+        {
+          "label": "Dim Text",
+          "text": "With a minimum contrast set, dim text stays dimmer than normal text on dark backgrounds, and a font named with a weight such as Light keeps that face for dim text."
+        },
+        {
+          "label": "Folder Links",
+          "text": "Cmd+Click on a folder path opens it in Finder instead of VS Code."
+        },
+        {
+          "label": "Remote Terminal",
+          "text": "Option+click an image path to view it over the page, hover previews open faster and larger, the close confirmation sits by its tab, and the page sends far less data while an agent is working."
+        },
+        {
+          "label": "Freeze Recovery",
+          "text": "When keys and scrolling stop responding while menus still open, Kaku now tries to get its window running again by itself."
+        },
+        {
+          "label": "App Icon",
+          "text": "The icon drops its baked-in shadows and sits on a darker ground, so it looks at home beside the system icons in the Dock."
+        }
+      ],
+      "itemsZh": [
+        {
+          "label": "崩溃修复",
+          "text": "恢复带很长滚动记录的会话后，Kaku 不会再在一分钟后退出、重新打开又接着崩溃，菜单操作落到全屏窗口上时也不会再退出。"
+        },
+        {
+          "label": "安全更新",
+          "text": "重启以更新即使中途被打断，应用程序里也总会留着一个能用的 Kaku.app。"
+        },
+        {
+          "label": "中文输入",
+          "text": "输入法候选框现在出现在正在输入的那一行下方，不会再挡住一半拼音。"
+        },
+        {
+          "label": "终端图片",
+          "text": "用 kitty Unicode 占位符放置的图片，比如 Claude Code 的 figures 插件画的图，现在可以正常显示，不再是一排方框。"
+        },
+        {
+          "label": "暗淡文字",
+          "text": "设置了最低对比度时，深色背景上的暗淡文字仍然比普通文字暗，字体名带 Light 这类字重的，暗淡文字也会继续用这个字重。"
+        },
+        {
+          "label": "文件夹链接",
+          "text": "Cmd+点击文件夹路径会在访达里打开，不再用 VS Code 打开。"
+        },
+        {
+          "label": "远程终端",
+          "text": "按住 Option 点击图片路径可以直接在页面上看图，悬停预览更快也更大，关闭确认出现在对应标签旁边，Agent 干活时页面传输的数据也少了很多。"
+        },
+        {
+          "label": "卡死恢复",
+          "text": "按键和滚动都没反应、菜单却还能打开时，Kaku 现在会自己尝试让窗口恢复运行。"
+        },
+        {
+          "label": "应用图标",
+          "text": "图标去掉了原来的阴影，底色更深，放在程序坞里和系统图标更协调。"
+        }
+      ],
+      "download": "https://github.com/tw93/Kaku/releases/download/V0.28.0/Kaku.dmg",
+      "thanks": "Special thanks to @multics, @sunbird89629 and @HiAriesZhou for their contributions to this release."
+    },
+    {
       "version": "0.27.1",
       "tag": "V0.27.1",
       "name": "V0.27.1 Guard",

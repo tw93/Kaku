@@ -2,6 +2,24 @@
 
 Kaku 正式版更新，从新到旧。Nightly 仍在 GitHub，可以用 [RSS](https://kaku.fun/feed.xml) 订阅。
 
+## V0.28.0 Steady 2026-11-03
+
+1. **崩溃修复**：恢复带很长滚动记录的会话后，Kaku 不会再在一分钟后退出、重新打开又接着崩溃，菜单操作落到全屏窗口上时也不会再退出。
+2. **安全更新**：重启以更新即使中途被打断，应用程序里也总会留着一个能用的 Kaku.app。
+3. **中文输入**：输入法候选框现在出现在正在输入的那一行下方，不会再挡住一半拼音。
+4. **终端图片**：用 kitty Unicode 占位符放置的图片，比如 Claude Code 的 figures 插件画的图，现在可以正常显示，不再是一排方框。
+5. **暗淡文字**：设置了最低对比度时，深色背景上的暗淡文字仍然比普通文字暗，字体名带 Light 这类字重的，暗淡文字也会继续用这个字重。
+6. **文件夹链接**：Cmd+点击文件夹路径会在访达里打开，不再用 VS Code 打开。
+7. **远程终端**：按住 Option 点击图片路径可以直接在页面上看图，悬停预览更快也更大，关闭确认出现在对应标签旁边，Agent 干活时页面传输的数据也少了很多。
+8. **卡死恢复**：按键和滚动都没反应、菜单却还能打开时，Kaku 现在会自己尝试让窗口恢复运行。
+9. **应用图标**：图标去掉了原来的阴影，底色更深，放在程序坞里和系统图标更协调。
+
+[GitHub](https://github.com/tw93/Kaku/releases/tag/V0.28.0) · [DMG](https://github.com/tw93/Kaku/releases/download/V0.28.0/Kaku.dmg)
+
+Special thanks to @multics, @sunbird89629 and @HiAriesZhou for their contributions to this release.
+
+---
+
 ## V0.27.1 Guard 2026-10-27
 
 1. **崩溃修复**：绘制某些带链接的行时，Kaku 不会再连同所有标签一起退出。

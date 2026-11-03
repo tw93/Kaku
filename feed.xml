@@ -5,8 +5,35 @@
 <link>https://kaku.fun/changelog</link>
 <description>Stable Kaku releases. Nightly builds are not included.</description>
 <language>en</language>
-<lastBuildDate>Tue, 27 Oct 2026 09:16:58 +0000</lastBuildDate>
+<lastBuildDate>Tue, 03 Nov 2026 08:12:29 +0000</lastBuildDate>
 <atom:link href="https://kaku.fun/feed.xml" rel="self" type="application/rss+xml"/>
+<item>
+<title>V0.28.0 Steady</title>
+<link>https://kaku.fun/changelog#v0.28.0</link>
+<guid isPermaLink="true">https://kaku.fun/changelog#v0.28.0</guid>
+<pubDate>Tue, 03 Nov 2026 08:12:29 +0000</pubDate>
+<description><![CDATA[<h2>Changelog</h2><ol>
+<li><b>Crash Fix</b>: Kaku no longer quits a minute after restoring a session with a long scrollback, which made it crash again on every reopen, and no longer quits when a menu action reaches a fullscreen window.</li>
+<li><b>Safe Updates</b>: Restart to Update always leaves a working Kaku.app in Applications, even when the update is interrupted halfway.</li>
+<li><b>Chinese Input</b>: The input method's candidate window now sits below the line you are typing, instead of covering half of the pinyin.</li>
+<li><b>Inline Images</b>: Images placed with kitty Unicode placeholders, such as the diagrams from Claude Code's figures plugin, now draw instead of showing boxes.</li>
+<li><b>Dim Text</b>: With a minimum contrast set, dim text stays dimmer than normal text on dark backgrounds, and a font named with a weight such as Light keeps that face for dim text.</li>
+<li><b>Folder Links</b>: Cmd+Click on a folder path opens it in Finder instead of VS Code.</li>
+<li><b>Remote Terminal</b>: Option+click an image path to view it over the page, hover previews open faster and larger, the close confirmation sits by its tab, and the page sends far less data while an agent is working.</li>
+<li><b>Freeze Recovery</b>: When keys and scrolling stop responding while menus still open, Kaku now tries to get its window running again by itself.</li>
+<li><b>App Icon</b>: The icon drops its baked-in shadows and sits on a darker ground, so it looks at home beside the system icons in the Dock.</li>
+</ol><h2>更新日志</h2><ol>
+<li><b>崩溃修复</b>：恢复带很长滚动记录的会话后，Kaku 不会再在一分钟后退出、重新打开又接着崩溃，菜单操作落到全屏窗口上时也不会再退出。</li>
+<li><b>安全更新</b>：重启以更新即使中途被打断，应用程序里也总会留着一个能用的 Kaku.app。</li>
+<li><b>中文输入</b>：输入法候选框现在出现在正在输入的那一行下方，不会再挡住一半拼音。</li>
+<li><b>终端图片</b>：用 kitty Unicode 占位符放置的图片，比如 Claude Code 的 figures 插件画的图，现在可以正常显示，不再是一排方框。</li>
+<li><b>暗淡文字</b>：设置了最低对比度时，深色背景上的暗淡文字仍然比普通文字暗，字体名带 Light 这类字重的，暗淡文字也会继续用这个字重。</li>
+<li><b>文件夹链接</b>：Cmd+点击文件夹路径会在访达里打开，不再用 VS Code 打开。</li>
+<li><b>远程终端</b>：按住 Option 点击图片路径可以直接在页面上看图，悬停预览更快也更大，关闭确认出现在对应标签旁边，Agent 干活时页面传输的数据也少了很多。</li>
+<li><b>卡死恢复</b>：按键和滚动都没反应、菜单却还能打开时，Kaku 现在会自己尝试让窗口恢复运行。</li>
+<li><b>应用图标</b>：图标去掉了原来的阴影，底色更深，放在程序坞里和系统图标更协调。</li>
+</ol><p>Special thanks to @multics, @sunbird89629 and @HiAriesZhou for their contributions to this release.</p>]]></description>
+</item>
 <item>
 <title>V0.27.1 Guard</title>
 <link>https://kaku.fun/changelog#v0.27.1</link>

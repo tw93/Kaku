@@ -2,6 +2,24 @@
 
 Stable Kaku releases, newest first. Nightly builds stay on GitHub. Subscribe with [RSS](https://kaku.fun/feed.xml).
 
+## V0.28.0 Steady 2026-11-03
+
+1. **Crash Fix**: Kaku no longer quits a minute after restoring a session with a long scrollback, which made it crash again on every reopen, and no longer quits when a menu action reaches a fullscreen window.
+2. **Safe Updates**: Restart to Update always leaves a working Kaku.app in Applications, even when the update is interrupted halfway.
+3. **Chinese Input**: The input method's candidate window now sits below the line you are typing, instead of covering half of the pinyin.
+4. **Inline Images**: Images placed with kitty Unicode placeholders, such as the diagrams from Claude Code's figures plugin, now draw instead of showing boxes.
+5. **Dim Text**: With a minimum contrast set, dim text stays dimmer than normal text on dark backgrounds, and a font named with a weight such as Light keeps that face for dim text.
+6. **Folder Links**: Cmd+Click on a folder path opens it in Finder instead of VS Code.
+7. **Remote Terminal**: Option+click an image path to view it over the page, hover previews open faster and larger, the close confirmation sits by its tab, and the page sends far less data while an agent is working.
+8. **Freeze Recovery**: When keys and scrolling stop responding while menus still open, Kaku now tries to get its window running again by itself.
+9. **App Icon**: The icon drops its baked-in shadows and sits on a darker ground, so it looks at home beside the system icons in the Dock.
+
+[GitHub](https://github.com/tw93/Kaku/releases/tag/V0.28.0) · [DMG](https://github.com/tw93/Kaku/releases/download/V0.28.0/Kaku.dmg)
+
+Special thanks to @multics, @sunbird89629 and @HiAriesZhou for their contributions to this release.
+
+---
+
 ## V0.27.1 Guard 2026-10-27
 
 1. **Crash Fix**: Kaku no longer quits with every tab open while drawing certain lines that contain links.
