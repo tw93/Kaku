@@ -1839,22 +1839,24 @@ impl Config {
         let bold = reduced.make_bold();
         let bold_italic = bold.make_italic();
 
-        // Half intensity keeps the base weight: the renderer already dims
+        // Half intensity keeps the base face: the renderer already dims
         // the foreground color, and synthesizing a lighter weight resolves
         // a real Thin/Light face on families that ship one, which reads as
         // broken rendering rather than as dim text (#481). The bundled font
-        // stack encodes the same choice in its explicit font_rules.
+        // stack encodes the same choice in its explicit font_rules. Keep
+        // weight suffixes in the family name too: reducing "Family Light"
+        // to "Family" would select a heavier face for dim text (#616).
         cfg.font_rules.push(StyleRule {
             italic: Some(true),
             intensity: Some(wezterm_term::Intensity::Half),
-            font: italic.clone(),
+            font: self.font.make_italic(),
             ..Default::default()
         });
 
         cfg.font_rules.push(StyleRule {
             italic: Some(false),
             intensity: Some(wezterm_term::Intensity::Half),
-            font: reduced,
+            font: self.font.clone(),
             ..Default::default()
         });
 
@@ -3009,6 +3011,38 @@ mod tests {
                         default.evaluate_as_pixels(context)
                     },
                     "overriding {side} changed {name}"
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn half_intensity_font_rules_keep_named_faces() {
+        for family in [
+            "Sarasa Term Slab SC Light",
+            "JetBrains Mono Medium",
+            "JetBrains Mono Bold",
+        ] {
+            let mut config = super::Config::default();
+            config.font.font[0].family = family.to_string();
+            let computed = config.compute_extra_defaults(None);
+            for italic in [false, true] {
+                let rule = computed
+                    .font_rules
+                    .iter()
+                    .find(|rule| {
+                        rule.intensity == Some(wezterm_term::Intensity::Half)
+                            && rule.italic == Some(italic)
+                    })
+                    .expect("expected synthesized half-intensity rule");
+                let expected = if italic {
+                    config.font.make_italic()
+                } else {
+                    config.font.clone()
+                };
+                assert_eq!(
+                    rule.font, expected,
+                    "dim text must preserve the selected face for {family}, italic={italic}"
                 );
             }
         }
