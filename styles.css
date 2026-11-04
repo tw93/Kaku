@@ -392,7 +392,7 @@ button, input { font: inherit; }
   margin: 0 0 40px;
   color: var(--near-black);
   font-family: "Kaku Wordmark", var(--serif);
-  font-size: clamp(58px, 9vw, 84px);
+  font-size: 84px;
   font-weight: 400;
   letter-spacing: -1.2px;
   line-height: 1.02;
@@ -1415,8 +1415,6 @@ html[lang^="zh"] .foot-links b { letter-spacing: 0.6px; }
   .section { margin-bottom: 54px; }
   .section-tight { margin-bottom: 42px; }
   .hero { min-height: auto; padding: 44px 0 0; }
-  .hero h1 .cn { margin-left: 12px; }
-  .cn-orbit::after { left: calc(50% + 6px); }
   .hero-sub { font-size: 18px; }
 }
 @media (max-width: 880px) {
@@ -1424,6 +1422,9 @@ html[lang^="zh"] .foot-links b { letter-spacing: 0.6px; }
   .wide, .hero-wrap, .hero-centered { padding-inline: 28px; }
   .site-nav { padding-inline: 14px; }
   .section-head h2 { font-size: 26px; }
+  /* 64px with -1px tracking under 880 and the 18px gap at every width, as on
+     the other product sites (maintainer 2026-11-04: one lockup size). */
+  .hero h1 { font-size: 64px; letter-spacing: -1px; }
 }
 /* Phones keep the sizes they had before the desktop ladder (decide 1030-13,
    maintainer 2026-11-01): the ladder above 640px does not change them. */
@@ -1452,7 +1453,7 @@ html[lang^="zh"] .foot-links b { letter-spacing: 0.6px; }
   .section { margin-bottom: 42px; }
   .section-tight { margin-bottom: 33px; }
   .hero { padding: 40px 0 0; }
-  .hero h1 { font-size: 56px; margin-bottom: 24px; }
+  .hero h1 { margin-bottom: 24px; }
   /* Phone hero buttons keep their label's width, 42px tall with 22px sides,
      at least 128px wide and 12px apart (maintainer 2026-10-30, from rendered candidates: 44
      read tall and label-width pills read narrow; 128 pairs the Chinese labels
