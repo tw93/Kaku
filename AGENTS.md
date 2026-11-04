@@ -36,7 +36,7 @@ make app
 ./scripts/check_release_notes.sh
 ```
 
-`make build`, `make check`, `make test` and `scripts/build.sh` first run `scripts/prune_target.sh`, which measures `target/` at most once a day and runs `cargo clean` once it reaches `KAKU_TARGET_CAP_GB` (default 40). cargo never drops old artifacts, and the profiles, architectures and remote on/off feature sets here grew it to 92G; a partial, age-based delete was rejected because it can leave fingerprints pointing at missing files. No scheduled job does this, by the maintainer's choice. The dev profile also builds third-party crates without debug info.
+`make build`, `make check`, `make test` and `scripts/build.sh` first run `scripts/prune_target.sh`, which measures `target/` at most once a day and runs `cargo clean` once it reaches `KAKU_TARGET_CAP_GB` (default 40). cargo never drops old artifacts, and the profiles, architectures and remote on/off feature sets here grew it to 92G; a partial, age-based delete was rejected because it can leave fingerprints pointing at missing files. No scheduled job does this, by the maintainer's choice. The dev profile also builds third-party crates without debug info and workspace crates with line tables only (`CARGO_PROFILE_DEV_DEBUG=true` brings back lldb variables for one session).
 
 `make fmt` and `make fmt-check` both shell out to `cargo +nightly fmt`, so they require the nightly toolchain. Use `make app` for GUI, rendering, windowing, and AI overlay verification because it builds the app bundle that users run.
 
