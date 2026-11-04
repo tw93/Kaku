@@ -32,6 +32,7 @@ Install, configure and run AI coding agents in the terminal.
 
 Choose and configure a Mac terminal: fonts, splits, shortcuts.
 
+- [Warp Terminal Alternatives for Mac: What to Pick and Why](https://kaku.fun/blog/warp-terminal-alternative.md) (2026-11-04): Why people leave Warp, what it still does best, and how iTerm2, Ghostty, WezTerm, Kitty, Alacritty and Kaku compare on GPU, config, AI and license.
 - [Shell Integration: What OSC 7, 133 and 9 Tell the Terminal](https://kaku.fun/blog/shell-integration-osc.md) (2026-10-17): How OSC 7, 133, 9 and 8 reach a terminal, which ones Kaku 0.25.0 emits for zsh and fish, and printf checks for directory, prompts and notifications.
 - [How Terminal Emulators Work](https://kaku.fun/blog/how-terminal-emulators-work.md) (2026-10-16): A terminal owns the pty and the cell grid. The shell is a child that writes bytes. Follow that path from those bytes to pixels.
 - [Mac Terminal Shortcuts That Save the Most Time](https://kaku.fun/blog/mac-terminal-shortcuts.md) (2026-10-13): The shell line-editing keys that work in every terminal, how to make Option act as Meta, and the app shortcuts for tabs, splits and search.

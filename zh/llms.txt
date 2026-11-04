@@ -35,6 +35,7 @@
 <!-- blog:start -->
 ## 博客
 
+- [Warp 终端的替代品，Mac 上怎么选](https://kaku.fun/zh/blog/warp-terminal-alternative.md)：人们为什么离开 Warp、它仍然擅长什么，以及六个替代终端在 GPU、配置、AI 和许可证上的差别。
 - [tmux 快捷键速查，附复制模式和最小配置](https://kaku.fun/zh/blog/tmux-cheat-sheet.md)：tmux 默认前缀和会话、窗口、窗格、复制模式的快捷键，一份最小的 ~/.tmux.conf，以及在 Kaku 里怎么用。
 - [OpenCode 在 Mac 上怎么安装和配置](https://kaku.fun/zh/blog/opencode-setup.md)：在 Mac 上安装 OpenCode，用 /connect 连模型服务商，/init 生成 AGENTS.md，配权限，以及在 Kaku 里怎么用。
 - [Mac 上安装和使用 Gemini CLI，2026 年登录方式有变化](https://kaku.fun/zh/blog/gemini-cli-setup.md)：用 npm 或 Homebrew 安装，2026 年 6 月 18 日后还能用的登录方式，GEMINI.md、MCP、沙盒和 Kaku。

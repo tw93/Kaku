@@ -47,6 +47,7 @@ Kaku is driven from the shell, not over HTTP:
 <!-- blog:start -->
 ## Blog
 
+- [Warp Terminal Alternatives for Mac: What to Pick and Why](https://kaku.fun/blog/warp-terminal-alternative.md): Why people leave Warp, what it still does best, and how iTerm2, Ghostty, WezTerm, Kitty, Alacritty and Kaku compare on GPU, config, AI and license.
 - [tmux Cheat Sheet: Default Keys, Copy Mode and a Minimal Config](https://kaku.fun/blog/tmux-cheat-sheet.md): The default tmux prefix and keys for sessions, windows, panes and copy mode, plus a minimal ~/.tmux.conf and how tmux behaves inside Kaku.
 - [OpenCode Setup on Mac: Install, Providers, AGENTS.md and Permissions](https://kaku.fun/blog/opencode-setup.md): Install OpenCode on a Mac, connect a provider with /connect, write AGENTS.md with /init, set permissions, and use it in Kaku.
 - [Gemini CLI on Mac: Install, Sign In and What Changed in 2026](https://kaku.fun/blog/gemini-cli-setup.md): Install Gemini CLI with npm or Homebrew, which sign-in paths still work after June 18, 2026, GEMINI.md, settings.json, MCP, sandboxing and Kaku.

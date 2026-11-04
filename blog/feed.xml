@@ -7,6 +7,14 @@
     <description>Guides and notes on Mac terminals, Claude Code, Codex and shell setup, and how Kaku is built.</description>
     <language>en</language>
     <item>
+      <title>Warp Terminal Alternatives for Mac: What to Pick and Why</title>
+      <link>https://kaku.fun/blog/warp-terminal-alternative</link>
+      <guid isPermaLink="true">https://kaku.fun/blog/warp-terminal-alternative</guid>
+      <pubDate>Wed, 04 Nov 2026 09:00:00 +0800</pubDate>
+      <dc:creator>Tw93</dc:creator>
+      <description>Why people leave Warp, what it still does best, and how iTerm2, Ghostty, WezTerm, Kitty, Alacritty and Kaku compare on GPU, config, AI and license.</description>
+    </item>
+    <item>
       <title>tmux Cheat Sheet: Default Keys, Copy Mode and a Minimal Config</title>
       <link>https://kaku.fun/blog/tmux-cheat-sheet</link>
       <guid isPermaLink="true">https://kaku.fun/blog/tmux-cheat-sheet</guid>

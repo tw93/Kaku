@@ -7,6 +7,14 @@
     <description>关于 Mac 终端、Claude Code、Codex、shell 配置的指南，以及 Kaku 是怎么做出来的。</description>
     <language>zh-CN</language>
     <item>
+      <title>Warp 终端的替代品，Mac 上怎么选</title>
+      <link>https://kaku.fun/zh/blog/warp-terminal-alternative</link>
+      <guid isPermaLink="true">https://kaku.fun/zh/blog/warp-terminal-alternative</guid>
+      <pubDate>Wed, 04 Nov 2026 09:00:00 +0800</pubDate>
+      <dc:creator>Tw93</dc:creator>
+      <description>人们为什么离开 Warp、它仍然擅长什么，以及六个替代终端在 GPU、配置、AI 和许可证上的差别。</description>
+    </item>
+    <item>
       <title>tmux 快捷键速查，附复制模式和最小配置</title>
       <link>https://kaku.fun/zh/blog/tmux-cheat-sheet</link>
       <guid isPermaLink="true">https://kaku.fun/zh/blog/tmux-cheat-sheet</guid>

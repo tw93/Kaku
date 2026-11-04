@@ -32,6 +32,7 @@
 
 挑选和配置 Mac 终端，包括字体、分屏和快捷键。
 
+- [Warp 终端的替代品，Mac 上怎么选](https://kaku.fun/zh/blog/warp-terminal-alternative.md) (2026-11-04): 人们为什么离开 Warp、它仍然擅长什么，以及六个替代终端在 GPU、配置、AI 和许可证上的差别。
 - [终端 shell 集成靠 OSC 把目录和提示符交给终端](https://kaku.fun/zh/blog/shell-integration-osc.md) (2026-10-17): OSC 7、133、9、8 各自告诉终端什么，Kaku 0.25.0 的 fish 和 zsh 实际发哪些，以及怎么用 printf 核对。
 - [终端模拟器是怎么工作的](https://kaku.fun/zh/blog/how-terminal-emulators-work.md) (2026-10-16): 终端管着 pty 和字符网格，shell 是写字节的子进程。顺着这条路径，字节变成格子，再变成像素。
 - [Mac 终端里最省时间的快捷键](https://kaku.fun/zh/blog/mac-terminal-shortcuts.md) (2026-10-13): 在任何终端里都能用的命令行编辑快捷键，怎么让 Option 当 Meta 用，以及标签、分屏和搜索的应用快捷键。

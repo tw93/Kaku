@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f4ed">
+  <meta name="color-scheme" content="light">
+  <title>Warp Terminal Alternatives for Mac: What to Pick and Why · Kaku Blog</title>
+  <meta name="description" content="Why people leave Warp, what it still does best, and how iTerm2, Ghostty, WezTerm, Kitty, Alacritty and Kaku compare on GPU, config, AI and license.">
+  <meta property="og:title" content="Warp Terminal Alternatives for Mac: What to Pick and Why · Kaku Blog">
+  <meta property="og:description" content="Why people leave Warp, what it still does best, and how iTerm2, Ghostty, WezTerm, Kitty, Alacritty and Kaku compare on GPU, config, AI and license.">
+  <meta property="og:type" content="article">
+  <meta property="og:image" content="https://kaku.fun/img/blog/cards/warp-terminal-alternative.webp">
+  <meta property="og:image:width" content="1600">
+  <meta property="og:image:height" content="900">
+  <meta property="og:image:alt" content="Warp Terminal Alternatives for Mac: What to Pick and Why">
+  <meta property="og:url" content="https://kaku.fun/blog/warp-terminal-alternative">
+  <meta property="article:published_time" content="2026-11-04">
+  <meta property="article:modified_time" content="2026-11-04">
+  <meta property="article:author" content="Tw93">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://kaku.fun/img/blog/cards/warp-terminal-alternative.webp">
+  <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-kaku-32.png"><link rel="icon" type="image/png" sizes="192x192" href="/img/favicon-kaku-192.png"><link rel="apple-touch-icon" href="/img/favicon-kaku-180.png">
+  <link rel="canonical" href="https://kaku.fun/blog/warp-terminal-alternative"><link rel="alternate" type="application/rss+xml" title="Kaku releases" href="https://kaku.fun/feed.xml">
+  <link rel="alternate" type="application/rss+xml" title="Kaku Blog" href="https://kaku.fun/blog/feed.xml">
+  <link rel="alternate" hreflang="en" href="https://kaku.fun/blog/warp-terminal-alternative">
+  <link rel="alternate" hreflang="zh-CN" href="https://kaku.fun/zh/blog/warp-terminal-alternative">
+  <link rel="alternate" hreflang="x-default" href="https://kaku.fun/blog/warp-terminal-alternative">
+  <link rel="alternate" type="text/markdown" href="https://kaku.fun/blog/warp-terminal-alternative.md">
+  <link rel="stylesheet" href="/styles.css">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Kaku",
+          "item": "https://kaku.fun/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Blog",
+          "item": "https://kaku.fun/blog"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Warp Terminal Alternatives for Mac: What to Pick and Why",
+          "item": "https://kaku.fun/blog/warp-terminal-alternative"
+        }
+      ]
+    },
+    {
+      "@type": "BlogPosting",
+      "@id": "https://kaku.fun/blog/warp-terminal-alternative#article",
+      "headline": "Warp Terminal Alternatives for Mac: What to Pick and Why",
+      "description": "Why people leave Warp, what it still does best, and how iTerm2, Ghostty, WezTerm, Kitty, Alacritty and Kaku compare on GPU, config, AI and license.",
+      "url": "https://kaku.fun/blog/warp-terminal-alternative",
+      "mainEntityOfPage": "https://kaku.fun/blog/warp-terminal-alternative",
+      "datePublished": "2026-11-04",
+      "dateModified": "2026-11-04",
+      "inLanguage": "en",
+      "articleSection": "Terminal",
+      "image": "https://kaku.fun/img/blog/cards/warp-terminal-alternative.webp",
+      "timeRequired": "PT7M",
+      "author": {
+        "@type": "Person",
+        "name": "Tw93",
+        "url": "https://tw93.fun",
+        "sameAs": [
+          "https://x.com/HiTw93",
+          "https://github.com/tw93"
+        ]
+      },
+      "publisher": {
+        "@id": "https://kaku.fun/#organization"
+      },
+      "isPartOf": {
+        "@id": "https://kaku.fun/blog#blog"
+      },
+      "about": {
+        "@id": "https://kaku.fun/#software"
+      },
+      "encoding": {
+        "@type": "MediaObject",
+        "encodingFormat": "text/markdown",
+        "contentUrl": "https://kaku.fun/blog/warp-terminal-alternative.md"
+      }
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Is Warp free?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Warp has a free plan, and its docs say telemetry must be on to use AI features there. Check its pricing page for current plan limits, since they change."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Do I need an account to use Warp?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. The quickstart says you can skip sign-up and start using Warp immediately."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is there an open source alternative to Warp?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Warp's own client is open source under AGPL v3 and MIT. Among the alternatives, Ghostty and Kaku are MIT, Kitty is GPL-3.0, and Alacritty is Apache-2.0."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Which terminal is best for Claude Code if I leave Warp?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Any of them runs it. What differs is multi-line input, notifications and restoring sessions, which the best terminal for Claude Code compares."
+          }
+        }
+      ]
+    }
+  ]
+}
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <nav class="site-nav" aria-label="Primary navigation"><div class="wide nav-inner"><a class="brand" href="/"><strong>Kaku</strong></a><div class="nav-links"><a href="/docs">Docs</a><a href="/compare">Compare</a><a href="/changelog">Changelog</a><a href="/blog" aria-current="page">Blog</a></div><div class="nav-actions"><details class="lang-switch"><summary class="lang-trigger" aria-label="Choose a language"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/></svg><span class="lang-current-code" aria-hidden="true">EN</span><span class="lang-current-name">English</span></summary><div class="lang-menu"><a class="lang-option" href="/zh/blog/warp-terminal-alternative" hreflang="zh-CN">简体中文</a><a class="lang-option" aria-current="page" href="/blog/warp-terminal-alternative" hreflang="en">English</a></div></details><script src="/navigation.js" defer></script><a class="nav-icon" href="https://github.com/tw93/Kaku" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a><a class="nav-icon" href="https://x.com/HiTw93" target="_blank" rel="noopener noreferrer" aria-label="X"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a></div></div></nav>
+  <main id="main-content" class="docs-page blog-page">
+    <header class="page-hero doc-hero blog-hero"><div class="wide"><nav class="blog-crumb" aria-label="Breadcrumb"><a href="/blog">Blog</a></nav><h1>Warp Terminal Alternatives for Mac: What to Pick and Why</h1><p class="blog-meta"><span><a href="/blog#topic-terminal">Terminal</a></span><span>Published <time datetime="2026-11-04">Nov 4, 2026</time></span><span>7 min read</span></p></div></header>
+    <section class="section">
+      <div class="wide">
+        <article class="doc-content blog-article">
+          <figure class="blog-cover" aria-hidden="true"><img src="/img/blog/cards/warp-terminal-alternative.webp" width="1600" height="900" alt="" fetchpriority="high"></figure>
+<p>If you want to leave Warp, the best alternative depends on what made you look. For a plain terminal with no account and no built-in AI, pick Ghostty or iTerm2. For a Lua-scripted one, pick WezTerm. For a terminal that works on the first launch and lets your own Claude Code or Codex do the AI work, Kaku is the one I make. Warp is still the better fit if you want an agent and blocks inside the terminal itself. This post lists what Warp does well, the reasons people leave, and how six alternatives compare on the things that usually decide it. Facts come from each project's own pages, read in October 2026.</p>
+<h2 id="what-warp-is-good-at">What Warp is good at</h2>
+<p>Warp calls its terminal <a href="https://www.warp.dev/" target="_blank" rel="noopener noreferrer">an open-source terminal built for AI-assisted software development</a>, and its client repository describes it as an agentic development environment. Two things set it apart from a classic terminal.</p>
+<p>The first is <a href="https://docs.warp.dev/terminal/blocks" target="_blank" rel="noopener noreferrer">blocks</a>: each command and its output are grouped into one unit that you can copy, search, filter, bookmark, share and jump between. In an ordinary terminal that output is just a long scroll of text. The second is the built-in agent, and the repository says you can also bring a CLI agent such as Claude Code or Codex. If those two are what you came for, no alternative below copies them, and staying on Warp is the right call.</p>
+<h2 id="why-people-look-elsewhere">Why people look elsewhere</h2>
+<p>Each of these is checked against what Warp's pages say today.</p>
+<ul>
+<li><strong>An account.</strong> The quickstart puts sign-up in the top right corner and says you can skip it and start using Warp immediately, so a login is not needed to open the terminal.</li>
+<li><strong>Telemetry.</strong> Warp's privacy docs say analytics are on a toggle, "Help improve Warp" under Settings, Privacy, and that with telemetry off no console interactions are persisted on its servers. The same page says telemetry must be on to use AI features on the free plan, so turning it off costs you those features there. Business and Enterprise plans are described as covered by a zero data retention agreement. Paid plans can turn telemetry off and keep using AI. Crash reports are a separate toggle, "Send crash reports", sent through Sentry. To see what Warp sends, search the Command Palette for "Show Warp Network Log", which inserts a <code>tail -f</code> command for its network log; the docs note that crash report traffic does not show up there.</li>
+<li><strong>AI that is part of the product.</strong> Warp's agent is built in, and its pricing page sells agent usage on top of the free plan. If you already work with Claude Code or Codex, the built-in agent may be something you never use.</li>
+<li><strong>Not a plain terminal.</strong> Warp groups output into blocks and puts its own input editor where the shell prompt usually is. If you want the terminal to stay out of the way of programs such as <a href="/blog/best-terminal-for-claude-code">Claude Code</a>, a classic terminal is simpler.</li>
+</ul>
+<p>Closed source is no longer on the list. The <a href="https://github.com/warpdotdev/warp" target="_blank" rel="noopener noreferrer">warpdotdev/warp repository</a> says the client codebase is open source, with the UI framework crates under MIT and the rest under AGPL v3. The README covers the client; it does not say whether the server side is open.</p>
+<h2 id="the-alternatives">The alternatives</h2>
+<table>
+<thead>
+<tr>
+<th>Terminal</th>
+<th>GPU rendering</th>
+<th>Config</th>
+<th>AI features</th>
+<th>License</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Warp</td>
+<td>Metal on macOS</td>
+<td>Settings file and settings pages</td>
+<td>Built-in agent, or bring your own CLI agent</td>
+<td>AGPL v3, with MIT UI crates</td>
+</tr>
+<tr>
+<td>iTerm2</td>
+<td>Optional GPU renderer</td>
+<td>Settings window</td>
+<td>Optional AI plugin with your own API key</td>
+<td>GPL v2 or later, effectively v3</td>
+</tr>
+<tr>
+<td>Ghostty</td>
+<td>Metal on macOS</td>
+<td>Text file, <code>key = value</code></td>
+<td>None built in</td>
+<td>MIT</td>
+</tr>
+<tr>
+<td>WezTerm</td>
+<td>GPU-accelerated</td>
+<td>Lua</td>
+<td>None built in</td>
+<td>MIT</td>
+</tr>
+<tr>
+<td>Kitty</td>
+<td>GPU based</td>
+<td><code>kitty.conf</code></td>
+<td>None built in</td>
+<td>GPL-3.0</td>
+</tr>
+<tr>
+<td>Alacritty</td>
+<td>OpenGL</td>
+<td><code>alacritty.toml</code></td>
+<td>None built in</td>
+<td>Apache-2.0</td>
+</tr>
+<tr>
+<td>Kaku</td>
+<td>WezTerm's renderer</td>
+<td>Lua, <code>~/.config/kaku/kaku.lua</code></td>
+<td>Optional assistant on your own provider</td>
+<td>MIT</td>
+</tr>
+</tbody>
+</table>
+<p>Short notes on each:</p>
+<p><strong>iTerm2</strong> is the established Mac terminal. Its COPYING file says GPL v2 or later, effectively GPL v3 because of Apache-2.0 dependencies. Its docs describe a GPU renderer that improves drawing performance and may use more energy, and an AI plugin where you supply your own API key. Stay if you already have profiles you rely on.</p>
+<p><strong>Ghostty</strong> is MIT licensed, uses Metal on macOS, and reads a <code>key = value</code> file from <code>~/.config/ghostty/config.ghostty</code> or <code>~/Library/Application Support/com.mitchellh.ghostty/config.ghostty</code>, reloaded with <code>Cmd + Shift + ,</code>. It has no AI of its own, which suits people who bring their own agent.</p>
+<p><strong>WezTerm</strong> is a cross-platform terminal and multiplexer written in Rust, configured in Lua, with panes, tabs and windows on local and remote hosts. It suits people who like to script their terminal.</p>
+<p><strong>Kitty</strong> is GPU-based with its own <code>kitty.conf</code>, remote control from scripts and Python extensions called kittens.</p>
+<p><strong>Alacritty</strong> is deliberately small. Its README says you will not find tabs or splits, and leaves them to a window manager or tmux, so pair it with <a href="/blog/tmux-alternative-mac">tmux</a> if you want them.</p>
+<p><strong>Kaku</strong> is a macOS terminal based on WezTerm with fonts, themes, shell integration and Mac shortcuts already set, and it keeps Lua configuration. It has no account, and its AI is optional: <code>kaku ai</code> points the assistant at your own provider. After a command fails, <code>Cmd + Shift + E</code> runs the suggested fix, and only pastes it without running when the command looks dangerous, such as <code>rm -rf</code>. Splits are <code>Cmd + D</code> and <code>Cmd + Shift + D</code>, and tabs and splits come back after a restart. It runs on macOS only, and it has no blocks and no hosted agent.</p>
+<p>For a head-to-head on setup effort and release cadence, <a href="/blog/best-terminal-for-mac">the best terminal for Mac</a> and <a href="/blog/ghostty-vs-iterm2-vs-wezterm">Ghostty vs iTerm2 vs WezTerm</a> cover the same terminals in more depth.</p>
+<h2 id="how-to-choose">How to choose</h2>
+<ul>
+<li>You want blocks and a built-in agent: stay on Warp, and decide about telemetry in its Privacy settings. If you use its agent, also look at Secret Redaction, which is off by default and masks text matching your patterns before AI requests are sent.</li>
+<li>You want AI from your own subscription: any terminal on the list runs Claude Code and Codex, so choose on the terminal itself. Kaku adds <a href="/blog/claude-code-notifications">notifications</a> and <code>kaku ai</code> setup for them.</li>
+<li>You want the fewest moving parts: Ghostty.</li>
+<li>You want deep features behind a settings window: iTerm2.</li>
+<li>You want to program it: WezTerm, or Kaku if you want WezTerm's Lua with Mac defaults already chosen.</li>
+<li>You want minimal and use tmux: Alacritty.</li>
+</ul>
+<h2 id="what-goes-wrong-when-you-switch">What goes wrong when you switch</h2>
+<ul>
+<li><strong>Blocks are gone.</strong> No alternative groups command output the same way. Shell history and search in your terminal replace part of it, but not the per-command copy.</li>
+<li><strong>Shell setup moves to your shell.</strong> In a classic terminal, completions, prompt and syntax highlighting come from zsh itself. <a href="/blog/zsh-without-oh-my-zsh">A fast zsh setup without Oh My Zsh</a> covers that, and Kaku bundles zsh plugins and optional Starship.</li>
+<li><strong>Keybindings.</strong> Each terminal has its own shortcut set, so check its keybinding list before you decide.</li>
+<li><strong>Your Warp data.</strong> What you keep in Warp Drive or share from Warp is tied to your Warp account, so copy out what you need before you uninstall. The privacy page explains how to delete the account.</li>
+</ul>
+<h2 id="faq">FAQ</h2>
+<h3 id="is-warp-free">Is Warp free?</h3>
+<p>Warp has a free plan, and its docs say telemetry must be on to use AI features there. Check its pricing page for current plan limits, since they change.</p>
+<h3 id="do-i-need-an-account-to-use-warp">Do I need an account to use Warp?</h3>
+<p>No. The quickstart says you can skip sign-up and start using Warp immediately.</p>
+<h3 id="is-there-an-open-source-alternative-to-warp">Is there an open source alternative to Warp?</h3>
+<p>Warp's own client is open source under AGPL v3 and MIT. Among the alternatives, Ghostty and Kaku are MIT, Kitty is GPL-3.0, and Alacritty is Apache-2.0.</p>
+<h3 id="which-terminal-is-best-for-claude-code-if-i-leave-warp">Which terminal is best for Claude Code if I leave Warp?</h3>
+<p>Any of them runs it. What differs is multi-line input, notifications and restoring sessions, which <a href="/blog/best-terminal-for-claude-code">the best terminal for Claude Code</a> compares.</p>
+          <aside class="blog-cta"><img class="blog-cta-icon" src="/img/kaku-mark.png" width="40" height="40" alt=""><p>Kaku is a free, open-source Mac terminal.</p><a class="btn btn-primary" href="/docs">Install Kaku</a></aside>
+          <nav class="blog-related" aria-label="Keep reading"><h2 class="blog-related-title">Keep reading</h2><ul class="blog-related-list"><li><a href="/blog/best-terminal-for-mac"><span class="blog-related-cat">Terminal</span><span class="blog-related-name">The Best Terminal for Mac in 2026: Eight Options Compared</span><span class="blog-related-meta"><time datetime="2026-09-21">Sep 21, 2026</time> · 5 min read</span></a></li><li><a href="/blog/shell-integration-osc"><span class="blog-related-cat">Terminal</span><span class="blog-related-name">Shell Integration: What OSC 7, 133 and 9 Tell the Terminal</span><span class="blog-related-meta"><time datetime="2026-10-17">Oct 17, 2026</time> · 8 min read</span></a></li><li><a href="/blog/how-terminal-emulators-work"><span class="blog-related-cat">Terminal</span><span class="blog-related-name">How Terminal Emulators Work</span><span class="blog-related-meta"><time datetime="2026-10-16">Oct 16, 2026</time> · 8 min read</span></a></li></ul></nav>
+        </article>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer"><div class="wide foot"><div class="foot-brand"><p class="name">Kaku · <span class="foot-mark" lang="zh-Hant">書</span></p><p class="foot-sub">A fast, good-looking, AI-friendly terminal for the Mac.</p></div><div class="foot-links"><div><b>Product</b><a href="/docs">Docs</a><a href="/changelog">Changelog</a><a href="/roadmap">Roadmap</a><a href="/compare">Compare</a><a href="/blog">Blog</a></div><div><b>Project</b><a href="/about">About</a><a href="/privacy">Privacy</a><a href="https://github.com/tw93/Kaku">GitHub</a><a href="https://github.com/tw93/Kaku/issues">Issues</a></div><div><b>Connect</b><a href="/contact">Contact</a><a href="https://x.com/HiTw93">X</a></div></div></div></footer>
+</body>
+</html>

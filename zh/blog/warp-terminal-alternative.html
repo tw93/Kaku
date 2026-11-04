@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f4ed">
+  <meta name="color-scheme" content="light">
+  <title>Warp 终端的替代品，Mac 上怎么选 · Kaku 博客</title>
+  <meta name="description" content="人们为什么离开 Warp、它仍然擅长什么，以及六个替代终端在 GPU、配置、AI 和许可证上的差别。">
+  <meta property="og:title" content="Warp 终端的替代品，Mac 上怎么选 · Kaku 博客">
+  <meta property="og:description" content="人们为什么离开 Warp、它仍然擅长什么，以及六个替代终端在 GPU、配置、AI 和许可证上的差别。">
+  <meta property="og:type" content="article">
+  <meta property="og:image" content="https://kaku.fun/img/blog/cards/warp-terminal-alternative.webp">
+  <meta property="og:image:width" content="1600">
+  <meta property="og:image:height" content="900">
+  <meta property="og:image:alt" content="Warp 终端的替代品，Mac 上怎么选">
+  <meta property="og:url" content="https://kaku.fun/zh/blog/warp-terminal-alternative">
+  <meta property="article:published_time" content="2026-11-04">
+  <meta property="article:modified_time" content="2026-11-04">
+  <meta property="article:author" content="Tw93">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://kaku.fun/img/blog/cards/warp-terminal-alternative.webp">
+  <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-kaku-32.png"><link rel="icon" type="image/png" sizes="192x192" href="/img/favicon-kaku-192.png"><link rel="apple-touch-icon" href="/img/favicon-kaku-180.png">
+  <link rel="canonical" href="https://kaku.fun/zh/blog/warp-terminal-alternative"><link rel="alternate" type="application/rss+xml" title="Kaku releases" href="https://kaku.fun/feed.xml">
+  <link rel="alternate" type="application/rss+xml" title="Kaku 博客" href="https://kaku.fun/zh/blog/feed.xml">
+  <link rel="alternate" hreflang="en" href="https://kaku.fun/blog/warp-terminal-alternative">
+  <link rel="alternate" hreflang="zh-CN" href="https://kaku.fun/zh/blog/warp-terminal-alternative">
+  <link rel="alternate" hreflang="x-default" href="https://kaku.fun/blog/warp-terminal-alternative">
+  <link rel="alternate" type="text/markdown" href="https://kaku.fun/zh/blog/warp-terminal-alternative.md">
+  <link rel="stylesheet" href="/styles.css">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Kaku",
+          "item": "https://kaku.fun/zh"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "博客",
+          "item": "https://kaku.fun/zh/blog"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Warp 终端的替代品，Mac 上怎么选",
+          "item": "https://kaku.fun/zh/blog/warp-terminal-alternative"
+        }
+      ]
+    },
+    {
+      "@type": "BlogPosting",
+      "@id": "https://kaku.fun/zh/blog/warp-terminal-alternative#article",
+      "headline": "Warp 终端的替代品，Mac 上怎么选",
+      "description": "人们为什么离开 Warp、它仍然擅长什么，以及六个替代终端在 GPU、配置、AI 和许可证上的差别。",
+      "url": "https://kaku.fun/zh/blog/warp-terminal-alternative",
+      "mainEntityOfPage": "https://kaku.fun/zh/blog/warp-terminal-alternative",
+      "datePublished": "2026-11-04",
+      "dateModified": "2026-11-04",
+      "inLanguage": "zh-CN",
+      "articleSection": "终端",
+      "image": "https://kaku.fun/img/blog/cards/warp-terminal-alternative.webp",
+      "timeRequired": "PT7M",
+      "author": {
+        "@type": "Person",
+        "name": "Tw93",
+        "url": "https://tw93.fun",
+        "sameAs": [
+          "https://x.com/HiTw93",
+          "https://github.com/tw93"
+        ]
+      },
+      "publisher": {
+        "@id": "https://kaku.fun/#organization"
+      },
+      "isPartOf": {
+        "@id": "https://kaku.fun/zh/blog#blog"
+      },
+      "about": {
+        "@id": "https://kaku.fun/#software"
+      },
+      "encoding": {
+        "@type": "MediaObject",
+        "encodingFormat": "text/markdown",
+        "contentUrl": "https://kaku.fun/zh/blog/warp-terminal-alternative.md"
+      }
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Warp 免费吗？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Warp 有免费计划，它的文档说在那里使用 AI 功能必须开着遥测，计划限制会变，以它的价格页为准。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "用 Warp 必须有账号吗？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "不需要，快速上手文档说可以跳过注册直接开始用。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "有 Warp 的开源替代品吗？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Warp 自己的客户端就是开源的，AGPL v3 加 MIT。替代品里 Ghostty 和 Kaku 是 MIT，Kitty 是 GPL-3.0，Alacritty 是 Apache-2.0。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "离开 Warp 之后，哪个终端最适合 Claude Code？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "哪个都能跑，区别在多行输入、通知和恢复会话，Claude Code 用什么终端最好对比过。"
+          }
+        }
+      ]
+    }
+  ]
+}
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">跳到内容</a>
+  <nav class="site-nav" aria-label="主导航"><div class="wide nav-inner"><a class="brand" href="/zh"><strong>Kaku</strong></a><div class="nav-links"><a href="/zh/docs">文档</a><a href="/zh/compare">对比</a><a href="/zh/changelog">更新日志</a><a href="/zh/blog" aria-current="page">博客</a></div><div class="nav-actions"><details class="lang-switch"><summary class="lang-trigger" aria-label="切换语言"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/></svg><span class="lang-current-code" aria-hidden="true">中</span><span class="lang-current-name">简体中文</span></summary><div class="lang-menu"><a class="lang-option" aria-current="page" href="/zh/blog/warp-terminal-alternative" hreflang="zh-CN">简体中文</a><a class="lang-option" href="/blog/warp-terminal-alternative" hreflang="en">English</a></div></details><script src="/navigation.js" defer></script><a class="nav-icon" href="https://github.com/tw93/Kaku" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a><a class="nav-icon" href="https://x.com/HiTw93" target="_blank" rel="noopener noreferrer" aria-label="X"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a></div></div></nav>
+  <main id="main-content" class="docs-page blog-page">
+    <header class="page-hero doc-hero blog-hero"><div class="wide"><nav class="blog-crumb" aria-label="Breadcrumb"><a href="/zh/blog">博客</a></nav><h1>Warp 终端的替代品，Mac 上怎么选</h1><p class="blog-meta"><span><a href="/zh/blog#topic-terminal">终端</a></span><span>发布于 <time datetime="2026-11-04">2026年11月4日</time></span><span>约 7 分钟</span></p></div></header>
+    <section class="section">
+      <div class="wide">
+        <article class="doc-content blog-article">
+          <figure class="blog-cover" aria-hidden="true"><img src="/img/blog/cards/warp-terminal-alternative.webp" width="1600" height="900" alt="" fetchpriority="high"></figure>
+<p>想离开 Warp，哪个替代品最合适要看你为什么想换。只想要一个没有账号、没有内置 AI 的普通终端，选 Ghostty 或 iTerm2，想用 Lua 来写配置，选 WezTerm，想要第一次打开就能用、AI 部分交给你自己的 Claude Code 或 Codex 去做，那就是我做的 Kaku。如果你要的恰恰是终端里自带的 agent 和 blocks，Warp 仍然更合适。这篇讲 Warp 擅长什么、人们为什么离开它，以及六个替代品在通常起决定作用的几件事上怎么比，事实都来自各个项目自己的页面，2026 年 10 月读的。</p>
+<h2 id="warp-擅长什么">Warp 擅长什么</h2>
+<p>Warp 在官网上把自己的终端称作<a href="https://www.warp.dev/" target="_blank" rel="noopener noreferrer">为 AI 辅助软件开发做的开源终端</a>，它的客户端仓库把它描述成 agentic development environment。它和传统终端有两处不同。</p>
+<p>第一处是 <a href="https://docs.warp.dev/terminal/blocks" target="_blank" rel="noopener noreferrer">blocks</a>，每条命令和它的输出被分在一个单元里，可以复制、搜索、过滤、加书签、分享，还能在单元之间跳转，在普通终端里这段输出只是一长串滚动的文字。第二处是内置的 agent，仓库里也说你可以带上自己的 CLI agent，比如 Claude Code 或 Codex。如果你就是冲着这两样来的，下面没有一个替代品复制了它们，留在 Warp 是对的。</p>
+<h2 id="人们为什么换">人们为什么换</h2>
+<p>下面每一条都对照过 Warp 自己页面现在的说法。</p>
+<ul>
+<li><strong>账号。</strong> 快速上手文档说注册入口在右上角，也可以跳过直接开始用，所以打开终端不需要登录。</li>
+<li><strong>遥测。</strong> Warp 的隐私文档说，分析数据有开关，在设置的 Privacy 里关掉 Help improve Warp，关掉遥测之后控制台交互不会存到它的服务器上，同一页还说免费计划里要使用 AI 功能必须开着遥测，所以关掉要付出的代价是那边的 AI 功能。Business 和 Enterprise 计划被描述为受零数据留存协议覆盖。付费计划关掉遥测也照样能用 AI。崩溃报告是另一个开关，叫 Send crash reports，走的是 Sentry。想看 Warp 往外发了什么，在命令面板里搜 Show Warp Network Log，它会插入一条 <code>tail -f</code> 网络日志的命令，不过文档也说了，崩溃报告的流量不会出现在这份日志里。</li>
+<li><strong>AI 是产品的一部分。</strong> Warp 的 agent 是内置的，它的价格页在免费计划之外另卖 agent 用量，如果你本来就在用 Claude Code 或 Codex，内置的 agent 可能一直用不上。</li>
+<li><strong>它不是一个普通终端。</strong> Warp 把输出分成 blocks，还用自己的输入编辑器顶替了 shell 提示符的位置，想让终端别挡着 <a href="/zh/blog/best-terminal-for-claude-code">Claude Code</a> 这类程序的话，传统终端更简单。</li>
+</ul>
+<p>闭源已经不在理由里了，<a href="https://github.com/warpdotdev/warp" target="_blank" rel="noopener noreferrer">warpdotdev/warp 仓库</a>写明客户端代码是开源的，UI 框架的几个 crate 是 MIT，其余是 AGPL v3，README 讲的是客户端，没说服务端是不是开源。</p>
+<h2 id="替代品">替代品</h2>
+<table>
+<thead>
+<tr>
+<th>终端</th>
+<th>GPU 渲染</th>
+<th>配置</th>
+<th>AI 功能</th>
+<th>许可证</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Warp</td>
+<td>macOS 上用 Metal</td>
+<td>设置文件和设置页</td>
+<td>内置 agent，或带自己的 CLI agent</td>
+<td>AGPL v3，UI crate 为 MIT</td>
+</tr>
+<tr>
+<td>iTerm2</td>
+<td>可选的 GPU 渲染器</td>
+<td>设置窗口</td>
+<td>可选的 AI 插件，用自己的 API key</td>
+<td>GPL v2 或更高版本，实际按 v3</td>
+</tr>
+<tr>
+<td>Ghostty</td>
+<td>macOS 上用 Metal</td>
+<td>文本文件，<code>key = value</code></td>
+<td>没有内置</td>
+<td>MIT</td>
+</tr>
+<tr>
+<td>WezTerm</td>
+<td>GPU 加速</td>
+<td>Lua</td>
+<td>没有内置</td>
+<td>MIT</td>
+</tr>
+<tr>
+<td>Kitty</td>
+<td>基于 GPU</td>
+<td><code>kitty.conf</code></td>
+<td>没有内置</td>
+<td>GPL-3.0</td>
+</tr>
+<tr>
+<td>Alacritty</td>
+<td>OpenGL</td>
+<td><code>alacritty.toml</code></td>
+<td>没有内置</td>
+<td>Apache-2.0</td>
+</tr>
+<tr>
+<td>Kaku</td>
+<td>WezTerm 的渲染器</td>
+<td>Lua，<code>~/.config/kaku/kaku.lua</code></td>
+<td>可选的助手，接你自己的服务商</td>
+<td>MIT</td>
+</tr>
+</tbody>
+</table>
+<p>每个简单说几句：</p>
+<p><strong>iTerm2</strong> 是老牌的 Mac 终端，仓库里的 COPYING 文件写的是 GPL v2 或更高版本，因为依赖了 Apache-2.0 的库，实际按 GPL v3。它的文档写到有 GPU 渲染器，能提升绘制性能但可能更耗电，还有一个 AI 插件，API key 要自己提供，已经有靠得住的 profile 的话就留着。</p>
+<p><strong>Ghostty</strong> 是 MIT 协议，在 macOS 上用 Metal，读 <code>~/.config/ghostty/config.ghostty</code> 或 <code>~/Library/Application Support/com.mitchellh.ghostty/config.ghostty</code> 里的 <code>key = value</code> 文件，用 <code>Cmd + Shift + ,</code> 重新加载。它自己没有 AI，适合带自己 agent 的人。</p>
+<p><strong>WezTerm</strong> 是用 Rust 写的跨平台终端和多路复用器，用 Lua 配置，窗格、标签页和窗口在本地和远程主机上都能用，适合喜欢给终端写脚本的人。</p>
+<p><strong>Kitty</strong> 基于 GPU，有自己的 <code>kitty.conf</code>，可以用脚本远程控制，还有叫 kittens 的 Python 扩展。</p>
+<p><strong>Alacritty</strong> 刻意做得很小，它的 README 说你在里面找不到标签页和分屏，这些交给窗口管理器或 tmux，想要的话配合 <a href="/zh/blog/tmux-alternative-mac">tmux</a> 用。</p>
+<p><strong>Kaku</strong> 是基于 WezTerm 的 macOS 终端，字体、主题、shell 集成和 Mac 快捷键都已经配好，同时保留了 Lua 配置。它没有账号，AI 是可选的，<code>kaku ai</code> 把助手指到你自己的服务商。命令失败后按 <code>Cmd + Shift + E</code> 会直接运行建议的修复，只有 <code>rm -rf</code> 这类看起来危险的命令才只粘贴不运行。分屏是 <code>Cmd + D</code> 和 <code>Cmd + Shift + D</code>，重启后标签页和分屏会回来。它只支持 macOS，没有 blocks，也没有托管的 agent。</p>
+<p>想看安装成本和发版节奏的正面对比，<a href="/zh/blog/best-terminal-for-mac">Mac 上的终端怎么选</a>和 <a href="/zh/blog/ghostty-vs-iterm2-vs-wezterm">Ghostty、iTerm2 和 WezTerm 怎么选</a>把同样这些终端讲得更细。</p>
+<h2 id="怎么选">怎么选</h2>
+<ul>
+<li>想要 blocks 和内置 agent：留在 Warp，遥测要不要开在它的 Privacy 设置里决定。用它的 agent 的话再看一下 Secret Redaction，它默认是关的，打开后会在 AI 请求发出去之前把匹配你设定模式的内容遮掉。</li>
+<li>想用自己订阅的 AI：列表里的任何终端都能跑 Claude Code 和 Codex，所以按终端本身来选，Kaku 多出的是给它们的<a href="/zh/blog/claude-code-notifications">通知</a>和 <code>kaku ai</code> 配置。</li>
+<li>想要最少的活动部件：Ghostty。</li>
+<li>想要设置窗口里一大堆功能：iTerm2。</li>
+<li>想自己编程：WezTerm，或者想要 WezTerm 的 Lua 加上已经选好的 Mac 默认值，就选 Kaku。</li>
+<li>想要极简并且用 tmux：Alacritty。</li>
+</ul>
+<h2 id="切换时容易出的问题">切换时容易出的问题</h2>
+<ul>
+<li><strong>blocks 没了。</strong> 没有哪个替代品用同样的方式给命令输出分组，终端里的 shell 历史和搜索能顶替一部分，但顶替不了按命令复制。</li>
+<li><strong>shell 配置回到 shell 自己。</strong> 在传统终端里，补全、提示符和语法高亮都来自 zsh 本身，<a href="/zh/blog/zsh-without-oh-my-zsh">不用 Oh My Zsh 把 zsh 配得又快又好用</a>讲了这部分，Kaku 自带 zsh 插件和可选的 Starship。</li>
+<li><strong>快捷键不一样。</strong> 每个终端有自己的一套，决定之前先看它的快捷键列表。</li>
+<li><strong>你在 Warp 里的数据。</strong> 放在 Warp Drive 里的东西和从 Warp 分享出去的内容都跟着你的 Warp 账号，卸载之前先把需要的复制出来，删除账号的方法在它的隐私页里。</li>
+</ul>
+<h2 id="常见问题">常见问题</h2>
+<h3 id="warp-免费吗">Warp 免费吗？</h3>
+<p>Warp 有免费计划，它的文档说在那里使用 AI 功能必须开着遥测，计划限制会变，以它的价格页为准。</p>
+<h3 id="用-warp-必须有账号吗">用 Warp 必须有账号吗？</h3>
+<p>不需要，快速上手文档说可以跳过注册直接开始用。</p>
+<h3 id="有-warp-的开源替代品吗">有 Warp 的开源替代品吗？</h3>
+<p>Warp 自己的客户端就是开源的，AGPL v3 加 MIT。替代品里 Ghostty 和 Kaku 是 MIT，Kitty 是 GPL-3.0，Alacritty 是 Apache-2.0。</p>
+<h3 id="离开-warp-之后哪个终端最适合-claude-code">离开 Warp 之后，哪个终端最适合 Claude Code？</h3>
+<p>哪个都能跑，区别在多行输入、通知和恢复会话，<a href="/zh/blog/best-terminal-for-claude-code">Claude Code 用什么终端最好</a>对比过。</p>
+          <aside class="blog-cta"><img class="blog-cta-icon" src="/img/kaku-mark.png" width="40" height="40" alt=""><p>Kaku 是一个免费开源的 Mac 终端。</p><a class="btn btn-primary" href="/zh/docs">安装 Kaku</a></aside>
+          <nav class="blog-related" aria-label="继续阅读"><h2 class="blog-related-title">继续阅读</h2><ul class="blog-related-list"><li><a href="/zh/blog/best-terminal-for-mac"><span class="blog-related-cat">终端</span><span class="blog-related-name">2026 年 Mac 上的终端怎么选</span><span class="blog-related-meta"><time datetime="2026-09-21">2026年9月21日</time> · 约 5 分钟</span></a></li><li><a href="/zh/blog/shell-integration-osc"><span class="blog-related-cat">终端</span><span class="blog-related-name">终端 shell 集成靠 OSC 把目录和提示符交给终端</span><span class="blog-related-meta"><time datetime="2026-10-17">2026年10月17日</time> · 约 8 分钟</span></a></li><li><a href="/zh/blog/how-terminal-emulators-work"><span class="blog-related-cat">终端</span><span class="blog-related-name">终端模拟器是怎么工作的</span><span class="blog-related-meta"><time datetime="2026-10-16">2026年10月16日</time> · 约 10 分钟</span></a></li></ul></nav>
+        </article>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer"><div class="wide foot"><div class="foot-brand"><p class="name">Kaku · <span class="foot-mark" lang="zh-Hant">書</span></p><p class="foot-sub">好看又快、开箱即用的 AI 友好终端</p></div><div class="foot-links"><div><b>产品</b><a href="/zh/docs">文档</a><a href="/zh/changelog">更新日志</a><a href="/zh/roadmap">路线图</a><a href="/zh/compare">对比</a><a href="/zh/blog">博客</a></div><div><b>项目</b><a href="/zh/about">关于</a><a href="/zh/privacy">隐私</a><a href="https://github.com/tw93/Kaku">GitHub</a><a href="https://github.com/tw93/Kaku/issues">问题反馈</a></div><div><b>联系</b><a href="/zh/contact">联系方式</a><a href="https://x.com/HiTw93">X</a></div></div></div></footer>
+</body>
+</html>
