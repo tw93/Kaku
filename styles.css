@@ -373,8 +373,8 @@ button, input { font: inherit; }
 }
 .nav-icon:hover { color: var(--brand); }
 
-/* As on mole.fit, the hairline under the hero stays inside the column. */
-.hero > .hero-wrap::after { content: ""; display: block; margin-top: 28px; border-bottom: 1px solid var(--border-soft); }
+/* No rule under the hero: mole.fit dropped it, and the next section's head
+   already marks the break (sumi 6). */
 .hero {
   min-height: auto;
   padding: 64px 0 0;
