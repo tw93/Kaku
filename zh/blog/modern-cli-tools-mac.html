@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f4ed">
+  <meta name="color-scheme" content="light">
+  <title>Mac 命令行工具推荐：ripgrep、fd、bat、eza、zoxide、Atuin、delta · Kaku 博客</title>
+  <meta name="description" content="七个常用命令行工具各自替换什么、怎么用 Homebrew 安装，以及 Kaku 0.25.0 实际装了哪些。">
+  <meta property="og:title" content="Mac 命令行工具推荐：ripgrep、fd、bat、eza、zoxide、Atuin、delta · Kaku 博客">
+  <meta property="og:description" content="七个常用命令行工具各自替换什么、怎么用 Homebrew 安装，以及 Kaku 0.25.0 实际装了哪些。">
+  <meta property="og:type" content="article">
+  <meta property="og:image" content="https://kaku.fun/img/blog/cards/modern-cli-tools-mac.webp">
+  <meta property="og:image:width" content="1600">
+  <meta property="og:image:height" content="900">
+  <meta property="og:image:alt" content="Mac 命令行工具推荐：ripgrep、fd、bat、eza、zoxide、Atuin、delta">
+  <meta property="og:url" content="https://kaku.fun/zh/blog/modern-cli-tools-mac">
+  <meta property="article:published_time" content="2026-11-05">
+  <meta property="article:modified_time" content="2026-11-05">
+  <meta property="article:author" content="Tw93">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://kaku.fun/img/blog/cards/modern-cli-tools-mac.webp">
+  <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-kaku-32.png"><link rel="icon" type="image/png" sizes="192x192" href="/img/favicon-kaku-192.png"><link rel="apple-touch-icon" href="/img/favicon-kaku-180.png">
+  <link rel="canonical" href="https://kaku.fun/zh/blog/modern-cli-tools-mac"><link rel="alternate" type="application/rss+xml" title="Kaku releases" href="https://kaku.fun/feed.xml">
+  <link rel="alternate" type="application/rss+xml" title="Kaku 博客" href="https://kaku.fun/zh/blog/feed.xml">
+  <link rel="alternate" hreflang="en" href="https://kaku.fun/blog/modern-cli-tools-mac">
+  <link rel="alternate" hreflang="zh-CN" href="https://kaku.fun/zh/blog/modern-cli-tools-mac">
+  <link rel="alternate" hreflang="x-default" href="https://kaku.fun/blog/modern-cli-tools-mac">
+  <link rel="alternate" type="text/markdown" href="https://kaku.fun/zh/blog/modern-cli-tools-mac.md">
+  <link rel="stylesheet" href="/styles.css">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Kaku",
+          "item": "https://kaku.fun/zh"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "博客",
+          "item": "https://kaku.fun/zh/blog"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Mac 命令行工具推荐：ripgrep、fd、bat、eza、zoxide、Atuin、delta",
+          "item": "https://kaku.fun/zh/blog/modern-cli-tools-mac"
+        }
+      ]
+    },
+    {
+      "@type": "BlogPosting",
+      "@id": "https://kaku.fun/zh/blog/modern-cli-tools-mac#article",
+      "headline": "Mac 命令行工具推荐：ripgrep、fd、bat、eza、zoxide、Atuin、delta",
+      "description": "七个常用命令行工具各自替换什么、怎么用 Homebrew 安装，以及 Kaku 0.25.0 实际装了哪些。",
+      "url": "https://kaku.fun/zh/blog/modern-cli-tools-mac",
+      "mainEntityOfPage": "https://kaku.fun/zh/blog/modern-cli-tools-mac",
+      "datePublished": "2026-11-05",
+      "dateModified": "2026-11-05",
+      "inLanguage": "zh-CN",
+      "articleSection": "Shell 与命令行工具",
+      "image": "https://kaku.fun/img/blog/cards/modern-cli-tools-mac.webp",
+      "timeRequired": "PT7M",
+      "author": {
+        "@type": "Person",
+        "name": "Tw93",
+        "url": "https://tw93.fun",
+        "sameAs": [
+          "https://x.com/HiTw93",
+          "https://github.com/tw93"
+        ]
+      },
+      "publisher": {
+        "@id": "https://kaku.fun/#organization"
+      },
+      "isPartOf": {
+        "@id": "https://kaku.fun/zh/blog#blog"
+      },
+      "about": {
+        "@id": "https://kaku.fun/#software"
+      },
+      "encoding": {
+        "@type": "MediaObject",
+        "encodingFormat": "text/markdown",
+        "contentUrl": "https://kaku.fun/zh/blog/modern-cli-tools-mac.md"
+      }
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "这些会弄坏我的脚本吗",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "只要脚本继续调用原版命令就不会。alias ls=eza 这类别名只放在交互式配置里，另外 rg 和 fd 会跳过被忽略的文件，结果和 grep -r、find 并不一样。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "七个都要装吗",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "不用。ripgrep 和 delta 对开发者见效最快，经常在项目之间跳的人适合 zoxide，常翻历史的人适合 Atuin，bat、eza 和 fd 属于用着更舒服的升级。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "zoxide 还是 zsh-z",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "两者都按使用频率给目录排序，zsh-z 是 Kaku 在 zsh 里内置的，zoxide 是独立的二进制，在 fish 和其他 shell 里也能用。切换只需要一行写在 Kaku 那一行上面的 init，再跑一次 zoxide import zsh-z。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Atuin 会把我的历史发到哪里吗",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "只有你注册并同步才会。README 说同步的历史是端到端加密的，也支持纯离线使用。"
+          }
+        }
+      ]
+    }
+  ]
+}
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">跳到内容</a>
+  <nav class="site-nav" aria-label="主导航"><div class="wide nav-inner"><a class="brand" href="/zh"><strong>Kaku</strong></a><div class="nav-links"><a href="/zh/docs">文档</a><a href="/zh/compare">对比</a><a href="/zh/changelog">更新日志</a><a href="/zh/blog" aria-current="page">博客</a></div><div class="nav-actions"><details class="lang-switch"><summary class="lang-trigger" aria-label="切换语言"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/></svg><span class="lang-current-code" aria-hidden="true">中</span><span class="lang-current-name">简体中文</span></summary><div class="lang-menu"><a class="lang-option" aria-current="page" href="/zh/blog/modern-cli-tools-mac" hreflang="zh-CN">简体中文</a><a class="lang-option" href="/blog/modern-cli-tools-mac" hreflang="en">English</a></div></details><script src="/navigation.js" defer></script><a class="nav-icon" href="https://github.com/tw93/Kaku" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a><a class="nav-icon" href="https://x.com/HiTw93" target="_blank" rel="noopener noreferrer" aria-label="X"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a></div></div></nav>
+  <main id="main-content" class="docs-page blog-page">
+    <header class="page-hero doc-hero blog-hero"><div class="wide"><nav class="blog-crumb" aria-label="Breadcrumb"><a href="/zh/blog">博客</a></nav><h1>Mac 命令行工具推荐：ripgrep、fd、bat、eza、zoxide、Atuin、delta</h1><p class="blog-meta"><span><a href="/zh/blog#topic-shell">Shell 与命令行工具</a></span><span>发布于 <time datetime="2026-11-05">2026年11月5日</time></span><span>约 7 分钟</span></p></div></header>
+    <section class="section">
+      <div class="wide">
+        <article class="doc-content blog-article">
+          <figure class="blog-cover" aria-hidden="true"><img src="/img/blog/cards/modern-cli-tools-mac.webp" width="1600" height="900" alt="" fetchpriority="high"></figure>
+<p>七个小工具可以替换 Mac 终端里最常用的几个默认命令，ripgrep 对应 <code>grep -r</code>，fd 对应 <code>find</code>，bat 对应 <code>cat</code>，eza 对应 <code>ls</code>，zoxide 对应 <code>cd</code>，Atuin 对应 Ctrl + R 的历史搜索，delta 对应 <code>git diff</code>。一行 <code>brew install ripgrep fd bat eza zoxide atuin git-delta</code> 全部装上，再只挑今天正让你不舒服的那几个去配置。在 zsh 里，<code>kaku init</code> 只会提出替你装其中的 delta，装之前会先问你，git 的 pager 设置仍然要你自己加。</p>
+<h2 id="各自替换什么">各自替换什么</h2>
+<table>
+<thead>
+<tr>
+<th>工具</th>
+<th>替换</th>
+<th>最大的不同</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ripgrep（<code>rg</code>）</td>
+<td><code>grep -r</code></td>
+<td>默认遵守 <code>.gitignore</code>，跳过隐藏文件和二进制文件</td>
+</tr>
+<tr>
+<td>fd</td>
+<td><code>find</code></td>
+<td>语法更短，同样遵守 <code>.gitignore</code></td>
+</tr>
+<tr>
+<td>bat</td>
+<td><code>cat</code></td>
+<td>语法高亮，显示 git 改动标记</td>
+</tr>
+<tr>
+<td>eza</td>
+<td><code>ls</code></td>
+<td>有颜色，有 git 状态列，有树状视图</td>
+</tr>
+<tr>
+<td>zoxide</td>
+<td><code>cd</code></td>
+<td>敲目录名的一段就能跳过去，按使用频率排序</td>
+</tr>
+<tr>
+<td>Atuin</td>
+<td>shell 历史</td>
+<td>带退出码和目录的 SQLite 历史，全屏搜索</td>
+</tr>
+<tr>
+<td>delta</td>
+<td>git 的 pager</td>
+<td>带语法颜色和行号的可读 diff</td>
+</tr>
+</tbody>
+</table>
+<p>这些都不是必需的，你的脚本也应该继续调用 <code>grep</code>、<code>find</code> 和 <code>cat</code>，因为这些新工具在参数和跳过的内容上都和原版不同，交互时用就好。</p>
+<h2 id="ripgrep">ripgrep</h2>
+<p>ripgrep 在当前目录里递归搜索一个正则，默认遵守 gitignore 规则，跳过隐藏的文件、目录和二进制文件，所以在仓库里搜索会跳过 <code>.git</code> 和被 gitignore 的 <code>node_modules</code>。<code>rg -uuu</code> 会把这些过滤全部关掉。</p>
+<pre><code class="language-bash">brew install ripgrep
+rg <span class="tok-s">'TODO'</span> -n              <span class="tok-c"># 带行号的匹配
+</span>rg -tpy <span class="tok-s">'import requests'</span> <span class="tok-c"># 只搜 Python 文件
+</span></code></pre>
+<p><code>-t</code> 把搜索限制在某种文件类型，<code>-T</code> 则排除它。搜不到你预期的结果时，多半是文件被忽略或被当成隐藏文件了，先用 <code>-uuu</code> 再试一次，再怀疑正则写错。每多一个 <code>-u</code> 就少一层过滤，<code>-u</code> 不再看 <code>.gitignore</code>，<code>-uu</code> 再加上隐藏文件，<code>-uuu</code> 连二进制文件也搜，从哪一档开始能搜到，就知道文件是被哪一层挡住的，<code>--debug</code> 也会说明某个文件为什么被忽略。ripgrep 不会自己去找配置文件，想每次都带上的参数，要写进 <code>RIPGREP_CONFIG_PATH</code> 指向的文件里，一行一个。</p>
+<h2 id="fd">fd</h2>
+<p>fd 按名字查找条目，默认忽略你 <code>.gitignore</code> 里的规则。</p>
+<pre><code class="language-bash">brew install fd
+fd -e md                  <span class="tok-c"># 所有 Markdown 文件
+</span>fd -H -E .git config      <span class="tok-c"># 包含隐藏文件，排除 .git
+</span>fd -e jpg -x convert {} {.}.png</code></pre>
+<p><code>-e</code> 按扩展名过滤，<code>-H</code> 包含隐藏文件，<code>-x</code> 对每个结果并行执行一条命令，shell 的别名和函数不能用在 <code>-x</code> 里。fd 的搜索模式是正则，默认只和文件名比，不是 glob，按扩展名找用 <code>-e md</code>，真要 glob 就写 <code>-g '*.md'</code>，想连路径一起匹配就加 <code>-p</code>。fd 也很适合给 fzf 当文件来源，<a href="/zh/blog/fzf-zsh-mac">fzf 那篇</a>里有写法。</p>
+<h2 id="bat">bat</h2>
+<p>bat 带语法高亮地打印文件，并在左侧显示 git 改动。</p>
+<pre><code class="language-bash">brew install bat
+bat src/main.rs
+bat -p src/main.rs        <span class="tok-c"># 纯文本：没有行号和标记，可以放心复制
+</span></code></pre>
+<p>行号和 git 标记会让复制输出变得麻烦，<code>-p</code> 就是为这个准备的。用 <code>export BAT_THEME="TwoDark"</code> 选主题，<code>bat --list-themes</code> 列出所有主题。bat 也可以给 fzf 当预览器，写法是 <code>fzf --preview "bat --color=always --style=numbers --line-range=:500 {}"</code>。</p>
+<h2 id="eza">eza</h2>
+<p>eza 是一个仍在维护的 <code>ls</code> 替代品。</p>
+<pre><code class="language-bash">brew install eza
+eza -l --git --group-directories-first
+eza --tree -L <span class="tok-n">2</span></code></pre>
+<p><code>-l</code> 是详细视图，<code>--git</code> 在这个视图里加上每个文件的 git 状态，<code>--tree</code> 以树状递归，<code>-L</code> 限制深度。<code>--icons</code> 会在名字旁边加图标。常见的做法是在交互式配置里写 <code>alias ls='eza'</code>，脚本在自己的 shell 里运行，读不到你的别名，调用的还是原来的 <code>ls</code>。</p>
+<h2 id="zoxide">zoxide</h2>
+<p>zoxide 记住你去过的目录并给它们排序，所以敲名字的一小段就够了。</p>
+<pre><code class="language-bash">brew install zoxide
+<span class="tok-b">eval</span> <span class="tok-s">"</span><span class="tok-k">$(</span>zoxide init zsh<span class="tok-k">)</span><span class="tok-s">"</span>   <span class="tok-c"># 写进 ~/.zshrc
+</span>z proj                      <span class="tok-c"># 跳到最匹配 proj 的目录
+</span>zi proj                     <span class="tok-c"># 交互式选择（需要 fzf）
+</span></code></pre>
+<p>README 说要把 init 那一行放在配置文件的末尾。<code>zoxide import zsh-z</code> 可以导入已有的 zsh-z 数据，<code>--cmd j</code> 会把命令改成 <code>j</code> 和 <code>ji</code>，想换个名字时用。它只认识你已经去过的目录，所以新项目要先 <code>cd</code> 进去一次，第一次 <code>z</code> 才会有结果。</p>
+<h2 id="atuin">Atuin</h2>
+<p>Atuin 用一个 SQLite 数据库接管你的 shell 历史，除了命令本身还记录退出码、工作目录、主机和耗时。它会把 Ctrl + R 和上箭头改绑到全屏搜索，可以按当前会话、当前目录或全局来过滤。</p>
+<pre><code class="language-bash">brew install atuin
+<span class="tok-b">echo</span> <span class="tok-s">'eval "$(atuin init zsh)"'</span> &gt;&gt; ~/.zshrc
+atuin import auto
+atuin search --exit <span class="tok-n">0</span> --after <span class="tok-s">"yesterday 3pm"</span> make</code></pre>
+<p>同步是可选的，端到端加密，也可以完全不用。Atuin 不会替换你原来的历史文件，已有的历史要靠 <code>atuin import auto</code> 导入。完全不想注册云账号的话，文档里有离线用法和自建服务器的说明。</p>
+<h2 id="delta">delta</h2>
+<p>delta 是 git、diff 和 grep 输出的 pager。Homebrew 里的包叫 <code>git-delta</code>，命令是 <code>delta</code>。项目推荐的 <code>~/.gitconfig</code> 如下：</p>
+<pre><code class="language-ini"><span class="tok-k">[core]</span>
+    pager = <span class="tok-s">delta</span>
+<span class="tok-k">[interactive]</span>
+    diffFilter = <span class="tok-s">delta --color-only</span>
+<span class="tok-k">[delta]</span>
+    navigate = <span class="tok-s">true</span>
+    dark = <span class="tok-s">true</span>
+<span class="tok-k">[merge]</span>
+    conflictStyle = <span class="tok-s">zdiff3</span></code></pre>
+<p><code>navigate</code> 让你用 <code>n</code> 和 <code>N</code> 在 diff 的各个文件之间跳转。delta 在 git 界面里怎么用，见 <a href="/zh/blog/lazygit-and-delta">Lazygit 和 delta</a>，lazygit 那一侧需要单独的设置。</p>
+<h2 id="kaku-装了什么配了什么">Kaku 装了什么、配了什么</h2>
+<p>Kaku 的 shell 配置比这份清单窄得多，值得确切知道它做了什么。0.25.0 版本里，<code>kaku init</code> 会先询问，再通过 Homebrew 安装缺少的可选工具，也就是 Starship、git-delta、Lazygit 和 Yazi。zoxide 只在目标 shell 是 fish 时才装，装了之后 Kaku 的 fish 配置会在找到这个命令时执行 <code>zoxide init fish | source</code>。ripgrep、fd、bat、eza 和 Atuin，Kaku 既不安装也不配置。装上 delta 也不会改 git 的设置，Kaku 0.25.0 不会写 <code>core.pager</code>，要让 <code>git diff</code> 走 delta，得自己加上前面那几行 <code>[core]</code> 和 <code>[interactive]</code> 配置。</p>
+<p>zsh 这边，Kaku 内置的是 zsh-z 而不是 zoxide，所以在 Kaku 的默认 shell 里 <code>z &lt;dir&gt;</code> 本来就能用。Kaku 在自己那一行执行时检查 zoxide 的函数，已经存在才跳过 zsh-z，所以想让 zoxide 接手，它的 init 行要写在 <code>kaku init</code> 追加到 <code>.zshrc</code> 末尾的 Kaku 那一行上面，而不是像 zoxide README 说的放在最末尾，写在 Kaku 那一行下面的话 zsh-z 照样会加载，用 <code>type z</code> 可以确认。Kaku 还把上下箭头绑到了前缀历史搜索，当另一个历史工具（比如 Atuin）在这一步已经占了上箭头，它就跳过这个绑定。其余内置的东西见 <a href="/zh/blog/zsh-without-oh-my-zsh">不用 Oh My Zsh 的 zsh 配置</a>，<a href="/zh/blog/yazi-file-manager">Yazi</a> 在装了 fd、ripgrep 和 zoxide 时会用到它们。</p>
+<h2 id="常见问题">常见问题</h2>
+<h3 id="这些会弄坏我的脚本吗">这些会弄坏我的脚本吗</h3>
+<p>只要脚本继续调用原版命令就不会。<code>alias ls=eza</code> 这类别名只放在交互式配置里，另外 <code>rg</code> 和 <code>fd</code> 会跳过被忽略的文件，结果和 <code>grep -r</code>、<code>find</code> 并不一样。</p>
+<h3 id="七个都要装吗">七个都要装吗</h3>
+<p>不用。ripgrep 和 delta 对开发者见效最快，经常在项目之间跳的人适合 zoxide，常翻历史的人适合 Atuin，bat、eza 和 fd 属于用着更舒服的升级。</p>
+<h3 id="zoxide-还是-zsh-z">zoxide 还是 zsh-z</h3>
+<p>两者都按使用频率给目录排序，zsh-z 是 Kaku 在 zsh 里内置的，zoxide 是独立的二进制，在 fish 和其他 shell 里也能用。切换只需要一行写在 Kaku 那一行上面的 init，再跑一次 <code>zoxide import zsh-z</code>。</p>
+<h3 id="atuin-会把我的历史发到哪里吗">Atuin 会把我的历史发到哪里吗</h3>
+<p>只有你注册并同步才会。README 说同步的历史是端到端加密的，也支持纯离线使用。</p>
+          <aside class="blog-cta"><img class="blog-cta-icon" src="/img/kaku-mark.png" width="40" height="40" alt=""><p>Kaku 是一个免费开源的 Mac 终端。</p><a class="btn btn-primary" href="/zh/docs">安装 Kaku</a></aside>
+          <nav class="blog-related" aria-label="继续阅读"><h2 class="blog-related-title">继续阅读</h2><ul class="blog-related-list"><li><a href="/zh/blog/zsh-without-oh-my-zsh"><span class="blog-related-cat">Shell 与命令行工具</span><span class="blog-related-name">不用 Oh My Zsh，把 zsh 配得又快又好用</span><span class="blog-related-meta"><time datetime="2026-09-27">2026年9月27日</time> · 约 4 分钟</span></a></li><li><a href="/zh/blog/tmux-cheat-sheet"><span class="blog-related-cat">Shell 与命令行工具</span><span class="blog-related-name">tmux 快捷键速查，附复制模式和最小配置</span><span class="blog-related-meta"><time datetime="2026-11-03">2026年11月3日</time> · 约 6 分钟</span></a></li><li><a href="/zh/blog/ssh-config-mac"><span class="blog-related-cat">Shell 与命令行工具</span><span class="blog-related-name">在 Mac 上配置 SSH config</span><span class="blog-related-meta"><time datetime="2026-10-18">2026年10月18日</time> · 约 9 分钟</span></a></li></ul></nav>
+        </article>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer"><div class="wide foot"><div class="foot-brand"><p class="name">Kaku · <span class="foot-mark" lang="zh-Hant">書</span></p><p class="foot-sub">好看又快、开箱即用的 AI 友好终端</p></div><div class="foot-links"><div><b>产品</b><a href="/zh/docs">文档</a><a href="/zh/changelog">更新日志</a><a href="/zh/roadmap">路线图</a><a href="/zh/compare">对比</a><a href="/zh/blog">博客</a></div><div><b>项目</b><a href="/zh/about">关于</a><a href="/zh/privacy">隐私</a><a href="https://github.com/tw93/Kaku">GitHub</a><a href="https://github.com/tw93/Kaku/issues">问题反馈</a></div><div><b>联系</b><a href="/zh/contact">联系方式</a><a href="https://x.com/HiTw93">X</a></div></div></div></footer>
+</body>
+</html>

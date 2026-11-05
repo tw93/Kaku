@@ -7,6 +7,14 @@
     <description>关于 Mac 终端、Claude Code、Codex、shell 配置的指南，以及 Kaku 是怎么做出来的。</description>
     <language>zh-CN</language>
     <item>
+      <title>Mac 命令行工具推荐：ripgrep、fd、bat、eza、zoxide、Atuin、delta</title>
+      <link>https://kaku.fun/zh/blog/modern-cli-tools-mac</link>
+      <guid isPermaLink="true">https://kaku.fun/zh/blog/modern-cli-tools-mac</guid>
+      <pubDate>Thu, 05 Nov 2026 09:00:00 +0800</pubDate>
+      <dc:creator>Tw93</dc:creator>
+      <description>七个常用命令行工具各自替换什么、怎么用 Homebrew 安装，以及 Kaku 0.25.0 实际装了哪些。</description>
+    </item>
+    <item>
       <title>Warp 终端的替代品，Mac 上怎么选</title>
       <link>https://kaku.fun/zh/blog/warp-terminal-alternative</link>
       <guid isPermaLink="true">https://kaku.fun/zh/blog/warp-terminal-alternative</guid>

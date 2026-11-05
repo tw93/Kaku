@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f4ed">
+  <meta name="color-scheme" content="light">
+  <title>Modern CLI Tools for Mac: ripgrep, fd, bat, eza, zoxide, Atuin, delta · Kaku Blog</title>
+  <meta name="description" content="What seven Rust-era tools replace, the Homebrew install, one useful command and config each, and what Kaku installs or wires for you at 0.25.0.">
+  <meta property="og:title" content="Modern CLI Tools for Mac: ripgrep, fd, bat, eza, zoxide, Atuin, delta · Kaku Blog">
+  <meta property="og:description" content="What seven Rust-era tools replace, the Homebrew install, one useful command and config each, and what Kaku installs or wires for you at 0.25.0.">
+  <meta property="og:type" content="article">
+  <meta property="og:image" content="https://kaku.fun/img/blog/cards/modern-cli-tools-mac.webp">
+  <meta property="og:image:width" content="1600">
+  <meta property="og:image:height" content="900">
+  <meta property="og:image:alt" content="Modern CLI Tools for Mac: ripgrep, fd, bat, eza, zoxide, Atuin, delta">
+  <meta property="og:url" content="https://kaku.fun/blog/modern-cli-tools-mac">
+  <meta property="article:published_time" content="2026-11-05">
+  <meta property="article:modified_time" content="2026-11-05">
+  <meta property="article:author" content="Tw93">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://kaku.fun/img/blog/cards/modern-cli-tools-mac.webp">
+  <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-kaku-32.png"><link rel="icon" type="image/png" sizes="192x192" href="/img/favicon-kaku-192.png"><link rel="apple-touch-icon" href="/img/favicon-kaku-180.png">
+  <link rel="canonical" href="https://kaku.fun/blog/modern-cli-tools-mac"><link rel="alternate" type="application/rss+xml" title="Kaku releases" href="https://kaku.fun/feed.xml">
+  <link rel="alternate" type="application/rss+xml" title="Kaku Blog" href="https://kaku.fun/blog/feed.xml">
+  <link rel="alternate" hreflang="en" href="https://kaku.fun/blog/modern-cli-tools-mac">
+  <link rel="alternate" hreflang="zh-CN" href="https://kaku.fun/zh/blog/modern-cli-tools-mac">
+  <link rel="alternate" hreflang="x-default" href="https://kaku.fun/blog/modern-cli-tools-mac">
+  <link rel="alternate" type="text/markdown" href="https://kaku.fun/blog/modern-cli-tools-mac.md">
+  <link rel="stylesheet" href="/styles.css">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Kaku",
+          "item": "https://kaku.fun/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Blog",
+          "item": "https://kaku.fun/blog"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Modern CLI Tools for Mac: ripgrep, fd, bat, eza, zoxide, Atuin, delta",
+          "item": "https://kaku.fun/blog/modern-cli-tools-mac"
+        }
+      ]
+    },
+    {
+      "@type": "BlogPosting",
+      "@id": "https://kaku.fun/blog/modern-cli-tools-mac#article",
+      "headline": "Modern CLI Tools for Mac: ripgrep, fd, bat, eza, zoxide, Atuin, delta",
+      "description": "What seven Rust-era tools replace, the Homebrew install, one useful command and config each, and what Kaku installs or wires for you at 0.25.0.",
+      "url": "https://kaku.fun/blog/modern-cli-tools-mac",
+      "mainEntityOfPage": "https://kaku.fun/blog/modern-cli-tools-mac",
+      "datePublished": "2026-11-05",
+      "dateModified": "2026-11-05",
+      "inLanguage": "en",
+      "articleSection": "Shell and tools",
+      "image": "https://kaku.fun/img/blog/cards/modern-cli-tools-mac.webp",
+      "timeRequired": "PT6M",
+      "author": {
+        "@type": "Person",
+        "name": "Tw93",
+        "url": "https://tw93.fun",
+        "sameAs": [
+          "https://x.com/HiTw93",
+          "https://github.com/tw93"
+        ]
+      },
+      "publisher": {
+        "@id": "https://kaku.fun/#organization"
+      },
+      "isPartOf": {
+        "@id": "https://kaku.fun/blog#blog"
+      },
+      "about": {
+        "@id": "https://kaku.fun/#software"
+      },
+      "encoding": {
+        "@type": "MediaObject",
+        "encodingFormat": "text/markdown",
+        "contentUrl": "https://kaku.fun/blog/modern-cli-tools-mac.md"
+      }
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Will these break my scripts?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Not if the scripts keep calling the originals. Use aliases like alias ls=eza only in interactive config, and note that rg and fd skip ignored files, so they return different results from grep -r and find."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Do I need all seven?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. ripgrep and delta pay off fastest for developers, zoxide for anyone who jumps between projects, and Atuin when you search history often. bat, eza and fd are comfort upgrades."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "zoxide or zsh-z?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Both rank directories by use. zsh-z is what Kaku bundles for zsh, zoxide is a standalone binary that also works in fish and other shells. Switching is one init line, placed above the Kaku line, and zoxide import zsh-z."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does Atuin send my history anywhere?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Only if you register and sync. Synced history is end-to-end encrypted according to the README, and offline use is supported."
+          }
+        }
+      ]
+    }
+  ]
+}
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <nav class="site-nav" aria-label="Primary navigation"><div class="wide nav-inner"><a class="brand" href="/"><strong>Kaku</strong></a><div class="nav-links"><a href="/docs">Docs</a><a href="/compare">Compare</a><a href="/changelog">Changelog</a><a href="/blog" aria-current="page">Blog</a></div><div class="nav-actions"><details class="lang-switch"><summary class="lang-trigger" aria-label="Choose a language"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/></svg><span class="lang-current-code" aria-hidden="true">EN</span><span class="lang-current-name">English</span></summary><div class="lang-menu"><a class="lang-option" href="/zh/blog/modern-cli-tools-mac" hreflang="zh-CN">简体中文</a><a class="lang-option" aria-current="page" href="/blog/modern-cli-tools-mac" hreflang="en">English</a></div></details><script src="/navigation.js" defer></script><a class="nav-icon" href="https://github.com/tw93/Kaku" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a><a class="nav-icon" href="https://x.com/HiTw93" target="_blank" rel="noopener noreferrer" aria-label="X"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a></div></div></nav>
+  <main id="main-content" class="docs-page blog-page">
+    <header class="page-hero doc-hero blog-hero"><div class="wide"><nav class="blog-crumb" aria-label="Breadcrumb"><a href="/blog">Blog</a></nav><h1>Modern CLI Tools for Mac: ripgrep, fd, bat, eza, zoxide, Atuin, delta</h1><p class="blog-meta"><span><a href="/blog#topic-shell">Shell and tools</a></span><span>Published <time datetime="2026-11-05">Nov 5, 2026</time></span><span>6 min read</span></p></div></header>
+    <section class="section">
+      <div class="wide">
+        <article class="doc-content blog-article">
+          <figure class="blog-cover" aria-hidden="true"><img src="/img/blog/cards/modern-cli-tools-mac.webp" width="1600" height="900" alt="" fetchpriority="high"></figure>
+<p>Seven small tools replace the defaults you use most in a Mac terminal: ripgrep for <code>grep -r</code>, fd for <code>find</code>, bat for <code>cat</code>, eza for <code>ls</code>, zoxide for <code>cd</code>, Atuin for Ctrl + R history and delta for <code>git diff</code>. Install them in one line with <code>brew install ripgrep fd bat eza zoxide atuin git-delta</code>, then wire in only the ones that fix something that annoys you today. In zsh, delta is the only one of them <code>kaku init</code> offers to install, it asks first, and git's pager setting is still yours to add.</p>
+<h2 id="what-each-tool-replaces">What each tool replaces</h2>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Replaces</th>
+<th>The one thing it does better</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ripgrep (<code>rg</code>)</td>
+<td><code>grep -r</code></td>
+<td>Respects <code>.gitignore</code> and skips hidden and binary files by default</td>
+</tr>
+<tr>
+<td>fd</td>
+<td><code>find</code></td>
+<td>Short syntax, also honors <code>.gitignore</code></td>
+</tr>
+<tr>
+<td>bat</td>
+<td><code>cat</code></td>
+<td>Syntax highlighting and git change markers</td>
+</tr>
+<tr>
+<td>eza</td>
+<td><code>ls</code></td>
+<td>Colors, git status column, tree view</td>
+</tr>
+<tr>
+<td>zoxide</td>
+<td><code>cd</code></td>
+<td>Jumps to a directory by a fragment of its name, ranked by use</td>
+</tr>
+<tr>
+<td>Atuin</td>
+<td>Shell history</td>
+<td>SQLite history with exit codes and directories, full-screen search</td>
+</tr>
+<tr>
+<td>delta</td>
+<td>git's pager</td>
+<td>Readable diffs with syntax colors and line numbers</td>
+</tr>
+</tbody>
+</table>
+<p>None of them is required, and your scripts should keep calling <code>grep</code>, <code>find</code> and <code>cat</code>, because these tools differ from the originals in flags and in what they skip. Use them interactively.</p>
+<h2 id="ripgrep">ripgrep</h2>
+<p>ripgrep searches the current directory recursively for a regex. By default it respects gitignore rules and skips hidden files, directories and binary files, so a search in a repository skips <code>.git</code> and a gitignored <code>node_modules</code>. <code>rg -uuu</code> turns all of that filtering off.</p>
+<pre><code class="language-bash">brew install ripgrep
+rg <span class="tok-s">'TODO'</span> -n              <span class="tok-c"># matches with line numbers
+</span>rg -tpy <span class="tok-s">'import requests'</span> <span class="tok-c"># only Python files
+</span></code></pre>
+<p>The <code>-t</code> flag limits a search to a file type, and <code>-T</code> excludes one. When a search returns nothing you expected, the usual cause is that the file is ignored or hidden, so retry with <code>-uuu</code> before assuming the pattern is wrong. Each <code>-u</code> removes one layer: <code>-u</code> stops honoring <code>.gitignore</code>, <code>-uu</code> adds hidden files and <code>-uuu</code> binary files, so the smallest one that finds the file tells you why it was skipped, and <code>--debug</code> explains why a particular file was ignored. ripgrep reads no config file on its own; flags you want every time go one per line in a file that <code>RIPGREP_CONFIG_PATH</code> points to.</p>
+<h2 id="fd">fd</h2>
+<p>fd finds entries by name and ignores patterns from your <code>.gitignore</code> by default.</p>
+<pre><code class="language-bash">brew install fd
+fd -e md                  <span class="tok-c"># every Markdown file
+</span>fd -H -E .git config      <span class="tok-c"># include hidden files, exclude .git
+</span>fd -e jpg -x convert {} {.}.png</code></pre>
+<p><code>-e</code> filters by extension, <code>-H</code> includes hidden files and <code>-x</code> runs a command for each result, in parallel. Shell aliases and functions cannot be used with <code>-x</code>. The search pattern is a regular expression matched against the file name only, not a glob: use <code>-e md</code> for an extension, <code>-g '*.md'</code> for a glob, and <code>-p</code> to match against the full path. fd also pairs well with fzf as a file source, which <a href="/blog/fzf-zsh-mac">the fzf post</a> shows.</p>
+<h2 id="bat">bat</h2>
+<p>bat prints files with syntax highlighting and shows git modifications in the gutter.</p>
+<pre><code class="language-bash">brew install bat
+bat src/main.rs
+bat -p src/main.rs        <span class="tok-c"># plain: no line numbers or markers, safe to copy from
+</span></code></pre>
+<p>Line numbers and git markers make copying from the output awkward, which is what <code>-p</code> is for. Choose a theme with <code>export BAT_THEME="TwoDark"</code>, and list the options with <code>bat --list-themes</code>. bat also works as a previewer for fzf, using <code>fzf --preview "bat --color=always --style=numbers --line-range=:500 {}"</code>.</p>
+<h2 id="eza">eza</h2>
+<p>eza is a maintained replacement for <code>ls</code>.</p>
+<pre><code class="language-bash">brew install eza
+eza -l --git --group-directories-first
+eza --tree -L <span class="tok-n">2</span></code></pre>
+<p><code>-l</code> gives the long view, <code>--git</code> adds each file's git status in that view, <code>--tree</code> recurses as a tree and <code>-L</code> limits the depth. <code>--icons</code> adds icons next to names. A common setup is <code>alias ls='eza'</code> in your interactive config. Scripts run in their own shell without your aliases, so they keep calling the real <code>ls</code>.</p>
+<h2 id="zoxide">zoxide</h2>
+<p>zoxide remembers the directories you visit and ranks them, so a fragment of a name is enough.</p>
+<pre><code class="language-bash">brew install zoxide
+<span class="tok-b">eval</span> <span class="tok-s">"</span><span class="tok-k">$(</span>zoxide init zsh<span class="tok-k">)</span><span class="tok-s">"</span>   <span class="tok-c"># in ~/.zshrc
+</span>z proj                      <span class="tok-c"># jump to the best match for "proj"
+</span>zi proj                     <span class="tok-c"># pick interactively (needs fzf)
+</span></code></pre>
+<p>The README says to put the init line at the end of your config. <code>zoxide import zsh-z</code> brings over an existing zsh-z database, and <code>--cmd j</code> makes the commands <code>j</code> and <code>ji</code> if you want a different name. It only knows directories you have already visited, so the first <code>z</code> for a new project fails until you <code>cd</code> there once.</p>
+<h2 id="atuin">Atuin</h2>
+<p>Atuin replaces your shell history with a SQLite database that also records exit code, working directory, host and duration. It rebinds Ctrl + R and the Up arrow to a full-screen search, and you can filter by session, directory or globally.</p>
+<pre><code class="language-bash">brew install atuin
+<span class="tok-b">echo</span> <span class="tok-s">'eval "$(atuin init zsh)"'</span> &gt;&gt; ~/.zshrc
+atuin import auto
+atuin search --exit <span class="tok-n">0</span> --after <span class="tok-s">"yesterday 3pm"</span> make</code></pre>
+<p>Sync is optional and end-to-end encrypted, and you can skip it. Atuin does not replace your old history file, so <code>atuin import auto</code> is how existing history comes across. If you do not want a cloud account at all, the docs cover an offline setup and a self-hosted server.</p>
+<h2 id="delta">delta</h2>
+<p>delta is a pager for git, diff and grep output. The Homebrew package is <code>git-delta</code>, and the command is <code>delta</code>. The project's recommended <code>~/.gitconfig</code>:</p>
+<pre><code class="language-ini"><span class="tok-k">[core]</span>
+    pager = <span class="tok-s">delta</span>
+<span class="tok-k">[interactive]</span>
+    diffFilter = <span class="tok-s">delta --color-only</span>
+<span class="tok-k">[delta]</span>
+    navigate = <span class="tok-s">true</span>
+    dark = <span class="tok-s">true</span>
+<span class="tok-k">[merge]</span>
+    conflictStyle = <span class="tok-s">zdiff3</span></code></pre>
+<p><code>navigate</code> lets <code>n</code> and <code>N</code> jump between files in a diff. For how delta works inside the git UI, see <a href="/blog/lazygit-and-delta">Lazygit and delta</a>, which covers the lazygit side that needs its own setting.</p>
+<h2 id="what-kaku-installs-and-wires">What Kaku installs and wires</h2>
+<p>Kaku's shell setup is narrower than this list, and it is worth knowing exactly what it does. In version 0.25.0, <code>kaku init</code> asks before installing missing optional tools through Homebrew: Starship, git-delta, Lazygit and Yazi. zoxide is installed only when the target shell is fish, and Kaku's fish setup then runs <code>zoxide init fish | source</code> if it finds the command. ripgrep, fd, bat, eza and Atuin are not installed or configured by Kaku. Installing delta does not change git's settings either: Kaku 0.25.0 writes no <code>core.pager</code>, so add the <code>[core]</code> and <code>[interactive]</code> lines above yourself before <code>git diff</code> pages through delta.</p>
+<p>For zsh, Kaku bundles zsh-z instead of zoxide, so <code>z &lt;dir&gt;</code> already works in a stock Kaku shell. Kaku checks for zoxide's functions at the moment its own line runs and skips zsh-z only if they already exist. So for zoxide to take over, its init line has to sit above the Kaku line that <code>kaku init</code> appends to the end of <code>.zshrc</code>, not at the very end as zoxide's README suggests; below the Kaku line, zsh-z still loads. Check with <code>type z</code>. Kaku also binds Up and Down to prefix history search, and it skips that binding when another history tool, Atuin among them, already owns Up at that point in the file. <a href="/blog/zsh-without-oh-my-zsh">zsh without Oh My Zsh</a> covers the rest of the bundle, and <a href="/blog/yazi-file-manager">Yazi</a> uses fd, ripgrep and zoxide when they are installed.</p>
+<h2 id="faq">FAQ</h2>
+<h3 id="will-these-break-my-scripts">Will these break my scripts?</h3>
+<p>Not if the scripts keep calling the originals. Use aliases like <code>alias ls=eza</code> only in interactive config, and note that <code>rg</code> and <code>fd</code> skip ignored files, so they return different results from <code>grep -r</code> and <code>find</code>.</p>
+<h3 id="do-i-need-all-seven">Do I need all seven?</h3>
+<p>No. ripgrep and delta pay off fastest for developers, zoxide for anyone who jumps between projects, and Atuin when you search history often. bat, eza and fd are comfort upgrades.</p>
+<h3 id="zoxide-or-zsh-z">zoxide or zsh-z?</h3>
+<p>Both rank directories by use. zsh-z is what Kaku bundles for zsh, zoxide is a standalone binary that also works in fish and other shells. Switching is one init line, placed above the Kaku line, and <code>zoxide import zsh-z</code>.</p>
+<h3 id="does-atuin-send-my-history-anywhere">Does Atuin send my history anywhere?</h3>
+<p>Only if you register and sync. Synced history is end-to-end encrypted according to the README, and offline use is supported.</p>
+          <aside class="blog-cta"><img class="blog-cta-icon" src="/img/kaku-mark.png" width="40" height="40" alt=""><p>Kaku is a free, open-source Mac terminal.</p><a class="btn btn-primary" href="/docs">Install Kaku</a></aside>
+          <nav class="blog-related" aria-label="Keep reading"><h2 class="blog-related-title">Keep reading</h2><ul class="blog-related-list"><li><a href="/blog/zsh-without-oh-my-zsh"><span class="blog-related-cat">Shell and tools</span><span class="blog-related-name">A Fast Zsh Setup Without Oh My Zsh</span><span class="blog-related-meta"><time datetime="2026-09-27">Sep 27, 2026</time> · 4 min read</span></a></li><li><a href="/blog/tmux-cheat-sheet"><span class="blog-related-cat">Shell and tools</span><span class="blog-related-name">tmux Cheat Sheet: Default Keys, Copy Mode and a Minimal Config</span><span class="blog-related-meta"><time datetime="2026-11-03">Nov 3, 2026</time> · 6 min read</span></a></li><li><a href="/blog/ssh-config-mac"><span class="blog-related-cat">Shell and tools</span><span class="blog-related-name">SSH Config on Mac: Hosts, Keys and the Keychain</span><span class="blog-related-meta"><time datetime="2026-10-18">Oct 18, 2026</time> · 7 min read</span></a></li></ul></nav>
+        </article>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer"><div class="wide foot"><div class="foot-brand"><p class="name">Kaku · <span class="foot-mark" lang="zh-Hant">書</span></p><p class="foot-sub">A fast, good-looking, AI-friendly terminal for the Mac.</p></div><div class="foot-links"><div><b>Product</b><a href="/docs">Docs</a><a href="/changelog">Changelog</a><a href="/roadmap">Roadmap</a><a href="/compare">Compare</a><a href="/blog">Blog</a></div><div><b>Project</b><a href="/about">About</a><a href="/privacy">Privacy</a><a href="https://github.com/tw93/Kaku">GitHub</a><a href="https://github.com/tw93/Kaku/issues">Issues</a></div><div><b>Connect</b><a href="/contact">Contact</a><a href="https://x.com/HiTw93">X</a></div></div></div></footer>
+</body>
+</html>

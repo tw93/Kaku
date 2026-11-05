@@ -579,7 +579,7 @@
     {
       "slug": "modern-cli-tools-mac",
       "category": "shell",
-      "date": null,
+      "date": "2026-11-05",
       "keyword": "modern cli tools",
       "en": {
         "title": "Modern CLI Tools for Mac: ripgrep, fd, bat, eza, zoxide, Atuin, delta",

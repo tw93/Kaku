@@ -47,6 +47,7 @@
 
 配置 zsh、提示符和围绕它的命令行工具。
 
+- [Mac 命令行工具推荐：ripgrep、fd、bat、eza、zoxide、Atuin、delta](https://kaku.fun/zh/blog/modern-cli-tools-mac.md) (2026-11-05): 七个常用命令行工具各自替换什么、怎么用 Homebrew 安装，以及 Kaku 0.25.0 实际装了哪些。
 - [tmux 快捷键速查，附复制模式和最小配置](https://kaku.fun/zh/blog/tmux-cheat-sheet.md) (2026-11-03): tmux 默认前缀和会话、窗口、窗格、复制模式的快捷键，一份最小的 ~/.tmux.conf，以及在 Kaku 里怎么用。
 - [在 Mac 上配置 SSH config](https://kaku.fun/zh/blog/ssh-config-mac.md) (2026-10-18): 具体 Host 写在 Host * 前面，用 ssh -G 核对，钥匙串选项只留给系统自带的 ssh。
 - [在 Mac 上用 Yazi，快速的终端文件管理器](https://kaku.fun/zh/blog/yazi-file-manager.md) (2026-10-15): 在 macOS 上装好 Yazi 和预览依赖，记住常用按键，加上退出时切换目录的 y 包装函数，再做些配置。

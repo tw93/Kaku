@@ -7,6 +7,14 @@
     <description>Guides and notes on Mac terminals, Claude Code, Codex and shell setup, and how Kaku is built.</description>
     <language>en</language>
     <item>
+      <title>Modern CLI Tools for Mac: ripgrep, fd, bat, eza, zoxide, Atuin, delta</title>
+      <link>https://kaku.fun/blog/modern-cli-tools-mac</link>
+      <guid isPermaLink="true">https://kaku.fun/blog/modern-cli-tools-mac</guid>
+      <pubDate>Thu, 05 Nov 2026 09:00:00 +0800</pubDate>
+      <dc:creator>Tw93</dc:creator>
+      <description>What seven Rust-era tools replace, the Homebrew install, one useful command and config each, and what Kaku installs or wires for you at 0.25.0.</description>
+    </item>
+    <item>
       <title>Warp Terminal Alternatives for Mac: What to Pick and Why</title>
       <link>https://kaku.fun/blog/warp-terminal-alternative</link>
       <guid isPermaLink="true">https://kaku.fun/blog/warp-terminal-alternative</guid>

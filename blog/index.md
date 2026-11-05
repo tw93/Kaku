@@ -47,6 +47,7 @@ Choose and configure a Mac terminal: fonts, splits, shortcuts.
 
 Set up zsh, the prompt and the command-line tools around it.
 
+- [Modern CLI Tools for Mac: ripgrep, fd, bat, eza, zoxide, Atuin, delta](https://kaku.fun/blog/modern-cli-tools-mac.md) (2026-11-05): What seven Rust-era tools replace, the Homebrew install, one useful command and config each, and what Kaku installs or wires for you at 0.25.0.
 - [tmux Cheat Sheet: Default Keys, Copy Mode and a Minimal Config](https://kaku.fun/blog/tmux-cheat-sheet.md) (2026-11-03): The default tmux prefix and keys for sessions, windows, panes and copy mode, plus a minimal ~/.tmux.conf and how tmux behaves inside Kaku.
 - [SSH Config on Mac: Hosts, Keys and the Keychain](https://kaku.fun/blog/ssh-config-mac.md) (2026-10-18): Put specific Host blocks in ~/.ssh/config, check them with ssh -G, and keep Apple keychain options on /usr/bin/ssh.
 - [Yazi on Mac: A Fast Terminal File Manager Setup](https://kaku.fun/blog/yazi-file-manager.md) (2026-10-15): Install Yazi and its preview tools on macOS, learn the keys that matter, add the y wrapper that changes directory on quit, and configure it.
