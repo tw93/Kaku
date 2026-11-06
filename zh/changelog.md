@@ -2,6 +2,18 @@
 
 Kaku 正式版更新，从新到旧。Nightly 仍在 GitHub，可以用 [RSS](https://kaku.fun/feed.xml) 订阅。
 
+## V0.29.0 Beacon 2026-11-06
+
+1. **待处理标签**：按 Cmd+J 直接跳到下一个亮着圆点的标签，正在等你回复的 Agent 一键就能找到。
+2. **手机远程**：手机上用侧边抽屉切换标签，并显示每个 Agent 的话题和状态，快捷键栏常驻并带键盘按钮，滑动终端也不会再弹出键盘。
+3. **命令行状态**：`kaku cli wait` 和 `kaku cli events` 会读取 Claude Code 与 Codex 上报的状态，脚本可以等到 Agent 完成、需要处理或出错。
+
+[GitHub](https://github.com/tw93/Kaku/releases/tag/V0.29.0) · [DMG](https://github.com/tw93/Kaku/releases/download/V0.29.0/Kaku.dmg)
+
+Special thanks to @sunbird89629 for the contributions to this release.
+
+---
+
 ## V0.28.0 Steady 2026-11-03
 
 1. **崩溃修复**：恢复带很长滚动记录的会话后，Kaku 不会再在一分钟后退出、重新打开又接着崩溃，菜单操作落到全屏窗口上时也不会再退出。

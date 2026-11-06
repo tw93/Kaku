@@ -6,6 +6,46 @@
   "source": "https://github.com/tw93/Kaku/releases",
   "releases": [
     {
+      "version": "0.29.0",
+      "tag": "V0.29.0",
+      "name": "V0.29.0 Beacon",
+      "codename": "Beacon",
+      "publishedAt": "2026-11-06T11:40:09Z",
+      "url": "https://kaku.fun/changelog#v0.29.0",
+      "urlZh": "https://kaku.fun/zh/changelog#v0.29.0",
+      "github": "https://github.com/tw93/Kaku/releases/tag/V0.29.0",
+      "items": [
+        {
+          "label": "Tabs Needing You",
+          "text": "Cmd+J jumps to the next tab with its dot lit, so an agent waiting on you is one key away."
+        },
+        {
+          "label": "Phone Remote",
+          "text": "On a phone the remote page lists tabs in a side drawer with each agent's topic and status, keeps the key row at hand with a keyboard key, and no longer raises the keyboard while you scroll."
+        },
+        {
+          "label": "Agent Status in the CLI",
+          "text": "`kaku cli wait` and `kaku cli events` follow the status Claude Code and Codex report, so a script can wait until an agent finishes, needs you or fails."
+        }
+      ],
+      "itemsZh": [
+        {
+          "label": "待处理标签",
+          "text": "按 Cmd+J 直接跳到下一个亮着圆点的标签，正在等你回复的 Agent 一键就能找到。"
+        },
+        {
+          "label": "手机远程",
+          "text": "手机上用侧边抽屉切换标签，并显示每个 Agent 的话题和状态，快捷键栏常驻并带键盘按钮，滑动终端也不会再弹出键盘。"
+        },
+        {
+          "label": "命令行状态",
+          "text": "`kaku cli wait` 和 `kaku cli events` 会读取 Claude Code 与 Codex 上报的状态，脚本可以等到 Agent 完成、需要处理或出错。"
+        }
+      ],
+      "download": "https://github.com/tw93/Kaku/releases/download/V0.29.0/Kaku.dmg",
+      "thanks": "Special thanks to @sunbird89629 for the contributions to this release."
+    },
+    {
       "version": "0.28.0",
       "tag": "V0.28.0",
       "name": "V0.28.0 Steady",

@@ -5,8 +5,23 @@
 <link>https://kaku.fun/changelog</link>
 <description>Stable Kaku releases. Nightly builds are not included.</description>
 <language>en</language>
-<lastBuildDate>Tue, 03 Nov 2026 08:12:29 +0000</lastBuildDate>
+<lastBuildDate>Fri, 06 Nov 2026 11:40:09 +0000</lastBuildDate>
 <atom:link href="https://kaku.fun/feed.xml" rel="self" type="application/rss+xml"/>
+<item>
+<title>V0.29.0 Beacon</title>
+<link>https://kaku.fun/changelog#v0.29.0</link>
+<guid isPermaLink="true">https://kaku.fun/changelog#v0.29.0</guid>
+<pubDate>Fri, 06 Nov 2026 11:40:09 +0000</pubDate>
+<description><![CDATA[<h2>Changelog</h2><ol>
+<li><b>Tabs Needing You</b>: Cmd+J jumps to the next tab with its dot lit, so an agent waiting on you is one key away.</li>
+<li><b>Phone Remote</b>: On a phone the remote page lists tabs in a side drawer with each agent's topic and status, keeps the key row at hand with a keyboard key, and no longer raises the keyboard while you scroll.</li>
+<li><b>Agent Status in the CLI</b>: <code>kaku cli wait</code> and <code>kaku cli events</code> follow the status Claude Code and Codex report, so a script can wait until an agent finishes, needs you or fails.</li>
+</ol><h2>更新日志</h2><ol>
+<li><b>待处理标签</b>：按 Cmd+J 直接跳到下一个亮着圆点的标签，正在等你回复的 Agent 一键就能找到。</li>
+<li><b>手机远程</b>：手机上用侧边抽屉切换标签，并显示每个 Agent 的话题和状态，快捷键栏常驻并带键盘按钮，滑动终端也不会再弹出键盘。</li>
+<li><b>命令行状态</b>：<code>kaku cli wait</code> 和 <code>kaku cli events</code> 会读取 Claude Code 与 Codex 上报的状态，脚本可以等到 Agent 完成、需要处理或出错。</li>
+</ol><p>Special thanks to @sunbird89629 for the contributions to this release.</p>]]></description>
+</item>
 <item>
 <title>V0.28.0 Steady</title>
 <link>https://kaku.fun/changelog#v0.28.0</link>

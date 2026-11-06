@@ -2,6 +2,18 @@
 
 Stable Kaku releases, newest first. Nightly builds stay on GitHub. Subscribe with [RSS](https://kaku.fun/feed.xml).
 
+## V0.29.0 Beacon 2026-11-06
+
+1. **Tabs Needing You**: Cmd+J jumps to the next tab with its dot lit, so an agent waiting on you is one key away.
+2. **Phone Remote**: On a phone the remote page lists tabs in a side drawer with each agent's topic and status, keeps the key row at hand with a keyboard key, and no longer raises the keyboard while you scroll.
+3. **Agent Status in the CLI**: `kaku cli wait` and `kaku cli events` follow the status Claude Code and Codex report, so a script can wait until an agent finishes, needs you or fails.
+
+[GitHub](https://github.com/tw93/Kaku/releases/tag/V0.29.0) · [DMG](https://github.com/tw93/Kaku/releases/download/V0.29.0/Kaku.dmg)
+
+Special thanks to @sunbird89629 for the contributions to this release.
+
+---
+
 ## V0.28.0 Steady 2026-11-03
 
 1. **Crash Fix**: Kaku no longer quits a minute after restoring a session with a long scrollback, which made it crash again on every reopen, and no longer quits when a menu action reaches a fullscreen window.
