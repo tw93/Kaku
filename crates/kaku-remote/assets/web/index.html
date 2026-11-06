@@ -30,9 +30,10 @@
      filled block in Kaku's tab colors, no rule between it and the terminal. */
   :root { --mono: "Kaku Mono", monospace; --bar-bg: var(--bg); --tab-fg: var(--muted); --tab-active-bg: rgba(255,255,255,0.08); --tab-active-fg: var(--fg); --tab-hover-bg: rgba(255,255,255,0.05); --tab-hover-fg: var(--fg); }
   /* A phone (touch and narrow, or on its side) lists tabs in a drawer and
-     types through a compose box; tablets and desktops keep the tab bar. The
-     bar keeps the touch heights below, slimmer on a phone on its side. */
-  #mobile-switch, #mobile-tabs, #mobile-shade, #compose { display: none; }
+     raises the keyboard from the key row; tablets and desktops keep the tab
+     bar. The bar keeps the touch heights below, slimmer on a phone on its
+     side. */
+  #mobile-switch, #mobile-tabs, #mobile-shade, #keys .keyboard { display: none; }
   body.phone #bar #tabs { display: none; }
   body.phone #bar #mobile-switch { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; max-width: none; padding: 0 12px; color: var(--tab-active-fg); text-align: left; }
   #mobile-switch .icon { position: relative; flex: none; display: flex; }
@@ -59,15 +60,13 @@
   .mobile-more svg { width: 16px; height: 16px; }
   #mobile-foot { flex: none; padding: 12px 16px max(12px, env(safe-area-inset-bottom)); border-top: 1px solid var(--line); }
   #mobile-new { width: 100%; height: 44px; border: 1px solid var(--line); border-radius: 8px; background: transparent; color: var(--fg); font: inherit; cursor: pointer; }
-  body.phone #compose { display: flex; order: 4; flex: none; align-items: flex-end; gap: 8px; padding: 6px 8px; border-top: 1px solid var(--line); }
-  #compose textarea { flex: 1; min-width: 0; box-sizing: border-box; height: 38px; max-height: 128px; margin: 0; padding: 8px 10px; resize: none; border: 1px solid var(--line); border-radius: 8px; background: transparent; color: var(--fg); font: 16px/20px var(--mono); outline: none; }
-  #compose button { flex: none; display: flex; align-items: center; justify-content: center; width: 44px; height: 38px; border: 0; border-radius: 8px; background: var(--line); color: var(--fg); -webkit-user-select: none; user-select: none; }
-  #compose button svg { width: 16px; height: 16px; }
-  /* The bottom of a phone is for typing only: the tab bar stays on top
-     whatever tab_bar_at_bottom says, and the key row shows only while the
-     keyboard is up or the box has focus. */
+  /* The bottom of a phone is the key row, always there since a tap on the
+     terminal is the program's: its first key, held at the left edge, puts
+     the keyboard up or away. The tab bar stays on top whatever
+     tab_bar_at_bottom says. */
   body.phone.tabs-bottom #bar { order: 0; }
-  body.phone:not(.kb):not(.composing) #keys { display: none; }
+  body.phone #keys .keyboard { display: flex; align-items: center; justify-content: center; position: sticky; left: 0; z-index: 1; box-shadow: -8px 0 0 var(--bg), 6px 0 0 var(--bg); }
+  body.phone #keys .keyboard svg { width: 18px; height: 18px; }
   #image-preview { box-sizing: border-box; position: fixed; z-index: 30; pointer-events: none; max-width: min(640px, calc(100vw - 24px)); max-height: min(480px, calc(100vh - 24px)); object-fit: contain; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; box-shadow: 0 8px 24px #0004; }
   body.tabs-bottom #bar { order: 2; }
   #bar { display: flex; align-items: stretch; height: var(--bar-h, 32px); padding: 0; background: var(--bar-bg); flex: none; font: var(--bar-font, 15px) var(--mono); }
@@ -261,7 +260,7 @@
     body.touch #bar { height: 34px; }
     body.touch #keys { padding: 4px 8px; }
     body.touch #keys button { height: 30px; }
-    body.touch:not(.kb) #keys { display: none; }
+    body.touch:not(.kb):not(.phone) #keys { display: none; }
   }
   /* Dragging scrolls the terminal, so the browser must not take the gesture.
      Touches also land on the stable screen element rather than a row: xterm
@@ -287,7 +286,6 @@
 <div id="menu" role="menu"></div>
 <div id="help" role="dialog" aria-modal="true"><div class="card"><div class="title">Shortcuts</div><dl></dl></div></div>
 <div id="keys"></div>
-<div id="compose"><textarea rows="1" placeholder="Type into the terminal" aria-label="Input" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="enter"></textarea><button type="button" aria-label="Send"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 3v5.5a1.5 1.5 0 0 1-1.5 1.5H3.5M6.5 7l-3 3 3 3"/></svg></button></div>
 <script src="assets/xterm.js"></script>
 <script src="assets/xterm-webgl.js"></script>
 <script src="assets/xterm-unicode11.js"></script>
@@ -676,12 +674,9 @@
   // screen focus raises the keyboard, which then came up on every tab switch
   // (#597), so there only a tap on the terminal itself asks for it.
   const refocus = () => { if (!TOUCH) term.focus(); };
-  // Empties the phone's compose box when the terminal's line moves on
-  // without it; set once that box exists.
-  let composeReset = () => {};
   if (TOUCH) document.body.classList.add("touch");
-  // A phone: tabs in a drawer, typing through the compose box at the bottom,
-  // and a tap on the terminal is a click for the program, never the keyboard.
+  // A phone: tabs in a drawer, the keyboard raised from the key row, and a
+  // tap on the terminal is a click for the program, never the keyboard.
   const PHONE_QUERY = matchMedia("(max-width: 640px), (max-height: 500px)");
   let phone = TOUCH && PHONE_QUERY.matches;
   document.body.classList.toggle("phone", phone);
@@ -1370,7 +1365,6 @@
       b.addEventListener("pointerdown", (ev) => {
         ev.preventDefault();
         if (action === "ctrl") { setCtrl(!ctrlDown); return; }
-        composeReset();
         if (typeof action === "string") {
           if (ctrlDown) { setCtrl(false); send({ type: "key", key: action, ctrl: true, alt: false, shift: false }); }
           else send({ type: "text", data: action });
@@ -1388,79 +1382,34 @@
     const keysEdge = () => keysEl.classList.toggle("more-right", keysEl.scrollLeft + keysEl.clientWidth < keysEl.scrollWidth - 2);
     keysEl.addEventListener("scroll", keysEdge, { passive: true });
     new ResizeObserver(keysEdge).observe(keysEl);
-    // The phone's compose box: a real text field, so the system keyboard's
-    // dictation, IME and autocorrect work, mirrored into the terminal as it
-    // changes. Each change is typed as the difference from what the terminal
-    // already has (Backspace for what went, text for what came), so a
-    // corrected word or a dictated phrase lands as it reads in the box. IME
-    // text goes once it is chosen. Return, or the button, sends Return and
-    // empties the box.
-    const composeEl = document.getElementById("compose");
-    const composeInput = composeEl.querySelector("textarea");
-    let mirrored = "";
-    let composing = false;
-    const growCompose = () => {
-      composeInput.style.height = "";
-      if (composeInput.scrollHeight > composeInput.clientHeight) composeInput.style.height = composeInput.scrollHeight + 2 + "px";
-    };
-    const pressKey = (key) => send({ type: "key", key, ctrl: false, alt: false, shift: false });
-    const syncCompose = () => {
-      if (composing) return;
-      const now = Array.from(composeInput.value), was = Array.from(mirrored);
-      let same = 0;
-      while (same < now.length && same < was.length && now[same] === was[same]) same++;
-      for (let i = same; i < was.length; i++) pressKey("Backspace");
-      const added = now.slice(same).join("");
-      if (added.includes("\n")) pasteText(added);
-      else if (added) send({ type: "text", data: added });
-      mirrored = composeInput.value;
-      growCompose();
-    };
-    // The box only holds what was typed since the last Return; anything else
-    // that moves the terminal's line (a key on the row, a tab switch) starts
-    // it over, or a later correction would erase the wrong characters.
-    const resetCompose = () => {
-      composeInput.value = "";
-      mirrored = "";
-      growCompose();
-    };
-    composeReset = resetCompose;
-    const submitCompose = () => {
-      composing = false;
-      syncCompose();
-      pressKey("Enter");
-      resetCompose();
-    };
-    composeInput.addEventListener("compositionstart", () => { composing = true; });
-    composeInput.addEventListener("compositionend", () => { composing = false; syncCompose(); });
-    composeInput.addEventListener("beforeinput", (ev) => {
-      if (ev.inputType === "insertLineBreak" || ev.inputType === "insertParagraph") { ev.preventDefault(); submitCompose(); }
+    // On a phone the keyboard comes from the row's first key, so typing goes
+    // straight into the program's own prompt, and stays up while the
+    // terminal scrolls. It is up only with the terminal focused and the
+    // viewport shrunk ("kb"): focus can outlive a dismissed keyboard, and
+    // focusing an input that already has focus raises nothing on Android, so
+    // the key then blurs and focuses again. It records the state at the
+    // press, keeps the press from moving focus, and acts on the click, where
+    // iOS allows focus to raise the keyboard.
+    const keyboardKey = document.createElement("button");
+    keyboardKey.type = "button";
+    keyboardKey.tabIndex = -1;
+    keyboardKey.className = "keyboard";
+    keyboardKey.setAttribute("aria-label", "Keyboard");
+    keyboardKey.setAttribute("aria-pressed", "false");
+    keyboardKey.innerHTML = '<svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1.5" y="4" width="15" height="10" rx="2"/><path d="M4.5 7h.01M7.5 7h.01M10.5 7h.01M13.5 7h.01M4.5 9.5h.01M13.5 9.5h.01M7 11.5h4"/></svg>';
+    let keyboardWasUp = false;
+    const keyboardUp = () => !!term.textarea && document.activeElement === term.textarea && document.body.classList.contains("kb");
+    keyboardKey.addEventListener("pointerdown", () => { keyboardWasUp = keyboardUp(); });
+    keyboardKey.addEventListener("mousedown", (ev) => ev.preventDefault());
+    keyboardKey.addEventListener("click", () => {
+      term.blur();
+      if (!keyboardWasUp) term.focus();
     });
-    composeInput.addEventListener("input", (ev) => {
-      // With Ctrl latched on the key row, the next letter is a control key.
-      if (ctrlDown && ev.inputType === "insertText" && ev.data && ev.data.length === 1) {
-        const at = composeInput.selectionStart;
-        composeInput.value = composeInput.value.slice(0, at - 1) + composeInput.value.slice(at);
-        composeInput.setSelectionRange(at - 1, at - 1);
-        setCtrl(false);
-        send({ type: "key", key: ev.data.toLowerCase(), ctrl: true, alt: false, shift: false });
-        return;
-      }
-      syncCompose();
-    });
-    composeInput.addEventListener("keydown", (ev) => {
-      ev.stopPropagation();
-      if (ev.isComposing || ev.keyCode === 229) return;
-      if (ev.key === "Enter") { ev.preventDefault(); submitCompose(); }
-      // Backspace in an empty box still reaches the terminal's line.
-      else if (ev.key === "Backspace" && !composeInput.value) pressKey("Backspace");
-    });
-    composeInput.addEventListener("focus", () => document.body.classList.add("composing"));
-    composeInput.addEventListener("blur", () => document.body.classList.remove("composing"));
-    const composeSend = composeEl.querySelector("button");
-    // Like the key row: act on the press and keep the keyboard up.
-    composeSend.addEventListener("pointerdown", (ev) => { ev.preventDefault(); submitCompose(); });
-    composeSend.addEventListener("touchstart", (ev) => ev.preventDefault(), { passive: false });
+    const showKeyboardState = () => keyboardKey.setAttribute("aria-pressed", String(keyboardUp()));
+    document.addEventListener("focusin", showKeyboardState);
+    document.addEventListener("focusout", () => setTimeout(showKeyboardState));
+    new MutationObserver(showKeyboardState).observe(document.body, { attributes: true, attributeFilter: ["class"] });
+    keysEl.prepend(keyboardKey);
     // When the keyboard opens, iOS shrinks only the visual viewport: size the
     // page to it so the prompt and the key row stay above the keyboard.
     if (window.visualViewport) {
@@ -2253,7 +2202,6 @@
     stopScrolling();
     closePast();
     if (paneId !== null && size.cols) snapshots.set(paneId, snapshot());
-    if (tab.pane_id !== paneId) composeReset();
     paneId = tab.pane_id;
     liveWrapped = [];
     tabId = tab.tab_id;

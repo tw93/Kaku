@@ -3901,7 +3901,7 @@ test('a phone lists tabs in a drawer that switches, creates, renames and closes 
   assert.deepEqual(errors, []);
 });
 
-test('the drawer and compose box are for phones only, at the touch bar heights', async t => {
+test('the drawer and keyboard key are for phones only, at the touch bar heights', async t => {
   const cases = [
     ['phone', { width: 320, height: 568 }, true, true, 44, false],
     ['phone on its side, bar at the bottom', { width: 844, height: 390 }, true, true, 34, true],
@@ -3918,14 +3918,18 @@ test('the drawer and compose box are for phones only, at the touch bar heights',
     const got = await p.evaluate(() => ({
       phone: document.body.classList.contains('phone'),
       strip: getComputedStyle(document.querySelector('#tabs')).display !== 'none',
-      compose: getComputedStyle(document.querySelector('#compose')).display !== 'none',
+      keyboard: !!document.querySelector('#keys .keyboard') && getComputedStyle(document.querySelector('#keys .keyboard')).display !== 'none',
+      keys: getComputedStyle(document.querySelector('#keys')).display !== 'none',
       bar: Math.round(document.querySelector('#bar').getBoundingClientRect().height),
       barOnTop: document.querySelector('#bar').getBoundingClientRect().top < document.querySelector('#stage').getBoundingClientRect().top,
       overflow: document.documentElement.scrollWidth > innerWidth,
     }));
     assert.equal(got.phone, phone, name);
     assert.equal(got.strip, !phone, name);
-    assert.equal(got.compose, phone, name);
+    assert.equal(got.keyboard, phone, name);
+    // A phone keeps the key row up even with the keyboard down, since its
+    // keyboard key is the way to type.
+    if (phone) assert.equal(got.keys, true, name);
     if (bar) assert.equal(got.bar, bar, name);
     // A phone keeps the tab bar on top even when Kaku's is at the bottom.
     assert.equal(got.barOnTop, phone || !bottom, name);
@@ -3938,93 +3942,59 @@ test('the drawer and compose box are for phones only, at the touch bar heights',
       });
       assert.equal(fit.scrollable, true, name);
       assert.ok(fit.footBottom <= fit.height + 1, name);
-      // The compose box sits under the terminal, inside the window.
-      const box = await p.locator('#compose').boundingBox(), stage = await p.locator('#stage').boundingBox();
+      // The key row sits under the terminal, inside the window.
+      const box = await p.locator('#keys').boundingBox(), stage = await p.locator('#stage').boundingBox();
       assert.ok(box.y >= stage.y + stage.height - 1 && box.y + box.height <= viewport.height + 1, name);
     }
     assert.deepEqual(errors, [], name);
   }
 });
 
-test('a phone types through the compose box and a tap on the terminal is a click', async t => {
+test('a phone raises the keyboard from the key row and a tap on the terminal is a click', async t => {
   const { p, errors } = await page(t, '#t=fixture', { viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
   await screen(p);
-  const box = p.locator('#compose textarea');
-  const sent = () => p.evaluate(() => messages.filter(m => ['text', 'paste', 'key', 'click'].includes(m.type)).map(m => {
-    const { type, data, key, ctrl } = m;
-    return type === 'click' ? 'click' : type === 'key' ? (ctrl ? '^' : '') + key : `${type}:${data}`;
-  }));
-  const clear = () => p.evaluate(() => { messages.length = 0; });
-  const keysShown = () => p.evaluate(() => getComputedStyle(document.querySelector('#keys')).display !== 'none');
-  assert.equal(await keysShown(), false, 'the key row waits for typing');
-  await box.focus();
-  assert.equal(await keysShown(), true, 'the key row comes up with the compose box');
-
-  // Typing reaches the terminal as it happens; Return sends Return and
-  // empties the box.
-  await clear();
-  await p.keyboard.type('ls');
-  assert.deepEqual(await sent(), ['text:l', 'text:s']);
-  await p.keyboard.press('Enter');
-  assert.deepEqual(await sent(), ['text:l', 'text:s', 'Enter']);
-  assert.equal(await box.inputValue(), '');
-
-  // A correction (autocorrect, dictation) is typed as the difference.
-  await clear();
-  await box.fill('hello');
-  await box.fill('help me');
-  assert.deepEqual(await sent(), ['text:hello', 'Backspace', 'Backspace', 'text:p me']);
-  await p.keyboard.press('Backspace');
-  assert.deepEqual((await sent()).slice(-1), ['Backspace']);
-  await box.fill('');
-  await clear();
-  await p.keyboard.press('Backspace');
-  assert.deepEqual(await sent(), ['Backspace'], 'Backspace in an empty box still reaches the line');
-
-  // Several lines arrive as one paste; the button sends Return.
-  await clear();
-  await box.fill('first line\nsecond line');
-  await p.locator('#compose button').dispatchEvent('pointerdown');
-  assert.deepEqual(await sent(), ['paste:first line\nsecond line', 'Enter']);
-  assert.equal(await box.inputValue(), '');
-
-  // IME text goes once it is chosen, not while it is being composed.
-  await clear();
-  await box.evaluate(el => {
-    el.dispatchEvent(new CompositionEvent('compositionstart'));
-    el.value = 'ni';
-    el.dispatchEvent(new InputEvent('input', { inputType: 'insertCompositionText', data: 'ni', isComposing: true }));
-    el.value = '你';
-    el.dispatchEvent(new InputEvent('input', { inputType: 'insertCompositionText', data: '你', isComposing: true }));
-  });
-  assert.deepEqual(await sent(), []);
-  await box.evaluate(el => el.dispatchEvent(new CompositionEvent('compositionend', { data: '你' })));
-  assert.deepEqual(await sent(), ['text:你']);
-
-  // A key on the row starts the box over, so later edits stay in step.
-  await clear();
-  await p.locator('#keys button', { hasText: /^Esc$/ }).dispatchEvent('pointerdown');
-  assert.equal(await box.inputValue(), '');
-  await p.keyboard.type('x');
-  assert.deepEqual(await sent(), ['Escape', 'text:x']);
-  await p.keyboard.press('Enter');
-
-  // Ctrl on the key row makes the next letter typed in the box a control key.
-  await clear();
-  await p.locator('#keys button', { hasText: /^Ctrl$/ }).dispatchEvent('pointerdown');
-  await p.keyboard.type('c');
-  assert.deepEqual(await sent(), ['^c']);
-  assert.equal(await box.inputValue(), '');
-
-  await box.blur();
-  assert.equal(await keysShown(), false);
+  const typing = () => p.evaluate(() => document.activeElement === probe.term.textarea);
+  const sent = () => p.evaluate(() => messages.filter(m => ['text', 'key', 'click'].includes(m.type)).map(m => m.type === 'click' ? 'click' : m.type === 'key' ? m.key : `text:${m.data}`));
+  const key = p.locator('#keys .keyboard');
 
   // A tap on the terminal never raises the keyboard; it is the program's.
   await p.evaluate(() => { document.activeElement?.blur(); messages.length = 0; });
-  const screenBox = await p.locator('#stage .xterm-screen').boundingBox();
-  await p.touchscreen.tap(screenBox.x + screenBox.width / 2, screenBox.y + screenBox.height / 2);
+  const box = await p.locator('#stage .xterm-screen').boundingBox();
+  await p.touchscreen.tap(box.x + box.width / 2, box.y + box.height / 2);
   await p.waitForTimeout(50);
-  assert.equal(await p.evaluate(() => document.activeElement === probe.term.textarea), false);
+  assert.equal(await typing(), false);
   assert.deepEqual(await sent(), ['click']);
+  await p.evaluate(() => probe.term.focus());
+
+  // The key row's first key puts the keyboard up, typing goes straight to
+  // the program, and the key puts it away again. The page's terminal still
+  // has focus from the harness with no keyboard shown: the key must not
+  // read that as up, or the first tap would only put it away.
+  const keyboard = (up) => p.evaluate(up => document.body.classList.toggle('kb', up), up);
+  assert.equal(await typing(), true);
+  assert.equal(await key.getAttribute('aria-pressed'), 'false');
+  await key.tap();
+  assert.equal(await typing(), true);
+  await keyboard(true);
+  assert.equal(await key.getAttribute('aria-pressed'), 'true');
+  await p.evaluate(() => { messages.length = 0; });
+  await p.keyboard.type('ls');
+  await p.keyboard.press('Enter');
+  assert.deepEqual(await sent(), ['text:l', 'text:s', 'Enter']);
+  // The other keys keep it up.
+  await p.locator('#keys button', { hasText: /^Esc$/ }).tap();
+  assert.equal(await typing(), true);
+  await key.tap();
+  await p.waitForTimeout(20);
+  assert.equal(await typing(), false);
+  await keyboard(false);
+  assert.equal(await key.getAttribute('aria-pressed'), 'false');
+  await key.tap();
+  assert.equal(await typing(), true, 'a tap with the keyboard down puts it up');
+
+  // It stays at the row's left edge while the row scrolls.
+  await p.evaluate(() => { document.querySelector('#keys').scrollLeft = 200; });
+  const at = await p.evaluate(() => [document.querySelector('#keys .keyboard').getBoundingClientRect().left, document.querySelector('#keys').getBoundingClientRect().left]);
+  assert.ok(at[0] - at[1] < 12, JSON.stringify(at));
   assert.deepEqual(errors, []);
 });
