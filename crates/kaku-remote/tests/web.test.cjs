@@ -3220,6 +3220,85 @@ test('on a touch screen switching tabs leaves the keyboard down, a tap on the te
   assert.equal(await typing(), true);
 });
 
+test('closing the touch keyboard releases only the terminal input focus', async t => {
+  // A tablet types into the terminal; a phone uses its compose box and
+  // never focuses the terminal's input.
+  const { p, errors } = await page(t, '#t=fixture', { viewport: { width: 820, height: 1180 }, hasTouch: true, isMobile: true });
+  assert.equal(await p.evaluate(() => document.body.classList.contains('touch')), true);
+  await screen(p, 'keyboard focus');
+  const initial = await p.evaluate(() => {
+    const vv = window.visualViewport;
+    window.testViewport = { height: vv.height, scale: 1 };
+    Object.defineProperty(vv, 'height', { configurable: true, get: () => testViewport.height });
+    Object.defineProperty(vv, 'scale', { configurable: true, get: () => testViewport.scale });
+    return testViewport.height;
+  });
+  const resize = (height, scale = 1) => p.evaluate(({ height, scale }) => {
+    Object.assign(testViewport, { height, scale });
+    visualViewport.dispatchEvent(new Event('resize'));
+  }, { height, scale });
+  const focused = () => p.evaluate(() => document.activeElement === probe.term.textarea);
+
+  await resize(initial * 0.6);
+  assert.equal(await focused(), true, 'opening the keyboard must retain focus');
+  await resize(initial * 0.75);
+  assert.equal(await focused(), true, 'the keyboard still covers part of the viewport');
+  await resize(initial);
+  assert.equal(await focused(), false, 'closing the keyboard must release terminal focus');
+  const box = await p.locator('#stage .xterm-screen').boundingBox();
+  const cdp = await p.context().newCDPSession(p);
+  const x = box.x + box.width / 2, y = box.y + box.height / 2;
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y, id: 1 }] });
+  await p.waitForTimeout(300);
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x, y: y - 80, id: 1 }] });
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+  assert.equal(await focused(), false, 'scrolling after keyboard dismissal must not focus the terminal');
+  await p.touchscreen.tap(box.x + box.width / 2, box.y + box.height / 2);
+  assert.equal(await focused(), true, 'a terminal tap must still allow typing');
+
+  await resize(initial * 0.6);
+  await p.evaluate(() => { document.querySelector('#find').classList.add('show'); document.querySelector('#find input').focus(); });
+  await resize(initial);
+  assert.equal(await p.evaluate(() => document.activeElement === document.querySelector('#find input')), true, 'closing the keyboard must not blur search');
+  assert.deepEqual(errors, []);
+});
+
+test('touch keyboard focus survives viewport zoom and orientation changes', async t => {
+  // A tablet types into the terminal; a phone uses its compose box and
+  // never focuses the terminal's input.
+  const { p, errors } = await page(t, '#t=fixture', { viewport: { width: 820, height: 1180 }, hasTouch: true, isMobile: true });
+  assert.equal(await p.evaluate(() => document.body.classList.contains('touch')), true);
+  await screen(p, 'viewport focus');
+  await p.evaluate(() => {
+    const vv = window.visualViewport;
+    window.testViewport = { height: vv.height, width: innerWidth, scale: 1, side: 'portrait-primary' };
+    Object.defineProperty(vv, 'height', { configurable: true, get: () => testViewport.height });
+    Object.defineProperty(vv, 'scale', { configurable: true, get: () => testViewport.scale });
+    Object.defineProperty(window, 'innerWidth', { configurable: true, get: () => testViewport.width });
+    Object.defineProperty(screen.orientation, 'type', { configurable: true, get: () => testViewport.side });
+    vv.dispatchEvent(new Event('resize'));
+  });
+  const initial = await p.evaluate(() => testViewport.height);
+  const resize = values => p.evaluate(values => {
+    Object.assign(testViewport, values);
+    visualViewport.dispatchEvent(new Event('resize'));
+  }, values);
+  const focused = () => p.evaluate(() => document.activeElement === probe.term.textarea);
+  await resize({ height: initial * 0.6 });
+  await resize({ height: initial, side: 'landscape-primary' });
+  assert.equal(await focused(), true, 'rotation must not be treated as closing the keyboard');
+  await resize({ height: initial, side: 'portrait-primary' });
+  await resize({ height: initial * 0.6 });
+  await resize({ height: initial, scale: 2 });
+  assert.equal(await focused(), true, 'zoom must not be treated as closing the keyboard');
+  await resize({ scale: 1 });
+  assert.equal(await focused(), true, 'returning from zoom must not blur the terminal');
+  await resize({ height: initial * 0.6 });
+  await resize({ height: initial, width: await p.evaluate(() => testViewport.width + 20) });
+  assert.equal(await focused(), true, 'a real width change must not be treated as closing the keyboard');
+  assert.deepEqual(errors, []);
+});
+
 test('losing focus cancels a desktop long press before it clicks', async t => {
   const { p } = await page(t, '#t=fixture', { viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
   await screen(p);

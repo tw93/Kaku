@@ -1425,12 +1425,27 @@
       // The keyboard is up when the visible height drops well below the
       // tallest seen in this orientation.
       const tallest = {};
+      let focusSide = null;
+      let focusWidth = 0;
+      let focusKeyboardOpen = false;
       const sync = () => {
         document.body.style.height = vv.height + "px";
         window.scrollTo(0, 0);
         const side = screen.orientation ? screen.orientation.type.split("-")[0] : String(innerWidth > innerHeight);
         tallest[side] = Math.max(tallest[side] || 0, vv.height);
-        document.body.classList.toggle("kb", vv.height < tallest[side] * 0.8);
+        const keyboardOpen = vv.height < tallest[side] * 0.8;
+        document.body.classList.toggle("kb", keyboardOpen);
+        // Android may keep xterm's textarea focused after the keyboard is
+        // dismissed, then raise the keyboard again when the user scrolls.
+        // Only release that focus on a keyboard close in the same layout;
+        // rotations, width changes and pinch zoom are not keyboard dismissals.
+        if (vv.scale === 1 && side === focusSide && Math.abs(innerWidth - focusWidth) <= 1 &&
+            focusKeyboardOpen && !keyboardOpen && document.activeElement === term.textarea) {
+          term.blur();
+        }
+        focusSide = vv.scale === 1 ? side : null;
+        focusWidth = innerWidth;
+        focusKeyboardOpen = vv.scale === 1 && keyboardOpen;
       };
       vv.addEventListener("resize", sync);
       vv.addEventListener("scroll", sync);
