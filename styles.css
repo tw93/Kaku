@@ -392,21 +392,21 @@ button, input { font: inherit; }
 }
 .hero h1 {
   margin: 0 0 40px;
-  color: var(--near-black);
+  color: var(--olive);
   font-family: "Kaku Wordmark", var(--serif);
   font-size: 84px;
   font-weight: 400;
-  letter-spacing: -1.2px;
+  letter-spacing: -0.048em;
   line-height: 1.02;
 }
-/* The Han glyph fills its whole em and read larger than the Latin name at the
-   same size; 0.88em puts its top on the Latin ascender, the same as mole.fit's
-   鼴 (maintainer 2026-11-02). Set on the orbit wrapper so the dot's em-based
-   path shrinks with it. */
-.hero h1 .cn-orbit { font-size: 0.88em; }
+/* Tracking, olive and the Han glyph's 0.84em follow mole.fit's wordmark
+   (maintainer 2026-11-06; reasons in its styles.css). The glyph size sits on the
+   orbit wrapper so the dot's em-based path shrinks with it, and its margin adds
+   back what the last letter's tracking takes from the gap. */
+.hero h1 .cn-orbit { font-size: 0.84em; }
 .hero h1 .cn {
   display: inline-block;
-  margin-left: 18px;
+  margin-left: calc(18px + 0.04em);
   font-family: "Kaku Mark", "Kaku Serif SC", "Source Han Serif SC", "Noto Serif CJK SC", "Songti SC", serif;
   font-weight: 400;
   letter-spacing: 0;
@@ -1426,7 +1426,7 @@ html[lang^="zh"] .foot-links b { letter-spacing: 0.6px; }
   .section-head h2 { font-size: 26px; }
   /* 64px with -1px tracking under 880 and the 18px gap at every width, as on
      the other product sites (maintainer 2026-11-04: one lockup size). */
-  .hero h1 { font-size: 64px; letter-spacing: -1px; }
+  .hero h1 { font-size: 64px; }
 }
 /* Phones keep the sizes they had before the desktop ladder (decide 1030-13,
    maintainer 2026-11-01): the ladder above 640px does not change them. */
