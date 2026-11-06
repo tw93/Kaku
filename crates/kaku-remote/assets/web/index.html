@@ -63,6 +63,11 @@
   #compose textarea { flex: 1; min-width: 0; box-sizing: border-box; height: 38px; max-height: 128px; margin: 0; padding: 8px 10px; resize: none; border: 1px solid var(--line); border-radius: 8px; background: transparent; color: var(--fg); font: 16px/20px var(--mono); outline: none; }
   #compose button { flex: none; display: flex; align-items: center; justify-content: center; width: 44px; height: 38px; border: 0; border-radius: 8px; background: var(--line); color: var(--fg); -webkit-user-select: none; user-select: none; }
   #compose button svg { width: 16px; height: 16px; }
+  /* The bottom of a phone is for typing only: the tab bar stays on top
+     whatever tab_bar_at_bottom says, and the key row shows only while the
+     keyboard is up or the box has focus. */
+  body.phone.tabs-bottom #bar { order: 0; }
+  body.phone:not(.kb):not(.composing) #keys { display: none; }
   #image-preview { box-sizing: border-box; position: fixed; z-index: 30; pointer-events: none; max-width: min(640px, calc(100vw - 24px)); max-height: min(480px, calc(100vh - 24px)); object-fit: contain; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; box-shadow: 0 8px 24px #0004; }
   body.tabs-bottom #bar { order: 2; }
   #bar { display: flex; align-items: stretch; height: var(--bar-h, 32px); padding: 0; background: var(--bar-bg); flex: none; font: var(--bar-font, 15px) var(--mono); }
@@ -282,7 +287,7 @@
 <div id="menu" role="menu"></div>
 <div id="help" role="dialog" aria-modal="true"><div class="card"><div class="title">Shortcuts</div><dl></dl></div></div>
 <div id="keys"></div>
-<div id="compose"><textarea rows="1" placeholder="Type a command or message" aria-label="Input" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="enter"></textarea><button type="button" aria-label="Send"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 3v5.5a1.5 1.5 0 0 1-1.5 1.5H3.5M6.5 7l-3 3 3 3"/></svg></button></div>
+<div id="compose"><textarea rows="1" placeholder="Type into the terminal" aria-label="Input" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="enter"></textarea><button type="button" aria-label="Send"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 3v5.5a1.5 1.5 0 0 1-1.5 1.5H3.5M6.5 7l-3 3 3 3"/></svg></button></div>
 <script src="assets/xterm.js"></script>
 <script src="assets/xterm-webgl.js"></script>
 <script src="assets/xterm-unicode11.js"></script>
@@ -671,6 +676,9 @@
   // screen focus raises the keyboard, which then came up on every tab switch
   // (#597), so there only a tap on the terminal itself asks for it.
   const refocus = () => { if (!TOUCH) term.focus(); };
+  // Empties the phone's compose box when the terminal's line moves on
+  // without it; set once that box exists.
+  let composeReset = () => {};
   if (TOUCH) document.body.classList.add("touch");
   // A phone: tabs in a drawer, typing through the compose box at the bottom,
   // and a tap on the terminal is a click for the program, never the keyboard.
@@ -1362,6 +1370,7 @@
       b.addEventListener("pointerdown", (ev) => {
         ev.preventDefault();
         if (action === "ctrl") { setCtrl(!ctrlDown); return; }
+        composeReset();
         if (typeof action === "string") {
           if (ctrlDown) { setCtrl(false); send({ type: "key", key: action, ctrl: true, alt: false, shift: false }); }
           else send({ type: "text", data: action });
@@ -1379,25 +1388,54 @@
     const keysEdge = () => keysEl.classList.toggle("more-right", keysEl.scrollLeft + keysEl.clientWidth < keysEl.scrollWidth - 2);
     keysEl.addEventListener("scroll", keysEdge, { passive: true });
     new ResizeObserver(keysEdge).observe(keysEl);
-    // The phone's compose box: the system keyboard's dictation, IME and
-    // autocorrect work on a real text field, then the line goes out at once.
-    // Its Return adds a line, since a soft keyboard has no Shift+Return; the
-    // button sends, and sends Return alone when the box is empty, which
-    // answers a program's prompt.
+    // The phone's compose box: a real text field, so the system keyboard's
+    // dictation, IME and autocorrect work, mirrored into the terminal as it
+    // changes. Each change is typed as the difference from what the terminal
+    // already has (Backspace for what went, text for what came), so a
+    // corrected word or a dictated phrase lands as it reads in the box. IME
+    // text goes once it is chosen. Return, or the button, sends Return and
+    // empties the box.
     const composeEl = document.getElementById("compose");
     const composeInput = composeEl.querySelector("textarea");
+    let mirrored = "";
+    let composing = false;
     const growCompose = () => {
       composeInput.style.height = "";
       if (composeInput.scrollHeight > composeInput.clientHeight) composeInput.style.height = composeInput.scrollHeight + 2 + "px";
     };
-    const submitCompose = () => {
-      const text = composeInput.value;
-      if (text.includes("\n")) pasteText(text);
-      else if (text) send({ type: "text", data: text });
-      send({ type: "key", key: "Enter", ctrl: false, alt: false, shift: false });
-      composeInput.value = "";
+    const pressKey = (key) => send({ type: "key", key, ctrl: false, alt: false, shift: false });
+    const syncCompose = () => {
+      if (composing) return;
+      const now = Array.from(composeInput.value), was = Array.from(mirrored);
+      let same = 0;
+      while (same < now.length && same < was.length && now[same] === was[same]) same++;
+      for (let i = same; i < was.length; i++) pressKey("Backspace");
+      const added = now.slice(same).join("");
+      if (added.includes("\n")) pasteText(added);
+      else if (added) send({ type: "text", data: added });
+      mirrored = composeInput.value;
       growCompose();
     };
+    // The box only holds what was typed since the last Return; anything else
+    // that moves the terminal's line (a key on the row, a tab switch) starts
+    // it over, or a later correction would erase the wrong characters.
+    const resetCompose = () => {
+      composeInput.value = "";
+      mirrored = "";
+      growCompose();
+    };
+    composeReset = resetCompose;
+    const submitCompose = () => {
+      composing = false;
+      syncCompose();
+      pressKey("Enter");
+      resetCompose();
+    };
+    composeInput.addEventListener("compositionstart", () => { composing = true; });
+    composeInput.addEventListener("compositionend", () => { composing = false; syncCompose(); });
+    composeInput.addEventListener("beforeinput", (ev) => {
+      if (ev.inputType === "insertLineBreak" || ev.inputType === "insertParagraph") { ev.preventDefault(); submitCompose(); }
+    });
     composeInput.addEventListener("input", (ev) => {
       // With Ctrl latched on the key row, the next letter is a control key.
       if (ctrlDown && ev.inputType === "insertText" && ev.data && ev.data.length === 1) {
@@ -1406,14 +1444,19 @@
         composeInput.setSelectionRange(at - 1, at - 1);
         setCtrl(false);
         send({ type: "key", key: ev.data.toLowerCase(), ctrl: true, alt: false, shift: false });
+        return;
       }
-      growCompose();
+      syncCompose();
     });
     composeInput.addEventListener("keydown", (ev) => {
-      // A hardware keyboard sends with Cmd or Ctrl+Return.
-      if (ev.key === "Enter" && (ev.metaKey || ev.ctrlKey) && !ev.isComposing) { ev.preventDefault(); submitCompose(); }
       ev.stopPropagation();
+      if (ev.isComposing || ev.keyCode === 229) return;
+      if (ev.key === "Enter") { ev.preventDefault(); submitCompose(); }
+      // Backspace in an empty box still reaches the terminal's line.
+      else if (ev.key === "Backspace" && !composeInput.value) pressKey("Backspace");
     });
+    composeInput.addEventListener("focus", () => document.body.classList.add("composing"));
+    composeInput.addEventListener("blur", () => document.body.classList.remove("composing"));
     const composeSend = composeEl.querySelector("button");
     // Like the key row: act on the press and keep the keyboard up.
     composeSend.addEventListener("pointerdown", (ev) => { ev.preventDefault(); submitCompose(); });
@@ -2210,6 +2253,7 @@
     stopScrolling();
     closePast();
     if (paneId !== null && size.cols) snapshots.set(paneId, snapshot());
+    if (tab.pane_id !== paneId) composeReset();
     paneId = tab.pane_id;
     liveWrapped = [];
     tabId = tab.tab_id;
