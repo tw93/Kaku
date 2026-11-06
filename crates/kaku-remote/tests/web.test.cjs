@@ -3210,7 +3210,8 @@ test('on a touch screen switching tabs leaves the keyboard down, a tap on the te
   await screen(p, 'second', 2);
   const typing = () => p.evaluate(() => document.activeElement?.classList.contains('xterm-helper-textarea') ?? false);
   await p.evaluate(() => document.activeElement?.blur());
-  await p.locator('#bar .tab').first().tap();
+  await p.locator('#mobile-switch').tap();
+  await p.locator('.mobile-select').first().tap();
   await p.waitForTimeout(50);
   assert.equal(await typing(), false, 'a tab switch raised the keyboard');
   const box = await p.locator('#stage .xterm-screen').boundingBox();
@@ -3749,5 +3750,72 @@ test('one key switches between the terminal and the desktop view, and the system
   assert.equal(await p.evaluate(() => document.body.classList.contains('desktop')), false);
   assert.equal(await p.evaluate(() => messages.filter(m => m.type === 'desktop_stop').length), 1);
   assert.deepEqual((await typed()).filter(m => m.type !== 'desktop_key' || /D$/.test(m.code)), []);
+  assert.deepEqual(errors, []);
+});
+
+test('mobile tab list switches, creates, renames and closes with recovery', async t => {
+  const { p, errors } = await page(t, '#t=fixture', { viewport: { width: 320, height: 700 }, hasTouch: true, isMobile: true });
+  await screen(p);
+  const long = 'A very long tab title '.repeat(8);
+  await p.evaluate(title => { messages.length = 0; probe.handle({ type: 'tabs', tabs: [
+    { tab_id: 1, pane_id: 1, title: 'one', active: true },
+    { tab_id: 2, pane_id: 2, title: title + ' •', confirm_close: true },
+    { tab_id: 3, pane_id: 3, title: 'three', confirm_close: false },
+  ] }); }, long);
+  assert.equal(await p.locator('#mobile-switch .count').count(), 0);
+  await p.locator('#mobile-switch').click();
+  assert.equal(await p.locator('#mobile-head .count').textContent(), '3');
+  assert.equal(await p.locator('#mobile-tabs.show .mobile-row').count(), 3);
+  assert.equal(await p.locator('.mobile-select[aria-current=true]').count(), 1);
+  await p.locator('.mobile-more').nth(1).click();
+  assert.equal(await p.locator('#mobile-sheet-title').textContent(), long.trimEnd());
+  await p.keyboard.press('Shift+Tab');
+  assert.equal(await p.evaluate(() => document.activeElement.dataset.action), 'cancel');
+  await p.keyboard.press('Escape');
+  assert.equal(await p.evaluate(() => document.activeElement.className), 'mobile-more');
+  await p.locator('.mobile-more').nth(1).click();
+  await p.locator('#mobile-sheet [data-action=rename]').click();
+  await p.locator('#mobile-sheet input').fill('renamed');
+  await p.keyboard.press('Enter');
+  assert.deepEqual(await p.evaluate(() => messages.filter(m => m.type === 'rename_tab')), [{ type: 'rename_tab', tab_id: 2, title: 'renamed' }]);
+  await p.locator('.mobile-close').nth(1).click();
+  await p.locator('#dialog [data-act=cancel]').click();
+  assert.equal(await p.evaluate(() => messages.some(m => m.type === 'close_tab')), false);
+  await p.locator('.mobile-close').nth(1).click();
+  await p.locator('#dialog [data-act=ok]').click();
+  assert.equal(await p.locator('.mobile-row').count(), 2);
+  await p.waitForTimeout(3200);
+  assert.equal(await p.locator('.mobile-row').count(), 3, 'rejected close restores authoritative tabs');
+  await p.locator('.mobile-close').nth(2).click();
+  assert.deepEqual(await p.evaluate(() => messages.filter(m => m.type === 'close_tab').map(m => m.tab_id)), [2, 3]);
+  await p.locator('.mobile-select').nth(1).click();
+  assert.equal(await p.locator('#mobile-tabs.show').count(), 0);
+  assert.equal(await p.evaluate(() => messages.some(m => m.type === 'attach' && m.pane_id === 2)), true);
+  await p.locator('#mobile-switch').click();
+  await p.locator('#mobile-new').click();
+  assert.equal(await p.evaluate(() => messages.some(m => m.type === 'new_tab')), true);
+  assert.deepEqual(errors, []);
+});
+
+test('mobile tabs fit narrow and landscape layouts with either bar position', async t => {
+  const { p, errors } = await page(t, '#t=fixture', { viewport: { width: 320, height: 568 }, hasTouch: true, isMobile: true });
+  await screen(p);
+  for (const [width, height, bottom] of [[320, 568, false], [844, 390, true]]) {
+    await p.setViewportSize({ width, height });
+    await p.evaluate(bottom => {
+      probe.handle({ type: 'config', tab_bar_at_bottom: bottom });
+      probe.handle({ type: 'tabs', tabs: Array.from({ length: 20 }, (_, i) => ({ tab_id: i + 1, pane_id: i + 1, title: `Tab ${i}`, active: i === 0 })) });
+    }, bottom);
+    await p.locator('#mobile-switch').click();
+    const dimensions = await p.evaluate(() => {
+      const list = document.querySelector('#mobile-list'), foot = document.querySelector('#mobile-foot').getBoundingClientRect();
+      return { scrollable: list.scrollHeight > list.clientHeight, footBottom: foot.bottom, width: document.documentElement.scrollWidth, height: innerHeight };
+    });
+    assert.equal(dimensions.scrollable, true);
+    assert.ok(dimensions.footBottom <= dimensions.height + 1);
+    assert.ok(dimensions.width <= width);
+    await p.keyboard.press('Escape');
+    assert.equal(await p.locator('#mobile-tabs.show').count(), 0);
+  }
   assert.deepEqual(errors, []);
 });
