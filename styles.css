@@ -396,17 +396,17 @@ button, input { font: inherit; }
   font-family: "Kaku Wordmark", var(--serif);
   font-size: 84px;
   font-weight: 400;
-  letter-spacing: -0.048em;
+  letter-spacing: -0.042em;
   line-height: 1.02;
 }
-/* Tracking, olive and the Han glyph's 0.84em follow mole.fit's wordmark
+/* Tracking, olive and the Han glyph's 0.88em follow mole.fit's wordmark
    (maintainer 2026-11-06; reasons in its styles.css). The glyph size sits on the
    orbit wrapper so the dot's em-based path shrinks with it, and its margin adds
    back what the last letter's tracking takes from the gap. */
-.hero h1 .cn-orbit { font-size: 0.84em; }
+.hero h1 .cn-orbit { font-size: 0.88em; }
 .hero h1 .cn {
   display: inline-block;
-  margin-left: calc(18px + 0.04em);
+  margin-left: calc(18px + 0.031em);
   font-family: "Kaku Mark", "Kaku Serif SC", "Source Han Serif SC", "Noto Serif CJK SC", "Songti SC", serif;
   font-weight: 400;
   letter-spacing: 0;
