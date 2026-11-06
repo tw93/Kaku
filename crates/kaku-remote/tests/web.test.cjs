@@ -3221,7 +3221,9 @@ test('on a touch screen switching tabs leaves the keyboard down, a tap on the te
 });
 
 test('closing the touch keyboard releases only the terminal input focus', async t => {
-  const { p, errors } = await page(t, '#t=fixture', { viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
+  // A tablet types into the terminal; a phone uses its compose box and
+  // never focuses the terminal's input.
+  const { p, errors } = await page(t, '#t=fixture', { viewport: { width: 820, height: 1180 }, hasTouch: true, isMobile: true });
   assert.equal(await p.evaluate(() => document.body.classList.contains('touch')), true);
   await screen(p, 'keyboard focus');
   const initial = await p.evaluate(() => {
@@ -3262,7 +3264,9 @@ test('closing the touch keyboard releases only the terminal input focus', async 
 });
 
 test('touch keyboard focus survives viewport zoom and orientation changes', async t => {
-  const { p, errors } = await page(t, '#t=fixture', { viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
+  // A tablet types into the terminal; a phone uses its compose box and
+  // never focuses the terminal's input.
+  const { p, errors } = await page(t, '#t=fixture', { viewport: { width: 820, height: 1180 }, hasTouch: true, isMobile: true });
   assert.equal(await p.evaluate(() => document.body.classList.contains('touch')), true);
   await screen(p, 'viewport focus');
   await p.evaluate(() => {
