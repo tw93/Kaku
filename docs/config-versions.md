@@ -45,5 +45,6 @@ instruction files; read the txt file instead.
 | v43 | V0.27.0 | No schema change. Increments because the release gate requires a bump every release; the highlight covers TUI-wrapped paths and URLs opening in full. |
 | v44 | V0.27.1 | No schema change. Increments because the release gate requires a bump every release; the highlight covers Settings applying user color schemes. |
 | v45 | V0.28.0 | No schema change. Increments because the release gate requires a bump every release; the highlight covers restored long sessions no longer crashing on every launch. |
+| v46 | V0.29.0 | No schema change. The bundled `kaku.lua` binds Cmd+J to the new `ActivateNextAttentionTab`, which the highlight covers. |
 
 When you bump the version, add a row here in the same change.
