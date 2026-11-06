@@ -43,10 +43,14 @@ panic = "abort"           # Smaller panic implementation
 [profile.dev]
 # https://jakedeichert.com/blog/reducing-rust-incremental-compilation-times-on-macos-by-70-percent/
 split-debuginfo = "unpacked"
+# Line tables only for workspace crates: backtraces and breakpoints keep file
+# and line, lldb loses local variables. A clean `cargo test --no-run` went from
+# 5.3G to 4.6G at the same build time. Set CARGO_PROFILE_DEV_DEBUG=true for a
+# session that needs full variable inspection.
+debug = "line-tables-only"
 
-# Full debug info only for workspace crates. Third-party crates without it
-# took a clean debug build from 4.8G to 3.9G; backtraces and breakpoints in
-# workspace code are unchanged.
+# No debug info for third-party crates: a clean debug build went from 4.8G to
+# 3.9G.
 [profile.dev.package."*"]
 debug = false
 

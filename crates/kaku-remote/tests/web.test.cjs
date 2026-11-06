@@ -3195,7 +3195,8 @@ for (const cancel of [false, true]) test('real desktop touch ' + (cancel ? 'canc
 });
 
 test('on a touch screen switching tabs leaves the keyboard down, a tap on the terminal raises it', async t => {
-  const { p } = await page(t, '#t=fixture', { viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
+  // A tablet: a phone types through its compose box instead (below).
+  const { p } = await page(t, '#t=fixture', { viewport: { width: 820, height: 1180 }, hasTouch: true, isMobile: true });
   if (!(await p.evaluate(() => document.body.classList.contains('touch')))) {
     await p.addInitScript(() => {
       const real = window.matchMedia.bind(window);
@@ -3824,5 +3825,172 @@ test('one key switches between the terminal and the desktop view, and the system
   assert.equal(await p.evaluate(() => document.body.classList.contains('desktop')), false);
   assert.equal(await p.evaluate(() => messages.filter(m => m.type === 'desktop_stop').length), 1);
   assert.deepEqual((await typed()).filter(m => m.type !== 'desktop_key' || /D$/.test(m.code)), []);
+  assert.deepEqual(errors, []);
+});
+
+const phoneTabs = [
+  { tab_id: 1, pane_id: 1, title: 'one', active: true },
+  { tab_id: 2, pane_id: 2, title: 'A very long tab title '.repeat(8) + ' •', confirm_close: true, agent: { program: 'claude', topic: 'Fix login' }, status: 'blocked' },
+  { tab_id: 3, pane_id: 3, title: 'three', confirm_close: false, status: 'working' },
+];
+
+test('a phone lists tabs in a drawer that switches, creates, renames and closes with recovery', async t => {
+  const { p, errors } = await page(t, '#t=fixture', { viewport: { width: 320, height: 700 }, hasTouch: true, isMobile: true });
+  await screen(p);
+  await p.evaluate(tabs => { messages.length = 0; probe.handle({ type: 'tabs', tabs }); }, phoneTabs);
+  assert.equal(await p.locator('#bar #tabs').isVisible(), false);
+  assert.equal(await p.locator('#mobile-switch .mobile-dot').isVisible(), true, 'another tab wanting you shows on the bar');
+  await p.locator('#mobile-switch').click();
+  assert.equal(await p.locator('#mobile-head .count').textContent(), '3');
+  assert.equal(await p.locator('#mobile-tabs.show .mobile-row').count(), 3);
+  assert.equal(await p.locator('.mobile-select[aria-current=true]').count(), 1);
+  assert.equal(await p.locator('.mobile-row[data-tab="2"] .mobile-sub').textContent(), 'Needs input · Fix login');
+  assert.equal(await p.locator('.mobile-row[data-tab="2"] .mobile-sub svg').count(), 1);
+  assert.equal(await p.locator('.mobile-row[data-tab="2"] .mobile-title .mobile-dot').count(), 1);
+  assert.equal(await p.locator('.mobile-row[data-tab="3"] .mobile-sub').textContent(), 'Working');
+  assert.equal(await p.locator('.mobile-row[data-tab="1"] .mobile-sub').count(), 0);
+  await p.waitForTimeout(250);
+  const drawer = await p.locator('#mobile-tabs').boundingBox();
+  assert.ok(drawer.x === 0 && drawer.width <= 320 * 0.85 + 1, JSON.stringify(drawer));
+
+  // Rename in the row, and a tabs list arriving meanwhile leaves the editor.
+  await p.locator('.mobile-row[data-tab="2"] .mobile-more').click();
+  await p.locator('#menu button', { hasText: 'Rename Tab' }).click();
+  const input = p.locator('.mobile-row[data-tab="2"] input');
+  assert.equal(await input.inputValue(), phoneTabs[1].title.replace(/\s*•$/, ''));
+  await p.evaluate(tabs => probe.handle({ type: 'tabs', tabs: tabs.map(t => ({ ...t, title: t.title + '!' })) }), phoneTabs);
+  assert.equal(await input.count(), 1);
+  await input.fill('renamed');
+  await p.keyboard.press('Enter');
+  assert.deepEqual(await p.evaluate(() => messages.filter(m => m.type === 'rename_tab')), [{ type: 'rename_tab', tab_id: 2, title: 'renamed' }]);
+  await p.evaluate(tabs => probe.handle({ type: 'tabs', tabs }), phoneTabs);
+
+  // Close asks first when Kaku says so, and a rejected close comes back.
+  await p.locator('.mobile-row[data-tab="2"] .mobile-more').click();
+  await p.locator('#menu button', { hasText: 'Close Tab' }).click();
+  await p.locator('#dialog [data-act=cancel]').click();
+  assert.equal(await p.evaluate(() => messages.some(m => m.type === 'close_tab')), false);
+  assert.equal(await p.locator('#mobile-tabs.show').count(), 1, 'the drawer stays open behind the confirmation');
+  await p.locator('.mobile-row[data-tab="2"] .mobile-more').click();
+  await p.locator('#menu button', { hasText: 'Close Tab' }).click();
+  await p.locator('#dialog [data-act=ok]').click();
+  assert.equal(await p.locator('.mobile-row').count(), 2);
+  await p.waitForTimeout(3200);
+  assert.equal(await p.locator('.mobile-row').count(), 3, 'rejected close restores authoritative tabs');
+  await p.locator('.mobile-row[data-tab="3"] .mobile-more').click();
+  await p.locator('#menu button', { hasText: 'Close Tab' }).click();
+  assert.deepEqual(await p.evaluate(() => messages.filter(m => m.type === 'close_tab').map(m => m.tab_id)), [2, 3]);
+
+  await p.locator('.mobile-row[data-tab="2"] .mobile-select').click();
+  assert.equal(await p.locator('#mobile-tabs.show').count(), 0);
+  assert.equal(await p.evaluate(() => messages.some(m => m.type === 'attach' && m.pane_id === 2)), true);
+  await p.locator('#mobile-switch').click();
+  await p.locator('#mobile-shade').click({ position: { x: 310, y: 300 } });
+  assert.equal(await p.locator('#mobile-tabs.show').count(), 0, 'a tap beside the drawer shuts it');
+  await p.locator('#mobile-switch').click();
+  await p.keyboard.press('Escape');
+  assert.equal(await p.locator('#mobile-tabs.show').count(), 0);
+  await p.locator('#mobile-switch').click();
+  await p.locator('#mobile-new').click();
+  assert.equal(await p.evaluate(() => messages.some(m => m.type === 'new_tab')), true);
+  assert.equal(await p.locator('#mobile-tabs.show').count(), 0);
+  assert.deepEqual(errors, []);
+});
+
+test('the drawer and compose box are for phones only, at the touch bar heights', async t => {
+  const cases = [
+    ['phone', { width: 320, height: 568 }, true, true, 44, false],
+    ['phone on its side, bar at the bottom', { width: 844, height: 390 }, true, true, 34, true],
+    ['tablet', { width: 820, height: 1180 }, true, false, 44, false],
+    ['narrow desktop window', { width: 600, height: 800 }, false, false, null, false],
+  ];
+  for (const [name, viewport, touch, phone, bar, bottom] of cases) {
+    const { p, errors } = await page(t, '#t=fixture', touch ? { viewport, hasTouch: true, isMobile: true } : { viewport });
+    await screen(p);
+    await p.evaluate(bottom => {
+      probe.handle({ type: 'config', tab_bar_at_bottom: bottom });
+      probe.handle({ type: 'tabs', tabs: Array.from({ length: 20 }, (_, i) => ({ tab_id: i + 1, pane_id: i + 1, title: `Tab ${i}`, active: i === 0 })) });
+    }, bottom);
+    const got = await p.evaluate(() => ({
+      phone: document.body.classList.contains('phone'),
+      strip: getComputedStyle(document.querySelector('#tabs')).display !== 'none',
+      compose: getComputedStyle(document.querySelector('#compose')).display !== 'none',
+      bar: Math.round(document.querySelector('#bar').getBoundingClientRect().height),
+      overflow: document.documentElement.scrollWidth > innerWidth,
+    }));
+    assert.equal(got.phone, phone, name);
+    assert.equal(got.strip, !phone, name);
+    assert.equal(got.compose, phone, name);
+    if (bar) assert.equal(got.bar, bar, name);
+    assert.equal(got.overflow, false, name);
+    if (phone) {
+      await p.locator('#mobile-switch').click();
+      const fit = await p.evaluate(() => {
+        const list = document.querySelector('#mobile-list'), foot = document.querySelector('#mobile-foot').getBoundingClientRect();
+        return { scrollable: list.scrollHeight > list.clientHeight, footBottom: foot.bottom, height: innerHeight };
+      });
+      assert.equal(fit.scrollable, true, name);
+      assert.ok(fit.footBottom <= fit.height + 1, name);
+      // The compose box sits under the terminal, inside the window.
+      const box = await p.locator('#compose').boundingBox(), stage = await p.locator('#stage').boundingBox();
+      assert.ok(box.y >= stage.y + stage.height - 1 && box.y + box.height <= viewport.height + 1, name);
+    }
+    assert.deepEqual(errors, [], name);
+  }
+});
+
+test('a phone types through the compose box and a tap on the terminal is a click', async t => {
+  const { p, errors } = await page(t, '#t=fixture', { viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
+  await screen(p);
+  const sent = () => p.evaluate(() => messages.filter(m => ['text', 'paste', 'key', 'click'].includes(m.type)).map(m => {
+    const { type, data, key, ctrl } = m;
+    return type === 'click' ? 'click' : type === 'key' ? (ctrl ? '^' : '') + key : `${type}:${data}`;
+  }));
+  const enter = async (text) => {
+    await p.locator('#compose textarea').fill(text);
+    await p.locator('#compose button').tap();
+  };
+  await p.evaluate(() => { messages.length = 0; });
+  await enter('ls -la');
+  await enter('first line\nsecond line');
+  await enter('');
+  assert.deepEqual(await sent(), ['text:ls -la', 'Enter', 'paste:first line\nsecond line', 'Enter', 'Enter']);
+  assert.equal(await p.locator('#compose textarea').inputValue(), '');
+
+  // Return on the soft keyboard adds a line; Cmd or Ctrl+Return sends.
+  await p.evaluate(() => { messages.length = 0; });
+  await p.locator('#compose textarea').focus();
+  await p.keyboard.type('a');
+  await p.keyboard.press('Enter');
+  await p.keyboard.type('b');
+  assert.equal(await p.locator('#compose textarea').inputValue(), 'a\nb');
+  assert.deepEqual(await sent(), [], 'typing in the box reaches the terminal only when sent');
+  await p.keyboard.press('Control+Enter');
+  assert.deepEqual(await sent(), ['paste:a\nb', 'Enter']);
+
+  // Ctrl on the key row makes the next letter typed in the box a control key.
+  await p.evaluate(() => { messages.length = 0; });
+  await p.locator('#keys button', { hasText: /^Ctrl$/ }).dispatchEvent('pointerdown');
+  await p.keyboard.type('c');
+  assert.deepEqual(await sent(), ['^c']);
+  assert.equal(await p.locator('#compose textarea').inputValue(), '');
+
+  // The box grows with its lines, up to a cap.
+  const h1 = (await p.locator('#compose textarea').boundingBox()).height;
+  await p.locator('#compose textarea').fill('1\n2\n3');
+  await p.locator('#compose textarea').dispatchEvent('input');
+  const h3 = (await p.locator('#compose textarea').boundingBox()).height;
+  await p.locator('#compose textarea').fill('1\n2\n3\n4\n5\n6\n7\n8\n9');
+  await p.locator('#compose textarea').dispatchEvent('input');
+  const h9 = (await p.locator('#compose textarea').boundingBox()).height;
+  assert.ok(h3 > h1 && h9 <= 128, JSON.stringify({ h1, h3, h9 }));
+
+  // A tap on the terminal never raises the keyboard; it is the program's.
+  await p.evaluate(() => { document.activeElement?.blur(); messages.length = 0; });
+  const box = await p.locator('#stage .xterm-screen').boundingBox();
+  await p.touchscreen.tap(box.x + box.width / 2, box.y + box.height / 2);
+  await p.waitForTimeout(50);
+  assert.equal(await p.evaluate(() => document.activeElement === probe.term.textarea), false);
+  assert.deepEqual(await sent(), ['click']);
   assert.deepEqual(errors, []);
 });

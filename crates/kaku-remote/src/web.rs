@@ -372,6 +372,10 @@ struct TabInfo {
     /// The agent working in the active pane, shown at the bar's right end.
     #[serde(skip_serializing_if = "Option::is_none")]
     agent: Option<AgentInfo>,
+    /// The active pane's own OSC 7501 state ("working", "blocked", "done",
+    /// "error"), which the phone's tab list shows; "idle" is left out.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    status: Option<String>,
     /// Panes of this tab under Kaku Assistant's chat on the Mac.
     #[serde(skip_serializing_if = "Vec::is_empty")]
     ai_chat: Vec<usize>,
@@ -443,6 +447,7 @@ fn collect_tabs() -> Vec<TabInfo> {
                 panes,
                 zoomed: tab.get_zoomed_pane().is_some(),
                 agent: agents.get(&tab_id).cloned(),
+                status: pane.get_program_status().filter(|s| s != "idle"),
                 ai_chat: positioned
                     .iter()
                     .map(|p| usize::from(p.pane.pane_id()))

@@ -29,6 +29,40 @@
   /* The tab bar follows Kaku's own: monospace titles, the active tab as a
      filled block in Kaku's tab colors, no rule between it and the terminal. */
   :root { --mono: "Kaku Mono", monospace; --bar-bg: var(--bg); --tab-fg: var(--muted); --tab-active-bg: rgba(255,255,255,0.08); --tab-active-fg: var(--fg); --tab-hover-bg: rgba(255,255,255,0.05); --tab-hover-fg: var(--fg); }
+  /* A phone (touch and narrow, or on its side) lists tabs in a drawer and
+     types through a compose box; tablets and desktops keep the tab bar. The
+     bar keeps the touch heights below, slimmer on a phone on its side. */
+  #mobile-switch, #mobile-tabs, #mobile-shade, #compose { display: none; }
+  body.phone #bar #tabs { display: none; }
+  body.phone #bar #mobile-switch { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; max-width: none; padding: 0 12px; color: var(--tab-active-fg); text-align: left; }
+  #mobile-switch .icon { position: relative; flex: none; display: flex; }
+  #mobile-switch svg { width: 16px; height: 16px; color: var(--tab-fg); }
+  #mobile-switch .mobile-dot { position: absolute; top: -2px; right: -3px; display: none; }
+  #mobile-switch.waiting .mobile-dot { display: block; }
+  #mobile-switch .name { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  .mobile-dot { flex: none; width: 6px; height: 6px; border-radius: 50%; background: var(--dot, #daae76); }
+  body.phone #mobile-shade.show { display: block; position: fixed; inset: 0; z-index: 17; background: rgba(0,0,0,0.4); }
+  body.phone #mobile-tabs { display: flex; flex-direction: column; position: fixed; top: 0; bottom: 0; left: 0; z-index: 18; box-sizing: border-box; width: min(85vw, 340px); padding-top: env(safe-area-inset-top); background: var(--bg); border-right: 1px solid var(--line); font: 14px var(--mono); transform: translateX(-100%); visibility: hidden; transition: transform 0.2s ease-out, visibility 0s 0.2s; }
+  body.phone #mobile-tabs.show { transform: none; visibility: visible; transition: transform 0.2s ease-out; }
+  #mobile-head { flex: none; display: flex; align-items: center; gap: 8px; height: 44px; padding: 0 16px; color: var(--muted); font-size: 13px; }
+  #mobile-list { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+  .mobile-row { display: flex; align-items: center; }
+  .mobile-row.current { background: var(--tab-active-bg); }
+  .mobile-row button { border: 0; background: transparent; color: var(--fg); font: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .mobile-select { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 4px; min-height: 56px; padding: 8px 4px 8px 16px; text-align: left; }
+  .mobile-title { display: flex; align-items: center; gap: 8px; min-width: 0; }
+  .mobile-label, .mobile-sub span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .mobile-sub { display: flex; align-items: center; gap: 6px; min-width: 0; color: var(--muted); font-size: 12px; }
+  .mobile-sub svg { flex: none; width: 12px; height: 12px; }
+  .mobile-row input { flex: 1; min-width: 0; margin: 8px 12px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: transparent; color: var(--fg); font: 16px var(--mono); outline: none; }
+  .mobile-more { flex: none; display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; color: var(--muted) !important; }
+  .mobile-more svg { width: 16px; height: 16px; }
+  #mobile-foot { flex: none; padding: 12px 16px max(12px, env(safe-area-inset-bottom)); border-top: 1px solid var(--line); }
+  #mobile-new { width: 100%; height: 44px; border: 1px solid var(--line); border-radius: 8px; background: transparent; color: var(--fg); font: inherit; cursor: pointer; }
+  body.phone #compose { display: flex; order: 4; flex: none; align-items: flex-end; gap: 8px; padding: 6px 8px; border-top: 1px solid var(--line); }
+  #compose textarea { flex: 1; min-width: 0; box-sizing: border-box; height: 38px; max-height: 128px; margin: 0; padding: 8px 10px; resize: none; border: 1px solid var(--line); border-radius: 8px; background: transparent; color: var(--fg); font: 16px/20px var(--mono); outline: none; }
+  #compose button { flex: none; display: flex; align-items: center; justify-content: center; width: 44px; height: 38px; border: 0; border-radius: 8px; background: var(--line); color: var(--fg); -webkit-user-select: none; user-select: none; }
+  #compose button svg { width: 16px; height: 16px; }
   #image-preview { box-sizing: border-box; position: fixed; z-index: 30; pointer-events: none; max-width: min(640px, calc(100vw - 24px)); max-height: min(480px, calc(100vh - 24px)); object-fit: contain; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; box-shadow: 0 8px 24px #0004; }
   body.tabs-bottom #bar { order: 2; }
   #bar { display: flex; align-items: stretch; height: var(--bar-h, 32px); padding: 0; background: var(--bar-bg); flex: none; font: var(--bar-font, 15px) var(--mono); }
@@ -233,7 +267,9 @@
 </style>
 </head>
 <body>
-<div id="bar"><div id="tabs"></div><div id="tools"></div></div>
+<div id="bar"><div id="tabs"></div><button id="mobile-switch" type="button" aria-label="Open tabs" aria-expanded="false" aria-controls="mobile-tabs"><span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M2.5 4h11M2.5 8h11M2.5 12h11"/></svg><span class="mobile-dot"></span></span><span class="name"></span></button><div id="tools"></div></div>
+<div id="mobile-shade"></div>
+<div id="mobile-tabs" role="dialog" aria-label="Tabs"><div id="mobile-head">Tabs <span class="count"></span></div><div id="mobile-list"></div><div id="mobile-foot"><button id="mobile-new" type="button">New Tab</button></div></div>
 <div id="dialog" role="dialog" aria-modal="true" tabindex="-1"><div class="card"><svg class="tip" viewBox="0 0 16 8" aria-hidden="true"><path class="cover" d="M0 8L6.6 1.4Q8 0 9.4 1.4L16 8Z"/><path class="edge" d="M1 7L6.6 1.4Q8 0 9.4 1.4L15 7"/></svg><div class="title"></div><div class="actions"><button type="button" data-act="cancel" tabindex="-1">Cancel</button><button type="button" data-act="ok" tabindex="-1">Close</button></div></div></div>
 <div id="stage">
   <div id="term"></div>
@@ -246,6 +282,7 @@
 <div id="menu" role="menu"></div>
 <div id="help" role="dialog" aria-modal="true"><div class="card"><div class="title">Shortcuts</div><dl></dl></div></div>
 <div id="keys"></div>
+<div id="compose"><textarea rows="1" placeholder="Type a command or message" aria-label="Input" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="enter"></textarea><button type="button" aria-label="Send"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 3v5.5a1.5 1.5 0 0 1-1.5 1.5H3.5M6.5 7l-3 3 3 3"/></svg></button></div>
 <script src="assets/xterm.js"></script>
 <script src="assets/xterm-webgl.js"></script>
 <script src="assets/xterm-unicode11.js"></script>
@@ -635,6 +672,11 @@
   // (#597), so there only a tap on the terminal itself asks for it.
   const refocus = () => { if (!TOUCH) term.focus(); };
   if (TOUCH) document.body.classList.add("touch");
+  // A phone: tabs in a drawer, typing through the compose box at the bottom,
+  // and a tap on the terminal is a click for the program, never the keyboard.
+  const PHONE_QUERY = matchMedia("(max-width: 640px), (max-height: 500px)");
+  let phone = TOUCH && PHONE_QUERY.matches;
+  document.body.classList.toggle("phone", phone);
   let fontSize = baseFontSize;
   let size = { cols: 0, rows: 0 };
   let retry = 0;
@@ -1337,6 +1379,45 @@
     const keysEdge = () => keysEl.classList.toggle("more-right", keysEl.scrollLeft + keysEl.clientWidth < keysEl.scrollWidth - 2);
     keysEl.addEventListener("scroll", keysEdge, { passive: true });
     new ResizeObserver(keysEdge).observe(keysEl);
+    // The phone's compose box: the system keyboard's dictation, IME and
+    // autocorrect work on a real text field, then the line goes out at once.
+    // Its Return adds a line, since a soft keyboard has no Shift+Return; the
+    // button sends, and sends Return alone when the box is empty, which
+    // answers a program's prompt.
+    const composeEl = document.getElementById("compose");
+    const composeInput = composeEl.querySelector("textarea");
+    const growCompose = () => {
+      composeInput.style.height = "";
+      if (composeInput.scrollHeight > composeInput.clientHeight) composeInput.style.height = composeInput.scrollHeight + 2 + "px";
+    };
+    const submitCompose = () => {
+      const text = composeInput.value;
+      if (text.includes("\n")) pasteText(text);
+      else if (text) send({ type: "text", data: text });
+      send({ type: "key", key: "Enter", ctrl: false, alt: false, shift: false });
+      composeInput.value = "";
+      growCompose();
+    };
+    composeInput.addEventListener("input", (ev) => {
+      // With Ctrl latched on the key row, the next letter is a control key.
+      if (ctrlDown && ev.inputType === "insertText" && ev.data && ev.data.length === 1) {
+        const at = composeInput.selectionStart;
+        composeInput.value = composeInput.value.slice(0, at - 1) + composeInput.value.slice(at);
+        composeInput.setSelectionRange(at - 1, at - 1);
+        setCtrl(false);
+        send({ type: "key", key: ev.data.toLowerCase(), ctrl: true, alt: false, shift: false });
+      }
+      growCompose();
+    });
+    composeInput.addEventListener("keydown", (ev) => {
+      // A hardware keyboard sends with Cmd or Ctrl+Return.
+      if (ev.key === "Enter" && (ev.metaKey || ev.ctrlKey) && !ev.isComposing) { ev.preventDefault(); submitCompose(); }
+      ev.stopPropagation();
+    });
+    const composeSend = composeEl.querySelector("button");
+    // Like the key row: act on the press and keep the keyboard up.
+    composeSend.addEventListener("pointerdown", (ev) => { ev.preventDefault(); submitCompose(); });
+    composeSend.addEventListener("touchstart", (ev) => ev.preventDefault(), { passive: false });
     // When the keyboard opens, iOS shrinks only the visual viewport: size the
     // page to it so the prompt and the key row stay above the keyboard.
     if (window.visualViewport) {
@@ -1816,10 +1897,13 @@
   stage.addEventListener("pointerdown", () => {
     focusedAtPress = !!term.textarea && document.activeElement === term.textarea;
   }, true);
+  // xterm.js focuses its input on a press, which on a phone would raise the
+  // keyboard over the program; there the press goes only to the page.
+  stage.addEventListener("mousedown", (ev) => { if (phone && termEl.contains(ev.target)) ev.stopPropagation(); }, true);
   stage.addEventListener("mousedown", (ev) => {
     // Only presses on the terminal itself; the find bar, "Back to live" and
     // the history view sit over it and are not the program's.
-    clickFrom = ev.button === 0 && termEl.contains(ev.target) && (!TOUCH || focusedAtPress) ? [ev.clientX, ev.clientY] : null;
+    clickFrom = ev.button === 0 && termEl.contains(ev.target) && (!TOUCH || phone || focusedAtPress) ? [ev.clientX, ev.clientY] : null;
   }, true);
   stage.addEventListener("mouseup", (ev) => {
     const from = clickFrom;
@@ -1940,7 +2024,7 @@
   // A press in the history view selects its text; elsewhere it focuses the
   // terminal, unless the tap only stopped a fling.
   stage.addEventListener("mousedown", (ev) => {
-    if (!pastEl.contains(ev.target) && !stoppedFling) term.focus();
+    if (!pastEl.contains(ev.target) && !stoppedFling && !phone) term.focus();
     stoppedFling = false;
   });
   // ── Tabs ───────────────────────────────────────────────────────────────
@@ -2213,7 +2297,7 @@
       dialogDone = null;
       dialogAnchor = null;
       dialogEl.classList.remove("show", "in");
-      refocus();
+      if (!mobileTabs.classList.contains("show")) refocus();
       resolve(ok);
     };
     dialogEl.focus();
@@ -2474,6 +2558,7 @@
     add.title = "New Tab";
     add.addEventListener("click", newTab);
     tabsEl.append(add);
+    renderMobileTabs();
     renderPanes();
     renderStatus();
     // Bring the active tab into view when it changes, not on every title
@@ -2487,6 +2572,91 @@
     // A title that changes width moves the tab the confirmation points at.
     if (dialogDone) placeDialog();
   };
+  // ── Phone: tab drawer ──────────────────────────────────────────────────
+  const mobileSwitch = document.getElementById("mobile-switch"), mobileTabs = document.getElementById("mobile-tabs");
+  const mobileList = document.getElementById("mobile-list"), mobileShade = document.getElementById("mobile-shade");
+  const STATUS_LABELS = { working: "Working", blocked: "Needs input", done: "Done", error: "Error" };
+  const plainTitle = (t) => (t.title || "Tab").replace(/\s*•$/, "");
+  // Kaku's trailing dot, or the program saying it waits on the user.
+  const wantsYou = (t) => (t.title || "").endsWith("•") || t.status === "blocked" || t.status === "error";
+  const setMobileOpen = (open) => {
+    mobileTabs.classList.toggle("show", open);
+    mobileShade.classList.toggle("show", open);
+    mobileSwitch.setAttribute("aria-expanded", String(open));
+    // Opening the drawer puts the keyboard away.
+    if (open) document.activeElement?.blur();
+  };
+  const mobileRow = (id) => mobileList.querySelector(`.mobile-row[data-tab="${id}"]`);
+  const renderMobileTabs = () => {
+    const current = tabs.find(t => t.tab_id === tabId);
+    mobileSwitch.querySelector(".name").textContent = current ? plainTitle(current) : "No tabs";
+    // Another tab wanting you marks the drawer's button, since it is shut.
+    mobileSwitch.classList.toggle("waiting", tabs.some(t => t.tab_id !== tabId && wantsYou(t)));
+    document.querySelector("#mobile-head .count").textContent = tabs.length;
+    mobileList.textContent = "";
+    for (const t of tabs) {
+      const title = plainTitle(t);
+      const row = document.createElement("div");
+      row.className = "mobile-row" + (t.tab_id === tabId ? " current" : "");
+      row.dataset.tab = String(t.tab_id);
+      const select = document.createElement("button");
+      select.type = "button";
+      select.className = "mobile-select";
+      if (t.tab_id === tabId) select.setAttribute("aria-current", "true");
+      const head = document.createElement("span");
+      head.className = "mobile-title";
+      const label = document.createElement("span");
+      label.className = "mobile-label";
+      label.textContent = title;
+      head.append(label);
+      if (wantsYou(t)) {
+        const dot = document.createElement("span");
+        dot.className = "mobile-dot";
+        dot.setAttribute("aria-label", "needs attention");
+        head.append(dot);
+      }
+      select.append(head);
+      // The agent at work and what it says of itself, under the title.
+      const status = STATUS_LABELS[t.status];
+      if (t.agent || status) {
+        const sub = document.createElement("span");
+        sub.className = "mobile-sub";
+        if (t.agent && AGENT_MARKS[t.agent.program]) sub.innerHTML = `<svg viewBox="0 0 120 120" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" d="${AGENT_MARKS[t.agent.program]}"/></svg>`;
+        const text = document.createElement("span");
+        text.textContent = [status, t.agent?.topic].filter(Boolean).join(" · ");
+        sub.append(text);
+        select.append(sub);
+      }
+      select.addEventListener("click", () => { setMobileOpen(false); if (t.tab_id !== tabId) attach(t, true); });
+      const more = document.createElement("button");
+      more.type = "button";
+      more.className = "mobile-more";
+      more.setAttribute("aria-label", `More for ${title}`);
+      more.innerHTML = '<svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><circle cx="3.5" cy="8" r="1.3"/><circle cx="8" cy="8" r="1.3"/><circle cx="12.5" cy="8" r="1.3"/></svg>';
+      more.addEventListener("click", () => {
+        const r = more.getBoundingClientRect();
+        openMenu(r.left, r.bottom, [
+          ["Rename Tab", () => renameTab(t)],
+          null,
+          ["Close Tab", () => closeTab(t, () => mobileRow(t.tab_id)?.querySelector(".mobile-more"))],
+        ]);
+      });
+      row.append(select, more);
+      mobileList.append(row);
+    }
+  };
+  mobileSwitch.addEventListener("click", () => setMobileOpen(true));
+  mobileShade.addEventListener("click", () => setMobileOpen(false));
+  document.getElementById("mobile-new").addEventListener("click", () => { newTab(); setMobileOpen(false); });
+  window.addEventListener("keydown", ev => {
+    if (dialogDone || menuEl.classList.contains("show") || renaming) return;
+    if (ev.key === "Escape" && mobileTabs.classList.contains("show")) { ev.preventDefault(); ev.stopImmediatePropagation(); setMobileOpen(false); }
+  }, true);
+  PHONE_QUERY.addEventListener("change", () => {
+    phone = TOUCH && PHONE_QUERY.matches;
+    document.body.classList.toggle("phone", phone);
+    if (!phone) setMobileOpen(false);
+  });
   const clearDropMarks = () => tabsEl.querySelectorAll(".drop-before, .drop-after").forEach((e) => e.classList.remove("drop-before", "drop-after"));
   // Kaku's own order is per window; the page lists every window's tabs in a
   // row, so a move is told to the Mac as an index within that window.
@@ -2506,14 +2676,15 @@
   // moment ago may hold a button that is gone; edit the one on the page.
   const renameTab = (t) => {
     if (renaming) return;
-    const b = tabsEl.querySelector(`.tab[data-tab="${t.tab_id}"]`);
-    const label = b && b.querySelector("span");
+    // On a phone the drawer's row takes the editor, in place of its button.
+    const b = phone ? mobileRow(t.tab_id) : tabsEl.querySelector(`.tab[data-tab="${t.tab_id}"]`);
+    const label = b && b.querySelector(phone ? ".mobile-select" : "span");
     if (!label) return;
     const input = document.createElement("input");
-    const initial = label.textContent;
+    const initial = phone ? plainTitle(t) : label.textContent;
     input.value = initial;
     input.spellcheck = false;
-    input.style.width = Math.max(4, initial.length + 1) + "ch";
+    if (!phone) input.style.width = Math.max(4, initial.length + 1) + "ch";
     renaming = t.tab_id;
     label.replaceWith(input);
     b.draggable = false;
@@ -2533,7 +2704,7 @@
       renderTabs();
       refocus();
     };
-    input.addEventListener("input", () => { input.style.width = Math.max(4, input.value.length + 1) + "ch"; });
+    input.addEventListener("input", () => { if (!phone) input.style.width = Math.max(4, input.value.length + 1) + "ch"; });
     input.addEventListener("keydown", (ev) => {
       ev.stopPropagation();
       if (ev.key === "Enter") { ev.preventDefault(); finish(true); }
