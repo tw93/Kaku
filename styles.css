@@ -361,7 +361,7 @@ button, input { font: inherit; }
   width: 150px;
   padding: 6px;
   border: 1px solid var(--border-soft);
-  border-radius: 8px;
+  border-radius: 12px;
   background: var(--ivory);
   box-shadow: 0 8px 24px rgba(20, 19, 19, 0.08);
 }
@@ -630,7 +630,7 @@ button, input { font: inherit; }
   aspect-ratio: 2584 / 1741;
   background: var(--warm-sand);
   border: 1px solid var(--border-soft);
-  border-radius: 10px;
+  border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 1px 3px rgba(20, 19, 19, 0.10);
   touch-action: pan-y;
@@ -701,23 +701,26 @@ html[lang^="zh"] .gallery-caption .line { margin-bottom: 0; }
 .gallery-tabs button.is-active { color: var(--ivory); background: var(--kaku-slate); border-color: var(--kaku-slate); }
 .gallery-tabs button.is-active:hover { background: var(--kaku-slate-light); border-color: var(--kaku-slate-light); }
 .gallery-tabs button:focus-visible { outline: 2px solid var(--brand); outline-offset: 1px; }
-/* Below 1120px the caption has no room for a line beside the tabs, so it takes its own row,
-   and the title sits above the line so a line that wraps never runs beside it. */
-@media (max-width: 1119px) {
-  .gallery-caption, html[lang^="zh"] .gallery-caption { flex-direction: column; align-items: flex-start; gap: 4px; }
-  .gallery-caption .line { margin-bottom: 0; }
-  .gallery { grid-template-columns: minmax(0, 1fr); }
-  .gallery-caption, .gallery-tabs { grid-column: 1; grid-row: auto; }
-  .gallery-tabs {
-    justify-content: flex-start;
-    overflow-x: auto;
-    overflow-y: hidden;
-    padding-bottom: 6px;
-    scrollbar-width: none;
-  }
-  .gallery-tabs::-webkit-scrollbar { display: none; }
-  .gallery-tabs button { flex: 0 0 auto; padding: 6px 14px; }
+/* Eight tabs leave no room for a line beside them, so the tabs take the full
+   row with the caption under them, as on yado.house. The selected tab already
+   names the shot, so the caption keeps only its line, and phones drop it, as on
+   mole.fit, hina.day and yado.house. */
+.gallery { grid-template-columns: minmax(0, 1fr); }
+.gallery-caption, .gallery-tabs { grid-column: 1; }
+.gallery-caption { grid-row: 3; min-height: 36px; padding-top: 8px; }
+.gallery-caption .title { display: none; }
+.gallery-caption .line { margin-bottom: 0; }
+.gallery-tabs {
+  grid-row: 2;
+  justify-content: flex-start;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 6px;
+  scrollbar-width: none;
 }
+.gallery-tabs::-webkit-scrollbar { display: none; }
+.gallery-tabs button { flex: 0 0 auto; padding: 6px 14px; }
+@media (max-width: 480px) { .gallery-caption { display: none; } }
 @media (max-width: 560px) {
   /* Compare and Changelog stay in the footer; the bar keeps Docs and Blog on phones. */
   .nav-links a:nth-child(2), .nav-links a:nth-child(3) { display: none; }
@@ -814,6 +817,8 @@ html[lang^="zh"] .gallery-caption .line { margin-bottom: 0; }
   line-height: 1.2;
   letter-spacing: -0.3px;
 }
+/* Page titles step down on phones, as mole.fit's do. */
+@media (max-width: 640px) { .page-hero h1 { font-size: 26px; } }
 .page-hero p {
   max-width: none;
   margin: 0;
@@ -1374,6 +1379,17 @@ html[lang^="zh"] .gallery-caption .line { margin-bottom: 0; }
 @media (prefers-reduced-motion: reduce) {
   .faq-chevron, .faq-item::details-content { transition: none; }
 }
+.blog-latest-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+.blog-latest-list a { display: flex; align-items: baseline; justify-content: space-between; gap: 24px; color: var(--dark-warm); text-decoration: none; }
+@media (hover: hover) { .blog-latest-list a:hover .blog-latest-title { color: var(--brand); } }
+.blog-latest-title { font-size: var(--text-lede); line-height: 1.5; }
+.blog-latest-date { flex: none; font-size: var(--text-meta); color: var(--stone); font-variant-numeric: tabular-nums; }
+.section-head h2 a { color: inherit; text-decoration: none; }
+@media (hover: hover) { .section-head h2 a:hover { color: var(--brand); } }
+@media (max-width: 640px) {
+  .blog-latest-list { gap: 20px; }
+  .blog-latest-list a { flex-direction: column; gap: 4px; }
+}
 /* mole.fit's dark footer band in Kaku's slate, with Mole's text steps: the
    name and a one-line description on the left, small titled link columns on
    the right. Languages switch only in the nav. */
@@ -1426,12 +1442,12 @@ html[lang^="zh"] .foot-links b { letter-spacing: 0.6px; }
   .quick-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .workflow-item { grid-template-columns: minmax(0, 1fr); gap: 10px; }
   .hero { min-height: auto; padding: 44px 0 0; }
-  .hero-sub { font-size: 18px; }
 }
 @media (max-width: 880px) {
   .feature-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .wide, .hero-wrap, .hero-centered { padding-inline: 28px; }
   .site-nav { padding-inline: 14px; }
+  .hero { padding-top: 44px; }
   .section-head h2 { font-size: 26px; }
   /* 64px with -1px tracking under 880 and the 18px gap at every width, as on
      the other product sites (maintainer 2026-11-04: one lockup size). */
@@ -1443,14 +1459,14 @@ html[lang^="zh"] .foot-links b { letter-spacing: 0.6px; }
 /* Phones keep the sizes they had before the desktop ladder (decide 1030-13,
    maintainer 2026-11-01): the ladder above 640px does not change them. */
 @media (max-width: 640px) {
-  .skip-link, .nav-links a, .docs-home, .gallery-caption .line, .shot figcaption, .doc-content pre code { font-size: 14px; }
+  .skip-link, .nav-links a, .docs-home, .shot figcaption, .doc-content pre code { font-size: 14px; }
   .section-num, .release-doc h2 .rel-date { font-size: 15px; }
-  .gallery-caption .title, .faq-item h3, .doc-content h4 { font-size: 17px; }
-  .feature strong, .doc-content .quick-card h2, .doc-card h2 { font-size: 18px; }
+  .doc-content h4 { font-size: 17px; }
+  .doc-content .quick-card h2, .doc-card h2 { font-size: 18px; }
+  .faq-item h3 { font-size: 16px; }
   .doc-content h3 { font-size: 19px; }
   .contact .contact-title, .foot-brand .name, .method h2, .quick-card h3, .doc-content h2,
   .release-doc h2, .prose h3 { font-size: 22px; }
-  .workflow-item h3 { font-size: 24px; }
   .section-head h2, .prose h2 { font-size: 26px; }
   .feature span, .method p, .quick-card p, .doc-card p { font-size: 16px; }
   .doc-content code, .doc-content figcaption code { font-size: 0.9em; }
@@ -1458,7 +1474,7 @@ html[lang^="zh"] .foot-links b { letter-spacing: 0.6px; }
   .sk { font-size: 0.86em; }
 }
 @media (max-width: 560px) {
-  .wide, .hero-wrap, .hero-centered { padding-inline: 16px; }
+  .wide, .hero-wrap, .hero-centered { padding-inline: 22px; }
   .site-nav { padding: 12px 5px 0; }
   .site-nav .nav-inner { min-height: 48px; padding: 6px 10px; }
   .nav-links { gap: 2px; margin-left: 6px; }

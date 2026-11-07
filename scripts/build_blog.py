@@ -537,6 +537,21 @@ def llms_block(lang: str, live: list[dict]) -> str:
     return "\n" + "\n".join(lines) + "\n\n"
 
 
+def latest_block(home: str, lang: str, live: list[dict]) -> str:
+    """The three newest posts close the home page, as on mole.fit."""
+    items = "".join(
+        f'<li><a href="{url(lang, p["slug"])}"><span class="blog-latest-title">{html.escape(p[lang]["title"])}</span>'
+        f'<time class="blog-latest-date" datetime="{p["date"]}">{p["date"]}</time></a></li>'
+        for p in live[:3]
+    )
+    title = "From the blog" if lang == "en" else "近期文章"
+    block = (f'<section class="section" id="latest"><div class="wide"><div class="section-head">'
+             f'<h2><a href="{url(lang)}">{title}</a></h2></div><ul class="blog-latest-list">{items}</ul></div></section>')
+    home = re.sub(r"    <!-- latest:start -->.*?<!-- latest:end -->\n", "", home, flags=re.S)
+    assert home.count("  </main>") == 1
+    return home.replace("  </main>", f"    <!-- latest:start -->{block}<!-- latest:end -->\n  </main>")
+
+
 def outputs() -> dict[Path, str]:
     queue = load_queue()
     live = live_posts(queue, today())
@@ -550,8 +565,17 @@ def outputs() -> dict[Path, str]:
             page, twin = post_page(p, lang, live, queue)
             files[base / f"{p['slug']}.html"] = page
             files[base / f"{p['slug']}.md"] = twin
+    for lang, path in (("en", "index.html"), ("zh", "zh/index.html")):
+        home = (ROOT / path).read_text(encoding="utf-8")
+        files[ROOT / path] = latest_block(home, lang, live)
     sm = (ROOT / "sitemap.xml").read_text(encoding="utf-8")
     files[ROOT / "sitemap.xml"] = replace_block(sm, "<!-- blog:start -->", "<!-- blog:end -->", sitemap_block(live), "sitemap.xml")
+    # The home pages list the newest posts, so a new post dates them too.
+    if live:
+        files[ROOT / "sitemap.xml"] = re.sub(
+            r"(<loc>https://kaku\.fun/(?:zh)?</loc><lastmod>)([0-9-]+)(</lastmod>)",
+            lambda m: m[1] + max(m[2], live[0]["date"]) + m[3], files[ROOT / "sitemap.xml"],
+        )
     # A scheduled post also changes the sitemap and its discovery indexes.
     newest = max(re.findall(r"<lastmod>([0-9-]+)</lastmod>", files[ROOT / "sitemap.xml"]))
     index = (ROOT / "sitemap-index.xml").read_text(encoding="utf-8")
