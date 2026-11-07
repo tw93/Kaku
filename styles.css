@@ -176,8 +176,9 @@ button, input { font: inherit; }
 /* mole.fit's page: 1120px with 64px gutters, a 992px column. */
 .wide { max-width: 1120px; margin: 0 auto; padding: 0 64px; }
 .hero-wrap { max-width: 1120px; margin: 0 auto; padding: 0 64px; }
-.section { padding: 0; margin-bottom: 84px; }
-.section-tight { padding: 0; margin-bottom: 54px; }
+.section, .section-tight { padding: 0; margin-bottom: var(--section-gap); }
+/* One module gap, as on the rest of the family: 84 on desktop, 72 below. */
+@media (max-width: 880px) { :root { --section-gap: 72px; } }
 .label {
   color: var(--stone);
   font-family: var(--ui);
@@ -306,23 +307,11 @@ button, input { font: inherit; }
   font-size: 18px;
   font-weight: 400;
   line-height: 1;
-  /* Baseline on the mark's ink bottom, measured at 6x. */
+  /* Baseline midway between centred on the mark and on its ink bottom. */
   position: relative;
-  top: 6.9px;
+  top: 3.9px;
   text-transform: none;
   color: var(--near-black);
-}
-/* On a phone the hero wordmark sits right below, so the name only reads as a
-   second title. Clipped, not `display: none`: the link keeps its accessible name. */
-@media (max-width: 640px) {
-  .brand strong {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
-  }
 }
 .nav-links { display: flex; gap: 8px; margin-left: 14px; }
 .nav-links a {
@@ -1436,8 +1425,6 @@ html[lang^="zh"] .foot-links b { letter-spacing: 0.6px; }
   .section-toc p { grid-column: 1 / -1; }
   .quick-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .workflow-item { grid-template-columns: minmax(0, 1fr); gap: 10px; }
-  .section { margin-bottom: 54px; }
-  .section-tight { margin-bottom: 42px; }
   .hero { min-height: auto; padding: 44px 0 0; }
   .hero-sub { font-size: 18px; }
 }
@@ -1476,8 +1463,6 @@ html[lang^="zh"] .foot-links b { letter-spacing: 0.6px; }
   .site-nav .nav-inner { min-height: 48px; padding: 6px 10px; }
   .nav-links { gap: 2px; margin-left: 6px; }
   .nav-links a { padding: 8px 8px; }
-  .section { margin-bottom: 42px; }
-  .section-tight { margin-bottom: 33px; }
   .hero { padding: 40px 0 0; }
   .hero h1 { margin-bottom: calc(24px - 0.115em); }
   /* Phone hero buttons keep their label's width, 42px tall with 22px sides,
