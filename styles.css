@@ -705,9 +705,9 @@ html[lang^="zh"] .gallery-caption .line { margin-bottom: 0; }
    row with the caption under them, as on yado.house. The selected tab already
    names the shot, so the caption keeps only its line, and phones drop it, as on
    mole.fit, hina.day and yado.house. */
-.gallery { grid-template-columns: minmax(0, 1fr); }
+.gallery { grid-template-columns: minmax(0, 1fr); row-gap: 0; }
 .gallery-caption, .gallery-tabs { grid-column: 1; }
-.gallery-caption { grid-row: 3; min-height: 36px; padding-top: 8px; }
+.gallery-caption { grid-row: 3; align-items: baseline; min-height: 36px; padding-top: 12px; }
 .gallery-caption .title { display: none; }
 .gallery-caption .line { margin-bottom: 0; }
 .gallery-tabs {
