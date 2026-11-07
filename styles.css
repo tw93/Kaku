@@ -307,9 +307,9 @@ button, input { font: inherit; }
   font-size: 18px;
   font-weight: 400;
   line-height: 1;
-  /* Baseline midway between centred on the mark and on its ink bottom. */
+  /* Cap height centred on the bar, measured at 6x. */
   position: relative;
-  top: 3.9px;
+  top: 0.9px;
   text-transform: none;
   color: var(--near-black);
 }
