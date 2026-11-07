@@ -570,6 +570,13 @@ def outputs() -> dict[Path, str]:
         files[ROOT / path] = latest_block(home, lang, live)
     sm = (ROOT / "sitemap.xml").read_text(encoding="utf-8")
     files[ROOT / "sitemap.xml"] = replace_block(sm, "<!-- blog:start -->", "<!-- blog:end -->", sitemap_block(live), "sitemap.xml")
+    # A blog index can change without a new post, through shared chrome, so its
+    # date never moves backwards.
+    previous = dict(re.findall(r"<loc>(https://kaku\.fun/(?:zh/)?blog)</loc><lastmod>([0-9-]+)", sm))
+    files[ROOT / "sitemap.xml"] = re.sub(
+        r"(<loc>(https://kaku\.fun/(?:zh/)?blog)</loc><lastmod>)([0-9-]+)",
+        lambda m: m[1] + max(m[3], previous.get(m[2], m[3])), files[ROOT / "sitemap.xml"],
+    )
     # The home pages list the newest posts, so a new post dates them too.
     if live:
         files[ROOT / "sitemap.xml"] = re.sub(
