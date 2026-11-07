@@ -5,7 +5,7 @@
     <img src="https://raw.githubusercontent.com/tw93/Kaku/main/assets/readme-logo-light.svg" alt="Kaku" width="120" />
   </picture>
   <h1>Kaku</h1>
-  <p>AI 友好的高性能 Mac 终端</p>
+  <p>现代的 Mac 终端，开箱即用，好看、够快，对 AI 友好</p>
   <p><a href="README.md">English</a> · 中文 · <a href="README_TW.md">繁體</a> · <a href="README_JA.md">日本語</a> · <a href="README_KR.md">한국어</a> · <a href="README_DE.md">Deutsch</a> · <a href="README_FR.md">Français</a></p>
   <p>
     <a href="https://kaku.fun">官网</a> ·
