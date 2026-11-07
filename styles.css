@@ -306,11 +306,23 @@ button, input { font: inherit; }
   font-size: 18px;
   font-weight: 400;
   line-height: 1;
-  /* Cap height on the mark's ink centre, measured at 6x. */
+  /* Baseline on the mark's ink bottom, measured at 6x. */
   position: relative;
-  top: 0.9px;
+  top: 6.9px;
   text-transform: none;
   color: var(--near-black);
+}
+/* On a phone the hero wordmark sits right below, so the name only reads as a
+   second title. Clipped, not `display: none`: the link keeps its accessible name. */
+@media (max-width: 640px) {
+  .brand strong {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
 }
 .nav-links { display: flex; gap: 8px; margin-left: 14px; }
 .nav-links a {
