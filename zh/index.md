@@ -1,6 +1,6 @@
 # Kaku
 
-Kaku 是现代的 Mac 终端，开箱即用，好看、够快，对 AI 友好。MIT 开源，无需账号，AI 服务由用户自行配置，Kaku 不提供或中转 AI 服务。
+Kaku 是现代的 Mac 终端，开箱即用，好看、高性能，对 AI 友好。MIT 开源，无需账号，AI 服务由用户自行配置，Kaku 不提供或中转 AI 服务。
 
 这是 <https://kaku.fun/zh/> 的 markdown 孪生版本。本站每个页面都有：在任意 URL 后加 `.md`，或请求头带 `Accept: text/markdown`。
 
