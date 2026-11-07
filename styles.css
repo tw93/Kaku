@@ -1440,6 +1440,9 @@ html[lang^="zh"] .foot-links b { letter-spacing: 0.6px; }
   .section-head h2 { font-size: 26px; }
   /* 64px with -1px tracking under 880 and the 18px gap at every width, as on
      the other product sites (maintainer 2026-11-04: one lockup size). */
+  .hero h1 { font-size: 80px; }
+}
+@media (max-width: 640px) {
   .hero h1 { font-size: 64px; }
 }
 /* Phones keep the sizes they had before the desktop ladder (decide 1030-13,
