@@ -173,9 +173,9 @@ button, input { font: inherit; }
 }
 .skip-link:focus { transform: translateY(0); }
 
-/* mole.fit's page: 1120px with 64px gutters, a 992px column. */
-.wide { max-width: 1120px; margin: 0 auto; padding: 0 64px; }
-.hero-wrap { max-width: 1120px; margin: 0 auto; padding: 0 64px; }
+/* mole.fit's page: 1128px with 64px gutters, a 1000px column. */
+.wide { max-width: 1128px; margin: 0 auto; padding: 0 64px; }
+.hero-wrap { max-width: 1128px; margin: 0 auto; padding: 0 64px; }
 .section, .section-tight { padding: 0; margin-bottom: var(--section-gap); }
 /* One module gap, as on the rest of the family: 84 on desktop, 72 below. */
 @media (max-width: 880px) { :root { --section-gap: 72px; } }
@@ -277,7 +277,7 @@ button, input { font: inherit; }
   display: flex;
   align-items: center;
   gap: 0;
-  max-width: 1020px;
+  max-width: 1028px;
   min-height: 52px;
   margin: 0 auto;
   padding: 8px 13px;
@@ -397,7 +397,7 @@ button, input { font: inherit; }
   text-align: left;
 }
 .hero-centered {
-  max-width: 1120px;
+  max-width: 1128px;
   margin: 0 auto;
   padding: 0 64px;
 }

@@ -74,7 +74,7 @@ def block(lang):
             f'          <figure class="gallery-panel{state}" id="shot-{key}" role="tabpanel" aria-labelledby="tab-{key}"{hidden}>'
             f'<picture><source media="(max-width: 640px)" srcset="{phone}" sizes="calc(100vw - 32px)" width="2432" height="1576">'
             f'<img src="{base}-1980w.webp?v={v}" srcset="{srcset}" '
-            f'sizes="(max-width: 1120px) calc(100vw - 32px), 992px" width="2584" height="1741" {load} decoding="async" alt="{html.escape(line)}"></picture></figure>')
+            f'sizes="(max-width: 1128px) calc(100vw - 32px), 1000px" width="2584" height="1741" {load} decoding="async" alt="{html.escape(line)}"></picture></figure>')
         sel = 'true' if first else 'false'
         ti = '' if first else ' tabindex="-1"'
         cls = ' class="is-active"' if first else ''
