@@ -252,7 +252,9 @@ pub struct Config {
     #[dynamic(default = "default_clean_exits")]
     pub clean_exit_codes: Vec<u32>,
 
-    #[dynamic(default = "default_true")]
+    /// Draws a lock as the cursor while a program reads a password. Off by
+    /// default: the prompt already says so and the glyph looked out of place.
+    #[dynamic(default)]
     pub detect_password_input: bool,
 
     /// Specifies a map of environment variables that should be set
@@ -3360,6 +3362,11 @@ mod tests {
             "config carrying a deprecated `language` must still load: {:?}",
             result
         );
+    }
+
+    #[test]
+    fn password_prompts_keep_the_normal_cursor_by_default() {
+        assert!(!super::Config::default_config().detect_password_input);
     }
 
     #[test]
