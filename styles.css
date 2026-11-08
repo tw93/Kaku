@@ -403,14 +403,14 @@ button, input { font: inherit; }
 }
 .hero h1 {
   margin: 0 0 calc(40px - 0.115em);
-  color: var(--olive);
+  color: var(--dark-warm);
   font-family: "Kaku Wordmark", var(--serif);
   font-size: 97px;
   font-weight: 400;
   letter-spacing: -0.02em;
   line-height: 1.02;
 }
-/* Tracking, olive and the Han glyph's 0.84em follow mole.fit's wordmark
+/* Tracking and the Han glyph's 0.84em follow mole.fit's wordmark
    (maintainer 2026-11-06; reasons in its styles.css). The glyph size sits on the
    orbit wrapper so the dot's em-based path shrinks with it, and its margin adds
    back what the last letter's tracking takes from the gap. */
@@ -1741,10 +1741,10 @@ html[lang^="zh"] .foot-links b { letter-spacing: 0.6px; }
 @media (max-width: 640px) {
   :root { --text-meta: 13px; }
 }
-/* CJK hero tagline on desktop: 20px, the ladder's one exception (maintainer
-   2026-11-01, from 16/18/20/21 drawn on mole.fit's Chinese home). */
-@media (min-width: 881px) {
-  html:is([lang^="zh"], [lang="ja"], [lang="ko"]) .hero-sub { font-size: 20px; }
+/* CJK hero tagline on desktop: 18px, the ladder's one exception (maintainer
+   2026-11-08: 20 read big once Clear Han's firmer strokes arrived). */
+@media (min-width: 641px) {
+  html:is([lang^="zh"], [lang="ja"], [lang="ko"]) .hero-sub { font-size: 18px; }
 }
 
 /* Chinese pass of 2026-11-08, from mole.fit (maintainer's picks there): tracking
