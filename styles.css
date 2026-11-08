@@ -701,6 +701,13 @@ html[lang^="zh"] .gallery-caption .line { margin-bottom: 0; }
 .gallery-tabs button.is-active { color: var(--ivory); background: var(--kaku-slate); border-color: var(--kaku-slate); }
 .gallery-tabs button.is-active:hover { background: var(--kaku-slate-light); border-color: var(--kaku-slate-light); }
 .gallery-tabs button:focus-visible { outline: 2px solid var(--brand); outline-offset: 1px; }
+/* Android's Chromium can round a font's ascent up and descent down, which lifted the
+   words in these pills 1 to 2.5px on a real tablet while a Mac stayed centred
+   (2026-11-08). Trimming the text box to the glyphs takes those metrics out of the sum.
+   Same height as before; an older browser keeps the padding above. */
+@supports (text-box: trim-both cap alphabetic) {
+  html .gallery-tabs button { height: calc(1lh + 14px); padding-block: 0; text-box: trim-both cap alphabetic; }
+}
 /* Eight tabs leave no room for a line beside them, so the tabs take the full
    row with the caption under them, as on yado.house. The selected tab already
    names the shot, so the caption keeps only its line, and phones drop it, as on
@@ -1213,7 +1220,9 @@ html[lang^="zh"] .gallery-caption .line { margin-bottom: 0; }
   line-height: 1.65;
   counter-increment: rel-item;
 }
-.release-doc ol li + li { margin-top: 6px; }
+/* 16 is the blog's list step: at 4 the gap to the next item was no wider than the gap
+   between two lines of one item, so a release read as one paragraph. */
+.release-doc ol li + li { margin-top: 16px; }
 .release-doc ol li::before {
   content: counter(rel-item) ".";
   position: absolute;
