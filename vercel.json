@@ -4,40 +4,89 @@
   "redirects": [
     {
       "source": "/",
-      "has": [{ "type": "host", "value": "www.kaku.fun" }],
+      "has": [
+        {
+          "type": "host",
+          "value": "www.kaku.fun"
+        }
+      ],
       "destination": "https://kaku.fun/",
       "permanent": true
     },
     {
       "source": "/:path*",
-      "has": [{ "type": "host", "value": "www.kaku.fun" }],
+      "has": [
+        {
+          "type": "host",
+          "value": "www.kaku.fun"
+        }
+      ],
       "destination": "https://kaku.fun/:path*",
       "permanent": true
     },
-    { "source": "/en", "destination": "/", "permanent": true },
-    { "source": "/en/", "destination": "/", "permanent": true },
-    { "source": "/en/:path*", "destination": "/:path*", "permanent": true }
+    {
+      "source": "/en",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/en/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/en/:path*",
+      "destination": "/:path*",
+      "permanent": true
+    }
   ],
   "rewrites": [
-    { "source": "/llms.md", "destination": "/index.md" },
+    {
+      "source": "/llms.md",
+      "destination": "/index.md"
+    },
     {
       "source": "/",
-      "has": [{ "type": "query", "key": "mode", "value": "agent" }],
+      "has": [
+        {
+          "type": "query",
+          "key": "mode",
+          "value": "agent"
+        }
+      ],
       "destination": "/agent.json"
     },
     {
       "source": "/zh",
-      "has": [{ "type": "query", "key": "mode", "value": "agent" }],
+      "has": [
+        {
+          "type": "query",
+          "key": "mode",
+          "value": "agent"
+        }
+      ],
       "destination": "/agent.json"
     },
     {
       "source": "/",
-      "has": [{ "type": "header", "key": "accept", "value": ".*text/markdown.*" }],
+      "has": [
+        {
+          "type": "header",
+          "key": "accept",
+          "value": ".*text/markdown.*"
+        }
+      ],
       "destination": "/index.md"
     },
     {
       "source": "/zh",
-      "has": [{ "type": "header", "key": "accept", "value": ".*text/markdown.*" }],
+      "has": [
+        {
+          "type": "header",
+          "key": "accept",
+          "value": ".*text/markdown.*"
+        }
+      ],
       "destination": "/zh/index.md"
     }
   ],
@@ -114,6 +163,21 @@
         {
           "key": "Link",
           "value": "</index.md>; rel=\"alternate\"; type=\"text/markdown\", </sitemap.xml>; rel=\"sitemap\"; type=\"application/xml\", </llms.txt>; rel=\"alternate\"; type=\"text/plain\"; title=\"llms.txt\", </llms-full.txt>; rel=\"alternate\"; type=\"text/plain\"; title=\"llms-full.txt\", </.well-known/agent-skills/index.json>; rel=\"service-desc\"; type=\"application/json\", </schemamap.xml>; rel=\"describedby\"; type=\"application/xml\", </agent.json>; rel=\"alternate\"; type=\"application/json\"; title=\"agent view\", </feed.xml>; rel=\"alternate\"; type=\"application/rss+xml\"; title=\"Kaku releases\""
+        }
+      ]
+    },
+    {
+      "source": "/fonts/(.*)",
+      "has": [
+        {
+          "type": "query",
+          "key": "v"
+        }
+      ],
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
         }
       ]
     }

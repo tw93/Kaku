@@ -9,6 +9,7 @@ Source Han Serif TC, as on the siblings. Until 2026-10-19 the body used
 TsangerJinKai02, whose license is free for personal use only.
 
     python3 scripts/build_fonts.py          regenerate the subsets
+    python3 scripts/build_fonts.py --stamp  rewrite the ?v= font hashes and the Chinese pages' preloads
     python3 scripts/build_fonts.py --check  verify every CJK character on the
                                             pages is covered by the shipped subsets
 
@@ -16,6 +17,7 @@ Run the regenerate step after editing Chinese copy: a character missing from
 the subset silently falls back to the system font. --check needs neither the
 source fonts nor the network.
 """
+import hashlib
 import html
 import os
 import pathlib
@@ -43,7 +45,7 @@ PAGES = [str(path.relative_to(root)) for path in root.rglob("*.html")
 # Regular for body text, SemiBold for every weight from 500 up, matching the
 # two @font-face rules in styles.css.
 SUBSETS = [
-    ("regular", "SourceHanSerifSC-Regular.otf"),
+    ("regular", "ClearHanSerif-Regular.ttf"),
     ("semibold", "SourceHanSerifSC-SemiBold.otf"),
 ]
 
@@ -186,6 +188,67 @@ def reserved_names(path):
     return [n for n in names if _renamed(n) != n]
 
 
+# styles.css asks for each font as `/fonts/<name>?v=<content hash>`, and the
+# Chinese pages preload the two serif cuts at that same URL, so vercel.json can
+# cache /fonts as immutable and a regenerated font still reaches every visitor.
+FONT_URL = re.compile(r'url\("/fonts/([\w.-]+\.woff2)(?:\?v=([0-9a-f]+))?"\)')
+PRELOAD_LINK = re.compile(r'[ \t]*<link rel="preload" as="font"[^>]*>\n')
+STYLESHEET = '<link rel="stylesheet" href="/styles.css">'
+
+
+def font_hash(name):
+    return hashlib.sha256((FONT_DIR / name).read_bytes()).hexdigest()[:12]
+
+
+def font_preload(indent="  "):
+    """The Chinese pages load their two faces first, so the first paint of text
+    waits for the real face rather than a system one (maintainer 2026-11-08)."""
+    return "".join(
+        f'{indent}<link rel="preload" as="font" type="font/woff2" href="/fonts/{subset_path(weight).name}'
+        f'?v={font_hash(subset_path(weight).name)}" crossorigin fetchpriority="high">\n'
+        for weight, _ in SUBSETS
+    )
+
+
+def chinese_pages():
+    pages = (path for path in root.rglob("*.html")
+             if not any(part.startswith(".") or part == "node_modules" for part in path.relative_to(root).parts))
+    return [path for path in pages if re.search(r'<html[^>]*\blang="zh', path.read_text(encoding="utf-8")[:400])]
+
+
+def stamp():
+    path = root / "styles.css"
+    css = path.read_text(encoding="utf-8")
+    new = FONT_URL.sub(lambda m: f'url("/fonts/{m.group(1)}?v={font_hash(m.group(1))}")', css)
+    if new != css:
+        path.write_text(new, encoding="utf-8")
+    links = font_preload()
+    for page in chinese_pages():
+        text = page.read_text(encoding="utf-8")
+        new = re.sub(r"[ \t]*" + re.escape(STYLESHEET), lambda _: links + f"  {STYLESHEET}", PRELOAD_LINK.sub("", text), count=1)
+        if new != text:
+            page.write_text(new, encoding="utf-8")
+    return 0
+
+
+def stale_font_urls(css):
+    return [m.group(1) for m in FONT_URL.finditer(css)
+            if not (FONT_DIR / m.group(1)).exists() or m.group(2) != font_hash(m.group(1))]
+
+
+def stale_preload_pages():
+    links = font_preload()
+    return [str(page.relative_to(root)) for page in chinese_pages()
+            if "".join(m.group(0) for m in PRELOAD_LINK.finditer(page.read_text(encoding="utf-8"))) != links]
+
+
+def song_faces_not_blocking(css):
+    """A Chinese face that is not `block` paints the system face first, which is
+    the flash first visits showed (maintainer 2026-11-08)."""
+    faces = re.findall(r'@font-face \{[^}]*"%s Serif SC"[^}]*\}' % PRODUCT, css)
+    return not faces or any("font-display: block" not in face or "local(" in face for face in faces)
+
+
 def check():
     from fontTools.ttLib import TTFont
 
@@ -215,6 +278,18 @@ def check():
         if found:
             print(f"fonts/{path.name} still carries a reserved font name ({found[0]}); regenerate it", file=sys.stderr)
             failed = True
+    css = (root / "styles.css").read_text(encoding="utf-8")
+    stale = stale_font_urls(css)
+    if stale:
+        print(f"styles.css has stale font URLs ({', '.join(stale)}); run: python3 scripts/build_fonts.py --stamp", file=sys.stderr)
+        failed = True
+    stale = stale_preload_pages()
+    if stale:
+        print(f"{len(stale)} Chinese page(s) lack the current font preloads, first {stale[0]}; run: python3 scripts/build_fonts.py --stamp", file=sys.stderr)
+        failed = True
+    if song_faces_not_blocking(css):
+        print(f'styles.css: every "{PRODUCT} Serif SC" face must be font-display: block with no local() source', file=sys.stderr)
+        failed = True
     if failed:
         return 1
     print("site-fonts-ok")
@@ -222,4 +297,5 @@ def check():
 
 
 if __name__ == "__main__":
-    sys.exit(check() if "--check" in sys.argv[1:] else regenerate())
+    args = sys.argv[1:]
+    sys.exit(check() if "--check" in args else stamp() if "--stamp" in args else regenerate())

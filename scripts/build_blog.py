@@ -36,6 +36,7 @@ import markdown
 from markdown.extensions.toc import slugify_unicode
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+from build_fonts import font_preload  # noqa: E402
 from highlight import BLOCK_RE, render_block  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -148,6 +149,10 @@ def category_label(category: str, lang: str) -> str:
 def live_posts(queue: list[dict], now: date) -> list[dict]:
     live = [p for p in queue if p.get("date") and date.fromisoformat(p["date"]) <= now]
     return sorted(live, key=lambda p: (p["date"], queue.index(p)), reverse=True)
+
+
+def font_links(lang: str) -> str:
+    return font_preload() if lang == "zh" else ""
 
 
 def url(lang: str, path: str = "") -> str:
@@ -265,7 +270,7 @@ def head(lang: str, *, title: str, desc: str, canonical: str, en_url: str, zh_ur
   <link rel="alternate" hreflang="zh-CN" href="{zh_url}">
   <link rel="alternate" hreflang="x-default" href="{en_url}">
   <link rel="alternate" type="text/markdown" href="{md_url}">
-  <link rel="stylesheet" href="/styles.css">
+{font_links(lang)}  <link rel="stylesheet" href="/styles.css">
   <script type="application/ld+json">
 {json.dumps(jsonld, ensure_ascii=False, indent=2)}
   </script>

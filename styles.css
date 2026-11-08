@@ -6,10 +6,10 @@
    drew as narrow Latin marks against the Han (as on mole.fit, 2026-10-25). */
 @font-face {
   font-family: "Kaku Serif SC";
-  src: url("/fonts/kaku-serif-sc-regular.woff2") format("woff2");
+  src: url("/fonts/kaku-serif-sc-regular.woff2?v=12314a307041") format("woff2");
   font-weight: 400;
   font-style: normal;
-  font-display: swap;
+  font-display: block;
   unicode-range: U+201C-201D, U+2026, U+2E80-2EFF, U+3000-303F, U+3400-4DBF, U+4E00-9FFF, U+F900-FAFF, U+FE30-FE4F, U+FF00-FFEF;
 }
 /* The hero wordmark and the nav's name are STIX Two Text Regular (OFL, Reserved
@@ -25,10 +25,10 @@
 }
 @font-face {
   font-family: "Kaku Mark";
-  src: url("/fonts/kaku-mark.woff2") format("woff2");
+  src: url("/fonts/kaku-mark.woff2?v=c3a33e6a3713") format("woff2");
   font-weight: 400;
   font-style: normal;
-  font-display: swap;
+  font-display: block;
   unicode-range: U+66F8;
 }
 /* The hero's Han glyph is SemiBold: its stems measure 7.4px beside STIX Two's
@@ -42,10 +42,10 @@
 }
 @font-face {
   font-family: "Kaku Serif SC";
-  src: url("/fonts/kaku-serif-sc-semibold.woff2") format("woff2");
+  src: url("/fonts/kaku-serif-sc-semibold.woff2?v=e0624fc1b1a0") format("woff2");
   font-weight: 500 700;
   font-style: normal;
-  font-display: swap;
+  font-display: block;
   unicode-range: U+201C-201D, U+2026, U+2E80-2EFF, U+3000-303F, U+3400-4DBF, U+4E00-9FFF, U+F900-FAFF, U+FE30-FE4F, U+FF00-FFEF;
 }
 
@@ -405,7 +405,7 @@ button, input { font: inherit; }
   margin: 0 0 calc(40px - 0.115em);
   color: var(--olive);
   font-family: "Kaku Wordmark", var(--serif);
-  font-size: 100px;
+  font-size: 97px;
   font-weight: 400;
   letter-spacing: -0.02em;
   line-height: 1.02;
@@ -1746,3 +1746,22 @@ html[lang^="zh"] .foot-links b { letter-spacing: 0.6px; }
 @media (min-width: 881px) {
   html:is([lang^="zh"], [lang="ja"], [lang="ko"]) .hero-sub { font-size: 20px; }
 }
+
+/* Chinese pass of 2026-11-08, from mole.fit (maintainer's picks there): tracking
+   is two tokens, wider on PC and tighter on phones, titles nearly closed. An em
+   on body inherits as pixels. The nav, footer, buttons, code and Latin names stay
+   at 0, since a trailing track pushes a centered label off center by half of it. */
+html[lang^="zh"] {
+  --cjk-track: 0.04em;
+  --cjk-track-title: 0.01em;
+}
+@media (max-width: 640px) {
+  html[lang^="zh"] {
+    --cjk-track: 0.03em;
+    --cjk-track-title: 0;
+  }
+}
+html[lang^="zh"] body { letter-spacing: var(--cjk-track); }
+html[lang^="zh"] :is(h2, h3, h4, .section-head h2, .prose h2, .prose h3, .doc-content :is(h1, h2, h3, h4), .faq-item h3, .blog-card-title) { letter-spacing: var(--cjk-track-title); }
+html[lang^="zh"] :is(.site-nav, .site-footer, .foot-links b, .btn, .terminal-body, .doc-content .anchor, pre, code, kbd, samp) { letter-spacing: 0; }
+html[lang^="zh"] .blog-card-desc { color: var(--olive); }
