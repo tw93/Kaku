@@ -363,6 +363,12 @@ impl KeyCode {
                 }
             }
 
+            // On macOS Cmd+key never produces text. None of these encodings can
+            // carry Cmd (`encode_xterm` has no bit for it), so an unbound one
+            // would reach the program as the bare letter. The kitty protocol
+            // reports Cmd properly and does not come through here.
+            Char(_) if mods.contains(Modifiers::SUPER) => {}
+
             Char(c) => {
                 if mods.is_empty() {
                     buf.push(c);
@@ -1699,6 +1705,67 @@ mod test {
                 .encode(Modifiers::NONE | Modifiers::SHIFT, mode, true)
                 .unwrap(),
             "\u{1b}[1;2F".to_string()
+        );
+    }
+
+    #[test]
+    fn command_letter_types_no_text_in_legacy_encoding() {
+        let encode = |key: KeyCode, mods, encoding, modify_other_keys| {
+            key.encode(
+                mods,
+                KeyCodeEncodeModes {
+                    encoding,
+                    newline_mode: false,
+                    application_cursor_keys: false,
+                    modify_other_keys,
+                },
+                true,
+            )
+            .unwrap()
+        };
+        let xterm = KeyboardEncoding::Xterm;
+
+        // An unbound Cmd+letter must not reach the program as that letter.
+        for (key, mods) in [
+            (KeyCode::Char('g'), Modifiers::SUPER),
+            (KeyCode::Char('j'), Modifiers::SUPER | Modifiers::LEFT_SHIFT),
+            (KeyCode::Char('G'), Modifiers::SUPER | Modifiers::SHIFT),
+            (KeyCode::Char('.'), Modifiers::SUPER),
+        ] {
+            assert_eq!(encode(key, mods, xterm, None), "", "{key:?} {mods:?}");
+        }
+
+        // Plain text and the other modifiers keep their encodings.
+        assert_eq!(
+            encode(KeyCode::Char('g'), Modifiers::NONE, xterm, None),
+            "g"
+        );
+        assert_eq!(
+            encode(KeyCode::Char('G'), Modifiers::SHIFT, xterm, None),
+            "G"
+        );
+        assert_eq!(
+            encode(KeyCode::Char('g'), Modifiers::CTRL, xterm, None),
+            "\x07"
+        );
+        assert_eq!(
+            encode(KeyCode::Char('g'), Modifiers::ALT, xterm, None),
+            "\x1bg"
+        );
+
+        // These modes have no bit for Cmd, so they would report a plain g.
+        assert_eq!(
+            encode(
+                KeyCode::Char('g'),
+                Modifiers::SUPER,
+                KeyboardEncoding::CsiU,
+                None
+            ),
+            ""
+        );
+        assert_eq!(
+            encode(KeyCode::Char('g'), Modifiers::SUPER, xterm, Some(2)),
+            ""
         );
     }
 
