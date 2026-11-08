@@ -21,12 +21,13 @@ document.querySelectorAll('.lang-switch').forEach(switcher => {
   });
 });
 
-// Google Analytics counts visits in consent mode with storage denied, so it
-// writes no cookies. Its 177KB script waits for the first scroll, pointer or
+// Google Analytics counts visits without cookies: client_storage none keeps
+// nothing on the device, so each page view is its own visitor. With
+// analytics_storage denied, as until 2026-11-08, the property reported no rows. Its 177KB script waits for the first scroll, pointer or
 // key, or 4s, so it never competes with the page itself.
 window.dataLayer = window.dataLayer || [];
 window.gtag = function () { window.dataLayer.push(arguments); };
-gtag('consent', 'default', { analytics_storage: 'denied', ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied' });
+gtag('consent', 'default', { analytics_storage: 'granted', ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied' });
 (function () {
   var events = ['scroll', 'pointerdown', 'pointermove', 'keydown', 'touchstart'];
   var timer;
@@ -34,7 +35,7 @@ gtag('consent', 'default', { analytics_storage: 'denied', ad_storage: 'denied', 
     events.forEach(function (name) { window.removeEventListener(name, load); });
     clearTimeout(timer);
     gtag('js', new Date());
-    gtag('config', 'G-V8NF2P2W71');
+    gtag('config', 'G-V8NF2P2W71', { client_storage: 'none', allow_google_signals: false, allow_ad_personalization_signals: false });
     var analytics = document.createElement('script');
     analytics.async = true;
     analytics.src = 'https://www.googletagmanager.com/gtag/js?id=G-V8NF2P2W71';
