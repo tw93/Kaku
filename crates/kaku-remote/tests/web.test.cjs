@@ -3865,7 +3865,7 @@ test('a phone lists tabs in a drawer that switches, creates, renames and closes 
   assert.equal(await p.locator('.mobile-row[data-tab="2"] .mobile-title .mobile-dot').count(), 1);
   assert.equal(await p.locator('.mobile-row[data-tab="3"] .mobile-sub').textContent(), 'Working');
   assert.equal(await p.locator('.mobile-row[data-tab="1"] .mobile-sub').count(), 0);
-  await p.waitForTimeout(250);
+  await p.waitForFunction(() => document.querySelector('#mobile-tabs').getBoundingClientRect().x === 0);
   const drawer = await p.locator('#mobile-tabs').boundingBox();
   assert.ok(drawer.x === 0 && drawer.width <= 320 * 0.85 + 1, JSON.stringify(drawer));
 
