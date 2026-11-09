@@ -52,7 +52,10 @@
 :root {
   /* Desktop type ladder (decide 1030-13, maintainer 2026-11-01): five sizes, nothing between. */
   --text-meta: 14px;
-  --text-body: 15px;
+  /* Reading text moved to 16, the size of the ledes above it, as on mole.fit;
+     buttons, inline code, tables and captions keep 15 (maintainer 2026-11-09). */
+  --text-body: 16px;
+  --text-button: 15px;
   --text-lede: 16px;
   --text-title: 21px;
   --text-section: 32px;
@@ -238,7 +241,7 @@ button, input { font: inherit; }
   padding: 13px 28px;
   min-width: 158px;
   font-family: var(--serif);
-  font-size: var(--text-body);
+  font-size: var(--text-button);
   font-weight: 500;
   letter-spacing: 0.2px;
   line-height: 1.55;
@@ -445,7 +448,7 @@ button, input { font: inherit; }
   gap: 0;
   margin: 0 0 30px;
   font-family: var(--serif);
-  font-size: var(--text-body);
+  font-size: var(--text-button);
   color: var(--stone);
 }
 .hero-trust span:not(:last-child)::after {
@@ -549,7 +552,7 @@ button, input { font: inherit; }
   text-align: left;
   vertical-align: top;
   font-family: var(--serif);
-  font-size: var(--text-body);
+  font-size: var(--text-button);
   line-height: 1.5;
 }
 .home-compare tr:first-child > * { border-top: 0; }
@@ -558,7 +561,7 @@ button, input { font: inherit; }
 .home-compare td { color: var(--dark-warm); }
 .home-compare thead th:nth-child(2), .home-compare td:nth-child(2) { color: var(--near-black); font-weight: 500; }
 .home-compare th:last-child, .home-compare td:last-child { padding-right: 0; }
-.section-more { margin: 16px 0 0; font-size: var(--text-body); }
+.section-more { margin: 16px 0 0; font-size: var(--text-button); }
 .section-more a { color: var(--brand); }
 .section-more a:hover { color: var(--brand-light); }
 .workflow-list {
@@ -889,7 +892,7 @@ html[lang^="zh"] .gallery-caption .line { margin-bottom: 0; }
 }
 .docs-menu span {
   color: inherit;
-  font-size: var(--text-body);
+  font-size: var(--text-button);
   font-weight: 500;
   line-height: 1.2;
 }
@@ -1021,7 +1024,7 @@ html[lang^="zh"] .gallery-caption .line { margin-bottom: 0; }
   background: var(--ivory);
   color: var(--brand);
   padding: 0.08em 0.32em;
-  font-size: var(--text-body);
+  font-size: var(--text-button);
   word-break: break-word;
 }
 /* Code under a 13px caption stays on the meta rung instead of rising above it. */
@@ -1243,7 +1246,7 @@ html[lang^="zh"] .gallery-caption .line { margin-bottom: 0; }
   overflow-wrap: anywhere;
   word-break: break-word;
   font-family: var(--mono);
-  font-size: var(--text-body);
+  font-size: var(--text-button);
   color: var(--brand);
   background: var(--brand-tint);
   padding: 1px 5px;
@@ -1253,7 +1256,7 @@ html[lang^="zh"] .gallery-caption .line { margin-bottom: 0; }
   margin: 28px 0 0;
   color: var(--stone);
   font-family: var(--serif);
-  font-size: var(--text-body);
+  font-size: var(--text-button);
 }
 .faq { border-top: 1px solid var(--line-faint); interpolate-size: allow-keywords; }
 .faq-item { border-bottom: 1px solid var(--line-faint); padding: 20px 0; }
@@ -1320,6 +1323,8 @@ html[lang^="zh"] .gallery-caption .line { margin-bottom: 0; }
   font-size: var(--text-body);
   line-height: 1.7;
 }
+/* Inline code stays a rung under the 16 reading text (2026-11-09). */
+@media (min-width: 641px) { .workflow-item p code, .method p code, .quick-card p code, .doc-card p code, .feature span code { font-size: var(--text-button); } }
 .faq-answer code {
   font-family: var(--mono);
   font-size: var(--text-meta);
@@ -1369,7 +1374,7 @@ html[lang^="zh"] .gallery-caption .line { margin-bottom: 0; }
 .contact-glyph { width: 22px; height: 22px; transition: opacity 0.18s ease; }
 .contact-avatar { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.18s ease; }
 .contact-meta { display: flex; flex-direction: column; min-width: 0; }
-.contact-head b { font-family: var(--ui, var(--serif)); font-size: var(--text-body); font-weight: 600; line-height: 1.3; color: var(--near-black); }
+.contact-head b { font-family: var(--ui, var(--serif)); font-size: var(--text-button); font-weight: 600; line-height: 1.3; color: var(--near-black); }
 .contact-handle { font-family: var(--ui, var(--serif)); font-size: var(--text-meta); line-height: 1.3; color: var(--stone); }
 .contact-stat {
   margin-left: auto;
@@ -1766,7 +1771,7 @@ html[lang^="zh"] .foot-links b { letter-spacing: 0.6px; }
 /* Meta is 14px on desktop (maintainer 2026-11-01: 13 read small beside the
    hero's tagline); phones keep the 13px meta of their own ladder. */
 @media (max-width: 640px) {
-  :root { --text-meta: 13px; }
+  :root { --text-meta: 13px; --text-body: 15px; }
 }
 /* CJK hero tagline on desktop: 18px, the ladder's one exception (maintainer
    2026-11-08: 20 read big once Clear Han's firmer strokes arrived). */
