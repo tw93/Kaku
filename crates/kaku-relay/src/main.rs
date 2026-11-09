@@ -7,8 +7,6 @@
 //! with a key carried in the link's fragment, so the relay only numbers the
 //! browsers and forwards bytes it cannot read.
 
-mod usage;
-
 use axum::extract::{ws, Path, State};
 use axum::http::{header, HeaderMap, StatusCode};
 use axum::response::{IntoResponse, Redirect, Response};
@@ -22,7 +20,7 @@ use std::sync::atomic::{AtomicU32, AtomicU64, AtomicUsize, Ordering};
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 use tokio::sync::{mpsc, watch};
-use tracing::{info, warn};
+use tracing::info;
 
 const MAX_HOSTS: usize = 10_000;
 const MAX_BROWSERS_PER_HOST: usize = 8;
@@ -97,9 +95,9 @@ const MAX_TRUSTED_ADDRS: usize = 64;
 /// Time to read a request's headers; a client that trickles them in holds a
 /// connection for at most this long.
 const HEADER_READ_TIMEOUT: Duration = Duration::from_secs(20);
-/// How often the relay logs how many Macs and browsers it carries and saves
-/// the anonymous counts (`usage.rs`). A Mac stays connected for days without
-/// registering again, so each round also counts the ones online for today.
+/// How often the relay logs how many Macs and browsers it carries, so how
+/// many people use it can be read from `fly logs`, which keeps about an
+/// hour, without keeping any id.
 const USAGE_EVERY: Duration = Duration::from_secs(10 * 60);
 /// How long a stopping relay waits for its Macs to take the restart close
 /// before it exits; Fly gives a stopping machine 5 s before it kills it.
@@ -416,52 +414,9 @@ struct AppState {
     page_origin: Option<Arc<str>>,
     /// Bytes queued toward every socket (`GLOBAL_QUEUE_BYTES`).
     queued_bytes: Arc<AtomicUsize>,
-    /// Anonymous counts per day and overall; unset, nothing is kept.
-    usage: Option<Arc<Mutex<usage::Usage>>>,
 }
 
 impl AppState {
-    fn note_mac(&self, id: &str, used: bool) {
-        if let Some(usage) = &self.usage {
-            usage.lock().note(id, used, &usage::today());
-        }
-    }
-
-    /// Count every Mac online for today, and return the counts so far.
-    fn note_online(&self, day: &str) -> Option<usage::Summary> {
-        let usage = self.usage.as_ref()?;
-        let online: Vec<(String, bool)> = self
-            .hosts
-            .lock()
-            .iter()
-            .filter_map(|(id, all)| {
-                let used = all.last()?.browsers.lock().values().any(|b| b.admitted);
-                Some((id.clone(), used))
-            })
-            .collect();
-        let mut usage = usage.lock();
-        for (id, used) in online {
-            usage.note(&id, used, day);
-        }
-        Some(usage.summary(day))
-    }
-
-    /// Write the counts out, away from the threads carrying traffic.
-    async fn save_usage(&self) {
-        let Some(usage) = &self.usage else {
-            return;
-        };
-        let (path, text) = {
-            let usage = usage.lock();
-            (usage.path().to_path_buf(), usage.snapshot())
-        };
-        match tokio::task::spawn_blocking(move || usage::write_file(&path, &text)).await {
-            Ok(Ok(())) => {}
-            Ok(Err(error)) => warn!("usage counts not saved: {error}"),
-            Err(error) => warn!("usage counts not saved: {error}"),
-        }
-    }
-
     /// Tell every registered Mac the relay is going away for a restart
     /// (close 1012), so it retries every second until the new relay is up
     /// instead of backing off. Returns how many registrations were told.
@@ -829,7 +784,6 @@ async fn serve_host(
         }
     }
     info!("host {} registered via edge {}", short(&id), edge);
-    state.note_mac(&id, false);
 
     let writer_host = host.clone();
     let mut writer = tokio::spawn(async move {
@@ -892,7 +846,6 @@ async fn serve_host(
                                 link.admitted = true;
                                 link.admit.notify_one();
                                 host.trust(&link.addr);
-                                state.note_mac(&id, true);
                             }
                         }
                     }
@@ -1385,22 +1338,9 @@ async fn main() {
     if let Some(origin) = &page_origin {
         info!("the page is served from {origin}");
     }
-    // Counting is never a reason to stop serving: without a usable file the
-    // relay runs as it would with none.
-    let usage =
-        std::env::var_os("KAKU_RELAY_USAGE_FILE").and_then(|path| {
-            match usage::Usage::open(path.into(), &usage::today()) {
-                Ok(usage) => Some(Arc::new(Mutex::new(usage))),
-                Err(error) => {
-                    warn!("usage counts off: {error}");
-                    None
-                }
-            }
-        });
     let state = AppState {
         access,
         page_origin,
-        usage,
         ..AppState::default()
     };
     let counted = state.clone();
@@ -1409,15 +1349,7 @@ async fn main() {
         loop {
             every.tick().await;
             let (macs, browsers, admitted) = counted.usage();
-            match counted.note_online(&usage::today()) {
-                Some(usage::Summary { today, ever }) => info!(
-                    "in use: {macs} Macs, {browsers} browsers ({admitted} paired); \
-                     today {} Macs ({} used), ever {} Macs ({} used)",
-                    today.macs, today.used, ever.macs, ever.used
-                ),
-                None => info!("in use: {macs} Macs, {browsers} browsers ({admitted} paired)"),
-            }
-            counted.save_usage().await;
+            info!("in use: {macs} Macs, {browsers} browsers ({admitted} paired)");
         }
     });
     let stopping = state.clone();
@@ -1432,7 +1364,6 @@ async fn main() {
             while !stopping.hosts.lock().is_empty() && tokio::time::Instant::now() < deadline {
                 tokio::time::sleep(Duration::from_millis(50)).await;
             }
-            stopping.save_usage().await;
         }
     }
 }
@@ -1686,39 +1617,6 @@ mod tests {
             .lock()
             .insert(2, test_browser(&state.queued_bytes));
         assert_eq!(state.usage(), (2, 2, 1));
-    }
-
-    #[test]
-    fn a_mac_connected_across_midnight_counts_for_the_new_day() {
-        let dir = std::env::temp_dir().join(format!("kaku-relay-online-{}", std::process::id()));
-        let _ = std::fs::remove_dir_all(&dir);
-        std::fs::create_dir_all(&dir).unwrap();
-        let state = AppState {
-            usage: Some(Arc::new(Mutex::new(
-                usage::Usage::open(dir.join("usage.json"), "2026-11-09").unwrap(),
-            ))),
-            ..AppState::default()
-        };
-        state.register("a", test_host(&state)).unwrap();
-        state.register("b", test_host(&state)).unwrap();
-        let mut paired = test_browser(&state.queued_bytes);
-        paired.admitted = true;
-        state.host("a").unwrap().browsers.lock().insert(1, paired);
-        state
-            .host("b")
-            .unwrap()
-            .browsers
-            .lock()
-            .insert(1, test_browser(&state.queued_bytes));
-
-        // Neither Mac registers again; only the round counts them.
-        for day in ["2026-11-09", "2026-11-10"] {
-            let seen = state.note_online(day).unwrap();
-            let both = usage::Counts { macs: 2, used: 1 };
-            assert_eq!(seen.today, both, "{day}");
-            assert_eq!(seen.ever, both, "{day}");
-        }
-        std::fs::remove_dir_all(&dir).unwrap();
     }
 
     #[test]
