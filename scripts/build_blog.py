@@ -268,6 +268,7 @@ def head(lang: str, *, title: str, desc: str, canonical: str, en_url: str, zh_ur
   <link rel="alternate" type="application/rss+xml" title="{e(UI[lang]['feed_title'])}" href="{SITE}{url(lang, 'feed.xml')}">
   <link rel="alternate" hreflang="en" href="{en_url}">
   <link rel="alternate" hreflang="zh-CN" href="{zh_url}">
+  <link rel="alternate" hreflang="zh-Hans" href="{zh_url}">
   <link rel="alternate" hreflang="x-default" href="{en_url}">
   <link rel="alternate" type="text/markdown" href="{md_url}">
 {font_links(lang)}  <link rel="stylesheet" href="/styles.css">
