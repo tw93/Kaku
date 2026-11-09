@@ -943,14 +943,6 @@ fn set_window_style_mask_preserving_responder(window: &StrongPtr, mask: NSWindow
     }
 }
 
-/// `WindowInner::show` rebuilds the style mask through borderless as a WebGpu
-/// scale workaround. AppKit throws when that clears `NSFullScreenWindowMask`
-/// outside a full screen transition, so a native fullscreen window keeps its
-/// mask; it has no titlebar decorations to restore anyway.
-fn show_rebuilds_style_mask(style_mask: NSWindowStyleMask) -> bool {
-    !style_mask.contains(NSWindowStyleMask::NSFullScreenWindowMask)
-}
-
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 struct PersistedWindowSize {
     width: usize,
@@ -2183,8 +2175,10 @@ impl WindowOps for Window {
         // fall back to the deferred spawn path otherwise.
         if let Some(conn) = Connection::get() {
             if let Some(handle) = conn.window_by_id(self.id) {
-                handle.borrow_mut().show();
-                return;
+                if let Ok(mut inner) = handle.try_borrow_mut() {
+                    inner.show();
+                    return;
+                }
             }
         }
         Connection::with_window_inner(self.id, |inner| {
@@ -3056,7 +3050,7 @@ impl WindowInner {
             let current_app = NSRunningApplication::currentApplication(nil);
             current_app.activateWithOptions_(NSApplicationActivateIgnoringOtherApps);
 
-            if show_rebuilds_style_mask(NSWindow::styleMask(*self.window)) {
+            if !self.is_fullscreen() {
                 // Stupid hack: adjust the window style mask and set it back
                 // to what it was.
                 // Without this, the CAMetalLayer used by webgpu seems to get
@@ -5482,25 +5476,42 @@ mod tests {
 
     #[test]
     fn show_leaves_the_style_mask_of_a_native_fullscreen_window_alone() {
-        // AppKit throws when the mask loses NSFullScreenWindowMask outside a
-        // transition. The exception skips the WindowInner borrow's drop, so the
-        // next with_window_inner on that window aborts.
-        assert!(!show_rebuilds_style_mask(
-            NSWindowStyleMask::NSTitledWindowMask | NSWindowStyleMask::NSFullScreenWindowMask
-        ));
-        assert!(show_rebuilds_style_mask(
-            NSWindowStyleMask::NSTitledWindowMask | NSWindowStyleMask::NSResizableWindowMask
-        ));
         let source = include_str!("window.rs");
         let ordinary = &source[source.find("impl WindowInner {").unwrap()..];
         let show = production_method(ordinary, "fn show(&mut self)");
         let guard = show
-            .find("show_rebuilds_style_mask(")
-            .expect("show() must check for native fullscreen");
+            .find("if !self.is_fullscreen()")
+            .expect("show() must leave both native and simple fullscreen styles alone");
         let guarded = &show[guard..show.find("self.update_titlebar_background()").unwrap()];
         assert!(guarded.contains("set_window_style_mask_preserving_responder"));
         assert!(guarded.contains("apply_decorations_to_window"));
         assert_eq!(show.matches("apply_decorations_to_window").count(), 1);
+        assert_eq!(
+            show.matches("set_window_style_mask_preserving_responder")
+                .count(),
+            1
+        );
+        assert!(
+            show[show.find("self.update_titlebar_background()").unwrap()..]
+                .contains("make_terminal_key_window(&self.window, &self.view)")
+        );
+        let fullscreen = production_method(ordinary, "pub(crate) fn is_fullscreen(");
+        assert!(fullscreen.contains("self.is_native_fullscreen()"));
+        assert!(fullscreen.contains("inner.fullscreen.is_some()"));
+        assert!(fullscreen.contains("window_view.simple_fullscreen_active.get()"));
+    }
+
+    #[test]
+    fn show_defers_when_notification_dispatch_already_borrows_the_window() {
+        let source = include_str!("window.rs");
+        let show = production_method(source, "fn show(&self)");
+        let borrow = show.find("handle.try_borrow_mut()").unwrap();
+        let immediate = show.find("inner.show()").unwrap();
+        let deferred = show.find("Connection::with_window_inner(").unwrap();
+        assert!(borrow < immediate && immediate < deferred);
+        assert!(show[immediate..deferred].contains("return;"));
+        assert!(show[deferred..].contains("inner.show()"));
+        assert!(!show.contains("handle.borrow_mut()"));
     }
 
     #[test]
