@@ -1813,6 +1813,45 @@ mod tests {
     }
 
     #[test]
+    fn input_on_the_mac_takes_back_the_tab_it_switches_to() {
+        let term = include_str!("termwindow/mod.rs");
+        for (arm, handler) in [
+            (
+                "WindowEvent::RawKeyEvent(event) => {",
+                "self.raw_key_event_impl(event, window);",
+            ),
+            (
+                "WindowEvent::KeyEvent(event) => {",
+                "self.key_event_impl(event, window);",
+            ),
+            (
+                "WindowEvent::MouseEvent(event) => {",
+                "self.mouse_event_impl(event, window);",
+            ),
+            (
+                "WindowEvent::PerformKeyAssignment(action) => {",
+                "self.perform_key_assignment(&pane, &action)?;",
+            ),
+        ] {
+            let body = term.split(arm).nth(1).unwrap();
+            let body = body.split("Ok(true)").next().unwrap();
+            let before = body.find("let tab_before = self.active_tab_id();").unwrap();
+            let handled = body.find(handler).unwrap();
+            let reclaim = body
+                .find("self.reclaim_tab_switched_to(tab_before);")
+                .unwrap();
+            assert!(before < handled && handled < reclaim, "{}", arm);
+        }
+        // A browser switching tabs arrives here too, and keeps its own size.
+        let activate = term.split("fn activate_tab(&mut self").nth(1).unwrap();
+        let activate = activate
+            .split("fn activate_tab_relative(&mut self")
+            .next()
+            .unwrap();
+        assert!(!activate.contains("reclaim"));
+    }
+
+    #[test]
     fn drawer_only_workspace_is_empty_for_ordinary_window_navigation() {
         for windows in [vec![], vec![42]] {
             assert!(!super::workspace_has_ordinary_windows(&windows, |id| id == 42));
