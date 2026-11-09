@@ -12,6 +12,13 @@ primary_region = 'nrt'
 # addresses there and admits browser sockets only from it.
 [env]
   KAKU_RELAY_PAGE_ORIGIN = 'https://t.kaku.fun'
+  KAKU_RELAY_USAGE_FILE = '/data/usage.json'
+
+# Anonymous usage counts (src/usage.rs). A deploy replaces the machine's disk,
+# so they live on a volume.
+[mounts]
+  source = 'kaku_relay_data'
+  destination = '/data'
 
 [http_service]
   internal_port = 8080

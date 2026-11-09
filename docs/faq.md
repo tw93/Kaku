@@ -255,7 +255,7 @@ Hold anywhere for about half a second, then lift, to open the menu a right click
 
 ## Is remote access free?
 
-Yes. I pay for the relay server myself, as a thank-you to everyone who has been building Kaku in the open with me. Your privacy does not rest on trusting that server: what you type and see is encrypted between the browser and Kaku, so the relay only forwards data it cannot read. It is a server that does this one job, so the connection stays quick.
+Yes. I pay for the relay server myself, as a thank-you to everyone who has been building Kaku in the open with me. Your privacy does not rest on trusting that server: what you type and see is encrypted between the browser and Kaku, so the relay only forwards data it cannot read. To know how many people use it, the relay counts Macs per day from a salted hash of each Mac's id, and those counts hold no addresses and nothing you type. It is a server that does this one job, so the connection stays quick.
 
 ## The remote web page says the Mac is offline, or asks me to pair again.
 

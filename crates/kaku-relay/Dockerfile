@@ -14,11 +14,11 @@ WORKDIR /app/crates/kaku-relay
 RUN cargo build --release --locked
 
 FROM debian:bookworm-slim
-# The relay needs no privileges: it listens on 8080 and writes nothing to
-# disk, so a flaw in it should not run as root in the machine.
+# The relay needs no privileges: it listens on 8080 and writes only its usage
+# counts, so a flaw in it should not run as root in the machine. Fly mounts the
+# volume owned by root, so the start hands it over before dropping to the user.
 RUN useradd --system --uid 10001 --no-create-home --shell /usr/sbin/nologin kaku-relay
 COPY --from=builder /app/crates/kaku-relay/target/release/kaku-relay /usr/local/bin/kaku-relay
 ENV RUST_LOG=kaku_relay=info
 EXPOSE 8080
-USER kaku-relay
-CMD ["kaku-relay"]
+CMD ["sh", "-c", "[ ! -d /data ] || chown kaku-relay /data; exec setpriv --reuid=kaku-relay --regid=kaku-relay --clear-groups kaku-relay"]
