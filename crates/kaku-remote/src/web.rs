@@ -110,6 +110,9 @@ struct AgentInfo {
     /// "claude", "codex", "kimi" or "pi".
     program: &'static str,
     topic: String,
+    /// The agent shows the topic itself, so the bar keeps only the mark. The
+    /// tab list and page title still use the topic.
+    topic_on_screen: bool,
 }
 
 /// Tabs whose size a browser set. That size can be larger than the Mac
@@ -208,10 +211,11 @@ pub fn publish_tab_title(tab_id: usize, title: &str) {
 
 /// Called by the GUI with each tab's agent title, or None when no agent
 /// runs in it or the title is turned off (`show_agent_title`).
-pub fn publish_agent_title(tab_id: usize, agent: Option<(&'static str, &str)>) {
-    let agent = agent.map(|(program, topic)| AgentInfo {
+pub fn publish_agent_title(tab_id: usize, agent: Option<(&'static str, &str, bool)>) {
+    let agent = agent.map(|(program, topic, topic_on_screen)| AgentInfo {
         program,
         topic: topic.trim().to_string(),
+        topic_on_screen,
     });
     let mut titles = AGENT_TITLES.lock();
     if titles.get(&tab_id) == agent.as_ref() {
@@ -3645,13 +3649,14 @@ mod tests {
     #[test]
     fn agent_titles_and_chat_panes_follow_the_gui() {
         let tab = usize::MAX - 1;
-        publish_agent_title(tab, Some(("claude", "  Fix the padding bug ")));
+        publish_agent_title(tab, Some(("claude", "  Fix the padding bug ", true)));
         let shown = AGENT_TITLES.lock().get(&tab).cloned();
         assert_eq!(
             shown,
             Some(AgentInfo {
                 program: "claude",
-                topic: "Fix the padding bug".into()
+                topic: "Fix the padding bug".into(),
+                topic_on_screen: true,
             })
         );
         publish_agent_title(tab, None);

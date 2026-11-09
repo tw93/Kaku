@@ -2749,7 +2749,10 @@
     agentTool.classList.toggle("on", !!agent);
     if (agent) {
       agentTool.querySelector("path").setAttribute("d", AGENT_MARKS[agent.program] || "");
-      agentTool.querySelector("span").textContent = agent.topic;
+      const topicEl = agentTool.querySelector("span");
+      topicEl.textContent = agent.topic;
+      // The agent already shows it on screen; keep the mark alone here.
+      topicEl.hidden = !!agent.topic_on_screen;
       agentTool.title = agent.topic;
     }
     renderTitle();

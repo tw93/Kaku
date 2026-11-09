@@ -2214,6 +2214,18 @@ test('the agent working in a tab shows its mark and still topic', async t => {
   // The spinner in the pane title never reaches the browser tab.
   await p.evaluate(() => probe.handle({ type: 'frame', seq: 2, pane_id: 1, cols: 80, rows: 24, title: '✳ Fix the padding bug', data: '' }));
   assert.equal(await p.title(), 'Fix the padding bug - Kaku');
+  // Once the agent shows the topic itself the bar keeps only the mark; the
+  // browser tab still names it, and the text returns when the agent drops it.
+  const onScreen = shown => p.evaluate(shown => probe.handle({ type: 'tabs', tabs: [
+    { tab_id: 1, pane_id: 1, panes: [], title: 'one', active: true, agent: { program: 'claude', topic: 'Fix the padding bug', topic_on_screen: shown } },
+  ] }), shown);
+  await onScreen(true);
+  assert.equal(await agent.isVisible(), true);
+  assert.equal(await agent.locator('svg').isVisible(), true);
+  assert.equal(await agent.innerText(), '');
+  assert.equal(await p.title(), 'Fix the padding bug - Kaku');
+  await onScreen(false);
+  assert.equal(await agent.innerText(), 'Fix the padding bug');
   await p.setViewportSize({ width: 375, height: 600 });
   assert.equal(await agent.isVisible(), false, 'phones keep the bar for tabs');
   assert.deepEqual(errors, []);

@@ -788,11 +788,13 @@ pub(crate) fn foreground_is_agent_cli(pane: &dyn mux::pane::Pane) -> bool {
 /// The agent and topic the window's top right would show for this tab's
 /// active pane, for the browser's tab bar.
 #[cfg(feature = "remote")]
-fn tab_agent_title(tab: &TabInformation) -> Option<(&'static str, String)> {
+fn tab_agent_title(tab: &TabInformation) -> Option<(&'static str, String, bool)> {
+    use crate::termwindow::render::agent_title::{agent_topic, pane_shows_topic};
     let pane = Mux::try_get()?.get_pane(tab.active_pane.as_ref()?.pane_id)?;
     let program = foreground_agent_cli(&*pane)?;
-    let topic = crate::termwindow::render::agent_title::agent_topic(program, &pane.get_title());
-    Some((program, topic))
+    let topic = agent_topic(program, &pane.get_title());
+    let on_screen = pane_shows_topic(&*pane, &topic);
+    Some((program, topic, on_screen))
 }
 
 /// The AI agent CLI running in the pane's foreground, by program name.
@@ -1190,7 +1192,7 @@ impl TabBarState {
                     tab_info[tab_idx].tab_id.into(),
                     agent
                         .as_ref()
-                        .map(|(program, topic)| (*program, topic.as_str())),
+                        .map(|(program, topic, on_screen)| (*program, topic.as_str(), *on_screen)),
                 );
             }
             let mut cell_attrs = if active {
