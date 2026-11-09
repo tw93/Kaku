@@ -80,6 +80,13 @@ def main() -> int:
     if legacy in text:
         raise SystemExit(f"legacy human product URL remains: {legacy}")
 
+    # Granted consent writes _ga whatever else the config says; denied writes none and reports nothing.
+    if "analytics_storage: 'granted'" not in (ROOT / "navigation.js").read_text(encoding="utf-8"):
+        raise SystemExit("analytics consent changed: re-measure cookies and update /privacy")
+    for page in ("privacy.html", "zh/privacy.html"):
+        if "<code>_ga</code>" not in (ROOT / page).read_text(encoding="utf-8"):
+            raise SystemExit(f"{page} must name the _ga cookies Google Analytics sets")
+
     print(f"public facts match Kaku {site_version}; removed features are not advertised")
     return 0
 
