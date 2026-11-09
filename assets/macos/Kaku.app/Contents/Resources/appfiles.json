@@ -1,0 +1,27 @@
+{
+  "spec": 0,
+  "name": "Kaku",
+  "macos": {
+    "id": "fun.tw93.kaku",
+    "paths": [
+      { "path": "~/.config/kaku", "kind": "data" },
+      { "path": "~/.config/kaku/kaku.lua", "kind": "user" },
+      { "path": "~/.config/kaku/zsh", "kind": "component" },
+      { "path": "~/.config/kaku/fish", "kind": "component" },
+      { "path": "~/.config/fish/conf.d/kaku.fish", "kind": "component" },
+      { "path": "~/.config/starship.toml", "kind": "user", "shared_with": ["starship"] },
+      { "path": "~/.config/yazi/flavors/kaku-dark.yazi", "kind": "config", "shared_with": ["yazi"] },
+      { "path": "~/.config/yazi/flavors/kaku-light.yazi", "kind": "config", "shared_with": ["yazi"] },
+      { "path": "~/.terminfo/6b/kaku", "kind": "component" },
+      { "path": "~/.cache/kaku", "kind": "cache" },
+      { "path": "~/.local/share/kaku", "kind": "state" },
+      { "path": "~/Library/Application Support/kaku", "kind": "data" },
+      { "path": "~/Library/Application Support/kaku/updates", "kind": "cache" },
+      { "path": "~/Library/Application Support/kaku/staged_update", "kind": "cache" },
+      { "path": "~/Library/Caches/kaku", "kind": "cache" },
+      { "path": "~/Library/Caches/fun.tw93.kaku", "kind": "cache" },
+      { "path": "~/Library/Preferences/fun.tw93.kaku.plist", "kind": "config" },
+      { "path": "~/Library/Saved Application State/fun.tw93.kaku.savedState", "kind": "state" }
+    ]
+  }
+}
