@@ -1795,12 +1795,13 @@ test('the close confirmation points at the tab or spot it asks about', async t =
   await p.keyboard.press('Escape');
   await tabs(false);
   await p.evaluate(() => probe.attach({ tab_id: 2, pane_id: 2 }, true));
+  const before = await p.locator('.xterm-screen').boundingBox();
   await p.locator('.xterm-screen').click({ button: 'right', position: { x: 300, y: 200 } });
   const spot = await p.locator('.xterm-screen').boundingBox();
   await p.locator('#menu button').getByText('Close Pane', { exact: true }).click();
   assert.equal(await p.locator('#dialog .title').innerText(), 'Close this pane?');
   g = await geometry();
-  assert.ok(Math.abs(g.card.top - (spot.y + 200) - 16) <= 1, `card ${g.card.top} under the menu spot at ${spot.y + 200}`);
+  assert.ok(Math.abs(g.card.top - (spot.y + 200) - 16) <= 1, `card ${g.card.top} under the menu spot at ${spot.y + 200}, screen at y ${before.y} before the click and ${spot.y} after`);
   assert.ok(Math.abs(g.tip.x - (spot.x + 300)) <= 1, 'tip on the menu spot');
 });
 
