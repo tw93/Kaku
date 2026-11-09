@@ -210,9 +210,10 @@ impl SpawnQueue {
 // In the field (V0.25.0 and V0.27.0) the GUI froze after an update
 // notification click: the main thread sat idle in AppKit's event loop while
 // tasks queued here were never run, so keys, scrolling and tab switches did
-// nothing until a force quit, though menus still opened. Why the observer
-// stopped draining is not known yet. The stall watchdog asks for a drain
-// through the main dispatch queue, which wakes the run loop through its own
+// nothing until a force quit, though menus still opened. A V0.27.0 capture
+// traced this to show() clearing a native fullscreen style: AppKit threw
+// through the observer callback and it stopped firing (K-18/K-22). Keep the
+// dispatch rescue for stranded tasks: it wakes the run loop through its own
 // port; if the observer then stays silent while the main thread is free,
 // every later wakeup also goes through the dispatch queue.
 #[cfg(target_os = "macos")]
