@@ -1,9 +1,10 @@
 //! Working with pseudo-terminals
 
 use crate::{Child, CommandBuilder, MasterPty, PtyPair, PtySize, PtySystem, SlavePty};
-use anyhow::{bail, Error};
+use anyhow::{bail, Context, Error};
 use filedescriptor::FileDescriptor;
 use libc::{self, winsize};
+use nix::sys::termios::{tcgetattr, tcsetattr, InputFlags, SetArg};
 use std::cell::RefCell;
 use std::ffi::OsStr;
 use std::io::{Read, Write};
@@ -63,6 +64,11 @@ fn openpty(size: PtySize) -> anyhow::Result<(UnixMasterPty, UnixSlavePty)> {
     // the cloexec() functions fail (unlikely!).
     cloexec(master.fd.as_raw_fd())?;
     cloexec(slave.fd.as_raw_fd())?;
+
+    let mut termios = tcgetattr(slave.fd.0.as_fd()).context("read PTY termios")?;
+    termios.input_flags.insert(InputFlags::IUTF8);
+    tcsetattr(slave.fd.0.as_fd(), SetArg::TCSANOW, &termios)
+        .context("enable UTF-8 input on PTY")?;
 
     Ok((master, slave))
 }
@@ -410,5 +416,70 @@ impl Write for UnixMasterWriter {
     }
     fn flush(&mut self) -> Result<(), io::Error> {
         self.fd.flush()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use filedescriptor::{poll, pollfd, POLLIN};
+    use nix::sys::termios::cfmakeraw;
+    use std::time::Duration;
+
+    fn read_input(slave: &mut UnixSlavePty, length: usize) -> Vec<u8> {
+        let mut input = vec![0; length];
+        let mut received = 0;
+        while received < length {
+            let mut descriptors = [pollfd {
+                fd: slave.fd.as_raw_fd(),
+                events: POLLIN,
+                revents: 0,
+            }];
+            assert_eq!(
+                poll(&mut descriptors, Some(Duration::from_secs(2))).unwrap(),
+                1,
+                "timed out waiting for PTY input"
+            );
+            let count = slave.fd.read(&mut input[received..]).unwrap();
+            assert_ne!(count, 0, "PTY closed before delivering the input");
+            received += count;
+        }
+        input
+    }
+
+    #[test]
+    fn canonical_erase_preserves_utf8() {
+        for (input, expected) in [
+            ("a\x7fy\n", "y\n"),
+            ("н\x7fy\n", "y\n"),
+            ("中\x7fy\n", "y\n"),
+            ("😀\x7fy\n", "y\n"),
+            ("a中😀\x7f\x7fy\n", "ay\n"),
+        ] {
+            let (mut master, mut slave) = openpty(PtySize::default()).unwrap();
+            master.fd.write_all(input.as_bytes()).unwrap();
+            assert_eq!(
+                read_input(&mut slave, expected.len()),
+                expected.as_bytes(),
+                "input: {input:?}"
+            );
+        }
+    }
+
+    #[test]
+    fn raw_input_and_restored_canonical_erase_preserve_utf8() {
+        let (mut master, mut slave) = openpty(PtySize::default()).unwrap();
+        let saved = tcgetattr(slave.fd.0.as_fd()).unwrap();
+        let mut raw = saved.clone();
+        cfmakeraw(&mut raw);
+        tcsetattr(slave.fd.0.as_fd(), SetArg::TCSANOW, &raw).unwrap();
+
+        let input = b"\0\xff\xe4\xb8\xad\x7f\r\n";
+        master.fd.write_all(input).unwrap();
+        assert_eq!(read_input(&mut slave, input.len()), input);
+
+        tcsetattr(slave.fd.0.as_fd(), SetArg::TCSANOW, &saved).unwrap();
+        master.fd.write_all("中\x7fy\n".as_bytes()).unwrap();
+        assert_eq!(read_input(&mut slave, 2), b"y\n");
     }
 }
