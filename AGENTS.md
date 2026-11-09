@@ -16,7 +16,7 @@ Kaku is a macOS-native terminal emulator derived from WezTerm and shaped around 
 - `assets/` - app resources, bundled config, shell integration, and vendor assets.
 - `scripts/` - build, release, and validation helpers.
 - `docs/` - user and developer documentation.
-- `.agents/skills/` - the canonical and tracked home for project skills: `release` and `bugs`. The website skill `product-docs` lives with the site on the `vercel` worktree (`~/www/kaku-site/.agents/skills/product-docs`). `.claude/` is gitignored except for the force-added `.claude/rules/macos.md`; its skill entries may be relative symlinks or ignored private overrides. Do not cite, copy, or edit an ignored `.claude/skills/` directory as project truth. Put durable skill changes in `.agents/skills/` first, then update a symlink when that entry is actually a link.
+- `.agents/skills/` - the canonical and tracked home for project skills: `release` and `bugs`. The website skill `product-docs` lives with the site on the `vercel` worktree (`~/www/kaku-site/.agents/skills/product-docs`). `.claude/` is gitignored except for the force-added files in `.claude/rules/`; its skill entries may be relative symlinks or ignored private overrides. Do not cite, copy, or edit an ignored `.claude/skills/` directory as project truth. Put durable skill changes in `.agents/skills/` first, then update a symlink when that entry is actually a link.
 - `.github/workflows/checks.yml` - fast correctness gates on pushes to `main` and on pull requests, with a `paths` filter that skips `**.md` and assets, so a docs-only change gets no CI at all, except the files a later positive pattern brings back because a check reads or the build embeds them (`docs/incidents.md`, `.github/RELEASE_NOTES.md`, `assets/logo.png`); `scripts/test_ci_paths.py` fails when a code file, an `include_bytes!`/`include_str!` target or a listed read file would be skipped. Three macOS jobs: Unit Tests, Clippy (which also carries the source guards and stands in for `cargo check`, scoped to the lint-opt-in crates, not the workspace), and Scripts and Release Checks (browser terminal regressions, release notes, config version, incident ledger, shell smoke tests, shellcheck); Format and Relay Build run on Linux, and so does Security Audit. The runner caps macOS jobs at five across all workflows, and Build Validation takes two, so a sixth macOS job queues.
 - `.github/workflows/build-validation.yml` - release-shaped builds with the shipped `release-opt` profile: one job per architecture in parallel (the arm64 one also assembles the bundle), then a `lipo` merge of `kaku-gui`, the one binary the bundle ships; runs on build-pipeline changes, daily (skipped when that commit already passed), or on dispatch. `release.sh` preflight requires its latest run green and the latest Security Audit run not failed, and skips its local fmt/check/test when CI Checks already passed on HEAD.
 - `.github/RELEASE_NOTES.md` - source for the GitHub Release title and body.
@@ -61,6 +61,8 @@ make app
 
 ## Maintainer Follow-up
 
+- Do not close issues or PRs on local green alone. For fixes pushed to `main`, wait for the new GitHub Actions run on `main` to pass before posting fixed/closed replies.
+- If an accepted PR's equivalent fix lands outside the contributor branch, acknowledge the contribution and explain which user-visible fix was delivered before closing it; keep commit hashes and internal attribution bookkeeping out of the public reply.
 - The latest stable tag is `git tag --list 'V*' --sort=-version:refname | head -1`; without the `V*` filter the rolling `nightly` tag sorts first. Map each report to `git log <tag>..HEAD`, and treat a closed issue as a claim until the fix commit or remaining gap is named.
 - Shell integration fixes run the affected `assets/shell-integration/tests/*_smoke.sh`, then the list `.github/workflows/checks.yml` runs under `Shell integration smoke tests`. Watch the pushed `main` run with `gh run watch <id> --exit-status`.
 - The rolling `nightly` release is not rebuilt by push. Before sending users to Nightly, run or verify `./scripts/nightly.sh` and confirm `gh release view nightly --json tagName,targetCommitish,publishedAt,assets,url` points at the fix commit and includes `Kaku-nightly.dmg`.
@@ -105,7 +107,7 @@ For TUI display corruption after interactive CLIs re-render prompts or selection
 Claude Code loads each `.claude/rules/*.md` when a file matching its `paths:` is read. On another runtime, read the matching file before working there.
 
 - `.claude/rules/tab-bar.md`: read before proposing any control in the tab bar; it records what was tried and rejected.
-- `.claude/rules/remote.md`: web terminal, relay and the desktop view package.
+- `.claude/rules/remote.md`: web terminal, relay and the desktop view package. Read it before proposing any remote access design; registration tokens and pairing QR codes were rejected.
 
 ## Verification
 
