@@ -285,7 +285,11 @@ button, input { font: inherit; }
   min-height: 52px;
   margin: 0 auto;
   padding: 8px 13px;
-  border: 1px solid var(--line-faint);
+  /* No drawn edge: mole.fit's soft shadow lifts the bar and the transparent
+     border keeps its height (maintainer 2026-11-10: the shadow pill read better
+     than the hairline one, on every product site). */
+  border: 1px solid transparent;
+  box-shadow: 0 2px 20px 8px rgba(0, 0, 0, 0.04);
   border-radius: 999px;
   background: var(--ivory);
   font-family: var(--serif);
@@ -294,6 +298,7 @@ button, input { font: inherit; }
   letter-spacing: 0;
   color: var(--stone);
 }
+@media (prefers-contrast: more) { .site-nav .nav-inner { border-color: var(--line); box-shadow: none; } }
 .brand {
   display: inline-flex;
   align-items: center;
