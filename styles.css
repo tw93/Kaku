@@ -289,7 +289,7 @@ button, input { font: inherit; }
      border keeps its height (maintainer 2026-11-10: the shadow pill read better
      than the hairline one, on every product site). */
   border: 1px solid transparent;
-  box-shadow: 0 2px 20px 8px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 1px 8px 1px rgba(0, 0, 0, 0.02);
   border-radius: 999px;
   background: var(--ivory);
   font-family: var(--serif);
