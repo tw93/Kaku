@@ -8,8 +8,8 @@ Kaku shares the Kami parchment system used across the family sites (mole.fit and
 
 Token names are Kami's, shared by every family site (`python3 ~/www/Kata/scripts/site-tokens.py` checks them); a different value keeps the name.
 
-- `#f5f4ed` parchment page background (`--parchment`)
-- `#faf9f5` elevated and card surface (`--ivory`); `#e8e6dc` warm sand (`--warm-sand`)
+- `#fbfaf6` page background (`--parchment`; the family ground since 2026-11-10, `#f5f4ed` before)
+- `#fefdfb` elevated and card surface (`--ivory`); `#ebe9e1` warm sand (`--warm-sand`)
 - `#363433` primary text (`--near-black`, 长石灰 since 2026-10-19; `#141413` read too black); `#3d3d3a` dim (`--dark-warm`), `#6b6a64` muted (`--stone`)
 - `#287A3D` the light logo's green for links, tags, outlines and tints (`--brand`); `#2C7D40` hover (`--brand-light`); `#EDF4ED` tint (`--brand-tint`)
 - `#2C2F39` the logo disc's slate for solid fills, the primary button and skip link (`--kaku-slate`); `#3E414C` hover (`--kaku-slate-light`). Chosen 2026-10-18 from rendered candidates: the logo's own two colors, not a single purple

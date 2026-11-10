@@ -59,13 +59,13 @@
   --text-lede: 16px;
   --text-title: 21px;
   --text-section: 32px;
-  --parchment: #f5f4ed;
-  --ivory: #faf9f5;
-  --warm-sand: #e8e6dc;
-  --line: #d8d5c8;
+  --parchment: #fbfaf6;
+  --ivory: #fefdfb;
+  --warm-sand: #ebe9e1;
+  --line: #dcd9cd;
   --olive: #504e49;
-  --border-soft: #e5e3d8;
-  --line-faint: #edebe1;
+  --border-soft: #ebe9df;
+  --line-faint: #efede5;
   --border-card: color-mix(in srgb, var(--border-soft) 70%, var(--line));
   --near-black: #363433;
   --dark-warm: #3d3d3a;
@@ -78,7 +78,7 @@
   --kaku-slate: #2C2F39;
   --kaku-slate-light: #3E414C;
   --foot-ink: #f4f2ec;
-  --section-gap: 84px;
+  --section-gap: 90px;
   --green: #0d7d4d;
   --green-bright: #5fbf85;
   --red: #a04545;
@@ -180,7 +180,7 @@ button, input { font: inherit; }
 .wide { max-width: 1128px; margin: 0 auto; padding: 0 64px; }
 .hero-wrap { max-width: 1128px; margin: 0 auto; padding: 0 64px; }
 .section, .section-tight { padding: 0; margin-bottom: var(--section-gap); }
-/* One module gap, as on the rest of the family: 84 on desktop, 72 below. */
+/* One module gap, as on the rest of the family: 90 on desktop since 2026-11-10 (84 before), 72 below. */
 @media (max-width: 880px) { :root { --section-gap: 72px; } }
 .label {
   color: var(--stone);
