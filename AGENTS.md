@@ -59,6 +59,9 @@ make app
 - Official Homebrew token is `kaku` (`brew install --cask kaku`). `tw93/tap/kakuku` remains the personal tap for people who installed before the official cask. Do not tell users the Homebrew `kaku` token is a different app.
 - Incidents and risk (2026-10-26): a fix for a defect that reached a tagged release adds its `docs/incidents.md` row in the same commit, naming the fix and introducing commits, the earliest layer that should have caught it and the test, smoke script or workflow step that catches it now; `scripts/check_incidents.py` (in `make check` and the Scripts and Release Checks job, with `scripts/test_review_gates.py`) fails a row whose commit, layer or catcher does not hold. A defect nothing catches yet gets a test that fails on the old code before its row lands. The verification a change needs follows its paths, not its author: `scripts/risk_tier.py` (printed by `make check`; pass your own files in a shared worktree) names the extra gates for release scripts and version files, the in-app updater, workflows, config versioning and the installers that edit user dotfiles.
 
+- Do not modify files outside this repository without showing the intended change and getting explicit confirmation.
+- Do not hide user-visible behavior changes inside maintainability or cleanup patches. New UI, config fields, defaults, or workflow permissions should be split into their own change unless the maintainer explicitly approved that scope.
+
 ## Maintainer Follow-up
 
 - Do not close issues or PRs on local green alone. For fixes pushed to `main`, wait for the new GitHub Actions run on `main` to pass before posting fixed/closed replies.
