@@ -203,7 +203,8 @@ button, input { font: inherit; }
   margin-bottom: 24px;
 }
 /* Section titles and ledes use mole.fit's 32px dark-warm title and 16px olive lede. */
-.section-head h2 {
+.section-head h2,
+.contact .contact-title {
   margin: 0;
   color: var(--dark-warm);
   font-size: var(--text-section);
@@ -1336,10 +1337,12 @@ html[lang^="zh"] .gallery-caption .line { margin-bottom: 0; }
 
 /* Author contact under the FAQ, the same block as mole.fit's (2026-10-20).
    The X and GitHub counts are static: update them together with mole.fit's. */
-.contact { margin-top: 48px; text-align: left; }
+/* The page's last section head, at the section title's size and the gap between sections, as on
+   mole.fit and yado.house (maintainer 2026-11-10: at 21px beside a 28px avatar it was the one smaller title). */
+.contact { margin-top: var(--section-gap); text-align: left; }
 .contact-heading { display: flex; align-items: center; gap: 12px; }
-.contact-author { display: block; flex: 0 0 auto; width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }
-.contact .contact-title { margin: 0; padding: 0; font-family: var(--serif); font-size: var(--text-title); font-weight: 500; line-height: 1.2; color: var(--dark-warm); transform: translateY(1.5px); }
+.contact-author { display: block; flex: 0 0 auto; width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
+.contact .contact-title { padding: 0; transform: translateY(1.5px); }
 .contact .contact-sub { margin: 8px 0 0; padding: 0; font-family: var(--serif); font-size: var(--text-body); line-height: 1.55; color: var(--olive); }
 .contact-sub a { color: var(--brand); text-decoration: none; }
 .contact-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 24px; }
@@ -1436,7 +1439,7 @@ html[lang^="zh"] .gallery-caption .line { margin-bottom: 0; }
 /* Chinese blog text tracks at 0.02em, as on mole.fit (maintainer 2026-10-21: zero tracking read cramped);
    headings resolve it at their own size instead of the Latin -0.3px, code keeps 0. */
 /* Chinese headings take no Latin -0.3px, which pressed full-em glyphs together. */
-html[lang^="zh"] :is(.section-head h2, .page-hero h1) { letter-spacing: 0; }
+html[lang^="zh"] :is(.section-head h2, .contact .contact-title, .page-hero h1) { letter-spacing: 0; }
 html[lang^="zh"] .blog-page, html[lang^="zh"] .blog-page :is(h1, h2, h3, h4) { letter-spacing: 0.02em; }
 html[lang^="zh"] .blog-page :is(pre, code, kbd) { letter-spacing: 0; }
 html[lang^="zh"] .foot-links b { letter-spacing: 0.6px; }
@@ -1480,7 +1483,8 @@ html[lang^="zh"] .foot-links b { letter-spacing: 0.6px; }
   .wide, .hero-wrap, .hero-centered { padding-inline: 28px; }
   .site-nav { padding-inline: 14px; }
   .hero { padding-top: 44px; }
-  .section-head h2 { font-size: 26px; }
+  .section-head h2, .contact .contact-title { font-size: 26px; }
+  .contact-author { width: 30px; height: 30px; }
   /* 64px with -1px tracking under 880 and the 18px gap at every width, as on
      the other product sites (maintainer 2026-11-04: one lockup size). */
   .hero h1 { font-size: 84px; }
@@ -1497,9 +1501,9 @@ html[lang^="zh"] .foot-links b { letter-spacing: 0.6px; }
   .doc-content .quick-card h2, .doc-card h2 { font-size: 18px; }
   .faq-item h3 { font-size: 16px; }
   .doc-content h3 { font-size: 19px; }
-  .contact .contact-title, .foot-brand .name, .method h2, .quick-card h3, .doc-content h2,
+  .foot-brand .name, .method h2, .quick-card h3, .doc-content h2,
   .release-doc h2, .prose h3 { font-size: 22px; }
-  .section-head h2, .prose h2 { font-size: 26px; }
+  .section-head h2, .contact .contact-title, .prose h2 { font-size: 26px; }
   .feature span, .method p, .quick-card p, .doc-card p { font-size: 16px; }
   .doc-content code, .doc-content figcaption code { font-size: 0.9em; }
   .release-doc ol li code, .faq-answer code { font-size: 14px; }
