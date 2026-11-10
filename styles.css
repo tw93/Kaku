@@ -717,24 +717,39 @@ html[lang^="zh"] .gallery-caption .line { margin-bottom: 0; }
 @supports (text-box: trim-both cap alphabetic) {
   html .gallery-tabs button { height: calc(1lh + 14px); padding-block: 0; text-box: trim-both cap alphabetic; }
 }
-/* Eight tabs leave no room for a line beside them, so the tabs take the full
-   row with the caption under them, as on yado.house. The selected tab already
-   names the shot, so the caption keeps only its line, and phones drop it, as on
-   mole.fit, hina.day and yado.house. */
-.gallery { grid-template-columns: minmax(0, 1fr); row-gap: 0; }
-.gallery-caption, .gallery-tabs { grid-column: 1; }
-.gallery-caption { grid-row: 3; align-items: baseline; min-height: 36px; padding-top: 12px; }
+/* Desktop pills, as on mole.fit (maintainer 2026-11-10: the words read big and
+   sat high in the pill): 13px in the same 28px pill, a step under the caption
+   beside them. Trimming to the cap height centres Latin only, so Han words
+   take one more pixel above. */
+@media (min-width: 641px) {
+  .gallery .gallery-tabs button { font-size: 13px; }
+  @supports (text-box: trim-both cap alphabetic) {
+    html .gallery .gallery-tabs button { height: 28px; }
+    html[lang^="zh"] .gallery .gallery-tabs button { padding-top: 1px; }
+  }
+}
+/* The selected tab already names the shot, so the caption keeps only its line.
+   On desktop the line sits beside the pills on one row (maintainer 2026-11-10:
+   a caption row under the pills on a PC read badly); the 2026-11-07 stack of
+   pills over the line stays for 880 and below, and phones drop the line. */
 .gallery-caption .title { display: none; }
 .gallery-caption .line { margin-bottom: 0; }
-.gallery-tabs {
-  grid-row: 2;
-  justify-content: flex-start;
-  overflow-x: auto;
-  overflow-y: hidden;
-  padding-bottom: 6px;
-  scrollbar-width: none;
+.gallery-caption { align-items: center; min-height: 40px; padding-top: 12px; }
+.gallery { align-items: center; }
+@media (max-width: 880px) {
+  .gallery { grid-template-columns: minmax(0, 1fr); row-gap: 0; align-items: baseline; }
+  .gallery-caption, .gallery-tabs { grid-column: 1; }
+  .gallery-caption { grid-row: 3; align-items: baseline; min-height: 36px; }
+  .gallery-tabs {
+    grid-row: 2;
+    justify-content: flex-start;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 6px;
+    scrollbar-width: none;
+  }
+  .gallery-tabs::-webkit-scrollbar { display: none; }
 }
-.gallery-tabs::-webkit-scrollbar { display: none; }
 .gallery-tabs button { flex: 0 0 auto; padding: 6px 14px; }
 @media (max-width: 480px) { .gallery-caption { display: none; } }
 @media (max-width: 560px) {
