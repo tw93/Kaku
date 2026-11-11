@@ -1795,13 +1795,16 @@ test('the close confirmation points at the tab or spot it asks about', async t =
   await p.keyboard.press('Escape');
   await tabs(false);
   await p.evaluate(() => probe.attach({ tab_id: 2, pane_id: 2 }, true));
+  // The card follows the press the browser reports, which on CI's Chromium can
+  // land a couple of pixels from the position Playwright asked for.
+  await p.evaluate(() => addEventListener('contextmenu', e => { window.menuSpot = { x: e.clientX, y: e.clientY }; }, { capture: true, once: true }));
   await p.locator('.xterm-screen').click({ button: 'right', position: { x: 300, y: 200 } });
-  const spot = await p.locator('.xterm-screen').boundingBox();
+  const spot = await p.evaluate(() => window.menuSpot);
   await p.locator('#menu button').getByText('Close Pane', { exact: true }).click();
   assert.equal(await p.locator('#dialog .title').innerText(), 'Close this pane?');
   g = await geometry();
-  assert.ok(Math.abs(g.card.top - (spot.y + 200) - 16) <= 1, `card ${g.card.top} under the menu spot at ${spot.y + 200}`);
-  assert.ok(Math.abs(g.tip.x - (spot.x + 300)) <= 1, 'tip on the menu spot');
+  assert.ok(Math.abs(g.card.top - spot.y - 16) <= 1, `card ${g.card.top} under the menu spot at ${spot.y}`);
+  assert.ok(Math.abs(g.tip.x - spot.x) <= 1, `tip ${g.tip.x} on the menu spot at ${spot.x}`);
 });
 
 test('terminal menu copies its selection and shares paste limits and pane guards', async t => {
@@ -2214,6 +2217,18 @@ test('the agent working in a tab shows its mark and still topic', async t => {
   // The spinner in the pane title never reaches the browser tab.
   await p.evaluate(() => probe.handle({ type: 'frame', seq: 2, pane_id: 1, cols: 80, rows: 24, title: '✳ Fix the padding bug', data: '' }));
   assert.equal(await p.title(), 'Fix the padding bug - Kaku');
+  // Once the agent shows the topic itself the bar keeps only the mark; the
+  // browser tab still names it, and the text returns when the agent drops it.
+  const onScreen = shown => p.evaluate(shown => probe.handle({ type: 'tabs', tabs: [
+    { tab_id: 1, pane_id: 1, panes: [], title: 'one', active: true, agent: { program: 'claude', topic: 'Fix the padding bug', topic_on_screen: shown } },
+  ] }), shown);
+  await onScreen(true);
+  assert.equal(await agent.isVisible(), true);
+  assert.equal(await agent.locator('svg').isVisible(), true);
+  assert.equal(await agent.innerText(), '');
+  assert.equal(await p.title(), 'Fix the padding bug - Kaku');
+  await onScreen(false);
+  assert.equal(await agent.innerText(), 'Fix the padding bug');
   await p.setViewportSize({ width: 375, height: 600 });
   assert.equal(await agent.isVisible(), false, 'phones keep the bar for tabs');
   assert.deepEqual(errors, []);
@@ -3853,7 +3868,7 @@ test('a phone lists tabs in a drawer that switches, creates, renames and closes 
   assert.equal(await p.locator('.mobile-row[data-tab="2"] .mobile-title .mobile-dot').count(), 1);
   assert.equal(await p.locator('.mobile-row[data-tab="3"] .mobile-sub').textContent(), 'Working');
   assert.equal(await p.locator('.mobile-row[data-tab="1"] .mobile-sub').count(), 0);
-  await p.waitForTimeout(250);
+  await p.waitForFunction(() => document.querySelector('#mobile-tabs').getBoundingClientRect().x === 0);
   const drawer = await p.locator('#mobile-tabs').boundingBox();
   assert.ok(drawer.x === 0 && drawer.width <= 320 * 0.85 + 1, JSON.stringify(drawer));
 

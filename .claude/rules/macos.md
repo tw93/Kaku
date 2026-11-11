@@ -1,3 +1,9 @@
+---
+paths:
+  - "window/src/os/macos/**"
+  - "kaku-gui/src/termwindow/**"
+---
+
 # Kaku macOS Platform Rules
 
 > macOS 26 上 AppKit 自动注入是 PAC-fault / 崩溃的高频来源。改 menubar / window handling 前必读本文。

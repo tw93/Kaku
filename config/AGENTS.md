@@ -39,6 +39,7 @@ The AI config TUI lives in the `kaku` CLI crate and shares terminal UI primitive
 ## Practical Rules
 
 - Loading priority: user config first, bundled config second.
+- A running process keeps the bundled `kaku.lua` it started with (`BUNDLED_AT_START`, served by `cached_dofile`, 2026-11-09), so editing that file inside a built app needs a restart; `make dev` reads it from `assets/` as before. `brew upgrade` or a swapped build replaces the file under a running Kaku, and the old binary raises an error on any action it does not know (`wezterm.action.X`, `crates/luahelper/src/enumctor.rs`). A user's `kaku.lua` catches that with `pcall` and carries on from an empty table, so on the next reload the window lost every bundled setting: the Fancy tab bar with close buttons, and a light window frame in a dark terminal. Log lines reading `failed to load bundled defaults` mean that fallback ran.
 - Keep reload-safe behavior for startup hooks and subscriptions.
 - Synthesized Half-intensity font rules keep the complete configured face, including weight suffixes in the family name. The renderer dims the color; reducing a named Light face to its family changes its weight (#616).
 - `color::is_light_color` re-exports the terminal core's classification so `COLORFGBG`, window chrome and DEC mode 2031 reports use the same palette policy. Keep that shared policy when changing color classification.

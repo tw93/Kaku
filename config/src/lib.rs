@@ -808,7 +808,7 @@ if bundled then
   if ok and type(loaded) == 'table' then
     config = loaded
   else
-    wezterm.log_error('Kaku: failed to load bundled defaults from ' .. bundled)
+    wezterm.log_error('Kaku: failed to load bundled defaults from ' .. bundled .. ': ' .. tostring(loaded))
   end
 else
   wezterm.log_error('Kaku: bundled defaults not found')

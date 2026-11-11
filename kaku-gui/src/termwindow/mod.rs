@@ -1475,6 +1475,26 @@ impl TermWindow {
         }
     }
 
+    fn active_tab_id(&self) -> Option<TabId> {
+        Mux::get()
+            .get_active_tab_for_window(self.mux_window_id)
+            .map(|tab| tab.tab_id())
+    }
+
+    /// A press or key takes back the tab active when it arrives. When that
+    /// input switches tabs on this Mac, the tab it lands on is the one being
+    /// looked at, and stayed at a browser's size, cut off by the window, until
+    /// the next press. Only for input on this Mac: a browser switching tabs
+    /// goes through `TermWindowNotif` and keeps its own size.
+    fn reclaim_tab_switched_to(&mut self, tab_before: Option<TabId>) {
+        #[cfg(feature = "remote")]
+        if self.active_tab_id() != tab_before {
+            self.reclaim_active_tab_size();
+        }
+        #[cfg(not(feature = "remote"))]
+        let _ = tab_before;
+    }
+
     #[cfg(feature = "remote")]
     pub(crate) fn reclaim_active_tab_size(&mut self) {
         let Some(tab) = Mux::get().get_active_tab_for_window(self.mux_window_id) else {
@@ -2117,7 +2137,9 @@ impl TermWindow {
             }
             WindowEvent::PerformKeyAssignment(action) => {
                 if let Some(pane) = self.get_active_pane_or_overlay() {
+                    let tab_before = self.active_tab_id();
                     self.perform_key_assignment(&pane, &action)?;
+                    self.reclaim_tab_switched_to(tab_before);
                     window.invalidate();
                 }
                 Ok(true)
@@ -2170,7 +2192,9 @@ impl TermWindow {
                 Ok(true)
             }
             WindowEvent::MouseEvent(event) => {
+                let tab_before = self.active_tab_id();
                 self.mouse_event_impl(event, window);
+                self.reclaim_tab_switched_to(tab_before);
                 self.replay_long_press(window);
                 Ok(true)
             }
@@ -2213,11 +2237,15 @@ impl TermWindow {
                 Ok(true)
             }
             WindowEvent::RawKeyEvent(event) => {
+                let tab_before = self.active_tab_id();
                 self.raw_key_event_impl(event, window);
+                self.reclaim_tab_switched_to(tab_before);
                 Ok(true)
             }
             WindowEvent::KeyEvent(event) => {
+                let tab_before = self.active_tab_id();
                 self.key_event_impl(event, window);
+                self.reclaim_tab_switched_to(tab_before);
                 Ok(true)
             }
             WindowEvent::AdviseDeadKeyStatus(status) => {

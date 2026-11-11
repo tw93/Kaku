@@ -1,4 +1,4 @@
-# Built from the repository root (see crates/AGENTS.md), so the relay can
+# Built from the repository root (see .claude/rules/remote.md), so the relay can
 # carry the web terminal's page and fonts from crates/kaku-remote.
 FROM rust:1.95-slim AS builder
 WORKDIR /app

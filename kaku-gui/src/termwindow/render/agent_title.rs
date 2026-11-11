@@ -23,6 +23,8 @@ use window::color::LinearRgba;
 
 /// The title may take at most this share of the window width.
 const MAX_WIDTH_FRACTION: f32 = 0.5;
+/// How many rows up from the screen's bottom to look for the agent's own title.
+const TOPIC_SCAN_ROWS: wezterm_term::StableRowIndex = 24;
 /// Mark and text alpha: present but quieter than content.
 const TEXT_ALPHA: f32 = 0.55;
 /// Mark size relative to the caption line height.
@@ -35,6 +37,8 @@ pub(crate) struct AgentTitle {
     /// "claude", "codex" or "kimi", from `foreground_agent_cli`.
     pub program: &'static str,
     pub topic: String,
+    /// The agent already shows `topic` on screen, so only the mark is drawn.
+    pub topic_on_screen: bool,
 }
 
 fn agent_label(program: &str) -> &'static str {
@@ -112,6 +116,31 @@ pub(crate) fn agent_topic(program: &str, pane_title: &str) -> String {
     }
 }
 
+/// Whether `row` draws `topic` set into a horizontal rule, the way Claude Code
+/// puts a named session on its input box border ("──── Fix the bug ─"). The
+/// rule on both sides keeps a chat line that merely mentions the topic, or a
+/// longer name containing it, from hiding the text.
+fn rule_carries_topic(row: &str, topic: &str) -> bool {
+    let is_rule = |c: Option<char>| matches!(c, Some('\u{2500}'..='\u{257f}'));
+    !topic.is_empty()
+        && row.match_indices(topic).any(|(at, _)| {
+            is_rule(row[..at].trim_end().chars().next_back())
+                && is_rule(row[at + topic.len()..].trim_start().chars().next())
+        })
+}
+
+/// Whether the live bottom of `pane` already shows `topic`. A taller input box
+/// can push its border past the scanned rows; the text then simply stays.
+pub(crate) fn pane_shows_topic(pane: &dyn mux::pane::Pane, topic: &str) -> bool {
+    let dims = pane.get_dimensions();
+    let end = dims.physical_top + dims.viewport_rows as wezterm_term::StableRowIndex;
+    let start = (end - TOPIC_SCAN_ROWS).max(dims.physical_top);
+    let (_, lines) = pane.get_lines(start..end);
+    lines
+        .iter()
+        .any(|line| rule_carries_topic(&line.as_str(), topic))
+}
+
 /// The longest prefix of `text` that fits `max_width` with an ellipsis,
 /// given a measure of rendered width. `text` itself when it already fits.
 fn fit_with_ellipsis(
@@ -148,9 +177,11 @@ impl crate::TermWindow {
         }
         let pane = self.get_active_pane_no_overlay()?;
         let program = crate::tabbar::foreground_agent_cli(&*pane)?;
+        let topic = agent_topic(program, &pane.get_title());
         Some(AgentTitle {
             program,
-            topic: agent_topic(program, &pane.get_title()),
+            topic_on_screen: pane_shows_topic(&*pane, &topic),
+            topic,
         })
     }
 
@@ -234,6 +265,7 @@ impl crate::TermWindow {
         // measured widths, so it invalidates the fit like a config reload.
         let generation = (self.config.generation(), self.shape_generation);
         let fitted = match &self.agent_title_fitted {
+            _ if title.topic_on_screen => String::new(),
             Some((source, cached_dpi, cached_generation, cached_max, fitted))
                 if *source == title.topic
                     && *cached_dpi == self.dimensions.dpi
@@ -344,6 +376,41 @@ impl crate::TermWindow {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn a_topic_set_into_a_rule_counts_as_shown() {
+        // Rows read back from Claude Code's input box border.
+        let topic = "Mole 调研 DeepSeek 插件方案";
+        let border = "────────── Mole 调研 DeepSeek 插件方案 ─";
+        assert!(rule_carries_topic(border, topic));
+        // Through a real line, since wide characters span two cells.
+        let line = termwiz::surface::Line::from_text(
+            border,
+            &Default::default(),
+            termwiz::surface::SEQ_ZERO,
+            None,
+        );
+        assert!(rule_carries_topic(&line.as_str(), topic));
+
+        // No border text, or another name: the title is still the only copy.
+        assert!(!rule_carries_topic("────────────────", topic));
+        assert!(!rule_carries_topic(
+            "───── Mole 修复 TUN 模式流量重复统计 ─",
+            topic
+        ));
+        // A longer name that contains the topic is a different title.
+        assert!(!rule_carries_topic("───── Mole 调研 ─", "Mole"));
+        // Chat text mentioning it, with or without a rule on one side.
+        assert!(!rule_carries_topic(
+            "  我在看 Mole 调研 DeepSeek 插件方案 这个会话",
+            topic
+        ));
+        assert!(!rule_carries_topic(
+            "───── Mole 调研 DeepSeek 插件方案",
+            topic
+        ));
+        assert!(!rule_carries_topic(border, ""));
+    }
 
     #[test]
     fn spinner_glyphs_are_dropped_from_the_topic() {

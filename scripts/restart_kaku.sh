@@ -5,6 +5,22 @@
 # runs. A normal quit is not used because it stops at the quit confirmation
 # whenever a program such as Claude Code is running.
 #
+# It restarts into `/Applications/Kaku.app` the way an in-app update does
+# (TERM, then reopen; tabs return from the periodic session snapshot) and
+# detaches first. It stops every running Kaku GUI, a copy opened from `dist/`
+# included, but sends TERM only to the one that owns `last_session.json` (its
+# pid names the snapshot's `content_dir`) and SIGKILLs the rest after it
+# exits, so a stray copy cannot overwrite the tabs when it quits.
+#
+# The detached run is marked with a `--detached` argument, never an
+# environment variable: `/usr/bin/open` hands the caller's environment to the
+# app, so a variable reached every shell in the reopened Kaku and the next
+# restart skipped detaching and died with it
+# (`test_leaked_detach_variable_still_detaches`). An absent snapshot or empty
+# process list must still reach the reopen step;
+# `scripts/test_restart_kaku.py` exercises those branches and owner-only
+# saving with fake processes, never the running app.
+#
 # The script detaches first, so it survives the terminal it was started from
 # closing, including when that terminal is Kaku itself, and it waits a few
 # seconds so whoever asked from inside Kaku can finish their reply.

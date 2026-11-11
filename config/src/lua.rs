@@ -188,9 +188,45 @@ fn config_builder_new_index<'lua>(
     }
 }
 
+/// The bundled defaults inside this process's app, as they were when it started.
+struct BundledDefaults {
+    path: std::path::PathBuf,
+    source: Vec<u8>,
+}
+
+/// An update can replace the app while the old process keeps running (`brew
+/// upgrade`, a swapped build). The next config reload must not run the new
+/// defaults on the old binary: an action it does not know raises an error, the
+/// user's config falls back to an empty table, and the window loses every
+/// bundled setting. Forced by `make_lua_context`, so it is read before the
+/// first config load.
+static BUNDLED_AT_START: std::sync::LazyLock<Option<BundledDefaults>> =
+    std::sync::LazyLock::new(|| {
+        let exe = std::env::current_exe().ok()?;
+        let macos = exe.parent()?;
+        if macos.file_name()? != "MacOS" {
+            return None;
+        }
+        let path = macos.parent()?.join("Resources/kaku.lua");
+        let source = std::fs::read(&path).ok()?;
+        Some(BundledDefaults { path, source })
+    });
+
+fn dofile_source<'a>(
+    path: &str,
+    at_start: Option<&'a BundledDefaults>,
+) -> std::io::Result<std::borrow::Cow<'a, [u8]>> {
+    match at_start {
+        Some(bundled) if bundled.path == std::path::Path::new(path) => {
+            Ok(std::borrow::Cow::Borrowed(bundled.source.as_slice()))
+        }
+        _ => std::fs::read(path).map(std::borrow::Cow::Owned),
+    }
+}
+
 fn cached_dofile<'lua>(lua: &'lua Lua, path: String) -> mlua::Result<Value<'lua>> {
     let p = std::path::Path::new(&path);
-    let source = std::fs::read(&path).map_err(mlua::Error::external)?;
+    let source = dofile_source(&path, BUNDLED_AT_START.as_ref()).map_err(mlua::Error::external)?;
 
     if let Some(bytecode) = crate::Config::try_load_bytecode_cache(p, &source) {
         match smol::block_on(
@@ -245,6 +281,7 @@ fn cached_dofile<'lua>(lua: &'lua Lua, path: String) -> mlua::Result<Value<'lua>
 /// In addition to this, the lua standard library, except for
 /// the `debug` module, is also available to the script.
 pub fn make_lua_context(config_file: &Path) -> anyhow::Result<Lua> {
+    std::sync::LazyLock::force(&BUNDLED_AT_START);
     let lua = Lua::new();
 
     let config_dir = config_file.parent().unwrap_or_else(|| Path::new("/"));
@@ -958,6 +995,32 @@ pub fn add_to_config_reload_watch_list<'lua>(
 mod test {
     use super::*;
     use std::sync::{Arc, Mutex};
+
+    #[test]
+    fn a_running_kaku_keeps_the_bundled_defaults_it_started_with() -> anyhow::Result<()> {
+        let dir = std::env::temp_dir().join(format!("kaku-dofile-{}", std::process::id()));
+        std::fs::create_dir_all(&dir)?;
+        let bundled = dir.join("kaku.lua");
+        let other = dir.join("other.lua");
+        // An update replaced the file on disk since the process started.
+        std::fs::write(&bundled, "return 'replaced by an update'")?;
+        std::fs::write(&other, "return 'user module'")?;
+        let at_start = BundledDefaults {
+            path: bundled.clone(),
+            source: b"return 'from start'".to_vec(),
+        };
+
+        let source = dofile_source(bundled.to_str().unwrap(), Some(&at_start))?;
+        assert_eq!(&*source, b"return 'from start'");
+        // The user's own files, and builds outside an app, still read the disk.
+        let source = dofile_source(other.to_str().unwrap(), Some(&at_start))?;
+        assert_eq!(&*source, b"return 'user module'");
+        let source = dofile_source(bundled.to_str().unwrap(), None)?;
+        assert_eq!(&*source, b"return 'replaced by an update'");
+
+        std::fs::remove_dir_all(&dir)?;
+        Ok(())
+    }
 
     #[test]
     fn shared_windows_configs_still_call_default_wsl_domains() -> anyhow::Result<()> {
