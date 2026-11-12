@@ -16,7 +16,7 @@ use mux::pane::{CachePolicy, Pane, WithPaneLines};
 use mux::tab::SplitDirection;
 use mux::Mux;
 use mux_lua::MuxPane;
-use std::convert::TryInto;
+use std::convert::{TryFrom, TryInto};
 use std::ops::Sub;
 use std::rc::Rc;
 use std::sync::Arc;
@@ -213,6 +213,30 @@ impl Default for MouseInputState {
             long_press_replay: None,
             menu_from_long_press: false,
         }
+    }
+}
+
+impl MouseInputState {
+    pub(super) fn tab_bar_mouse_column(
+        &self,
+        top: f32,
+        height: f32,
+        cell_width: usize,
+        use_fancy_tab_bar: bool,
+    ) -> Option<usize> {
+        let event = self.current_mouse_event.as_ref()?;
+        let y = event.coords.y as f32;
+        if y < top || y >= top + height {
+            return None;
+        }
+        // Fancy 的标题回调保留原有行为；它的元素布局不采用终端字符网格。
+        if use_fancy_tab_bar {
+            return Some(self.last_mouse_coords.0);
+        }
+        // 标签栏从窗口左边开始绘制；终端列号含有留白和文本选择取整。
+        usize::try_from(event.coords.x)
+            .ok()?
+            .checked_div(cell_width)
     }
 }
 
@@ -2619,6 +2643,79 @@ mod tests {
             modifiers: Modifiers::NONE,
             platform_click_count: 1,
         }
+    }
+
+    #[test]
+    fn tab_bar_hover_uses_window_pixels_not_terminal_columns() {
+        // 前 10 列为原生窗口按钮留白，第二个标签从第 26 列开始。
+        // 终端留白和文本选择取整不能改变标签的悬停位置。
+        for cell_width in [10, 20] {
+            for padding in [0, 26, 40] {
+                for mouse_grabbed in [false, true] {
+                    for pixel_x in [26 * cell_width - 1, 26 * cell_width, 27 * cell_width - 1] {
+                        let terminal_x =
+                            (pixel_x as f32 - padding as f32).max(0.) / cell_width as f32;
+                        let terminal_column = if mouse_grabbed {
+                            terminal_x.trunc()
+                        } else {
+                            terminal_x.round()
+                        } as usize;
+                        let mouse = super::MouseInputState {
+                            last_mouse_coords: (terminal_column, 0),
+                            current_mouse_event: Some(drag_event(
+                                (pixel_x as isize, 15),
+                                (0, 0),
+                                (0, 0),
+                            )),
+                            ..Default::default()
+                        };
+                        assert_eq!(
+                            mouse.tab_bar_mouse_column(10., 20., cell_width, false),
+                            Some(pixel_x / cell_width),
+                            "padding={padding}, grabbed={mouse_grabbed}, x={pixel_x}"
+                        );
+                    }
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn tab_bar_hover_excludes_pixels_outside_the_bar() {
+        assert_eq!(
+            super::MouseInputState::default().tab_bar_mouse_column(10., 20., 10, false),
+            None
+        );
+        for top in [10, 500] {
+            for (x, y, expected) in [
+                (259, top - 1, None),
+                (259, top, Some(25)),
+                (260, top + 19, Some(26)),
+                (260, top + 20, None),
+                (-1, top, None),
+            ] {
+                let mouse = super::MouseInputState {
+                    current_mouse_event: Some(drag_event((x, y), (0, 0), (0, 0))),
+                    ..Default::default()
+                };
+                assert_eq!(
+                    mouse.tab_bar_mouse_column(top as f32, 20., 10, false),
+                    expected
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn tab_bar_hover_preserves_fancy_title_callback_coordinates() {
+        let mouse = super::MouseInputState {
+            last_mouse_coords: (7, 0),
+            current_mouse_event: Some(drag_event((100, 15), (0, 0), (0, 0))),
+            ..Default::default()
+        };
+        assert_eq!(mouse.tab_bar_mouse_column(10., 20., 10, true), Some(7));
+        assert_eq!(mouse.tab_bar_mouse_column(10., 20., 10, false), Some(10));
+        assert_eq!(mouse.tab_bar_mouse_column(500., 20., 10, true), None);
     }
 
     fn pending_tab_drag() -> Option<crate::termwindow::TabDragState> {
