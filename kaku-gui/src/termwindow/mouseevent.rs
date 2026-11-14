@@ -229,11 +229,13 @@ impl MouseInputState {
         if y < top || y >= top + height {
             return None;
         }
-        // Fancy 的标题回调保留原有行为；它的元素布局不采用终端字符网格。
+        // The fancy bar's title callback keeps its old coordinates; its elements
+        // are not laid out on the terminal cell grid.
         if use_fancy_tab_bar {
             return Some(self.last_mouse_coords.0);
         }
-        // 标签栏从窗口左边开始绘制；终端列号含有留白和文本选择取整。
+        // The retro bar is drawn from the window's left edge, while terminal
+        // columns include content padding and selection rounding.
         usize::try_from(event.coords.x)
             .ok()?
             .checked_div(cell_width)
@@ -2647,8 +2649,9 @@ mod tests {
 
     #[test]
     fn tab_bar_hover_uses_window_pixels_not_terminal_columns() {
-        // 前 10 列为原生窗口按钮留白，第二个标签从第 26 列开始。
-        // 终端留白和文本选择取整不能改变标签的悬停位置。
+        // The first 10 columns leave room for the native window buttons and the
+        // second tab starts at column 26.
+        // Terminal padding and selection rounding must not move the hovered tab.
         for cell_width in [10, 20] {
             for padding in [0, 26, 40] {
                 for mouse_grabbed in [false, true] {
