@@ -10,6 +10,8 @@ when_to_use: "发布, 出版本, 打 tag, release Kaku, ship Kaku, V0.x.x, kaku 
 
 Before any stable or Nightly release, run the non-secret checks under **Verify**. The release dry-run is the authoritative credential gate: it accepts either the rcodesign path or the notarytool fallback, including environment overrides. If it passes, do not load machine-specific recovery context. If a signing identity or every notarization path is missing or stale, then check for and read `.claude/release.local.md`; on Tang's release machine it is the required recovery layer. If the local runbook is absent, stop and ask for it instead of guessing a path or replacing credentials.
 
+Before a stable release drafts its notes, read `docs/release-pending.md`: each entry is work an earlier session left for this release, such as fixes to name and issue comments to update once it ships. Do it and delete the entry in the release commit, or write in the entry why it waits.
+
 ## TL;DR
 
 ```bash
