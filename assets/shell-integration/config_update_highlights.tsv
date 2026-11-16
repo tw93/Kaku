@@ -120,3 +120,5 @@
 45	恢复很长的会话后，Kaku 不会再反复崩溃
 46	Cmd+J jumps to the next tab that needs you
 46	按 Cmd+J 跳到下一个需要你处理的标签
+47	Backspace removes a whole Chinese character or emoji in line input
+47	按行输入时 Backspace 会删掉整个中文字符或表情
