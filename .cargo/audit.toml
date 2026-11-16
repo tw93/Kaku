@@ -12,8 +12,16 @@
 # the offer arrives inside the sealed session and ICE checks need its
 # credentials. A timing leak there tells nothing to anyone without terminal
 # access already. Remove this once str0m depends on crypto-bigint 0.7.
+#
+# libsqlite3-sys 0.30 (RUSTSEC-2026-0459) is flagged for the SQLite source it
+# bundles, but Kaku's rusqlite has no `bundled` feature and links the macOS
+# system SQLite, so that copy is never compiled in; the advisory says a
+# system-linked build carries only the system library's exposure. Kaku opens
+# only local databases of AI tools the user installed. Remove this when
+# rusqlite moves to 0.41 or later.
 ignore = [
     "RUSTSEC-2026-0194",
     "RUSTSEC-2026-0195",
     "RUSTSEC-2026-0387",
+    "RUSTSEC-2026-0459",
 ]
