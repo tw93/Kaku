@@ -2,6 +2,22 @@
 
 Stable Kaku releases, newest first. Nightly builds stay on GitHub. Subscribe with [RSS](https://kaku.fun/feed.xml).
 
+## V0.30.0 Steady 2026-11-16
+
+1. **Full Screen Freeze**: After an update notice in full screen, Kaku keeps responding to keys, scrolling and tab switches, and showing the window from a Lua action no longer crashes.
+2. **Chinese and Emoji Backspace**: In programs that read whole lines, such as `read` and `cat`, Backspace removes a whole Chinese character or emoji instead of leaving broken bytes.
+3. **Quieter Agent Title**: When Claude Code already shows the session topic on its input box border, the window's top right and the remote page keep only the agent mark.
+4. **Unbound Cmd Keys**: A Cmd shortcut with no binding no longer types its letter into the program, such as a stray j in the Claude Code prompt.
+5. **Updating While Open**: When `brew upgrade` replaces the app under a running Kaku, reloading the config keeps every default setting instead of switching to a cream tab bar.
+6. **Password Prompts**: The cursor stays as it is while you type a password, and `config.detect_password_input = true` brings back the lock.
+7. **Tab Fixes**: Hovering the left edge of a retro tab highlights that tab, and switching on the Mac to a tab a browser had resized fills the window again.
+
+[GitHub](https://github.com/tw93/Kaku/releases/tag/V0.30.0) · [DMG](https://github.com/tw93/Kaku/releases/download/V0.30.0/Kaku.dmg)
+
+Special thanks to @HiAriesZhou for the contributions to this release.
+
+---
+
 ## V0.29.0 Beacon 2026-11-06
 
 1. **Tabs Needing You**: Cmd+J jumps to the next tab with its dot lit, so an agent waiting on you is one key away.

@@ -2,6 +2,22 @@
 
 Kaku 正式版更新，从新到旧。Nightly 仍在 GitHub，可以用 [RSS](https://kaku.fun/feed.xml) 订阅。
 
+## V0.30.0 Steady 2026-11-16
+
+1. **全屏卡死**：全屏时点开更新提示后，按键、滚动和切换标签都能正常响应，通过 Lua 动作显示窗口也不会再崩溃。
+2. **中文与表情删除**：在 `read`、`cat` 这类按行读取输入的程序里，Backspace 会删掉整个中文字符或表情，不再留下残缺字节。
+3. **Agent 标题去重**：Claude Code 的输入框边框已经显示会话话题时，窗口右上角和远程页面只保留 Agent 图标。
+4. **未绑定的 Cmd 快捷键**：按下没有绑定的 Cmd 组合键不会再把字母打进程序，比如 Claude Code 输入框里多出的 j。
+5. **运行中升级**：Kaku 开着时被 `brew upgrade` 更新，重载配置后默认设置都会保留，标签栏不再变成米色样式。
+6. **密码输入**：输入密码时光标保持原样，需要锁形光标可以设置 `config.detect_password_input = true`。
+7. **标签修复**：鼠标悬停在复古标签左侧时高亮的就是这个标签，在 Mac 上切到被浏览器调整过尺寸的标签也会重新铺满窗口。
+
+[GitHub](https://github.com/tw93/Kaku/releases/tag/V0.30.0) · [DMG](https://github.com/tw93/Kaku/releases/download/V0.30.0/Kaku.dmg)
+
+Special thanks to @HiAriesZhou for the contributions to this release.
+
+---
+
 ## V0.29.0 Beacon 2026-11-06
 
 1. **待处理标签**：按 Cmd+J 直接跳到下一个亮着圆点的标签，正在等你回复的 Agent 一键就能找到。
