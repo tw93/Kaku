@@ -633,6 +633,9 @@ test('a selection left on screen does not hold an image preview back', async t =
 test('Option+clicking an image path shows it over the page to zoom, sending the Mac no click', async t => {
   const { p, errors } = await page(t);
   await p.setViewportSize({ width: 1000, height: 600 });
+  // The page reads `screen` when it asks for the picture, and Chromium updates
+  // it a moment after the viewport, so CI sometimes asked at the old size.
+  await p.waitForFunction(() => Math.max(screen.width, screen.height) === 1000);
   await screen(p, 'see ~/Desktop/shot.png now');
   const box = await p.locator('.xterm-screen').boundingBox();
   const cell = await p.evaluate(() => probe.term._core._renderService.dimensions.css.cell);
