@@ -853,6 +853,37 @@ mod test {
     }
 
     #[test]
+    fn bundled_symbols_font_shapes_pnpm_icon() {
+        config::use_test_configuration();
+        let db = FontDatabase::with_built_in().unwrap();
+        let resolve = |family: &str| {
+            db.resolve(&FontAttributes::new(family), 14)
+                .unwrap()
+                .clone()
+        };
+        let handles = [resolve("JetBrains Mono"), resolve("Symbols Nerd Font Mono")];
+        let shaper = HarfbuzzShaper::new(&config::configuration(), &handles).unwrap();
+
+        // U+E8EB (nf-dev-pnpm, added in Nerd Fonts 3.4.0) is emitted by eza/yazi.
+        let mut no_glyphs = vec![];
+        let infos = shaper
+            .shape(
+                "\u{E8EB}",
+                10.,
+                72,
+                &mut no_glyphs,
+                None,
+                Direction::LeftToRight,
+                None,
+                None,
+            )
+            .unwrap();
+        assert!(no_glyphs.is_empty(), "missing glyphs: {no_glyphs:?}");
+        assert_eq!(infos.len(), 1);
+        assert_eq!(infos[0].font_idx, 1);
+    }
+
+    #[test]
     fn ligatures() {
         let _ = env_logger::Builder::new()
             .is_test(true)
