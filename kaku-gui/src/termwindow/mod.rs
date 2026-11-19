@@ -6878,6 +6878,9 @@ impl TermWindow {
         if let Some(overlay) = self.tab_state(tab_id).overlay.take() {
             Mux::get().remove_pane(overlay.pane.pane_id());
         }
+        // Without this the title kept the overlay's text until the next
+        // user action (upstream wezterm ce8e6b14).
+        self.update_title();
         if let Some(window) = self.window.as_ref() {
             window.invalidate();
         }
@@ -6897,6 +6900,7 @@ impl TermWindow {
                 Mux::get().remove_pane(overlay.pane.pane_id());
             }
         }
+        self.update_title();
         let was_chat = self.ai_chat_overlay_panes.remove(&pane_id).is_some();
         #[cfg(feature = "remote")]
         if was_chat {
