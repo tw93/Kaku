@@ -46,11 +46,18 @@ impl GetTcapBuilder {
     }
 }
 
+/// Upper bound on the payload buffered for DECRQSS and XTGETTCAP requests.
+/// Both are a few dozen bytes in practice; past this the request is dropped
+/// so a program cannot grow the parser's memory by never terminating one.
+const MAX_BUFFERED_DCS_LEN: usize = 64 * 1024;
+
 #[derive(Default)]
 struct ParseState {
     sixel: Option<SixelBuilder>,
     dcs: Option<ShortDeviceControl>,
     get_tcap: Option<GetTcapBuilder>,
+    /// Bytes buffered for the current `dcs` or `get_tcap` request.
+    buffered_dcs_len: usize,
     #[cfg(feature = "tmux_cc")]
     tmux_state: Option<RefCell<crate::tmux_cc::Parser>>,
 }
@@ -240,6 +247,7 @@ impl<'a, F: FnMut(Action)> VTActor for Performer<'a, F> {
         self.state.sixel.take();
         self.state.get_tcap.take();
         self.state.dcs.take();
+        self.state.buffered_dcs_len = 0;
         if byte == b'q' && intermediates.is_empty() && !ignored_extra_intermediates {
             self.state.sixel.replace(SixelBuilder::new(params));
         } else if byte == b'q' && intermediates == [b'+'] {
@@ -270,6 +278,14 @@ impl<'a, F: FnMut(Action)> VTActor for Performer<'a, F> {
     }
 
     fn dcs_put(&mut self, data: u8) {
+        if self.state.dcs.is_some() || self.state.get_tcap.is_some() {
+            if self.state.buffered_dcs_len >= MAX_BUFFERED_DCS_LEN {
+                // Keep swallowing bytes until the terminator; dcs_unhook
+                // then drops the request instead of answering it.
+                return;
+            }
+            self.state.buffered_dcs_len += 1;
+        }
         if let Some(dcs) = self.state.dcs.as_mut() {
             dcs.data.push(data);
         } else if let Some(sixel) = self.state.sixel.as_mut() {
@@ -300,11 +316,25 @@ impl<'a, F: FnMut(Action)> VTActor for Performer<'a, F> {
     }
 
     fn dcs_unhook(&mut self) {
+        let buffered_overflow = self.state.buffered_dcs_len >= MAX_BUFFERED_DCS_LEN;
+        self.state.buffered_dcs_len = 0;
+        if buffered_overflow && (self.state.dcs.is_some() || self.state.get_tcap.is_some()) {
+            log::error!(
+                "Ignoring DCS request because its payload exceeds {} bytes",
+                MAX_BUFFERED_DCS_LEN
+            );
+            self.state.dcs.take();
+            self.state.get_tcap.take();
+            return;
+        }
         if let Some(dcs) = self.state.dcs.take() {
             (self.callback)(Action::DeviceControl(
                 DeviceControlMode::ShortDeviceControl(Box::new(dcs)),
             ));
         } else if let Some(mut sixel) = self.state.sixel.take() {
+            if sixel.overflowed() {
+                return;
+            }
             sixel.finish();
             (self.callback)(Action::Sixel(Box::new(sixel.sixel)));
         } else if let Some(tcap) = self.state.get_tcap.take() {
@@ -1332,5 +1362,37 @@ mod test {
 ]
 "
         );
+    }
+
+    #[test]
+    fn oversized_decrqss_and_xtgettcap_are_dropped() {
+        for intro in [&b"\x1bP$q"[..], &b"\x1bP+q"[..]] {
+            let mut p = Parser::new();
+            let mut answered = 0;
+            let mut count = |a: Action| {
+                if matches!(
+                    a,
+                    Action::XtGetTcap(_)
+                        | Action::DeviceControl(DeviceControlMode::ShortDeviceControl(_))
+                ) {
+                    answered += 1;
+                }
+            };
+            p.parse(intro, &mut count);
+            p.parse(&vec![b'6'; MAX_BUFFERED_DCS_LEN + 16], &mut count);
+            {
+                let state = p.state.borrow();
+                let held = state.dcs.as_ref().map_or(0, |d| d.data.len())
+                    + state.get_tcap.as_ref().map_or(0, |t| t.current.len());
+                assert!(held <= MAX_BUFFERED_DCS_LEN, "buffered {held} bytes");
+            }
+            p.parse(b"\x1b\\", &mut count);
+            assert_eq!(answered, 0, "oversized request must be ignored");
+
+            let mut next = intro.to_vec();
+            next.extend_from_slice(b"544e\x1b\\");
+            let actions = p.parse_as_vec(&next);
+            assert_eq!(actions.len(), 2, "{actions:?}");
+        }
     }
 }

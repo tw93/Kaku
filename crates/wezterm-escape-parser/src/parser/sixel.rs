@@ -3,12 +3,19 @@ use crate::{Sixel, SixelData};
 
 const MAX_PARAMS: usize = 5;
 const MAX_SIXEL_SIZE: usize = 100_000_000;
+/// Upper bound on the number of decoded sixel commands kept for one image.
+/// Each entry is 8 bytes and paints at most a 1x6 pixel column per color,
+/// while the terminal refuses images over 25M pixels, so real images stay
+/// far below this; without it an unterminated `ESC P q` stream grows memory
+/// at 8x its input with no limit.
+pub(crate) const MAX_SIXEL_DATA_LEN: usize = 32 * 1024 * 1024;
 
 pub struct SixelBuilder {
     pub sixel: Sixel,
     params: [i64; MAX_PARAMS],
     param_no: usize,
     current_command: u8,
+    overflowed: bool,
 }
 
 impl SixelBuilder {
@@ -39,10 +46,29 @@ impl SixelBuilder {
             param_no: 0,
             params: [-1; MAX_PARAMS],
             current_command: 0,
+            overflowed: false,
         }
     }
 
+    /// True once the image exceeded `MAX_SIXEL_DATA_LEN`; the caller must
+    /// drop it instead of rendering a truncated picture.
+    pub fn overflowed(&self) -> bool {
+        self.overflowed
+    }
+
     pub fn push(&mut self, data: u8) {
+        if self.overflowed {
+            return;
+        }
+        if self.sixel.data.len() >= MAX_SIXEL_DATA_LEN {
+            log::error!(
+                "Ignoring sixel image because it exceeds {} data entries",
+                MAX_SIXEL_DATA_LEN
+            );
+            self.overflowed = true;
+            self.sixel.data = vec![];
+            return;
+        }
         match data {
             b'$' => {
                 self.finish_command();
@@ -170,7 +196,9 @@ impl SixelBuilder {
                         self.sixel.data.clear();
                         return;
                     }
-                    self.sixel.data.reserve(size);
+                    // `size` counts pixels while each entry covers a 1x6
+                    // column, so never pre-allocate past the data cap.
+                    self.sixel.data.reserve(size.min(MAX_SIXEL_DATA_LEN));
                 }
             }
             _ => {}
@@ -301,5 +329,42 @@ mod test {
             ],
             actions
         );
+    }
+
+    fn count_sixels(p: &mut Parser, bytes: &[u8]) -> usize {
+        let mut n = 0;
+        p.parse(bytes, |a| {
+            if matches!(a, Action::Sixel(_)) {
+                n += 1;
+            }
+        });
+        n
+    }
+
+    #[test]
+    fn oversized_sixel_is_dropped_and_parser_recovers() {
+        let mut p = Parser::new();
+        let mut sixels = count_sixels(&mut p, b"\x1bPq");
+        let chunk = vec![b'?'; 1 << 20];
+        for _ in 0..(MAX_SIXEL_DATA_LEN / chunk.len() + 1) {
+            sixels += count_sixels(&mut p, &chunk);
+        }
+        sixels += count_sixels(&mut p, b"\x1b\\");
+        assert_eq!(sixels, 0, "an image past the data cap must not be emitted");
+
+        let actions = p.parse_as_vec(b"\x1bPq@\x1b\\x");
+        assert_eq!(actions.len(), 3, "{actions:?}");
+        assert!(matches!(&actions[0], Action::Sixel(s) if s.data == vec![SixelData::Data(1)]));
+        assert_eq!(actions[2], Action::Print('x'));
+    }
+
+    #[test]
+    fn raster_attributes_do_not_reserve_past_the_data_cap() {
+        let mut builder = SixelBuilder::new(&[]);
+        for &b in b"\"1;1;10000;10000" {
+            builder.push(b);
+        }
+        builder.finish();
+        assert!(builder.sixel.data.capacity() <= MAX_SIXEL_DATA_LEN);
     }
 }
