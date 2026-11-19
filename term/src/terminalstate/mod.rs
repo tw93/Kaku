@@ -2075,6 +2075,11 @@ impl TerminalState {
             Mode::SetDecPrivateMode(DecPrivateMode::Code(DecPrivateModeCode::FocusTracking)) => {
                 self.focus_tracking = true;
                 self.last_mouse_move.take();
+                // Like other terminals, report the current focus right away:
+                // vim enables tracking on `fg` and only rechecks files on a
+                // focus event (upstream wezterm aa0d91a4).
+                let focused = self.focused;
+                self.write_focus_tracking_response(focused, "enable focus tracking: focus report");
             }
             Mode::ResetDecPrivateMode(DecPrivateMode::Code(DecPrivateModeCode::FocusTracking)) => {
                 self.focus_tracking = false;

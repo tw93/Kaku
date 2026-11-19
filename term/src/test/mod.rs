@@ -1914,7 +1914,7 @@ fn refresh_focus_pulses_focus_in_and_restores_unfocused_state() {
 
     term.set_mode("?1004", true);
     term.focus_changed(false);
-    wait_for_writer_output(&writer, b"\x1b[O");
+    wait_for_writer_output(&writer, b"\x1b[I\x1b[O");
 
     writer.clear();
     term.refresh_focus(false);
@@ -1928,8 +1928,27 @@ fn refresh_focus_sends_only_focus_in_when_already_focused() {
     let mut term = TestTerm::new_with_writer(5, 10, 100, Box::new(writer.clone()));
 
     term.set_mode("?1004", true);
+    wait_for_writer_output(&writer, b"\x1b[I");
+
+    writer.clear();
     term.refresh_focus(true);
 
+    wait_for_writer_output(&writer, b"\x1b[I");
+}
+
+#[test]
+fn enabling_focus_tracking_reports_current_focus() {
+    let writer = SharedWriter::default();
+    let mut term = TestTerm::new_with_writer(5, 10, 100, Box::new(writer.clone()));
+
+    term.focus_changed(false);
+    term.set_mode("?1004", true);
+    wait_for_writer_output(&writer, b"\x1b[O");
+
+    term.set_mode("?1004", false);
+    term.focus_changed(true);
+    writer.clear();
+    term.set_mode("?1004", true);
     wait_for_writer_output(&writer, b"\x1b[I");
 }
 
