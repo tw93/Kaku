@@ -2699,12 +2699,20 @@ impl TermWindow {
                     let in_active_tab = Mux::get()
                         .get_active_tab_for_window(self.mux_window_id)
                         .map_or(false, |tab| tab.contains_pane(pane_id));
-                    if should_show_toast(
+                    if !should_show_toast(
                         self.config.notification_handling,
                         window_has_focus,
                         in_active_tab,
                         is_inactive,
                     ) {
+                        // Only the refusals, so a missing notification can be
+                        // told apart from one macOS received and dropped.
+                        log::info!(
+                            "osc notification not shown: notification_handling={:?} window_focused={window_has_focus} active_tab={in_active_tab} focused_pane={}",
+                            self.config.notification_handling,
+                            !is_inactive
+                        );
+                    } else {
                         ToastNotification {
                             title: title.unwrap_or_else(|| "Kaku".to_string()),
                             message: body,
