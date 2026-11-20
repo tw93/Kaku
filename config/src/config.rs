@@ -2281,20 +2281,58 @@ fn default_initial_cols() -> u16 {
     80
 }
 
+/// A URL scheme. Unlike `\w+`, it is ASCII, so `访问https://kaku.fun`
+/// links from `https`, not from `访`. `-` and `.` are left out, so text
+/// glued on before it (`build-https://`, `1.https://`) stays outside; `+`
+/// stays for `git+ssh://`.
+const URL_SCHEME: &str = r"(?<![A-Za-z0-9])[A-Za-z][A-Za-z0-9+]*://";
+/// Printable ASCII a URL may carry unescaped: everything but `"`, `<`, `>`
+/// and backtick, which delimit URLs in JSON, HTML and Markdown, so
+/// `["https://a.com","https://b.com"]` stays two links.
+const URL_CHAR: &str = r"[\x21\x23-\x3b\x3d\x3f-\x5f\x61-\x7e]";
+/// `URL_CHAR` without parentheses.
+const URL_CHAR_NO_PAREN: &str = r"[\x21\x23-\x27\x2a-\x3b\x3d\x3f-\x5f\x61-\x7e]";
+
 pub fn default_hyperlink_rules() -> Vec<hyperlink::Rule> {
+    let url = |pattern: String, highlight: usize| {
+        let template = if highlight == 0 { "$0" } else { "$1" };
+        hyperlink::Rule::with_highlight(&pattern, template, highlight).unwrap()
+    };
     vec![
         // First handle URLs wrapped with punctuation (i.e. brackets)
         // e.g. [http://foo] (http://foo) <http://foo>
-        hyperlink::Rule::with_highlight(r"\((\w+://[\x21-\x7e]+)\)", "$1", 1).unwrap(),
-        hyperlink::Rule::with_highlight(r"\[(\w+://[\x21-\x7e]+)\]", "$1", 1).unwrap(),
-        hyperlink::Rule::with_highlight(r"<(\w+://[\x21-\x7e]+)>", "$1", 1).unwrap(),
+        url(format!(r"\(({URL_SCHEME}{URL_CHAR}+)\)"), 1),
+        url(format!(r"\[({URL_SCHEME}{URL_CHAR}+)\]"), 1),
+        url(format!(r"<({URL_SCHEME}{URL_CHAR}+)>"), 1),
         // Then handle URLs not wrapped in brackets that
         // 1) have a balanced ending parenthesis or
-        hyperlink::Rule::new(hyperlink::CLOSING_PARENTHESIS_HYPERLINK_PATTERN, "$0").unwrap(),
+        url(
+            format!(r"{URL_SCHEME}{URL_CHAR_NO_PAREN}*\({URL_CHAR}*\)(?=\s|$|[^_/a-zA-Z0-9-])"),
+            0,
+        ),
         // 2) include terminating _, / or - characters, if any
-        hyperlink::Rule::new(hyperlink::GENERIC_HYPERLINK_PATTERN, "$0").unwrap(),
-        // implicit mailto link
-        hyperlink::Rule::new(r"\b\w+@[\w-]+(\.[\w-]+)+\b", "mailto:$0").unwrap(),
+        url(format!(r"{URL_SCHEME}{URL_CHAR}+[_/a-zA-Z0-9-]"), 0),
+        // A git remote in scp form (`git status`, `git remote -v`) opens
+        // the repository page. Longer than the email match inside it, so
+        // it wins the overlap; the `.git` form comes first so it keeps
+        // priority on the equal-length tie.
+        hyperlink::Rule::new(
+            r"(?<![A-Za-z0-9_.-])git@([0-9A-Za-z.-]+\.[A-Za-z]{2,}):([A-Za-z0-9_.~/-]+?)\.git(?![A-Za-z0-9_./-])",
+            "https://$1/$2",
+        )
+        .unwrap(),
+        hyperlink::Rule::new(
+            r"(?<![A-Za-z0-9_.-])git@([0-9A-Za-z.-]+\.[A-Za-z]{2,}):([A-Za-z0-9_.~/-]*[A-Za-z0-9_~-])(?![A-Za-z0-9_./-])",
+            "https://$1/$2",
+        )
+        .unwrap(),
+        // implicit mailto link; ASCII only, so CJK text right before an
+        // address (`联系tw93@example.com`) stays out of it.
+        hyperlink::Rule::new(
+            r"(?<![A-Za-z0-9._%+-])[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)+(?![A-Za-z0-9-])",
+            "mailto:$0",
+        )
+        .unwrap(),
         // Bare domains without an explicit scheme: www.-prefixed hosts, and
         // hosts ending in a curated TLD allowlist. These must come before the
         // file-path rule: on equal-length overlaps (github.com/tw93/kaku) the
@@ -2308,7 +2346,9 @@ pub fn default_hyperlink_rules() -> Vec<hyperlink::Rule> {
         // text stay clickable, and a sentence-final dot stays out of the
         // match.
         hyperlink::Rule::new(
-            r"(?i)(?<![0-9a-z._-])www\.[0-9a-z-]+(?:\.[0-9a-z-]+)+(?::\d+)?(?:/[\x21-\x7e]*[_/a-zA-Z0-9-]|/)?(?!\.?[0-9a-z_-])",
+            &format!(
+                r"(?i)(?<![0-9a-z._-])www\.[0-9a-z-]+(?:\.[0-9a-z-]+)+(?::\d+)?(?:/{URL_CHAR}*[_/a-zA-Z0-9-]|/)?(?!\.?[0-9a-z_-])"
+            ),
             "https://$0",
         )
         .unwrap(),
@@ -2318,10 +2358,15 @@ pub fn default_hyperlink_rules() -> Vec<hyperlink::Rule> {
         // rejected so method calls like `model.to(device)` / `df.info()`
         // stay plain text.
         hyperlink::Rule::new(
-            r"(?i)(?<![0-9a-z._-])(?:[0-9a-z][0-9a-z-]*\.)+(?-i:com|net|org|edu|gov|io|dev|ai|fun|xyz|me|im|tv|to|co|info|biz|tech|site|online|cloud|blog|store|link|live|news|cn|jp|kr|uk|de|fr|us|ca|au|br|ru|nl|se|ch|hk|tw|sg)(?::\d+)?(?:/[\x21-\x7e]*[_/a-zA-Z0-9-]|/)?(?!\.?[0-9a-z_-]|\()",
+            &format!(r"(?i)(?<![0-9a-z._-])(?:[0-9a-z][0-9a-z-]*\.)+(?-i:com|net|org|edu|gov|io|dev|ai|fun|xyz|me|im|tv|to|co|info|biz|tech|site|online|cloud|blog|store|link|live|news|cn|jp|kr|uk|de|fr|us|ca|au|br|ru|nl|se|ch|hk|tw|sg)(?::\d+)?(?:/{URL_CHAR}*[_/a-zA-Z0-9-]|/)?(?!\.?[0-9a-z_-]|\()"),
             "https://$0",
         )
         .unwrap(),
+        // A Python traceback names the line after the quoted path:
+        // `File "/x/app.py", line 12`. Same range as the path rule's match,
+        // and earlier, so it wins the tie and carries the line.
+        hyperlink::Rule::with_highlight(r#"File "([^"\s]*/[^"]+)", line (\d+)"#, "file://$1:$2", 1)
+            .unwrap(),
         // File paths: support absolute paths, common relative prefixes, and
         // bare relative paths like `kaku/src/main.rs`.
         // Supports file:line and file:line:col formats.
@@ -2337,8 +2382,13 @@ pub fn default_hyperlink_rules() -> Vec<hyperlink::Rule> {
         // on from it with no space ("截图：/tmp/a.png", "（/tmp/a.png）"). A CJK
         // letter does not, so "中文/English" stays plain text. The same
         // punctuation ends the path, so two paths in one sentence stay two.
+        // A `:` stays in only before a digit (`a.rs:12:5`), so grep -n
+        // output `src/main.rs:12:fn main()` links `src/main.rs:12`. A `(`
+        // ends the path unless it is a tsc/MSBuild location,
+        // `src/index.ts(12,5)`; Finder copies like `a(1).png` are found on
+        // hover by an existence check instead.
         hyperlink::Rule::with_highlight(
-            r#"(^|[\s\(\[<`'"：，。、；！？（【「『《“‘])((?:~|\.{1,2}|[[:alnum:]_.-]+)?/[^\s\)\]\}>`'"：，。、；！？（）【】「」『』《》“”‘’]*[a-zA-Z0-9_/-])"#,
+            r#"(^|[\s\(\[<`'"：，。、；！？（【「『《“‘])((?:~|\.{1,2}|[[:alnum:]_.-]+)?/(?:[^\s:\(\)\]\}>`'"：，。、；！？（）【】「」『』《》“”‘’]|:(?=\d))*[a-zA-Z0-9_/-](?:\(\d+(?:,\d+)?\))?)"#,
             "file://$2",
             2,
         )
