@@ -92,7 +92,7 @@ The standalone CLI is intentionally simpler than the overlay: it streams plain t
 
 ## Terminal Interactions
 
-Cmd+Click opens URLs and file paths, and also bare domains such as `github.com` that have no scheme prefix. The matcher is tuned to leave code identifiers alone: method calls like `df.info()` and namespaces like `System.Net` never turn into links.
+Cmd+Click opens URLs and file paths, and also bare domains such as `github.com` that have no scheme prefix. The matcher is tuned to leave code identifiers alone: method calls like `df.info()` and namespaces like `System.Net` never turn into links. Paths with spaces or CJK names (`~/Movies/2026-11 Trip/clip.mp4`) link as one path when that file exists, and so do links and paths that wrap onto the next row, git remotes such as `git@github.com:owner/repo.git`, Python tracebacks, and compiler locations like `src/main.rs:12:5` or `index.ts(12,5)`.
 
 Option+Click moves the shell cursor within the current input line, including across soft-wrapped continuation rows. It never crosses a hard newline, so clicks into scrollback are ignored rather than mangling history.
 

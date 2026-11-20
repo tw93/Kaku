@@ -88,6 +88,21 @@ pub fn cells_in_byte_range(line: &Line, bytes: &Range<usize>) -> Vec<usize> {
     cells
 }
 
+/// Put `link` on the cells of `line` whose text starts inside `bytes`,
+/// leaving an explicit OSC 8 link in place.
+pub fn apply_link_to_line(line: &mut Line, bytes: &Range<usize>, link: &Arc<Hyperlink>) {
+    let targets = cells_in_byte_range(line, bytes);
+    let cells = line.cells_mut_for_attr_changes_only();
+    for idx in targets {
+        if let Some(cell) = cells.get_mut(idx) {
+            let attrs = cell.attrs_mut();
+            if attrs.hyperlink().map_or(true, |link| link.is_implicit()) {
+                attrs.set_hyperlink(Some(Arc::clone(link)));
+            }
+        }
+    }
+}
+
 /// Links that cover byte `hover_byte` of `rows[hover_row]` once the row is
 /// joined with its hard-wrapped neighbours, longest join first. Only links
 /// that cross a row boundary are returned, since the hovered fragment on
@@ -195,7 +210,354 @@ pub fn breaks_at_full_width(rows: &[LinkRow], rejoined: &Rejoined) -> bool {
     })
 }
 
-/// A path that has spaces in it, found by `spaced_path_candidates`.
+/// What a `file://` candidate points at on disk.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum PathKind {
+    Missing,
+    File,
+    Dir,
+}
+
+/// The link to put under the pointer after the rule scan, when the scan
+/// alone got it wrong: a path with spaces in it, or a path or URL that a
+/// TUI hard-wrapped across rows (#547). `hovered` is the link the scan left
+/// on the hovered cell. `path_kind` resolves a `file://` URI the way a click
+/// would; nothing is proposed that does not exist on disk, and a URL is
+/// rejoined only on the alternate screen across rows that fill the width.
+pub fn hover_link(
+    rows: &[LinkRow],
+    hover_row: usize,
+    hover_byte: usize,
+    hovered: Option<&Arc<Hyperlink>>,
+    rules: &[Rule],
+    alt_screen: bool,
+    path_kind: &dyn Fn(&str) -> PathKind,
+) -> Option<Rejoined> {
+    let text = rows.get(hover_row)?.text;
+    let (before, after) = (text.get(..hover_byte)?, text.get(hover_byte..)?);
+
+    // Existence checks are remembered per URI and drawn from two budgets:
+    // the path-candidate search, which can propose many, and the steps
+    // that propose a handful (diff prefix, bare name, rejoin), so a long
+    // line spent on the first cannot blind the others. Past its budget a
+    // check reports None.
+    let candidate_budget = std::cell::Cell::new(MAX_CANDIDATE_CHECKS);
+    let other_budget = std::cell::Cell::new(MAX_PATH_CHECKS - MAX_CANDIDATE_CHECKS);
+    let checked = std::cell::RefCell::new(Vec::<(String, PathKind)>::new());
+    let check = |uri: &str, budget: &std::cell::Cell<usize>| -> Option<PathKind> {
+        if let Some((_, kind)) = checked.borrow().iter().find(|(u, _)| u == uri) {
+            return Some(*kind);
+        }
+        if budget.get() == 0 {
+            return None;
+        }
+        budget.set(budget.get() - 1);
+        let kind = path_kind(uri);
+        checked.borrow_mut().push((uri.to_string(), kind));
+        Some(kind)
+    };
+    let path_kind = &|uri: &str| check(uri, &other_budget).unwrap_or(PathKind::Missing);
+    if let Some(link) = hovered {
+        if !link.is_implicit() {
+            return None;
+        }
+        // Linked on an earlier hover and the row has not changed since.
+        if link.uri().starts_with("file://") && link.uri().contains(char::is_whitespace) {
+            return None;
+        }
+    }
+
+    if let Some(link) = hovered {
+        if let Some(found) = strip_diff_prefix(text, hover_byte, link, rules, path_kind) {
+            return Some(Rejoined {
+                segments: vec![(hover_row, found.0)],
+                link: found.1,
+            });
+        }
+    }
+
+    let hovered_uri = hovered.map(|link| link.uri());
+    let hovered_kind = hovered_uri
+        .filter(|uri| uri.starts_with("file://"))
+        .map(path_kind);
+
+    // The hovered row and its terminal-wrap neighbours first; then, if that
+    // finds nothing, across one hard break each way for a TUI word wrap.
+    'passes: for hard_breaks in [false, true] {
+        let joined = JoinedRows::around(rows, hover_row, hover_byte, hard_breaks);
+        if hard_breaks && !joined.crosses_hard_break {
+            break;
+        }
+        let Some(hover) = joined.hover else {
+            continue;
+        };
+        // Names that end on the hovered row first: a long line of prose
+        // after a path should not spend the budget before the path does.
+        let hover_piece = joined
+            .pieces
+            .iter()
+            .find(|piece| piece.0 == hover_row)
+            .map(|&(_, start, _, len)| start..start + len);
+        let mut candidates = spaced_path_candidates(&joined.text, hover);
+        candidates.sort_by_key(|c| {
+            let on_hover_row = hover_piece
+                .as_ref()
+                .is_some_and(|piece| c.range.end <= piece.end);
+            (!on_hover_row, std::cmp::Reverse(c.range.len()))
+        });
+        for candidate in candidates {
+            let path = candidate.path.as_str();
+            let uri = format!("file://{path}");
+            let only_prefix = path.trim_end_matches('/').is_empty()
+                || ["~", ".", ".."].contains(&path.trim_end_matches('/'));
+            // A rule link that exists keeps priority over its own prefix,
+            // and an existing file (`app.py:12`) yields only to a longer
+            // name with a space in it.
+            let hovered_exists = hovered_kind.is_some_and(|k| k != PathKind::Missing);
+            if only_prefix
+                || (hovered_exists && hovered_uri.is_some_and(|h| h.starts_with(&uri)))
+                || (hovered_kind == Some(PathKind::File) && !path.contains(char::is_whitespace))
+            {
+                continue;
+            }
+            // Most candidates share a parent folder; a missing one rules
+            // them all out with one check.
+            if let Some(slash) = path
+                .rfind('/')
+                .filter(|&i| i > 0 && !["~", ".", ".."].contains(&&path[..i]))
+            {
+                match check(&format!("file://{}", &path[..slash]), &candidate_budget) {
+                    None => break 'passes,
+                    Some(PathKind::Dir) => {}
+                    Some(_) => continue,
+                }
+            }
+            let Some(kind) = check(&uri, &candidate_budget) else {
+                break 'passes;
+            };
+            if kind != PathKind::Missing {
+                return Some(Rejoined {
+                    link: Arc::new(Hyperlink::new_implicit(uri)),
+                    segments: joined.segments(&candidate.range),
+                });
+            }
+        }
+    }
+
+    if hovered.is_none() {
+        if let Some((range, uri)) = bare_file_name(text, hover_byte) {
+            if path_kind(&uri) == PathKind::File {
+                return Some(Rejoined {
+                    link: Arc::new(Hyperlink::new_implicit(uri)),
+                    segments: vec![(hover_row, range)],
+                });
+            }
+        }
+    }
+
+    // Only the first or last token of a row can continue on another row.
+    let token_start = before
+        .char_indices()
+        .rfind(|(_, c)| c.is_whitespace())
+        .map_or(0, |(idx, c)| idx + c.len_utf8());
+    let token_end = after
+        .find(char::is_whitespace)
+        .map_or(text.len(), |idx| hover_byte + idx);
+    if token_end == hover_byte
+        || (!before[..token_start].trim().is_empty() && !text[token_end..].trim().is_empty())
+    {
+        return None;
+    }
+    let require_edge = match hovered {
+        Some(link) if link.uri().starts_with("file://") => match path_kind(link.uri()) {
+            // The break fell after a `/` of a longer path.
+            PathKind::Dir => true,
+            PathKind::File => return None,
+            PathKind::Missing => false,
+        },
+        _ => false,
+    };
+    rejoined_links(rows, hover_row, hover_byte, rules, require_edge)
+        .into_iter()
+        .find(|rejoined| {
+            if rejoined.is_file() {
+                path_kind(rejoined.link.uri()) != PathKind::Missing
+            } else {
+                alt_screen && breaks_at_full_width(rows, rejoined)
+            }
+        })
+}
+
+/// Where the hover cache key starts for `hover_byte`: the run of ASCII
+/// word characters around it, split at path delimiters, or the character
+/// itself in CJK text. What `hover_link` finds depends on this much of the
+/// position (`Read(README.md)`, `~/Movies/吉隆坡旅行里`), so moving within it
+/// can reuse the last result.
+pub fn probe_start(text: &str, hover_byte: usize) -> usize {
+    let at = text[hover_byte..].chars().next();
+    if at.map_or(true, |c| {
+        !c.is_ascii() || c.is_ascii_whitespace() || (c.is_ascii_punctuation() && !"_-".contains(c))
+    }) {
+        return hover_byte;
+    }
+    text[..hover_byte]
+        .char_indices()
+        .rfind(|&(_, c)| !c.is_ascii() || opens_path(c) || closes_path(c) || c == ')' || c == '/')
+        .map_or(0, |(idx, c)| idx + c.len_utf8())
+}
+
+/// A file name with no `/` under the pointer, as `ls` and `go test`
+/// print them (`README.md`, `main_test.go:12:`), with up to two `:N`
+/// location suffixes. Only a dotted name qualifies, so plain words never
+/// cost an existence check; the caller links it only when the file exists.
+fn bare_file_name(text: &str, hover_byte: usize) -> Option<(Range<usize>, String)> {
+    let ends_token = |c: char| opens_path(c) || closes_path(c) || c == ')';
+    let start = text[..hover_byte]
+        .char_indices()
+        .rfind(|&(_, c)| ends_token(c))
+        .map_or(0, |(idx, c)| idx + c.len_utf8());
+    let end = text[hover_byte..]
+        .char_indices()
+        .find(|&(_, c)| ends_token(c))
+        .map_or(text.len(), |(idx, _)| hover_byte + idx);
+    let token = text[start..end].trim_end_matches(|c: char| ".,;:!?".contains(c));
+    let end = start + token.len();
+    if end <= hover_byte {
+        return None;
+    }
+    let mut name = token;
+    for _ in 0..2 {
+        match name.rsplit_once(':') {
+            Some((head, num)) if !num.is_empty() && num.bytes().all(|b| b.is_ascii_digit()) => {
+                name = head;
+            }
+            _ => break,
+        }
+    }
+    let (stem, ext) = name.rsplit_once('.')?;
+    let valid = !stem.is_empty()
+        && !ext.is_empty()
+        && ext.chars().all(|c| c.is_ascii_alphanumeric())
+        && name
+            .chars()
+            .all(|c| c.is_alphanumeric() || "_.@+-".contains(c));
+    valid.then(|| (start..end, format!("file://{token}")))
+}
+
+/// `git diff` prints `a/src/main.rs` and `b/src/main.rs`. When the hovered
+/// path does not exist but the one without that prefix does, link that.
+fn strip_diff_prefix(
+    text: &str,
+    hover_byte: usize,
+    link: &Arc<Hyperlink>,
+    rules: &[Rule],
+    path_kind: &dyn Fn(&str) -> PathKind,
+) -> Option<(Range<usize>, Arc<Hyperlink>)> {
+    let rest = link
+        .uri()
+        .strip_prefix("file://a/")
+        .or_else(|| link.uri().strip_prefix("file://b/"))?;
+    let stripped = format!("file://{rest}");
+    if path_kind(link.uri()) != PathKind::Missing || path_kind(&stripped) == PathKind::Missing {
+        return None;
+    }
+    let m = Rule::match_hyperlinks(text, rules)
+        .into_iter()
+        .find(|m| m.link.uri() == link.uri() && m.range.contains(&hover_byte))?;
+    Some((m.range, Arc::new(Hyperlink::new_implicit(stripped))))
+}
+
+/// The hovered row joined with the rows it continues into: verbatim across
+/// a terminal wrap, and with one space across a hard break between two
+/// non-empty rows, which is where a TUI word-wraps a path that has a space
+/// in it. Only existence checks decide what the joined text links.
+struct JoinedRows {
+    text: String,
+    /// Whether a hard break was joined.
+    crosses_hard_break: bool,
+    /// (row, start in `text`, start in the row's text, length)
+    pieces: Vec<(usize, usize, usize, usize)>,
+    /// `hover_byte` mapped into `text`; None when it sits in trimmed indent.
+    hover: Option<usize>,
+}
+
+impl JoinedRows {
+    /// With `hard_breaks`, at most one hard break is crossed above and one
+    /// below the hovered row.
+    fn around(rows: &[LinkRow], hover_row: usize, hover_byte: usize, hard_breaks: bool) -> Self {
+        let hard = |upper: usize| {
+            !rows[upper].soft_wrapped
+                && !rows[upper].text.trim().is_empty()
+                && !rows[upper + 1].text.trim().is_empty()
+        };
+        let (mut up_hard, mut down_hard) = (hard_breaks, hard_breaks);
+        let mut crosses_hard_break = false;
+        let mut first = hover_row;
+        while first > 0 && hover_row - first < MAX_SPAN {
+            if rows[first - 1].soft_wrapped {
+                first -= 1;
+            } else if up_hard && hard(first - 1) {
+                up_hard = false;
+                crosses_hard_break = true;
+                first -= 1;
+            } else {
+                break;
+            }
+        }
+        let mut last = hover_row;
+        while last + 1 < rows.len() && last - hover_row < MAX_SPAN {
+            if rows[last].soft_wrapped {
+                last += 1;
+            } else if down_hard && hard(last) {
+                down_hard = false;
+                crosses_hard_break = true;
+                last += 1;
+            } else {
+                break;
+            }
+        }
+        let mut joined = Self {
+            text: String::new(),
+            crosses_hard_break,
+            pieces: vec![],
+            hover: None,
+        };
+        for idx in first..=last {
+            let mut piece = rows[idx].text;
+            let mut lead = 0;
+            if idx > first && !rows[idx - 1].soft_wrapped {
+                let trimmed = piece.trim_start();
+                lead = piece.len() - trimmed.len();
+                piece = trimmed;
+                joined.text.push(' ');
+            }
+            if idx < last && !rows[idx].soft_wrapped {
+                piece = piece.trim_end();
+            }
+            let start = joined.text.len();
+            if idx == hover_row && hover_byte >= lead && hover_byte - lead < piece.len() {
+                joined.hover = Some(start + hover_byte - lead);
+            }
+            joined.pieces.push((idx, start, lead, piece.len()));
+            joined.text.push_str(piece);
+        }
+        joined
+    }
+
+    /// The per-row byte ranges that `range` of the joined text covers.
+    fn segments(&self, range: &Range<usize>) -> Vec<(usize, Range<usize>)> {
+        self.pieces
+            .iter()
+            .filter_map(|&(row, start, lead, len)| {
+                let from = range.start.max(start);
+                let to = range.end.min(start + len);
+                (from < to).then(|| (row, lead + from - start..lead + to - start))
+            })
+            .collect()
+    }
+}
+
+/// A path proposed by `spaced_path_candidates`.
 pub struct SpacedPath {
     /// Byte range of the path in the row text.
     pub range: Range<usize>,
@@ -210,8 +572,16 @@ const SPACED_PATH_PREFIXES: [&str; 4] = ["/", "~/", "./", "../"];
 /// Nearest path starts left of the hover that are tried.
 const MAX_SPACED_STARTS: usize = 4;
 
-/// Existence checks one hover may cost.
-const MAX_SPACED_CANDIDATES: usize = 24;
+/// Existence checks one hover may cost, parents included. A hover runs on
+/// the GUI thread and only when the pointer enters a new word.
+const MAX_PATH_CHECKS: usize = 64;
+
+/// The share of `MAX_PATH_CHECKS` the path-candidate search may use.
+const MAX_CANDIDATE_CHECKS: usize = 48;
+
+/// Ends tried inside one run of non-ASCII text (`吉隆坡旅行里面…`); a file
+/// name rarely has more CJK characters in a row than this.
+const MAX_CJK_RUN_ENDS: usize = 24;
 
 /// Characters that may sit right before a path, as in the file-path rule.
 fn opens_path(c: char) -> bool {
@@ -225,11 +595,11 @@ fn closes_path(c: char) -> bool {
     c == '\t' || "[]{}<>`'\"：，。、；！？（）【】「」『』《》“”‘’".contains(c)
 }
 
-/// Paths with spaces in them that cover `hover_byte` of `text`, longest
-/// first. The file-path rule stops at whitespace, since joining words by
-/// shape would turn prose into paths, so these are only proposals: the
-/// caller keeps the first one that exists on disk. A candidate without
-/// whitespace is left out, the rule already sees it.
+/// Paths that cover `hover_byte` of `text`, longest first, including the
+/// shapes the file-path rule cannot take: spaces inside, and a CJK name
+/// with a sentence running on after it. Joining words by shape would turn
+/// prose into paths, so these are only proposals: the caller keeps the
+/// first one that exists on disk.
 pub fn spaced_path_candidates(text: &str, hover_byte: usize) -> Vec<SpacedPath> {
     if hover_byte >= text.len() || !text.is_char_boundary(hover_byte) {
         return vec![];
@@ -250,6 +620,7 @@ pub fn spaced_path_candidates(text: &str, hover_byte: usize) -> Vec<SpacedPath> 
     starts.sort_unstable();
 
     let mut found: Vec<SpacedPath> = vec![];
+    let mut seen = std::collections::HashSet::new();
     for start in starts {
         let limit = text[start..]
             .char_indices()
@@ -258,20 +629,29 @@ pub fn spaced_path_candidates(text: &str, hover_byte: usize) -> Vec<SpacedPath> 
         if hover_byte >= limit {
             continue;
         }
-        let mut ends: Vec<usize> = text[hover_byte..limit]
-            .char_indices()
-            .skip(1)
-            .filter(|&(_, c)| c.is_whitespace() || c == ')')
-            .map(|(idx, _)| hover_byte + idx)
-            .collect();
+        // A path may end at a space, before `)`, or where ASCII meets CJK
+        // (`~/Movies/吉隆坡旅行里`), and inside a CJK run, since a sentence
+        // runs straight on from a name with no space.
+        let mut ends = vec![];
+        let mut run = text[start..hover_byte]
+            .chars()
+            .rev()
+            .take_while(|c| !c.is_ascii())
+            .count();
+        let mut prev_ascii = run == 0;
+        for (idx, c) in text[hover_byte..limit].char_indices() {
+            let boundary = c.is_whitespace() || c == ')' || c.is_ascii() != prev_ascii;
+            if idx > 0 && (boundary || (!c.is_ascii() && run <= MAX_CJK_RUN_ENDS)) {
+                ends.push(hover_byte + idx);
+            }
+            run = if c.is_ascii() { 0 } else { run + 1 };
+            prev_ascii = c.is_ascii();
+        }
         ends.push(limit);
         for end in ends {
             let raw = text[start..end].trim_end_matches(|c: char| ".,;:!?".contains(c));
             let end = start + raw.len();
-            if end <= hover_byte
-                || raw.ends_with(char::is_whitespace)
-                || !raw.contains(char::is_whitespace)
-                || found.iter().any(|f| f.range == (start..end))
+            if end <= hover_byte || raw.ends_with(char::is_whitespace) || !seen.insert((start, end))
             {
                 continue;
             }
@@ -282,9 +662,12 @@ pub fn spaced_path_candidates(text: &str, hover_byte: usize) -> Vec<SpacedPath> 
         }
     }
     found.sort_by_key(|f| std::cmp::Reverse(f.range.len()));
-    found.truncate(MAX_SPACED_CANDIDATES);
     found
 }
+
+#[cfg(test)]
+#[path = "link_corpus.rs"]
+mod link_corpus;
 
 #[cfg(test)]
 mod tests {
@@ -501,6 +884,7 @@ mod tests {
                 "/tmp/kaku dir/a b.png. Done".to_string(),
                 "/tmp/kaku dir/a b.png".to_string(),
                 "/tmp/kaku dir/a".to_string(),
+                "/tmp/kaku".to_string(),
             ]
         );
         // The word before the path is not a start, so it never joins in.
@@ -525,8 +909,20 @@ mod tests {
     }
 
     #[test]
-    fn spaced_path_needs_whitespace_inside() {
-        assert!(spaced("see /tmp/a.png", "a.png").is_empty());
+    fn candidates_shrink_inside_a_cjk_run() {
+        // hover_link skips the candidate equal to what the rule linked.
+        assert_eq!(
+            spaced("see /tmp/a.png", "a.png"),
+            vec!["/tmp/a.png".to_string()]
+        );
+        assert_eq!(
+            spaced("视频在 ~/Movies/吉隆坡旅行里", "旅行"),
+            vec![
+                "~/Movies/吉隆坡旅行里".to_string(),
+                "~/Movies/吉隆坡旅行".to_string(),
+                "~/Movies/吉隆坡旅".to_string(),
+            ]
+        );
     }
 
     #[test]
@@ -550,5 +946,57 @@ mod tests {
                 "hover {hover}"
             );
         }
+    }
+
+    #[test]
+    fn probe_start_changes_where_the_hover_result_can_change() {
+        let text = "⏺ Read(README.md) 视频在吉隆坡旅行里";
+        let at = |needle: &str| probe_start(text, text.find(needle).unwrap());
+        assert_ne!(
+            at("Read"),
+            at("README"),
+            "a new word inside the parentheses"
+        );
+        assert_eq!(at("README"), at("EADME"), "same word, same result");
+        assert_ne!(at("旅"), at("行"), "each CJK character can end a name");
+    }
+
+    #[test]
+    fn one_hover_checks_the_disk_a_bounded_number_of_times() {
+        let calls = std::cell::Cell::new(0);
+        let line = "/tmp words ".repeat(30);
+        let texts = [line.clone(), line.clone(), line];
+        let rows: Vec<LinkRow> = texts.iter().map(|t| row(t)).collect();
+        // `/tmp` has no parent to prune by and nothing exists, so every
+        // candidate across both passes would be checked without a budget.
+        let found = hover_link(&rows, 1, 2, None, &rules(), false, &|_| {
+            calls.set(calls.get() + 1);
+            PathKind::Missing
+        });
+        assert!(found.is_none());
+        assert!(calls.get() <= MAX_PATH_CHECKS, "{} checks", calls.get());
+    }
+
+    #[test]
+    fn probe_start_is_the_pointer_itself_on_delimiters() {
+        let text = "⏺ Read(README.md) x";
+        let at = |needle: &str| probe_start(text, text.find(needle).unwrap());
+        assert_ne!(at(")"), at("README"), "entering from the right at `)`");
+        let ls = "Cargo.lock  README.md  src";
+        let at = |byte: usize| probe_start(ls, byte);
+        let space_after = ls.find("README.md").unwrap() + "README.md".len();
+        assert_ne!(at(space_after), at(ls.find("README").unwrap()));
+    }
+
+    #[test]
+    fn probe_start_is_the_pointer_itself_on_trailing_punctuation() {
+        let go = "    main_test.go:12: got 1";
+        let colon = go.find("12:").unwrap() + 2;
+        assert_ne!(probe_start(go, colon), probe_start(go, colon - 1));
+        let dot = "see README.md.";
+        assert_ne!(
+            probe_start(dot, dot.len() - 1),
+            probe_start(dot, dot.len() - 2)
+        );
     }
 }

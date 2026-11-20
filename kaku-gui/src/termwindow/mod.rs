@@ -5707,19 +5707,14 @@ impl TermWindow {
             return;
         };
         let text = line.as_str();
-        let (Some(before), Some(after)) = (text.get(..hover_byte), text.get(hover_byte..)) else {
+        if !text.is_char_boundary(hover_byte) || hover_byte > text.len() {
             return;
-        };
-        let token_start = before
-            .char_indices()
-            .rfind(|(_, c)| c.is_whitespace())
-            .map(|(idx, c)| idx + c.len_utf8())
-            .unwrap_or(0);
+        }
         let probe = (
             pane.pane_id(),
             stable_row,
             line.current_seqno(),
-            token_start,
+            wrapped_link::probe_start(&text, hover_byte),
         );
         if self.wrapped_link_probe == Some(probe) {
             return;
@@ -5729,34 +5724,7 @@ impl TermWindow {
         let hovered = line
             .get_cell(column)
             .and_then(|cell| cell.attrs().hyperlink().cloned());
-        if self.link_spaced_path(pane, stable_row, &text, hover_byte, hovered.as_ref()) {
-            return;
-        }
-
-        // Only the first or last token of a row can continue on another row.
-        let token_end = after
-            .find(char::is_whitespace)
-            .map_or(text.len(), |idx| hover_byte + idx);
-        if token_end == hover_byte
-            || (!before[..token_start].trim().is_empty() && !text[token_end..].trim().is_empty())
-        {
-            return;
-        }
-        let require_edge = match &hovered {
-            Some(link) if !link.is_implicit() => return,
-            Some(link) if link.uri().starts_with("file://") => {
-                match self.resolve_file_path(pane, link.uri()) {
-                    // The break fell after a `/` of a longer path.
-                    Some(target) if target.path.is_dir() => true,
-                    Some(target) if target.path.exists() => return,
-                    _ => false,
-                }
-            }
-            _ => false,
-        };
-
         let cols = pane.get_dimensions().cols;
-        let alt_screen = pane.is_alt_screen_active();
         let texts: Vec<String> = lines
             .iter()
             .map(|line| line.as_str().into_owned())
@@ -5766,66 +5734,24 @@ impl TermWindow {
             .zip(&texts)
             .map(|(line, text)| wrapped_link::LinkRow::new(line, text, cols))
             .collect();
-        let Some(rejoined) = wrapped_link::rejoined_links(
+        let path_kind = |uri: &str| match self.resolve_file_path(pane, uri) {
+            Some(target) if target.path.is_dir() => wrapped_link::PathKind::Dir,
+            Some(target) if target.path.exists() => wrapped_link::PathKind::File,
+            _ => wrapped_link::PathKind::Missing,
+        };
+        let Some(rejoined) = wrapped_link::hover_link(
             &rows,
             hover_row,
             hover_byte,
+            hovered.as_ref(),
             &self.config.hyperlink_rules,
-            require_edge,
-        )
-        .into_iter()
-        .find(|rejoined| {
-            if rejoined.is_file() {
-                self.resolve_file_path(pane, rejoined.link.uri())
-                    .is_some_and(|target| target.path.exists())
-            } else {
-                alt_screen && wrapped_link::breaks_at_full_width(&rows, rejoined)
-            }
-        }) else {
+            pane.is_alt_screen_active(),
+            &path_kind,
+        ) else {
             return;
         };
-        log::debug!("Rejoined wrapped link {}", rejoined.link.uri());
+        log::debug!("Hover link {}", rejoined.link.uri());
         Self::apply_rejoined_link(pane, top, &texts, &rejoined);
-    }
-
-    /// Link a path with spaces in it on the hovered row (`2026-11 吉隆坡旅行/a.mp4`),
-    /// which the file-path rule cuts at the first space. The longest
-    /// candidate that exists on disk wins. Returns true when the hovered
-    /// cell now carries such a link.
-    fn link_spaced_path(
-        &self,
-        pane: &Arc<dyn Pane>,
-        stable_row: StableRowIndex,
-        text: &str,
-        hover_byte: usize,
-        hovered: Option<&Arc<Hyperlink>>,
-    ) -> bool {
-        if let Some(link) = hovered {
-            if !link.is_implicit() {
-                return false;
-            }
-            // Applied on an earlier hover and the row has not changed since.
-            if link.uri().starts_with("file://") && link.uri().contains(char::is_whitespace) {
-                return true;
-            }
-        }
-        let Some((range, uri)) = wrapped_link::spaced_path_candidates(text, hover_byte)
-            .into_iter()
-            .map(|c| (c.range, format!("file://{}", c.path)))
-            .find(|(_, uri)| {
-                self.resolve_file_path(pane, uri)
-                    .is_some_and(|target| target.path.exists())
-            })
-        else {
-            return false;
-        };
-        log::debug!("Linked spaced path {uri}");
-        let rejoined = wrapped_link::Rejoined {
-            link: Arc::new(Hyperlink::new_implicit(uri)),
-            segments: vec![(0, range)],
-        };
-        Self::apply_rejoined_link(pane, stable_row, &[text.to_string()], &rejoined);
-        true
     }
 
     /// Put `rejoined.link` on the cells it covers, skipping a row whose text
@@ -5853,16 +5779,7 @@ impl TermWindow {
                     if line.as_str() != self.texts[*row] {
                         continue;
                     }
-                    let targets = wrapped_link::cells_in_byte_range(line, bytes);
-                    let cells = line.cells_mut_for_attr_changes_only();
-                    for idx in targets {
-                        if let Some(cell) = cells.get_mut(idx) {
-                            let attrs = cell.attrs_mut();
-                            if attrs.hyperlink().map_or(true, |link| link.is_implicit()) {
-                                attrs.set_hyperlink(Some(Arc::clone(&self.rejoined.link)));
-                            }
-                        }
-                    }
+                    wrapped_link::apply_link_to_line(line, bytes, &self.rejoined.link);
                     line.clear_appdata();
                 }
             }
@@ -5879,6 +5796,19 @@ impl TermWindow {
     }
 
     fn resolve_file_path(&self, pane: &Arc<dyn Pane>, uri: &str) -> Option<FileLinkTarget> {
+        Self::resolve_file_uri(uri, dirs_next::home_dir(), || {
+            pane.get_current_working_dir(CachePolicy::AllowStale)
+                .and_then(|url| url.to_file_path().ok())
+        })
+    }
+
+    /// `resolve_file_path` without the pane: `~/` resolves against `home`
+    /// and a relative path against `cwd()`.
+    fn resolve_file_uri(
+        uri: &str,
+        home: Option<PathBuf>,
+        cwd: impl FnOnce() -> Option<PathBuf>,
+    ) -> Option<FileLinkTarget> {
         let decoded_uri_path = url::Url::parse(uri)
             .ok()
             .and_then(|url| url.to_file_path().ok())
@@ -5887,18 +5817,33 @@ impl TermWindow {
         let path_str = decoded_uri_path
             .as_deref()
             .unwrap_or_else(|| uri.strip_prefix("file://").unwrap_or(uri));
+        let mut cwd = Some(cwd);
+        let mut cwd_path = None;
+        let mut locate = |base: &str| -> Option<PathBuf> {
+            if base.starts_with('/') {
+                Some(PathBuf::from(base))
+            } else if let Some(rest) = base.strip_prefix("~/") {
+                home.as_ref().map(|home| home.join(rest))
+            } else {
+                if let Some(cwd) = cwd.take() {
+                    cwd_path = cwd();
+                }
+                cwd_path.as_ref().map(|cwd| cwd.join(base))
+            }
+        };
+
+        // A name that exists as written wins over reading its tail as a
+        // location: `Archive (1)` and `Project(1)` are folders, not line 1.
+        let literal = locate(path_str)?;
+        if literal.exists() {
+            return Some(FileLinkTarget {
+                path: literal,
+                line: None,
+                col: None,
+            });
+        }
         let (base_path, line, col) = Self::parse_file_location(path_str);
-
-        let path = if base_path.starts_with('/') {
-            Some(PathBuf::from(&base_path))
-        } else if base_path.starts_with("~/") {
-            dirs_next::home_dir().map(|home| home.join(&base_path[2..]))
-        } else {
-            pane.get_current_working_dir(CachePolicy::AllowStale)
-                .and_then(|url| url.to_file_path().ok())
-                .map(|cwd| cwd.join(&base_path))
-        }?;
-
+        let path = locate(&base_path)?;
         Some(FileLinkTarget { path, line, col })
     }
 
@@ -6170,6 +6115,20 @@ impl TermWindow {
     }
 
     fn parse_file_location(path: &str) -> (String, Option<usize>, Option<usize>) {
+        // tsc and MSBuild: `src/index.ts(12,5)` or `src/index.ts(12)`.
+        if let Some((file, loc)) = path.strip_suffix(')').and_then(|p| p.rsplit_once('(')) {
+            let parsed = match loc.split_once(',') {
+                Some((line, col)) => line
+                    .parse::<usize>()
+                    .ok()
+                    .zip(col.parse::<usize>().ok())
+                    .map(|(line, col)| (line, Some(col))),
+                None => loc.parse::<usize>().ok().map(|line| (line, None)),
+            };
+            if let Some((line, col)) = parsed {
+                return (file.to_string(), Some(line), col);
+            }
+        }
         let parts: Vec<&str> = path.rsplitn(3, ':').collect();
 
         match parts.as_slice() {
