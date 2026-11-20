@@ -5726,6 +5726,13 @@ impl TermWindow {
         }
         self.wrapped_link_probe = Some(probe);
 
+        let hovered = line
+            .get_cell(column)
+            .and_then(|cell| cell.attrs().hyperlink().cloned());
+        if self.link_spaced_path(pane, stable_row, &text, hover_byte, hovered.as_ref()) {
+            return;
+        }
+
         // Only the first or last token of a row can continue on another row.
         let token_end = after
             .find(char::is_whitespace)
@@ -5735,9 +5742,6 @@ impl TermWindow {
         {
             return;
         }
-        let hovered = line
-            .get_cell(column)
-            .and_then(|cell| cell.attrs().hyperlink().cloned());
         let require_edge = match &hovered {
             Some(link) if !link.is_implicit() => return,
             Some(link) if link.uri().starts_with("file://") => {
@@ -5781,7 +5785,57 @@ impl TermWindow {
             return;
         };
         log::debug!("Rejoined wrapped link {}", rejoined.link.uri());
+        Self::apply_rejoined_link(pane, top, &texts, &rejoined);
+    }
 
+    /// Link a path with spaces in it on the hovered row (`2026-11 吉隆坡旅行/a.mp4`),
+    /// which the file-path rule cuts at the first space. The longest
+    /// candidate that exists on disk wins. Returns true when the hovered
+    /// cell now carries such a link.
+    fn link_spaced_path(
+        &self,
+        pane: &Arc<dyn Pane>,
+        stable_row: StableRowIndex,
+        text: &str,
+        hover_byte: usize,
+        hovered: Option<&Arc<Hyperlink>>,
+    ) -> bool {
+        if let Some(link) = hovered {
+            if !link.is_implicit() {
+                return false;
+            }
+            // Applied on an earlier hover and the row has not changed since.
+            if link.uri().starts_with("file://") && link.uri().contains(char::is_whitespace) {
+                return true;
+            }
+        }
+        let Some((range, uri)) = wrapped_link::spaced_path_candidates(text, hover_byte)
+            .into_iter()
+            .map(|c| (c.range, format!("file://{}", c.path)))
+            .find(|(_, uri)| {
+                self.resolve_file_path(pane, uri)
+                    .is_some_and(|target| target.path.exists())
+            })
+        else {
+            return false;
+        };
+        log::debug!("Linked spaced path {uri}");
+        let rejoined = wrapped_link::Rejoined {
+            link: Arc::new(Hyperlink::new_implicit(uri)),
+            segments: vec![(0, range)],
+        };
+        Self::apply_rejoined_link(pane, stable_row, &[text.to_string()], &rejoined);
+        true
+    }
+
+    /// Put `rejoined.link` on the cells it covers, skipping a row whose text
+    /// no longer matches `texts` and never replacing an explicit OSC 8 link.
+    fn apply_rejoined_link(
+        pane: &Arc<dyn Pane>,
+        top: StableRowIndex,
+        texts: &[String],
+        rejoined: &wrapped_link::Rejoined,
+    ) {
         struct ApplyRejoined<'a> {
             top: StableRowIndex,
             texts: &'a [String],
@@ -5813,13 +5867,13 @@ impl TermWindow {
                 }
             }
         }
-        let end = top + lines.len() as StableRowIndex;
+        let end = top + texts.len() as StableRowIndex;
         pane.with_lines_mut(
             top..end,
             &mut ApplyRejoined {
                 top,
-                texts: &texts,
-                rejoined: &rejoined,
+                texts,
+                rejoined,
             },
         );
     }
@@ -7333,6 +7387,18 @@ assert(overrides.window_padding.top == 0 and overrides.hide_tab_bar_if_only_one_
         assert_eq!(path, "/tmp/demo.rs");
         assert_eq!(line, Some(12));
         assert_eq!(col, Some(34));
+    }
+
+    #[test]
+    fn spaced_path_uri_decodes_back_to_the_same_path() {
+        // link_spaced_path builds `file://` + the raw path; opening goes
+        // through Url::to_file_path in resolve_file_path.
+        let path = "/Users/tw93/Movies/2026-11 吉隆坡旅行/吉隆坡 2026-11.mp4";
+        let decoded = url::Url::parse(&format!("file://{path}"))
+            .unwrap()
+            .to_file_path()
+            .unwrap();
+        assert_eq!(decoded, std::path::PathBuf::from(path));
     }
 
     #[test]

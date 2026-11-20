@@ -195,6 +195,97 @@ pub fn breaks_at_full_width(rows: &[LinkRow], rejoined: &Rejoined) -> bool {
     })
 }
 
+/// A path that has spaces in it, found by `spaced_path_candidates`.
+pub struct SpacedPath {
+    /// Byte range of the path in the row text.
+    pub range: Range<usize>,
+    /// The path with `\ ` escapes resolved.
+    pub path: String,
+}
+
+/// Starts of absolute, home and dot-relative paths. Bare relative names are
+/// left out: with spaces allowed any word could start one.
+const SPACED_PATH_PREFIXES: [&str; 4] = ["/", "~/", "./", "../"];
+
+/// Nearest path starts left of the hover that are tried.
+const MAX_SPACED_STARTS: usize = 4;
+
+/// Existence checks one hover may cost.
+const MAX_SPACED_CANDIDATES: usize = 24;
+
+/// Characters that may sit right before a path, as in the file-path rule.
+fn opens_path(c: char) -> bool {
+    c.is_whitespace() || "([<`'\"：，。、；！？（【「『《“‘".contains(c)
+}
+
+/// Characters that end a path even when spaces are allowed inside it:
+/// quotes, brackets other than `(` `)` (Finder names copies `a (1).png`)
+/// and full-width CJK punctuation.
+fn closes_path(c: char) -> bool {
+    c == '\t' || "[]{}<>`'\"：，。、；！？（）【】「」『』《》“”‘’".contains(c)
+}
+
+/// Paths with spaces in them that cover `hover_byte` of `text`, longest
+/// first. The file-path rule stops at whitespace, since joining words by
+/// shape would turn prose into paths, so these are only proposals: the
+/// caller keeps the first one that exists on disk. A candidate without
+/// whitespace is left out, the rule already sees it.
+pub fn spaced_path_candidates(text: &str, hover_byte: usize) -> Vec<SpacedPath> {
+    if hover_byte >= text.len() || !text.is_char_boundary(hover_byte) {
+        return vec![];
+    }
+    let hover_end = hover_byte + text[hover_byte..].chars().next().map_or(0, char::len_utf8);
+    let mut starts: Vec<usize> = text[..hover_end]
+        .char_indices()
+        .filter(|&(idx, _)| {
+            SPACED_PATH_PREFIXES
+                .iter()
+                .any(|p| text[idx..].starts_with(p))
+                && text[..idx].chars().next_back().map_or(true, opens_path)
+        })
+        .map(|(idx, _)| idx)
+        .collect();
+    starts.reverse();
+    starts.truncate(MAX_SPACED_STARTS);
+    starts.sort_unstable();
+
+    let mut found: Vec<SpacedPath> = vec![];
+    for start in starts {
+        let limit = text[start..]
+            .char_indices()
+            .find(|&(_, c)| closes_path(c))
+            .map_or(text.len(), |(idx, _)| start + idx);
+        if hover_byte >= limit {
+            continue;
+        }
+        let mut ends: Vec<usize> = text[hover_byte..limit]
+            .char_indices()
+            .skip(1)
+            .filter(|&(_, c)| c.is_whitespace() || c == ')')
+            .map(|(idx, _)| hover_byte + idx)
+            .collect();
+        ends.push(limit);
+        for end in ends {
+            let raw = text[start..end].trim_end_matches(|c: char| ".,;:!?".contains(c));
+            let end = start + raw.len();
+            if end <= hover_byte
+                || raw.ends_with(char::is_whitespace)
+                || !raw.contains(char::is_whitespace)
+                || found.iter().any(|f| f.range == (start..end))
+            {
+                continue;
+            }
+            found.push(SpacedPath {
+                range: start..end,
+                path: raw.replace("\\ ", " "),
+            });
+        }
+    }
+    found.sort_by_key(|f| std::cmp::Reverse(f.range.len()));
+    found.truncate(MAX_SPACED_CANDIDATES);
+    found
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -375,5 +466,89 @@ mod tests {
             },
         ];
         assert!(urls(&rows, 0, 10).is_empty());
+    }
+
+    fn spaced(text: &str, hover: &str) -> Vec<String> {
+        spaced_path_candidates(text, text.find(hover).unwrap())
+            .into_iter()
+            .map(|c| c.path)
+            .collect()
+    }
+
+    #[test]
+    fn spaced_path_is_proposed_from_any_word_and_stops_at_cjk_punctuation() {
+        let text = "/Users/tw93/Movies/2026-11 吉隆坡旅行/吉隆坡 2026-11.mp4，全片";
+        let full = "/Users/tw93/Movies/2026-11 吉隆坡旅行/吉隆坡 2026-11.mp4";
+        for hover in ["Users", "旅行", "2026-11.mp4"] {
+            let found = spaced(text, hover);
+            assert_eq!(
+                found.first().map(String::as_str),
+                Some(full),
+                "hover {hover}"
+            );
+        }
+        assert!(spaced(text, "旅行")
+            .contains(&"/Users/tw93/Movies/2026-11 吉隆坡旅行/吉隆坡".to_string()));
+        assert!(spaced(text, "全片").is_empty());
+    }
+
+    #[test]
+    fn spaced_path_candidates_shrink_at_spaces_and_trailing_punctuation() {
+        let text = "saved to /tmp/kaku dir/a b.png. Done";
+        assert_eq!(
+            spaced(text, "kaku"),
+            vec![
+                "/tmp/kaku dir/a b.png. Done".to_string(),
+                "/tmp/kaku dir/a b.png".to_string(),
+                "/tmp/kaku dir/a".to_string(),
+            ]
+        );
+        // The word before the path is not a start, so it never joins in.
+        assert!(spaced(text, "saved").is_empty());
+    }
+
+    #[test]
+    fn spaced_path_resolves_escapes_and_keeps_finder_copy_names() {
+        assert_eq!(
+            spaced("open ~/Movies/2026-11\\ 吉隆坡旅行/a.mp4", "Movies")
+                .first()
+                .cloned(),
+            Some("~/Movies/2026-11 吉隆坡旅行/a.mp4".to_string())
+        );
+        let text = "(/tmp/shot (1).png)";
+        assert!(spaced(text, "shot").contains(&"/tmp/shot (1).png".to_string()));
+        // Quotes bound the path on both sides.
+        assert_eq!(
+            spaced("'/tmp/a b.txt' and more", "a b").first().cloned(),
+            Some("/tmp/a b.txt".to_string())
+        );
+    }
+
+    #[test]
+    fn spaced_path_needs_whitespace_inside() {
+        assert!(spaced("see /tmp/a.png", "a.png").is_empty());
+    }
+
+    #[test]
+    fn first_existing_spaced_candidate_is_the_whole_file() {
+        // The caller's rule: keep the longest candidate that exists. Here
+        // `2026-11` alone does not exist, the folder is `2026-11 吉隆坡旅行`.
+        let dir = tempfile::tempdir().unwrap();
+        let folder = dir.path().join("2026-11 吉隆坡旅行");
+        std::fs::create_dir(&folder).unwrap();
+        std::fs::write(folder.join("吉隆坡 2026-11.mp4"), b"").unwrap();
+        let full = folder.join("吉隆坡 2026-11.mp4");
+        let text = format!("{}，全片", full.display());
+        for hover in ["2026-11 ", "旅行", "mp4"] {
+            let found = spaced_path_candidates(&text, text.find(hover).unwrap())
+                .into_iter()
+                .find(|c| std::path::Path::new(&c.path).exists())
+                .map(|c| c.path);
+            assert_eq!(
+                found.as_deref(),
+                Some(full.to_str().unwrap()),
+                "hover {hover}"
+            );
+        }
     }
 }
