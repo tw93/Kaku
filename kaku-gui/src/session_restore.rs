@@ -495,6 +495,27 @@ fn reflow_lines(lines: Vec<wezterm_term::Line>, target_cols: usize) -> Vec<wezte
     out
 }
 
+/// The saved lines as they go back into scrollback. The capture ends with
+/// the whole viewport, so a cleared screen saves its prompt followed by a
+/// screenful of blank rows. Those are padding, not content: once in
+/// scrollback, a window that grows after spawning (a maximized window on an
+/// Intel Mac) pulls them into view and pushes the new prompt to the bottom
+/// row (#632). Drop them before reflowing.
+fn lines_for_restore(
+    mut lines: Vec<wezterm_term::Line>,
+    saved_cols: usize,
+    target_cols: usize,
+) -> Vec<wezterm_term::Line> {
+    while lines.last().is_some_and(|line| line.is_whitespace()) {
+        lines.pop();
+    }
+    if saved_cols != target_cols {
+        reflow_lines(lines, target_cols)
+    } else {
+        lines
+    }
+}
+
 /// Remove any orphaned content directories under `session_content/` that
 /// are not referenced by either the current session or last-closed-window
 /// envelope. Best-effort; failures are logged at debug level so a flaky
@@ -1223,11 +1244,7 @@ async fn spawn_panes_for_tab(
         // scrollback so the structural restore is never blocked.
         if let (Some(dir), Some(content_ref)) = (content_dir, entry.content_ref.as_ref()) {
             if let Some(payload) = load_pane_payload(dir, content_ref) {
-                let lines = if payload.cols != entry.size.cols {
-                    reflow_lines(payload.lines, entry.size.cols)
-                } else {
-                    payload.lines
-                };
+                let lines = lines_for_restore(payload.lines, payload.cols, entry.size.cols);
                 if let Err(e) = pane.inject_scrollback(lines) {
                     log::warn!("inject scrollback for pane {}: {e:#}", entry.pane_id);
                 }
@@ -2135,6 +2152,24 @@ mod tests {
             (0..2000).map(|i| make_line(&format!("L{i}"))).collect();
         let out = reflow_lines(lines, 10);
         assert!(out.len() <= PANE_CONTENT_CAP_LINES);
+    }
+
+    #[test]
+    fn restore_drops_the_blank_viewport_rows_after_the_last_line() {
+        // A maximized window after Cmd+K saves its prompt plus 32 blank
+        // rows. Restoring those rows put the new prompt on the last row once
+        // the window grew (#632); blank rows between output stay.
+        let mut lines = vec![make_line("$ ls"), make_line(""), make_line("~ $")];
+        lines.extend((0..32).map(|_| make_line("")));
+        let out = lines_for_restore(lines.clone(), 80, 80);
+        let text: Vec<String> = out.iter().map(|l| l.as_str().into_owned()).collect();
+        assert_eq!(text, ["$ ls", "", "~ $"]);
+
+        let reflowed = lines_for_restore(lines, 80, 40);
+        assert_eq!(reflowed.len(), 3);
+
+        let blank: Vec<_> = (0..33).map(|_| make_line("")).collect();
+        assert!(lines_for_restore(blank, 80, 80).is_empty());
     }
 
     #[test]
