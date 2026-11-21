@@ -50,7 +50,7 @@ Claude Code 和 Codex 都不直接跟通知中心打交道，它们往终端里�
 
 [[figure:claude-code-notifications|Claude Code、Codex 和你自己的脚本把序列或铃声发给 Kaku，Kaku 只在处于后台时把它变成 macOS 通知|不管从哪来，最后都是一段终端读得懂的序列，再由终端变成通知。]]
 
-常用的序列有几种，OSC 9 最早出自 iTerm2，只带一行文字，OSC 777 带标题和正文，单独一个铃声字符则什么内容都不带，只表示有事发生。Ghostty 和 Kaku 两种都认，Kitty 用的是自己的 OSC 99，各家不统一，这也是为什么 Claude Code 要维护一串通道而不是一个开关。Kaku 0.25.0 及以上还认 OSC 7501，也就是 Claude Code 2.1.295 及以上在等你、做完或出错时发出的状态报告，所以不用设通道。
+常用的序列有几种，OSC 9 最早出自 iTerm2，只带一行文字，OSC 777 带标题和正文，单独一个铃声字符则什么内容都不带，只表示有事发生。Ghostty 和 Kaku 两种都认，Kitty 用的是自己的 OSC 99，各家不统一，这也是为什么 Claude Code 要维护一串通道而不是一个开关。Kaku 0.25.0 及以上还认 OSC 7501，也就是 Claude Code 2.1.295 及以上在等你、做完或出错时发出的状态报告，所以不用设通道，同一份报告还会在后台标签上点亮一个点，Kaku 0.29.0 及以上按 `Cmd + J` 就能跳到下一个亮着点的标签。
 
 在 Kaku 里，OSC 9 和 OSC 777 的通知要经过 `notification_handling` 这项设置：
 

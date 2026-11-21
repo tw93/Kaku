@@ -94,7 +94,7 @@ It prints the replica `openpty` allocated for this pane. That node behaves like 
 
 ### Why is the erase character DEL?
 
-Backspace encodes as `0x7f`, the `erase` value in `stty -a`. BS (`0x08`) is sent for Backspace only with Control held. A remote terminfo that expects BS erases the wrong way until both sides match.
+Backspace encodes as `0x7f`, the `erase` value in `stty -a`. BS (`0x08`) is sent for Backspace only with Control held. A remote terminfo that expects BS erases the wrong way until both sides match. With `icanon` on, the kernel erases one byte per Backspace unless the `iutf8` flag is set. A new macOS pty starts with `-iutf8`, and Kaku 0.30.0 or later turns it on for every pane, so Backspace in `read` or `cat` removes a whole Chinese character or emoji instead of leaving broken bytes.
 
 ### Does the GPU change what a program can print?
 

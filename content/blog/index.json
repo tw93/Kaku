@@ -13,7 +13,7 @@
         "title": "Claude Code 用什么终端最好，真正影响体验的五件事",
         "description": "Claude Code 在哪个终端都能跑，长时间会话舒不舒服取决于五件事：多行输入、通知、可点击的路径、重启后恢复和分屏。"
       },
-      "modified": "2026-10-20"
+      "modified": "2026-11-21"
     },
     {
       "slug": "claude-code-notifications",
@@ -28,7 +28,7 @@
         "title": "Claude Code 通知不弹出，在 Mac 上怎么修",
         "description": "为什么 Claude Code 和 Codex 在大多数终端里不发通知，每种情况该改哪个设置，以及终端通知序列是怎么走到 macOS 的。"
       },
-      "modified": "2026-10-20"
+      "modified": "2026-11-21"
     },
     {
       "slug": "best-terminal-for-mac",
@@ -43,7 +43,7 @@
         "title": "2026 年 Mac 上的终端怎么选",
         "description": "Terminal.app、iTerm2、Ghostty、WezTerm、Warp、Kitty、Alacritty 和 Kaku，按上手成本、配置方式、AI 工具和价格对比，2026 年 10 月核对。"
       },
-      "modified": "2026-10-20"
+      "modified": "2026-11-21"
     },
     {
       "slug": "ghostty-vs-iterm2-vs-wezterm",
@@ -118,7 +118,7 @@
         "title": "Claude Code agent teams 怎么打开，在 Kaku 里显示在哪",
         "description": "agent teams 默认关着，要设 CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1，在 Kaku 里分屏要走 tmux。"
       },
-      "modified": "2026-10-19"
+      "modified": "2026-11-21"
     },
     {
       "slug": "zsh-without-oh-my-zsh",
@@ -178,7 +178,7 @@
         "title": "远程使用 Claude Code，接上正在跑的会话的三种办法",
         "description": "Anthropic 的 Remote Control、云端会话，以及用 kaku remote 在另一台电脑上打开 Mac 的终端，各自需要什么、跑在哪里。"
       },
-      "modified": "2026-10-20"
+      "modified": "2026-11-21"
     },
     {
       "slug": "tmux-alternative-mac",
@@ -193,7 +193,7 @@
         "title": "在 Mac 上还需要 tmux 吗",
         "description": "tmux 能做到哪些终端做不到的事，原生分屏和会话恢复已经覆盖了哪些，以及远程工作时为什么还值得留着 tmux。"
       },
-      "modified": "2026-10-20"
+      "modified": "2026-11-21"
     },
     {
       "slug": "install-claude-code-mac",
@@ -223,7 +223,7 @@
         "title": "Claude Code hooks 实用指南",
         "description": "hook 写在哪、哪些事件真正有用，以及三个能直接用的例子，编辑后格式化、拦下危险命令、做完时发通知。"
       },
-      "modified": "2026-10-19"
+      "modified": "2026-11-21"
     },
     {
       "slug": "zsh-vs-bash",
@@ -283,7 +283,7 @@
         "title": "用 git worktree 同时跑多个 Claude Code",
         "description": "用 git worktree 或 claude --worktree 给每个 Claude Code 会话一份独立的检出，配好环境，再把改动合回去并清理干净。"
       },
-      "modified": "2026-10-20"
+      "modified": "2026-11-21"
     },
     {
       "slug": "nerd-fonts-mac",
@@ -343,7 +343,7 @@
         "title": "Claude Code subagents 是什么，什么时候用",
         "description": "subagent 和 skill、agent teams 有什么区别，怎么定义一个，适合什么活，以及在上下文和 token 上的代价。"
       },
-      "modified": "2026-10-20"
+      "modified": "2026-11-21"
     },
     {
       "slug": "starship-prompt",
@@ -418,7 +418,7 @@
         "title": "终端模拟器是怎么工作的",
         "description": "终端管着 pty 和字符网格，shell 是写字节的子进程。顺着这条路径，字节变成格子，再变成像素。"
       },
-      "modified": "2026-11-01"
+      "modified": "2026-11-21"
     },
     {
       "slug": "shell-integration-osc",

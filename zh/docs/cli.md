@@ -42,7 +42,7 @@ kaku doctor --fix
 
 ## kaku remote
 
-在另一台电脑的桌面浏览器里使用这台 Mac 的终端，经 Kaku 的中继连接。远程访问默认关闭，需要自己开启。
+在另一台电脑或手机的浏览器里使用这台 Mac 的终端，经 Kaku 的中继连接。远程访问默认关闭，需要自己开启。
 
 ```bash
 kaku remote               # turn remote access on (asks first) and print a pairing link
@@ -52,7 +52,7 @@ kaku remote off           # turn remote access off
 kaku remote --reset       # new identity, every paired browser removed
 ```
 
-在要配对的浏览器里打开链接即可。每个链接只能用一次，10 分钟内有效，每配对一个浏览器就重新运行一次 `kaku remote`。配对后把页面加入书签，浏览器会保存自己的密钥，之后不用新链接也能回来。输入和显示的内容在浏览器与 Kaku 之间加密，中继只负责转发。有新浏览器配对时，Kaku 会发一条通知。
+在要配对的浏览器里打开链接，确认页面和 `kaku remote` 显示的六位数字一致，再在终端里按 Enter 放行，按 Ctrl+C 则拒绝。每个链接只能用一次，10 分钟内有效，每配对一个浏览器就重新运行一次 `kaku remote`。配对后把页面加入书签，浏览器会保存自己的密钥，之后不用新链接也能回来。输入和显示的内容在浏览器与 Kaku 之间加密，中继只负责转发。已配对的浏览器隔了 30 分钟以上再连回来时，Kaku 会发一条通知。
 
 ## kaku update
 
@@ -97,6 +97,16 @@ kaku cli split-pane -- bash -c "echo hello"  # split and run a command
 kaku cli --help                              # list all subcommands
 kaku cli split-pane --help                   # help for a specific subcommand
 ```
+
+Kaku 0.29.0 起，`kaku cli wait` 和 `kaku cli events` 可以读取 Claude Code（2.1.295 及以上）和 Codex（0.163 及以上）上报的状态，共有 `working`、`blocked`（等你处理）、`done`、`error` 和 `idle` 五种。
+
+```bash
+kaku cli wait --pane-id 5 --for done,blocked,error --timeout 20m  # until pane 5 finishes, needs you or fails
+kaku cli events --for blocked --once                              # stop at the first pane that needs you
+kaku cli events --json                                            # one JSON line per state change
+```
+
+`wait` 结束时打印让它停下的状态并以 0 退出，超时以 2 退出，连不上 Kaku 或窗格不存在时以 1 退出，加上 `--next` 可以跳过 agent 上一轮留下的 `done`。
 
 ---
 

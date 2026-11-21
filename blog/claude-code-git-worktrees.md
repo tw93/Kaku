@@ -107,7 +107,14 @@ claude --worktree feature-auth --resume
 kaku cli split-pane -- bash -c "claude --worktree feature-auth"
 ```
 
-`config.restore_previous_session` defaults to true, so the next launch reopens the tabs and panes. The layout is saved within a minute of opening or closing a window, tab, or pane, which covers a crash or force quit. A Claude Code pane comes back with its last screen, which shows where the conversation stopped. On Kaku 0.25.0 or later with Claude Code 2.1.295 or later, a background tab shows a dot when Claude Code is waiting, finished, or failed, with no setup. On earlier versions, the `ghostty` [notification channel](/blog/claude-code-notifications) lights the same dot for waiting and finished.
+`split-pane` prints the new pane's id, so a script can hand a worktree to an agent and wait for it. On Kaku 0.29.0 or later, `kaku cli wait` follows the status Claude Code 2.1.295 or later reports, prints the state that ended the wait, and exits 2 when the timeout runs out:
+
+```bash
+pane=$(kaku cli split-pane --right -- bash -c "claude --worktree feature-auth 'add tests for token refresh'")
+kaku cli wait --pane-id "$pane" --for done,blocked,error --timeout 30m
+```
+
+`config.restore_previous_session` defaults to true, so the next launch reopens the tabs and panes. The layout is saved within a minute of opening or closing a window, tab, or pane, which covers a crash or force quit. A Claude Code pane comes back with its last screen, which shows where the conversation stopped. On Kaku 0.25.0 or later with Claude Code 2.1.295 or later, a background tab shows a dot when Claude Code is waiting, finished, or failed, with no setup. On earlier versions, the `ghostty` [notification channel](/blog/claude-code-notifications) lights the same dot for waiting and finished. On Kaku 0.29.0 or later, `Cmd + J` jumps to the next tab whose dot is lit and focuses the pane that lit it, so with one agent per worktree the one waiting on you is a single key away.
 
 ## FAQ
 

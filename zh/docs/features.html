@@ -240,7 +240,7 @@ kaku chat</code></pre>
           <h2 id="features-remote-files"><a class="anchor" href="#features-remote-files" aria-label="链接到「远端文件」">#</a>远端文件</h2><p>按 <code>Cmd + Shift + R</code> 用 <code>sshfs</code> 把当前 SSH 会话的远端文件系统挂到本地，并在 yazi 里打开。</p>
           <p>Kaku 从当前分屏自动识别 SSH 目标，挂载在 <code>~/Library/Caches/dev.kaku/sshfs/&lt;host&gt;</code>。</p>
           <p>先运行 <code>brew install --cask sshfs-mac</code> 安装 macOS 版 <a href="https://formulae.brew.sh/cask/sshfs-mac">SSHFS</a>，按 <a href="https://github.com/macfuse/macfuse/wiki/Getting-Started">macFUSE 说明</a>完成设置，并给远端主机配好密钥登录。</p>
-          <h2 id="features-remote-access"><a class="anchor" href="#features-remote-access" aria-label="链接到「远程访问」">#</a>远程访问</h2><p>运行 <code>kaku remote</code>，可以在另一台电脑的桌面浏览器里使用这台 Mac 的终端。开启前会先确认，之后给出一个配对链接，每个链接配对一个浏览器，配对后把页面加入书签即可随时回来。</p>
+          <h2 id="features-remote-access"><a class="anchor" href="#features-remote-access" aria-label="链接到「远程访问」">#</a>远程访问</h2><p>运行 <code>kaku remote</code>，可以在另一台电脑或手机的浏览器里使用这台 Mac 的终端。开启前会先确认，之后给出一个配对链接，每个链接配对一个浏览器，配对后把页面加入书签即可随时回来。手机上标签收在侧边抽屉里，列着每个 Agent 的话题和状态，键盘只从快捷键栏的键盘按钮弹出，滑动终端时不会弹。</p>
           <p>页面里有你的标签和分屏，支持复制粘贴，拖进页面的文件会上传到 Mac，Cmd+点击路径即可下载。输入和显示的内容在浏览器与 Kaku 之间加密。远程访问默认关闭。命令见 <a href="/zh/docs/cli#cli-kaku-remote">CLI 参考</a>。</p>
           <h2 id="features-shell-suite"><a class="anchor" href="#features-shell-suite" aria-label="链接到「Shell 套件」">#</a>Shell 套件</h2><p>Kaku 自带一组 shell 插件，在 Kaku 会话里自动加载。</p>
           <p><strong>Zsh 插件（内置）</strong></p>

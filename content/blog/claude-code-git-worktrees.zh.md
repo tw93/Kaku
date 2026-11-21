@@ -99,7 +99,14 @@ claude --worktree feature-auth --resume
 kaku cli split-pane -- bash -c "claude --worktree feature-auth"
 ```
 
-`config.restore_previous_session` 默认是 true，下次打开会把标签和窗格带回来，窗口、标签或窗格一打开或关掉，一分钟内会把布局存下来，崩溃或者强制退出也在这个范围里。跑着 Claude Code 的窗格回来时还留着最后一屏，能看出对话停在哪里。Kaku 0.25.0 及以上配 Claude Code 2.1.295 及以上不用任何设置，Claude Code 在等你、做完了或者失败了，后台标签上都会出现一个点，更早的版本把[通知渠道](/zh/blog/claude-code-notifications)设成 `ghostty`，等你和做完这两种状态也会点亮同一个点。
+`split-pane` 会打印新窗格的 id，脚本可以把一个 worktree 交给 agent，再等它干完，Kaku 0.29.0 及以上的 `kaku cli wait` 读的是 Claude Code 2.1.295 及以上上报的状态，结束时打印是哪个状态让它停下，超时就以 2 退出：
+
+```bash
+pane=$(kaku cli split-pane --right -- bash -c "claude --worktree feature-auth 'add tests for token refresh'")
+kaku cli wait --pane-id "$pane" --for done,blocked,error --timeout 30m
+```
+
+`config.restore_previous_session` 默认是 true，下次打开会把标签和窗格带回来，窗口、标签或窗格一打开或关掉，一分钟内会把布局存下来，崩溃或者强制退出也在这个范围里。跑着 Claude Code 的窗格回来时还留着最后一屏，能看出对话停在哪里。Kaku 0.25.0 及以上配 Claude Code 2.1.295 及以上不用任何设置，Claude Code 在等你、做完了或者失败了，后台标签上都会出现一个点，更早的版本把[通知渠道](/zh/blog/claude-code-notifications)设成 `ghostty`，等你和做完这两种状态也会点亮同一个点。Kaku 0.29.0 及以上按 `Cmd + J` 会跳到下一个亮着点的标签，并切到点亮它的那个窗格，一个 worktree 一个 agent 时，正在等你的那个一个键就到。
 
 ## 常见问题
 

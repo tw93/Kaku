@@ -43,7 +43,7 @@ Without that setting, it falls back to VS Code if found, then `$VISUAL` and `$ED
 
 Agent sessions run for hours, and the terminal will restart in that time, for an update if nothing else. Two layers matter here. Claude Code keeps the conversation itself, and `claude --continue` picks up the most recent one in the current directory. The terminal has to keep everything around it: which tabs and splits you had, which directory each pane was in, and what was on screen.
 
-Kaku saves the window layout while it runs and restores tabs and splits when it starts again. For panes that were running Claude Code or Codex, it also keeps the last screen, so before you resume you can see where each conversation stopped.
+Kaku saves the window layout while it runs and restores tabs and splits when it starts again. For panes that were running Claude Code or Codex, it also keeps the last screen, so before you resume you can see where each conversation stopped. The update itself is safe to interrupt: since 0.28.0, Restart to Update always leaves a working Kaku.app in Applications, even when it stops halfway.
 
 Closing by accident is the other half. In Kaku, closing a pane or tab whose foreground program is Claude Code, Codex, an editor or a build asks for confirmation first, while a plain shell closes without a prompt.
 
@@ -53,7 +53,7 @@ Once one session works, the next step is two: one agent refactoring while anothe
 
 ## Picking up from another computer
 
-Sometimes the session is on the Mac at your desk and you are not. Anthropic offers Remote Control, which lets you steer a running Claude Code session from claude.ai or the Claude app on a paid plan, and cloud sessions that run on Anthropic's machines instead of yours. Kaku has `kaku remote`, which opens the Mac's terminals in a desktop browser on another computer, including every pane that is already running Claude Code. The [CLI reference](/docs/cli#cli-kaku-remote) covers pairing.
+Sometimes the session is on the Mac at your desk and you are not. Anthropic offers Remote Control, which lets you steer a running Claude Code session from claude.ai or the Claude app on a paid plan, and cloud sessions that run on Anthropic's machines instead of yours. Kaku has `kaku remote`, which opens the Mac's terminals in a browser on another computer or a phone, including every pane that is already running Claude Code. The [CLI reference](/docs/cli#cli-kaku-remote) covers pairing.
 
 ## How common terminals compare
 

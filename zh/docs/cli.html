@@ -110,14 +110,14 @@
           <h2 id="cli-kaku-doctor"><a class="anchor" href="#cli-kaku-doctor" aria-label="链接到「kaku doctor」">#</a>kaku doctor</h2><p>检查 app bundle、PATH 和 shell 集成，并在本地生成一份脱敏的诊断包（.zip），提 issue 时可以直接附上。加上 <code>--fix</code> 可以自动安全修复常见问题。</p>
           <pre><code class="language-bash">kaku doctor
 kaku doctor --fix</code></pre>
-          <h2 id="cli-kaku-remote"><a class="anchor" href="#cli-kaku-remote" aria-label="链接到「kaku remote」">#</a>kaku remote</h2><p>在另一台电脑的桌面浏览器里使用这台 Mac 的终端，经 Kaku 的中继连接。远程访问默认关闭，需要自己开启。</p>
+          <h2 id="cli-kaku-remote"><a class="anchor" href="#cli-kaku-remote" aria-label="链接到「kaku remote」">#</a>kaku remote</h2><p>在另一台电脑或手机的浏览器里使用这台 Mac 的终端，经 Kaku 的中继连接。远程访问默认关闭，需要自己开启。</p>
           <pre><code class="language-bash">kaku remote               <span class="tok-c"># turn remote access on (asks first) and print a pairing link
 </span>kaku remote devices       <span class="tok-c"># list paired browsers
 </span>kaku remote revoke &lt;id&gt;   <span class="tok-c"># remove a browser; its open sessions end within seconds
 </span>kaku remote off           <span class="tok-c"># turn remote access off
 </span>kaku remote --reset       <span class="tok-c"># new identity, every paired browser removed
 </span></code></pre>
-          <p>在要配对的浏览器里打开链接即可。每个链接只能用一次，10 分钟内有效，每配对一个浏览器就重新运行一次 <code>kaku remote</code>。配对后把页面加入书签，浏览器会保存自己的密钥，之后不用新链接也能回来。输入和显示的内容在浏览器与 Kaku 之间加密，中继只负责转发。有新浏览器配对时，Kaku 会发一条通知。</p>
+          <p>在要配对的浏览器里打开链接，确认页面和 <code>kaku remote</code> 显示的六位数字一致，再在终端里按 Enter 放行，按 Ctrl+C 则拒绝。每个链接只能用一次，10 分钟内有效，每配对一个浏览器就重新运行一次 <code>kaku remote</code>。配对后把页面加入书签，浏览器会保存自己的密钥，之后不用新链接也能回来。输入和显示的内容在浏览器与 Kaku 之间加密，中继只负责转发。已配对的浏览器隔了 30 分钟以上再连回来时，Kaku 会发一条通知。</p>
           <h2 id="cli-kaku-update"><a class="anchor" href="#cli-kaku-update" aria-label="链接到「kaku update」">#</a>kaku update</h2><p>下载并安装最新的 Kaku 版本。</p>
           <pre><code class="language-bash">kaku update</code></pre>
           <p>运行 <code>kaku --version</code> 可以查看已安装的版本，想查图形程序的版本又不想开窗口，可以运行 <code>/Applications/Kaku.app/Contents/MacOS/kaku-gui --version</code>。</p>
@@ -134,6 +134,12 @@ kaku doctor --fix</code></pre>
 </span>kaku cli --help                              <span class="tok-c"># list all subcommands
 </span>kaku cli split-pane --help                   <span class="tok-c"># help for a specific subcommand
 </span></code></pre>
+          <p>Kaku 0.29.0 起，<code>kaku cli wait</code> 和 <code>kaku cli events</code> 可以读取 Claude Code（2.1.295 及以上）和 Codex（0.163 及以上）上报的状态，共有 <code>working</code>、<code>blocked</code>（等你处理）、<code>done</code>、<code>error</code> 和 <code>idle</code> 五种。</p>
+          <pre><code class="language-bash">kaku cli <span class="tok-b">wait</span> --pane-id <span class="tok-n">5</span> --for <span class="tok-k">done</span>,blocked,error --timeout 20m  <span class="tok-c"># until pane 5 finishes, needs you or fails
+</span>kaku cli events --for blocked --once                              <span class="tok-c"># stop at the first pane that needs you
+</span>kaku cli events --json                                            <span class="tok-c"># one JSON line per state change
+</span></code></pre>
+          <p><code>wait</code> 结束时打印让它停下的状态并以 0 退出，超时以 2 退出，连不上 Kaku 或窗格不存在时以 1 退出，加上 <code>--next</code> 可以跳过 agent 上一轮留下的 <code>done</code>。</p>
           <nav class="doc-pager" aria-label="Pagination"><a href="/zh/docs/ai-coding"><span>上一页</span><strong>AI 编程工具</strong></a><a href="/zh/docs/configuration"><span>下一页</span><strong>配置</strong></a></nav>
         </article>
       </div>

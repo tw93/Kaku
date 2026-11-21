@@ -6,7 +6,7 @@ There are three ways to keep working with Claude Code when you are away from the
 |---|---|---|---|
 | Where Claude runs | Your Mac | Anthropic's machines | Your Mac |
 | What you see | The Claude conversation | The Claude conversation | The whole terminal |
-| Where you use it | claude.ai/code, the Claude app | claude.ai/code, the Claude app, the CLI | A desktop browser |
+| Where you use it | claude.ai/code, the Claude app | claude.ai/code, the Claude app, the CLI | A browser on a computer or phone |
 | What it needs | A paid Claude plan, the Mac awake | A paid Claude plan, a GitHub repository | Kaku running, the Mac awake |
 | Other programs | No | No | Yes, any shell, editor or agent |
 
@@ -44,9 +44,9 @@ Turn it on and pair a browser:
 kaku remote
 ```
 
-Kaku asks before turning remote access on, then prints a pairing link. Open it in the browser you want to pair. A link works once and expires after 10 minutes, so run `kaku remote` again for each device. Once paired, bookmark the page to return to it without a new link.
+Kaku asks before turning remote access on, then prints a pairing link. Open it in the browser you want to pair, check that the page and the terminal show the same six-digit code, and press Enter in the terminal to let that browser in, or Ctrl+C to refuse it. A link works once and expires after 10 minutes, so run `kaku remote` again for each device. Once paired, bookmark the page to return to it without a new link.
 
-What you type and what you see is encrypted between that browser and Kaku, and the relay in the middle only forwards it. Kaku posts a notification on your Mac whenever a new browser pairs, so a pairing you did not make does not go unnoticed. Managing access stays on the Mac:
+What you type and what you see is encrypted between that browser and Kaku, and the relay in the middle only forwards it. Because a new browser needs that Enter at the Mac, a link that leaks through a screenshot or saved scrollback is useless on its own, and Kaku posts a notification when a paired browser connects again after 30 minutes or more away. Managing access stays on the Mac:
 
 ```bash
 kaku remote devices        # list paired browsers
@@ -55,7 +55,7 @@ kaku remote off            # turn remote access off
 kaku remote --reset        # remove every paired browser
 ```
 
-The page is made for desktop browsers for now. Like Remote Control, it reaches your actual Mac, so the Mac needs to be awake with Kaku running.
+The page works in a desktop browser and, since Kaku 0.29.0, has its own layout on a phone: tabs sit in a side drawer that shows each agent's topic and status, the key row gives you Esc, the arrow keys, Tab, Shift + Tab and Ctrl + C, and the keyboard comes up only from the keyboard key at the start of that row, so scrolling the terminal does not raise it. There is no QR code for pairing, so get the link onto the phone yourself, for example with AirDrop, and open it there. Like Remote Control, it reaches your actual Mac, so the Mac needs to be awake with Kaku running.
 
 ## Which one to use
 
@@ -69,7 +69,7 @@ They also combine. A session started with `claude --remote-control` inside Kaku 
 
 ### Can I use Claude Code from my phone?
 
-Yes. Start the session with `claude --remote-control` on your Mac, then open it in the Claude app or at claude.ai/code. Cloud sessions can also be started and followed from the app.
+Yes. Start the session with `claude --remote-control` on your Mac, then open it in the Claude app or at claude.ai/code. Cloud sessions can also be started and followed from the app. To use the whole terminal instead of one conversation, open a paired `kaku remote` page in the phone's browser, which has a phone layout since Kaku 0.29.0.
 
 ### Does Claude Code keep running if I close my laptop?
 

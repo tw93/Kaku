@@ -52,7 +52,7 @@ When Kaku restarts, for example to install an update, your tabs and splits come 
 
 ## From Another Computer
 
-Run `kaku remote` to use the same terminals, including agents that are already running, from a desktop browser on another computer. Pairing and commands are in the [CLI reference](https://kaku.fun/docs/cli#cli-kaku-remote).
+Run `kaku remote` to use the same terminals, including agents that are already running, from a browser on another computer or a phone. Pairing and commands are in the [CLI reference](https://kaku.fun/docs/cli#cli-kaku-remote).
 
 ## Kaku Assistant
 

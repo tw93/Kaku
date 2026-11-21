@@ -52,7 +52,7 @@ Kaku 0.25.0 sets `TERM_PROGRAM` to `Kaku`, and Kaku is not one of the split-pane
 
 In Kaku, set `teammateMode` to `auto` or `tmux`, then run `claude` inside tmux. `which tmux` checks `PATH`. `tmux` with no arguments creates a one-window session. `tmux ls` lists a session left behind, and `tmux kill-session -t <session-name>` ends it.
 
-`Cmd + D`, `Cmd + Shift + D`, and `Cmd + Shift + Enter` on the [AI coding page](/docs/ai-coding) split and zoom Kaku panes. Claude Code does not place teammates in them. They are for sessions you start yourself.
+`Cmd + D`, `Cmd + Shift + D`, and `Cmd + Shift + Enter` on the [AI coding page](/docs/ai-coding) split and zoom Kaku panes. Claude Code does not place teammates in them. They are for sessions you start yourself. With one such session per tab, Claude Code 2.1.295 or later lights a dot on a background tab when it is waiting, done or failed, and on Kaku 0.29.0 or later `Cmd + J` jumps to the next tab whose dot is lit.
 
 With a transcript open, plain text and skills go to that teammate, and built-in commands go to the lead. `/compact`, `/clear`, and `/rewind` affect the lead, so Claude Code asks first. `/model` and `/fast` do not run here. Model and fast mode are fixed at spawn, so name the model in the prompt. Otherwise `CLAUDE_CODE_SUBAGENT_MODEL` applies when it is not `inherit`. A leftover `teammateDefaultModel` is ignored since v2.1.234.
 

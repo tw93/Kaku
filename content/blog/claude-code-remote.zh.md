@@ -6,7 +6,7 @@
 |---|---|---|---|
 | Claude 跑在哪 | 你的 Mac | Anthropic 的机器 | 你的 Mac |
 | 你看到的 | Claude 的对话 | Claude 的对话 | 整个终端 |
-| 在哪用 | claude.ai/code、Claude App | claude.ai/code、Claude App、命令行 | 桌面浏览器 |
+| 在哪用 | claude.ai/code、Claude App | claude.ai/code、Claude App、命令行 | 电脑或手机上的浏览器 |
 | 需要什么 | Claude 付费套餐，Mac 醒着 | Claude 付费套餐，GitHub 仓库 | Kaku 开着，Mac 醒着 |
 | 其他程序 | 看不到 | 看不到 | 都在，shell、编辑器、别的 agent |
 
@@ -44,9 +44,9 @@ claude --cloud "fix the flaky login test"
 kaku remote
 ```
 
-Kaku 会先问一句再打开远程访问，然后给出一个配对链接，在要配对的那个浏览器里打开它，链接只能用一次，10 分钟后失效，所以每台设备都要重新跑一次 `kaku remote`，配对之后把页面加进书签，下次直接回来，不用新链接。
+Kaku 会先问一句再打开远程访问，然后给出一个配对链接，在要配对的那个浏览器里打开它，确认页面和终端里显示的六位数字一样，再回到终端按 Enter 放它进来，按 Ctrl+C 就是拒绝，链接只能用一次，10 分钟后失效，所以每台设备都要重新跑一次 `kaku remote`，配对之后把页面加进书签，下次直接回来，不用新链接。
 
-你输入的和看到的内容在这个浏览器和 Kaku 之间是加密的，中间的中继只负责转发，每当有新的浏览器配对，Kaku 都会在 Mac 上发一条通知，不是你配的，你也能马上发现，访问管理都在 Mac 这边：
+你输入的和看到的内容在这个浏览器和 Kaku 之间是加密的，中间的中继只负责转发，新浏览器非得有人在 Mac 前按下这个 Enter 才进得来，链接就算随截图或者滚动记录漏出去也没用，已经配对的浏览器隔了 30 分钟以上再连回来，Kaku 会在 Mac 上发一条通知，访问管理都在 Mac 这边：
 
 ```bash
 kaku remote devices        # 列出已配对的浏览器
@@ -55,7 +55,7 @@ kaku remote off            # 关掉远程访问
 kaku remote --reset        # 移除所有已配对的浏览器
 ```
 
-这个页面目前是给桌面浏览器做的，和 Remote Control 一样，它连的是你真正的那台 Mac，所以 Mac 要醒着，Kaku 要开着。
+这个页面在电脑浏览器里能用，Kaku 0.29.0 起手机上也有了自己的布局，标签收进侧边抽屉，每个 agent 的话题和状态都列在里面，快捷键栏里有 Esc、方向键、Tab、Shift + Tab 和 Ctrl + C，键盘只从这一栏最前面的键盘按钮弹出来，滑动终端时不会再弹。配对没有二维码，链接得自己弄到手机上，比如用隔空投送发过去再打开，和 Remote Control 一样，它连的是你真正的那台 Mac，所以 Mac 要醒着，Kaku 要开着。
 
 ## 该用哪个
 
@@ -69,7 +69,7 @@ kaku remote --reset        # 移除所有已配对的浏览器
 
 ### 能在手机上用 Claude Code 吗？
 
-可以，在 Mac 上用 `claude --remote-control` 开会话，再到 Claude App 或 claude.ai/code 里打开它，云端会话也能在 App 里开和跟进。
+可以，在 Mac 上用 `claude --remote-control` 开会话，再到 Claude App 或 claude.ai/code 里打开它，云端会话也能在 App 里开和跟进，想用整个终端而不只是一段对话，就在手机浏览器里打开配对过的 `kaku remote` 页面，Kaku 0.29.0 起它在手机上有专门的布局。
 
 ### 合上笔记本之后 Claude Code 还会跑吗？
 

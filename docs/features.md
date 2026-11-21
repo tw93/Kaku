@@ -145,7 +145,7 @@ Install the macOS [SSHFS cask](https://formulae.brew.sh/cask/sshfs-mac) with `br
 
 ## Remote Access
 
-Run `kaku remote` to use this Mac's terminals from a desktop browser on another computer. It asks before turning remote access on, then prints a link that pairs one browser; bookmark the page after pairing to come back.
+Run `kaku remote` to use this Mac's terminals from a browser on another computer or a phone. It asks before turning remote access on, then prints a link that pairs one browser; bookmark the page after pairing to come back. On a phone, tabs sit in a side drawer that shows each agent's topic and status, and the keyboard comes up only from the keyboard key in the key row, so scrolling does not raise it.
 
 The page has your tabs and splits, copy and paste, dropping files to upload them to the Mac, and Cmd+Click on a path to download it. What you type and see is encrypted between the browser and Kaku. Remote access is off by default. Commands are in the [CLI reference](https://kaku.fun/docs/cli#cli-kaku-remote).
 

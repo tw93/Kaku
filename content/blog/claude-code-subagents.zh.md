@@ -95,7 +95,7 @@ subagent 省的是上下文，不是钱，它自己发请求，跟主对话算�
 
 后台 subagent 会出现在 Claude Code 输入框下面的面板里，`/tasks` 也能列出来，其中哪个需要权限时，提示会出现在主会话里，并写明是哪个 subagent 在问，这时候主会话就停下来等你了。同时开好几个 Claude Code 会话时，可以每个放进 [Kaku](/zh/docs/ai-coding) 的一个标签，或者用 `Cmd + D` 和 `Cmd + Shift + D` 分屏，正在看的那个用 `Cmd + Shift + Enter` 放大，agent teams 的分屏显示需要 tmux 或 iTerm2，所以在不开 tmux 的 Kaku 里，队友会显示在 Claude Code 自己的那个面板里。
 
-Kaku 0.25.0 及以上配 Claude Code 2.1.295 及以上不用任何设置，更早的版本要在 `~/.claude/settings.json` 里设 `"preferredNotifChannel": "ghostty"`，原因写在 [Claude Code 通知](/zh/blog/claude-code-notifications)那篇。标签上的小点也是这样分的，0.25.0 之前靠 `ghostty` 通道在 Claude Code 等你或做完时亮起，0.25.0 起不用设置就会亮，还多了出错这一种状态。
+Kaku 0.25.0 及以上配 Claude Code 2.1.295 及以上不用任何设置，更早的版本要在 `~/.claude/settings.json` 里设 `"preferredNotifChannel": "ghostty"`，原因写在 [Claude Code 通知](/zh/blog/claude-code-notifications)那篇。标签上的小点也是这样分的，0.25.0 之前靠 `ghostty` 通道在 Claude Code 等你或做完时亮起，0.25.0 起不用设置就会亮，还多了出错这一种状态，0.29.0 起按 `Cmd + J` 能直接跳到下一个亮着点的标签。
 
 ## 常见问题
 

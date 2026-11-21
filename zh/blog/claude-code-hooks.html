@@ -16,7 +16,7 @@
   <meta property="og:image:alt" content="Claude Code hooks 实用指南">
   <meta property="og:url" content="https://kaku.fun/zh/blog/claude-code-hooks">
   <meta property="article:published_time" content="2026-10-03">
-  <meta property="article:modified_time" content="2026-10-19">
+  <meta property="article:modified_time" content="2026-11-21">
   <meta property="article:author" content="Tw93">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:image" content="https://kaku.fun/img/blog/cards/claude-code-hooks.webp">
@@ -66,7 +66,7 @@
       "url": "https://kaku.fun/zh/blog/claude-code-hooks",
       "mainEntityOfPage": "https://kaku.fun/zh/blog/claude-code-hooks",
       "datePublished": "2026-10-03",
-      "dateModified": "2026-10-19",
+      "dateModified": "2026-11-21",
       "inLanguage": "zh-CN",
       "articleSection": "Claude Code 与 Codex",
       "image": "https://kaku.fun/img/blog/cards/claude-code-hooks.webp",
@@ -148,7 +148,7 @@
   <a class="skip-link" href="#main-content">跳到内容</a>
   <nav class="site-nav" aria-label="主导航"><div class="wide nav-inner"><a class="brand" href="/zh"><strong>Kaku</strong></a><div class="nav-links"><a href="/zh/docs">文档</a><a href="/zh/compare">对比</a><a href="/zh/changelog">更新日志</a><a href="/zh/blog" aria-current="page">博客</a></div><div class="nav-actions"><details class="lang-switch"><summary class="lang-trigger" aria-label="切换语言"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/></svg><span class="lang-current-code" aria-hidden="true">中</span><span class="lang-current-name">简体中文</span></summary><div class="lang-menu"><a class="lang-option" aria-current="page" href="/zh/blog/claude-code-hooks" hreflang="zh-CN">简体中文</a><a class="lang-option" href="/blog/claude-code-hooks" hreflang="en">English</a></div></details><script src="/navigation.js" defer></script><a class="nav-icon" href="https://github.com/tw93/Kaku" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a><a class="nav-icon" href="https://x.com/HiTw93" target="_blank" rel="noopener noreferrer" aria-label="X"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a></div></div></nav>
   <main id="main-content" class="docs-page blog-page">
-    <header class="page-hero doc-hero blog-hero"><div class="wide"><nav class="blog-crumb" aria-label="Breadcrumb"><a href="/zh/blog">博客</a></nav><h1>Claude Code hooks 实用指南</h1><p class="blog-meta"><span><a href="/zh/blog#topic-agents">Claude Code 与 Codex</a></span><span>发布于 <time datetime="2026-10-03">2026年10月3日</time></span><span>更新于 <time datetime="2026-10-19">2026年10月19日</time></span><span>约 8 分钟</span></p></div></header>
+    <header class="page-hero doc-hero blog-hero"><div class="wide"><nav class="blog-crumb" aria-label="Breadcrumb"><a href="/zh/blog">博客</a></nav><h1>Claude Code hooks 实用指南</h1><p class="blog-meta"><span><a href="/zh/blog#topic-agents">Claude Code 与 Codex</a></span><span>发布于 <time datetime="2026-10-03">2026年10月3日</time></span><span>更新于 <time datetime="2026-11-21">2026年11月21日</time></span><span>约 8 分钟</span></p></div></header>
     <section class="section">
       <div class="wide">
         <article class="doc-content blog-article">
@@ -317,6 +317,9 @@ jq -nc --arg seq <span class="tok-s">"</span>$seq<span class="tok-s">"</span> <s
 <p>Kaku 不会往你的 agent 里加 hook，也不会加指令，<code>kaku ai</code> 只有你在那里改某个工具的设置时才会动它，你自己写的字段会留着。</p>
 <p>Claude Code 自带的提醒是另一路开关，Kaku 0.25.0 及以上配 Claude Code 2.1.295 及以上不用任何设置，更早的版本要在 <code>~/.claude/settings.json</code> 里设上 <code>"preferredNotifChannel": "ghostty"</code>，见<a href="/zh/blog/claude-code-notifications">Claude Code 通知</a>。</p>
 <p>Stop 脚本和这条通道是分开的，它让 Claude Code 写出 OSC 777，也就是允许的那几种里 Ghostty 用的通知。Kaku 0.25.0 及以上配 Claude Code 2.1.295 及以上时，Claude 做完的时候 Kaku 本来就会提醒，再挂这个 Stop hook 会多出一条通知，所以它适合更早的版本或者别的终端。OSC 9 也在允许的那几种里，Codex 设了 <code>notification_method = "osc9"</code> 时，Kaku 会把它显示成工具自己写的那条消息。</p>
+<p>要在会话之外的脚本里接住 Claude 做完这件事，不用 hook 也行，Kaku 0.29.0 及以上的 <code>kaku cli events</code> 读的是 Claude Code 2.1.295 及以上上报的状态，哪个窗格状态一变就打印一行：</p>
+<pre><code class="language-bash">kaku cli events --for <span class="tok-k">done</span>,blocked --json</code></pre>
+<p>每行是一个 JSON 对象，带 <code>pane_id</code>、<code>title</code>、<code>from</code> 和 <code>to</code>，加 <code>--once</code> 碰到第一条匹配就退出，只盯一个窗格就用 <code>kaku cli wait --pane-id &lt;id&gt;</code>。</p>
 <h2 id="常见问题">常见问题</h2>
 <h3 id="退出码-0-算不算放行">退出码 0 算不算放行？</h3>
 <p>不算，<code>PreToolUse</code> 返回 0 时原来的权限检查还在，要跳过询问，得在 <code>hookSpecificOutput</code> 里写上 <code>"permissionDecision": "allow"</code>，再以 0 退出，拒绝规则仍然生效。</p>

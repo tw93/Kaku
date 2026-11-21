@@ -1,4 +1,4 @@
-There is no single best terminal for Mac, but the choice gets simple once you know what you want from it. If you want nothing to install, keep Terminal.app. If you want every feature behind a settings window, use iTerm2. Ghostty is the fast, native pick with a plain text config, WezTerm suits people who want to script their terminal in Lua on every platform, and Warp builds an agent into the terminal. Kaku, which I make, is WezTerm reshaped for macOS and AI coding CLIs, set up from the first launch. The rest of this post explains each one and where it falls short, with versions and prices checked on 2026-10-17.
+There is no single best terminal for Mac, but the choice gets simple once you know what you want from it. If you want nothing to install, keep Terminal.app. If you want every feature behind a settings window, use iTerm2. Ghostty is the fast, native pick with a plain text config, WezTerm suits people who want to script their terminal in Lua on every platform, and Warp builds an agent into the terminal. Kaku, which I make, is WezTerm reshaped for macOS and AI coding CLIs, set up from the first launch. The rest of this post explains each one and where it falls short, with versions and prices checked on 2026-10-17 and Kaku's version updated on 2026-11-21.
 
 [[figure:mac-terminal-picker|A mapping from what you want to which terminal to start with: nothing to install leads to Terminal.app, every feature in a GUI to iTerm2, fast and native with a text config to Ghostty, Lua on every platform to WezTerm, an agent built in to Warp, ready for AI coding CLIs to Kaku|Start from what you want, not from a feature list.]]
 
@@ -13,7 +13,7 @@ There is no single best terminal for Mac, but the choice gets simple once you kn
 | Warp | Rolling | AGPL-3.0 client | Free plan, paid plans from $20 a month | Settings window | Yes |
 | Kitty | 0.49.2 | GPL-3.0 | Free | Text file | Yes |
 | Alacritty | 0.17.0 | Apache-2.0 | Free | TOML file | No |
-| Kaku | 0.25.0 | MIT | Free | Lua | Yes |
+| Kaku | 0.30.0 | MIT | Free | Lua | Yes |
 
 ## Terminal.app
 

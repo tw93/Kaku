@@ -16,7 +16,7 @@
   <meta property="og:image:alt" content="终端模拟器是怎么工作的">
   <meta property="og:url" content="https://kaku.fun/zh/blog/how-terminal-emulators-work">
   <meta property="article:published_time" content="2026-10-16">
-  <meta property="article:modified_time" content="2026-11-01">
+  <meta property="article:modified_time" content="2026-11-21">
   <meta property="article:author" content="Tw93">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:image" content="https://kaku.fun/img/blog/cards/how-terminal-emulators-work.webp">
@@ -66,7 +66,7 @@
       "url": "https://kaku.fun/zh/blog/how-terminal-emulators-work",
       "mainEntityOfPage": "https://kaku.fun/zh/blog/how-terminal-emulators-work",
       "datePublished": "2026-10-16",
-      "dateModified": "2026-11-01",
+      "dateModified": "2026-11-21",
       "inLanguage": "zh-CN",
       "articleSection": "终端",
       "image": "https://kaku.fun/img/blog/cards/how-terminal-emulators-work.webp",
@@ -111,7 +111,7 @@
           "name": "退格为什么是 DEL？",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "退格编成 0x7f，stty -a 里它记在 erase 上。BS 是 0x08，这条路径只有按住 Control 时才把退格编成 BS。远程 terminfo 如果指望 BS，删字的方向会对不上，直到两边一致。"
+            "text": "退格编成 0x7f，stty -a 里它记在 erase 上。BS 是 0x08，这条路径只有按住 Control 时才把退格编成 BS。远程 terminfo 如果指望 BS，删字的方向会对不上，直到两边一致。icanon 开着时，没有 iutf8 这个标志的话，内核每次退格只删一个字节，macOS 新开的 pty 默认是 -iutf8，Kaku 0.30.0 起给每个窗格都打开了它，所以在 read、cat 里退格会删掉整个中文字符或表情，不再留下残缺字节。"
           }
         },
         {
@@ -140,7 +140,7 @@
   <a class="skip-link" href="#main-content">跳到内容</a>
   <nav class="site-nav" aria-label="主导航"><div class="wide nav-inner"><a class="brand" href="/zh"><strong>Kaku</strong></a><div class="nav-links"><a href="/zh/docs">文档</a><a href="/zh/compare">对比</a><a href="/zh/changelog">更新日志</a><a href="/zh/blog" aria-current="page">博客</a></div><div class="nav-actions"><details class="lang-switch"><summary class="lang-trigger" aria-label="切换语言"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/></svg><span class="lang-current-code" aria-hidden="true">中</span><span class="lang-current-name">简体中文</span></summary><div class="lang-menu"><a class="lang-option" aria-current="page" href="/zh/blog/how-terminal-emulators-work" hreflang="zh-CN">简体中文</a><a class="lang-option" href="/blog/how-terminal-emulators-work" hreflang="en">English</a></div></details><script src="/navigation.js" defer></script><a class="nav-icon" href="https://github.com/tw93/Kaku" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a><a class="nav-icon" href="https://x.com/HiTw93" target="_blank" rel="noopener noreferrer" aria-label="X"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a></div></div></nav>
   <main id="main-content" class="docs-page blog-page">
-    <header class="page-hero doc-hero blog-hero"><div class="wide"><nav class="blog-crumb" aria-label="Breadcrumb"><a href="/zh/blog">博客</a></nav><h1>终端模拟器是怎么工作的</h1><p class="blog-meta"><span><a href="/zh/blog#topic-terminal">终端</a></span><span>发布于 <time datetime="2026-10-16">2026年10月16日</time></span><span>更新于 <time datetime="2026-11-01">2026年11月1日</time></span><span>约 10 分钟</span></p></div></header>
+    <header class="page-hero doc-hero blog-hero"><div class="wide"><nav class="blog-crumb" aria-label="Breadcrumb"><a href="/zh/blog">博客</a></nav><h1>终端模拟器是怎么工作的</h1><p class="blog-meta"><span><a href="/zh/blog#topic-terminal">终端</a></span><span>发布于 <time datetime="2026-10-16">2026年10月16日</time></span><span>更新于 <time datetime="2026-11-21">2026年11月21日</time></span><span>约 10 分钟</span></p></div></header>
     <section class="section">
       <div class="wide">
         <article class="doc-content blog-article">
@@ -192,7 +192,7 @@ config.webgpu_power_preference = <span class="tok-s">'LowPower'</span></code></p
 <h3 id="tty-为什么会打出一个设备名">tty 为什么会打出一个设备名？</h3>
 <p>它打出的是 <code>openpty</code> 给这个窗格分的 replica，这个节点表现得像终端，<code>/dev/ttys</code> 后面并没有串口。</p>
 <h3 id="退格为什么是-del">退格为什么是 DEL？</h3>
-<p>退格编成 <code>0x7f</code>，<code>stty -a</code> 里它记在 <code>erase</code> 上。BS 是 <code>0x08</code>，这条路径只有按住 Control 时才把退格编成 BS。远程 terminfo 如果指望 BS，删字的方向会对不上，直到两边一致。</p>
+<p>退格编成 <code>0x7f</code>，<code>stty -a</code> 里它记在 <code>erase</code> 上。BS 是 <code>0x08</code>，这条路径只有按住 Control 时才把退格编成 BS。远程 terminfo 如果指望 BS，删字的方向会对不上，直到两边一致。<code>icanon</code> 开着时，没有 <code>iutf8</code> 这个标志的话，内核每次退格只删一个字节，macOS 新开的 pty 默认是 <code>-iutf8</code>，Kaku 0.30.0 起给每个窗格都打开了它，所以在 <code>read</code>、<code>cat</code> 里退格会删掉整个中文字符或表情，不再留下残缺字节。</p>
 <h3 id="gpu-会改变程序能打出什么吗">GPU 会改变程序能打出什么吗？</h3>
 <p>用 <code>WebGpu</code> 时，Kaku 在网格更新之后经 Metal 把字形画出来。程序发的仍是 <code>xterm-256color</code> 里的序列，前端选的是怎么生成像素，pty 和解析器不动。</p>
 <h3 id="全屏程序里的回滚去哪了">全屏程序里的回滚去哪了？</h3>

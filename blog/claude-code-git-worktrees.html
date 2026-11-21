@@ -16,7 +16,7 @@
   <meta property="og:image:alt" content="Run Several Claude Code Sessions at Once with Git Worktrees">
   <meta property="og:url" content="https://kaku.fun/blog/claude-code-git-worktrees">
   <meta property="article:published_time" content="2026-10-07">
-  <meta property="article:modified_time" content="2026-10-20">
+  <meta property="article:modified_time" content="2026-11-21">
   <meta property="article:author" content="Tw93">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:image" content="https://kaku.fun/img/blog/cards/claude-code-git-worktrees.webp">
@@ -64,11 +64,11 @@
       "url": "https://kaku.fun/blog/claude-code-git-worktrees",
       "mainEntityOfPage": "https://kaku.fun/blog/claude-code-git-worktrees",
       "datePublished": "2026-10-07",
-      "dateModified": "2026-10-20",
+      "dateModified": "2026-11-21",
       "inLanguage": "en",
       "articleSection": "Claude Code and Codex",
       "image": "https://kaku.fun/img/blog/cards/claude-code-git-worktrees.webp",
-      "timeRequired": "PT7M",
+      "timeRequired": "PT8M",
       "author": {
         "@type": "Person",
         "name": "Tw93",
@@ -146,7 +146,7 @@
   <a class="skip-link" href="#main-content">Skip to content</a>
   <nav class="site-nav" aria-label="Primary navigation"><div class="wide nav-inner"><a class="brand" href="/"><strong>Kaku</strong></a><div class="nav-links"><a href="/docs">Docs</a><a href="/compare">Compare</a><a href="/changelog">Changelog</a><a href="/blog" aria-current="page">Blog</a></div><div class="nav-actions"><details class="lang-switch"><summary class="lang-trigger" aria-label="Choose a language"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/></svg><span class="lang-current-code" aria-hidden="true">EN</span><span class="lang-current-name">English</span></summary><div class="lang-menu"><a class="lang-option" href="/zh/blog/claude-code-git-worktrees" hreflang="zh-CN">简体中文</a><a class="lang-option" aria-current="page" href="/blog/claude-code-git-worktrees" hreflang="en">English</a></div></details><script src="/navigation.js" defer></script><a class="nav-icon" href="https://github.com/tw93/Kaku" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a><a class="nav-icon" href="https://x.com/HiTw93" target="_blank" rel="noopener noreferrer" aria-label="X"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a></div></div></nav>
   <main id="main-content" class="docs-page blog-page">
-    <header class="page-hero doc-hero blog-hero"><div class="wide"><nav class="blog-crumb" aria-label="Breadcrumb"><a href="/blog">Blog</a></nav><h1>Run Several Claude Code Sessions at Once with Git Worktrees</h1><p class="blog-meta"><span><a href="/blog#topic-agents">Claude Code and Codex</a></span><span>Published <time datetime="2026-10-07">Oct 7, 2026</time></span><span>Updated <time datetime="2026-10-20">Oct 20, 2026</time></span><span>7 min read</span></p></div></header>
+    <header class="page-hero doc-hero blog-hero"><div class="wide"><nav class="blog-crumb" aria-label="Breadcrumb"><a href="/blog">Blog</a></nav><h1>Run Several Claude Code Sessions at Once with Git Worktrees</h1><p class="blog-meta"><span><a href="/blog#topic-agents">Claude Code and Codex</a></span><span>Published <time datetime="2026-10-07">Oct 7, 2026</time></span><span>Updated <time datetime="2026-11-21">Nov 21, 2026</time></span><span>8 min read</span></p></div></header>
     <section class="section">
       <div class="wide">
         <article class="doc-content blog-article">
@@ -199,7 +199,10 @@ git worktree remove .claude/worktrees/feature-auth</code></pre>
 <p><code>Cmd + D</code> splits side by side, <code>Cmd + Shift + D</code> top and bottom, and <code>Cmd + Shift + Enter</code> zooms the pane. Closing a pane or tab asks first while Claude Code is in the foreground. Bundled <code>tab_close_confirmation</code> and <code>pane_close_confirmation</code> are <code>SmartPrompt</code>, and <code>Cmd + W</code> closes the active pane when the tab has several.</p>
 <p><a href="/docs/cli"><code>kaku start --new-tab</code></a> adds a tab to the current window. <code>kaku cli split-pane</code> splits the current pane and can run a command in the new one:</p>
 <pre><code class="language-bash">kaku cli split-pane -- bash -c <span class="tok-s">"claude --worktree feature-auth"</span></code></pre>
-<p><code>config.restore_previous_session</code> defaults to true, so the next launch reopens the tabs and panes. The layout is saved within a minute of opening or closing a window, tab, or pane, which covers a crash or force quit. A Claude Code pane comes back with its last screen, which shows where the conversation stopped. On Kaku 0.25.0 or later with Claude Code 2.1.295 or later, a background tab shows a dot when Claude Code is waiting, finished, or failed, with no setup. On earlier versions, the <code>ghostty</code> <a href="/blog/claude-code-notifications">notification channel</a> lights the same dot for waiting and finished.</p>
+<p><code>split-pane</code> prints the new pane's id, so a script can hand a worktree to an agent and wait for it. On Kaku 0.29.0 or later, <code>kaku cli wait</code> follows the status Claude Code 2.1.295 or later reports, prints the state that ended the wait, and exits 2 when the timeout runs out:</p>
+<pre><code class="language-bash">pane=<span class="tok-k">$(</span>kaku cli split-pane --right -- bash -c <span class="tok-s">"claude --worktree feature-auth 'add tests for token refresh'"</span><span class="tok-k">)</span>
+kaku cli <span class="tok-b">wait</span> --pane-id <span class="tok-s">"</span>$pane<span class="tok-s">"</span> --for <span class="tok-k">done</span>,blocked,error --timeout 30m</code></pre>
+<p><code>config.restore_previous_session</code> defaults to true, so the next launch reopens the tabs and panes. The layout is saved within a minute of opening or closing a window, tab, or pane, which covers a crash or force quit. A Claude Code pane comes back with its last screen, which shows where the conversation stopped. On Kaku 0.25.0 or later with Claude Code 2.1.295 or later, a background tab shows a dot when Claude Code is waiting, finished, or failed, with no setup. On earlier versions, the <code>ghostty</code> <a href="/blog/claude-code-notifications">notification channel</a> lights the same dot for waiting and finished. On Kaku 0.29.0 or later, <code>Cmd + J</code> jumps to the next tab whose dot is lit and focuses the pane that lit it, so with one agent per worktree the one waiting on you is a single key away.</p>
 <h2 id="faq">FAQ</h2>
 <h3 id="can-two-worktrees-check-out-the-same-branch">Can two worktrees check out the same branch?</h3>
 <p><code>git worktree add</code> refuses a branch that is already checked out. <code>--force</code> overrides that, and both <code>-b</code> and <code>claude --worktree</code> avoid it by creating a branch.</p>

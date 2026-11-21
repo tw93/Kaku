@@ -101,7 +101,7 @@ A few levers:
 
 Background subagents show up in the panel under Claude Code's prompt, and `/tasks` lists them. When one needs permission, the prompt surfaces in the main session and names the subagent that asked, so the session waits on you. When you run more than one Claude Code session, put each in its own [Kaku](/docs/ai-coding) tab, or split with `Cmd + D` and `Cmd + Shift + D` and zoom the one you are reading with `Cmd + Shift + Enter`. Agent teams' split-pane display needs tmux or iTerm2, so in Kaku without tmux, teammates show in Claude Code's own in-process panel.
 
-Notifications require no extra configuration on Kaku 0.25.0 or later with Claude Code 2.1.295 or later. Earlier versions require `"preferredNotifChannel": "ghostty"` in `~/.claude/settings.json`; [Claude Code notifications](/blog/claude-code-notifications) explains why. The tab status dot follows the same version cutoff: before 0.25.0, the `ghostty` channel lit it when Claude Code waited or finished, while 0.25.0 lights it without setup and adds the failed state.
+Notifications require no extra configuration on Kaku 0.25.0 or later with Claude Code 2.1.295 or later. Earlier versions require `"preferredNotifChannel": "ghostty"` in `~/.claude/settings.json`; [Claude Code notifications](/blog/claude-code-notifications) explains why. The tab status dot follows the same version cutoff: before 0.25.0, the `ghostty` channel lit it when Claude Code waited or finished, while 0.25.0 lights it without setup and adds the failed state. On 0.29.0 or later, `Cmd + J` jumps to the next tab whose dot is lit.
 
 ## FAQ
 

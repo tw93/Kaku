@@ -52,7 +52,7 @@ Kaku 0.25.0 给自己启动的 shell 设置 `TERM_PROGRAM=Kaku`，Kaku 也不在
 
 在 Kaku 里要分屏队友，把 `teammateMode` 设成 `auto` 或 `tmux`，再在 tmux 里运行 `claude`。`which tmux` 用来确认 `PATH`。不带参数运行 `tmux` 会建一个只有一个窗口的会话。Claude Code 退出后若 tmux 会话还在，`tmux ls` 能列出来，`tmux kill-session -t <session-name>` 把它结束。
 
-[AI 编程这一页](/zh/docs/ai-coding) 上的 `Cmd + D` 是垂直分屏，`Cmd + Shift + D` 是水平分屏，`Cmd + Shift + Enter` 放大正在看的窗格。这些是 Kaku 自己的窗格，Claude Code 不会把队友放进去，适合你自己另开的会话。
+[AI 编程这一页](/zh/docs/ai-coding) 上的 `Cmd + D` 是垂直分屏，`Cmd + Shift + D` 是水平分屏，`Cmd + Shift + Enter` 放大正在看的窗格。这些是 Kaku 自己的窗格，Claude Code 不会把队友放进去，适合你自己另开的会话，一个标签放一个会话的话，Claude Code 2.1.295 及以上在等你、做完或出错时，后台标签上会亮一个点，Kaku 0.29.0 及以上按 `Cmd + J` 就跳到下一个亮着点的标签。
 
 进程内记录打开时，普通文字和 skills 发给这个队友，内置命令发给 lead。`/compact`、`/clear`、`/rewind` 改的是 lead 的对话，所以会先问你。`/model` 和 `/fast` 在这个视图里不会执行。队友的模型和 fast mode 在启动时就定了，要指定就写在启动提示里，否则在 `CLAUDE_CODE_SUBAGENT_MODEL` 不是 `inherit` 时用这个变量。v2.1.234 起，设置里残留的 `teammateDefaultModel` 会被忽略。
 

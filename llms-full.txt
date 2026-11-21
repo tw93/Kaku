@@ -47,7 +47,7 @@ Full page: https://kaku.fun/docs/ai-coding
 - Prompts: Shift+Enter and Cmd+Enter insert a newline. Cmd+Click opens links and paths such as `src/main.rs:42:7` at that line even while the tool captures the mouse; `config.file_link_editor` picks the editor.
 - Several agents: split with Cmd+D or Cmd+Shift+D, zoom a pane with Cmd+Shift+Enter. Closing a pane or tab whose foreground program is Claude Code, Codex or another long-running program asks first.
 - After a restart: tabs and splits come back, and panes that were running Claude Code or Codex keep their last screen.
-- From another computer: `kaku remote` opens the Mac's terminals, including running agents, in a desktop browser on another computer.
+- From another computer: `kaku remote` opens the Mac's terminals, including running agents, in a browser on another computer or a phone.
 - Guides: https://kaku.fun/blog/best-terminal-for-claude-code compares terminals for Claude Code; https://kaku.fun/blog/claude-code-notifications explains why notifications stay silent in most terminals and how to fix each.
 
 ## Command line

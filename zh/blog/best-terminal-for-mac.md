@@ -4,7 +4,7 @@
 
 发布于 2026-09-21 · Tw93 · https://kaku.fun/zh/blog/best-terminal-for-mac
 
-Mac 上没有哪个终端对所有人都是最好的，但只要想清楚自己要什么，选起来其实不难，什么都不想装就继续用 Terminal.app，想要所有功能都在设置窗口里点出来就用 iTerm2。Ghostty 快、原生、配置是纯文本，WezTerm 适合想用 Lua 写配置、在每个平台都用同一份的人。Warp 把 agent 直接做进了终端，我做的 Kaku 是在 WezTerm 基础上为 macOS 和 AI 编程命令行工具改出来的，第一次打开就配好了。下面一个个讲它们各自好在哪、差在哪，版本和价格按 2026-10-17 核对。
+Mac 上没有哪个终端对所有人都是最好的，但只要想清楚自己要什么，选起来其实不难，什么都不想装就继续用 Terminal.app，想要所有功能都在设置窗口里点出来就用 iTerm2。Ghostty 快、原生、配置是纯文本，WezTerm 适合想用 Lua 写配置、在每个平台都用同一份的人。Warp 把 agent 直接做进了终端，我做的 Kaku 是在 WezTerm 基础上为 macOS 和 AI 编程命令行工具改出来的，第一次打开就配好了。下面一个个讲它们各自好在哪、差在哪，版本和价格按 2026-10-17 核对，其中 Kaku 的版本按 2026-11-21 更新。
 
 ![从想要什么到先试哪个终端：什么都不想装对应 Terminal.app，所有功能都有图形设置对应 iTerm2，快、原生、文本配置对应 Ghostty，Lua、全平台对应 WezTerm，内置 agent 对应 Warp，为 AI 编程工具准备好对应 Kaku](https://kaku.fun/img/blog/mac-terminal-picker.webp)
 
@@ -21,7 +21,7 @@ Mac 上没有哪个终端对所有人都是最好的，但只要想清楚自己�
 | Warp | 滚动更新 | 客户端 AGPL-3.0 | 有免费档，付费从每月 20 美元起 | 设置窗口 | 支持 |
 | Kitty | 0.49.2 | GPL-3.0 | 免费 | 文本文件 | 支持 |
 | Alacritty | 0.17.0 | Apache-2.0 | 免费 | TOML 文件 | 不支持 |
-| Kaku | 0.25.0 | MIT | 免费 | Lua | 支持 |
+| Kaku | 0.30.0 | MIT | 免费 | Lua | 支持 |
 
 ## Terminal.app
 

@@ -43,7 +43,7 @@ config.file_link_editor = "zed"
 
 agent 会话动辄跑几个小时，这期间终端难免要重启，哪怕只是装个更新，这里分两层。对话本身由 Claude Code 保存，`claude --continue` 会接上当前目录里最近的那次对话，对话之外的东西得靠终端，开着哪些标签和分屏，每个窗格在哪个目录，屏幕上原来是什么。
 
-Kaku 运行时会定时保存窗口布局，再启动时把标签和分屏都恢复回来，之前在跑 Claude Code 或 Codex 的窗格还会保留最后一屏，接着聊之前能先看到每个对话停在哪里。
+Kaku 运行时会定时保存窗口布局，再启动时把标签和分屏都恢复回来，之前在跑 Claude Code 或 Codex 的窗格还会保留最后一屏，接着聊之前能先看到每个对话停在哪里，更新本身半路断掉也没关系，0.28.0 起用 Restart to Update 更新时，就算中途被打断，应用程序文件夹里也总会留着一个能用的 Kaku.app。
 
 另一半是别误关，Kaku 里关闭前台在跑 Claude Code、Codex、编辑器或者构建任务的窗格和标签时会先确认一下，普通的 shell 就直接关，不多问。
 
@@ -53,7 +53,7 @@ Kaku 运行时会定时保存窗口布局，再启动时把标签和分屏都恢
 
 ## 在另一台电脑上接着用
 
-有时候会话跑在桌上那台 Mac 里，人却不在旁边。Anthropic 自己提供了 Remote Control，付费套餐可以在 claude.ai 或 Claude App 里操作一个正在跑的 Claude Code 会话，还有跑在 Anthropic 机器上的云端会话。Kaku 这边是 `kaku remote`，可以在另一台电脑的桌面浏览器里打开这台 Mac 的终端，正在跑 Claude Code 的窗格也都在里面，配对方法见[命令参考](/zh/docs/cli#cli-kaku-remote)。
+有时候会话跑在桌上那台 Mac 里，人却不在旁边。Anthropic 自己提供了 Remote Control，付费套餐可以在 claude.ai 或 Claude App 里操作一个正在跑的 Claude Code 会话，还有跑在 Anthropic 机器上的云端会话。Kaku 这边是 `kaku remote`，可以在另一台电脑或手机的浏览器里打开这台 Mac 的终端，正在跑 Claude Code 的窗格也都在里面，配对方法见[命令参考](/zh/docs/cli#cli-kaku-remote)。
 
 ## 常见终端对比
 

@@ -108,14 +108,14 @@
           <h2 id="cli-kaku-doctor"><a class="anchor" href="#cli-kaku-doctor" aria-label="Link to kaku doctor">#</a>kaku doctor</h2><p>Checks the app bundle, PATH, and shell integration. It saves a redacted diagnostic bundle (.zip) on your Mac to attach to bug reports. Run <code>kaku doctor --fix</code> to apply safe automatic fixes.</p>
           <pre><code class="language-bash">kaku doctor
 kaku doctor --fix</code></pre>
-          <h2 id="cli-kaku-remote"><a class="anchor" href="#cli-kaku-remote" aria-label="Link to kaku remote">#</a>kaku remote</h2><p>Use this Mac&#39;s terminals from a desktop browser on another computer, through Kaku&#39;s relay. Remote access is off until you turn it on.</p>
+          <h2 id="cli-kaku-remote"><a class="anchor" href="#cli-kaku-remote" aria-label="Link to kaku remote">#</a>kaku remote</h2><p>Use this Mac&#39;s terminals from a browser on another computer or a phone, through Kaku&#39;s relay. Remote access is off until you turn it on.</p>
           <pre><code class="language-bash">kaku remote               <span class="tok-c"># turn remote access on (asks first) and print a pairing link
 </span>kaku remote devices       <span class="tok-c"># list paired browsers
 </span>kaku remote revoke &lt;id&gt;   <span class="tok-c"># remove a browser; its open sessions end within seconds
 </span>kaku remote off           <span class="tok-c"># turn remote access off
 </span>kaku remote --reset       <span class="tok-c"># new identity, every paired browser removed
 </span></code></pre>
-          <p>Open the link in the browser you want to pair. A link works once, for 10 minutes, so run <code>kaku remote</code> again for each browser. After pairing, bookmark the page: the browser keeps its own key and comes back without a new link. What you type and see is encrypted between the browser and Kaku, and the relay only forwards it. Kaku posts a notification when a new browser pairs.</p>
+          <p>Open the link in the browser you want to pair, check that the page and <code>kaku remote</code> show the same six-digit code, and press Enter in the terminal to allow it, or Ctrl+C to refuse. A link works once, for 10 minutes, so run <code>kaku remote</code> again for each browser. After pairing, bookmark the page: the browser keeps its own key and comes back without a new link. What you type and see is encrypted between the browser and Kaku, and the relay only forwards it. Kaku posts a notification when a paired browser connects again after 30 minutes or more away.</p>
           <h2 id="cli-kaku-update"><a class="anchor" href="#cli-kaku-update" aria-label="Link to kaku update">#</a>kaku update</h2><p>Downloads and installs the latest Kaku release.</p>
           <pre><code class="language-bash">kaku update</code></pre>
           <p><code>kaku --version</code> prints the installed version. To check the GUI binary without opening a window, run <code>/Applications/Kaku.app/Contents/MacOS/kaku-gui --version</code>.</p>
@@ -132,6 +132,12 @@ kaku doctor --fix</code></pre>
 </span>kaku cli --help                              <span class="tok-c"># list all subcommands
 </span>kaku cli split-pane --help                   <span class="tok-c"># help for a specific subcommand
 </span></code></pre>
+          <p>Since Kaku 0.29.0, <code>kaku cli wait</code> and <code>kaku cli events</code> follow the state Claude Code (2.1.295 or later) and Codex (0.163 or later) report: <code>working</code>, <code>blocked</code> (waiting for you), <code>done</code>, <code>error</code> or <code>idle</code>.</p>
+          <pre><code class="language-bash">kaku cli <span class="tok-b">wait</span> --pane-id <span class="tok-n">5</span> --for <span class="tok-k">done</span>,blocked,error --timeout 20m  <span class="tok-c"># until pane 5 finishes, needs you or fails
+</span>kaku cli events --for blocked --once                              <span class="tok-c"># stop at the first pane that needs you
+</span>kaku cli events --json                                            <span class="tok-c"># one JSON line per state change
+</span></code></pre>
+          <p><code>wait</code> prints the state that ended it and exits 0, exits 2 on <code>--timeout</code>, and exits 1 when it cannot reach Kaku or the pane does not exist. Add <code>--next</code> to skip a <code>done</code> left from the agent&#39;s previous turn.</p>
           <nav class="doc-pager" aria-label="Pagination"><a href="/docs/ai-coding"><span>Previous</span><strong>AI Coding Tools</strong></a><a href="/docs/configuration"><span>Next</span><strong>Configuration</strong></a></nav>
         </article>
       </div>

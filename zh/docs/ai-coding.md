@@ -52,7 +52,7 @@ Kaku 重启后，比如装完更新，标签和分屏都会回来，之前在跑
 
 ## 从另一台电脑用
 
-运行 `kaku remote`，可以在另一台电脑的浏览器里使用这些终端，正在跑的 agent 也在其中，配对和命令见[命令参考](https://kaku.fun/zh/docs/cli#cli-kaku-remote)。
+运行 `kaku remote`，可以在另一台电脑或手机的浏览器里使用这些终端，正在跑的 agent 也在其中，配对和命令见[命令参考](https://kaku.fun/zh/docs/cli#cli-kaku-remote)。
 
 ## Kaku Assistant
 

@@ -184,6 +184,14 @@ Claude Code's own alerts are a separate switch: Kaku 0.25.0 or later with Claude
 
 The Stop script is separate from that channel. It asks Claude Code to write OSC 777, the Ghostty notification on the allowlist. On Kaku 0.25.0 or later with Claude Code 2.1.295 or later, Kaku already notifies when Claude finishes, so the Stop hook above adds a second notification there. It is meant for older versions or another terminal. OSC 9 is allowlisted too, and Kaku shows it as the tool's own message when Codex has `notification_method = "osc9"`.
 
+A script outside the session can react to Claude finishing without any hook. On Kaku 0.29.0 or later, `kaku cli events` reads the status Claude Code 2.1.295 or later reports and prints a line whenever a pane changes state:
+
+```bash
+kaku cli events --for done,blocked --json
+```
+
+Each line is one JSON object with `pane_id`, `title`, `from` and `to`. `--once` exits at the first match, and `kaku cli wait --pane-id <id>` blocks on a single pane.
+
 ## FAQ
 
 ### Does exit code 0 allow the command?

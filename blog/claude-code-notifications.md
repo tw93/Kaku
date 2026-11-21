@@ -58,7 +58,7 @@ Neither Claude Code nor Codex talks to Notification Center. They write a short e
 
 *Every source ends up in the same place: a sequence the terminal reads and turns into a notification.*
 
-There are a few sequences in use. OSC 9, which started in iTerm2, carries one line of text. OSC 777 carries a title and a body. The plain bell character carries nothing but the fact that something happened. Ghostty and Kaku handle both OSC 9 and OSC 777, while Kitty uses its own OSC 99. That spread is why Claude Code keeps a list of channels instead of one switch. Kaku 0.25.0 or later also reads OSC 7501, the status report Claude Code 2.1.295 and later sends when it is waiting, done or failed, which is why it needs no channel.
+There are a few sequences in use. OSC 9, which started in iTerm2, carries one line of text. OSC 777 carries a title and a body. The plain bell character carries nothing but the fact that something happened. Ghostty and Kaku handle both OSC 9 and OSC 777, while Kitty uses its own OSC 99. That spread is why Claude Code keeps a list of channels instead of one switch. Kaku 0.25.0 or later also reads OSC 7501, the status report Claude Code 2.1.295 and later sends when it is waiting, done or failed, which is why it needs no channel. The same report lights a dot on a background tab, and on Kaku 0.29.0 or later `Cmd + J` jumps to the next tab whose dot is lit.
 
 In Kaku, OSC 9 and OSC 777 notifications go through the `notification_handling` setting:
 

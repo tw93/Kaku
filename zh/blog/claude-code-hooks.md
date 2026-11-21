@@ -184,6 +184,14 @@ Claude Code 自带的提醒是另一路开关，Kaku 0.25.0 及以上配 Claude 
 
 Stop 脚本和这条通道是分开的，它让 Claude Code 写出 OSC 777，也就是允许的那几种里 Ghostty 用的通知。Kaku 0.25.0 及以上配 Claude Code 2.1.295 及以上时，Claude 做完的时候 Kaku 本来就会提醒，再挂这个 Stop hook 会多出一条通知，所以它适合更早的版本或者别的终端。OSC 9 也在允许的那几种里，Codex 设了 `notification_method = "osc9"` 时，Kaku 会把它显示成工具自己写的那条消息。
 
+要在会话之外的脚本里接住 Claude 做完这件事，不用 hook 也行，Kaku 0.29.0 及以上的 `kaku cli events` 读的是 Claude Code 2.1.295 及以上上报的状态，哪个窗格状态一变就打印一行：
+
+```bash
+kaku cli events --for done,blocked --json
+```
+
+每行是一个 JSON 对象，带 `pane_id`、`title`、`from` 和 `to`，加 `--once` 碰到第一条匹配就退出，只盯一个窗格就用 `kaku cli wait --pane-id <id>`。
+
 ## 常见问题
 
 ### 退出码 0 算不算放行？

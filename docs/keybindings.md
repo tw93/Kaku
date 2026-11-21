@@ -27,6 +27,7 @@ All keybindings use macOS-native modifier keys. `Opt` = Option/Alt, `Ctrl` = Con
 | Switch to tab 1–9 | `Cmd + 1` – `Cmd + 9` |
 | Previous tab | `Cmd + Shift + [` |
 | Next tab | `Cmd + Shift + ]` |
+| Next tab needing you (dot lit) | `Cmd + J` |
 | Open Tab Navigator | `Cmd + Shift + O` |
 | Close the highlighted tab in the Tab Navigator | `Backspace` with an empty filter |
 | Close tab | `Cmd + Shift + W` |

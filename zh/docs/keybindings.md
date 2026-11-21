@@ -27,6 +27,7 @@
 | 切换到标签 1–9 | `Cmd + 1` – `Cmd + 9` |
 | 上一个标签 | `Cmd + Shift + [` |
 | 下一个标签 | `Cmd + Shift + ]` |
+| 下一个需要你处理的标签（亮着圆点） | `Cmd + J` |
 | 打开 Tab Navigator | `Cmd + Shift + O` |
 | 在 Tab Navigator 里关闭选中的标签 | 筛选框为空时按 `Backspace` |
 | 关闭标签 | `Cmd + Shift + W` |

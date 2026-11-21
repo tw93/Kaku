@@ -24,7 +24,7 @@ tmux runs a server that owns your shells. The terminal is only a client that dra
 
 *Restored panes show what was there; the programs themselves are not started again.*
 
-When Kaku quits, it saves every window, its tabs, the split layout, each pane's working directory, and up to 1500 lines from each pane. While it runs, it also refreshes that snapshot every minute after the layout changes, so an unexpected quit still leaves a recent layout. On the next launch, the panes come back with their text, in their directories, with a fresh shell. Panes that were running Claude Code or Codex keep the agent's last screen, so you can see where each conversation stopped and resume it with `claude --continue` or `codex resume --last`.
+When Kaku quits, it saves every window, its tabs, the split layout, each pane's working directory, and up to 1500 lines from each pane. While it runs, it also refreshes that snapshot every minute after the layout changes, so an unexpected quit still leaves a recent layout. On the next launch, the panes come back with their text, in their directories, with a fresh shell. Panes that were running Claude Code or Codex keep the agent's last screen, so you can see where each conversation stopped and resume it with `claude --continue` or `codex resume --last`. Before 0.28.0, restoring a session with a long scrollback could make Kaku quit about a minute later and again on every reopen; updating fixes it, with no need to turn restore off.
 
 This is the important difference from tmux. Kaku restores what you saw, not the processes. A build that was running when the terminal quit is not running anymore. tmux keeps it running, because the process never belonged to the terminal.
 
