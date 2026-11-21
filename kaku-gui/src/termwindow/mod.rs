@@ -373,9 +373,8 @@ fn should_show_toast(
 ) -> bool {
     match handling {
         NotificationHandling::NeverShow => false,
-        NotificationHandling::AlwaysShow | NotificationHandling::SuppressFromFocusedWindow => {
-            !window_has_focus
-        }
+        NotificationHandling::AlwaysShow => true,
+        NotificationHandling::SuppressFromFocusedWindow => !window_has_focus,
         NotificationHandling::SuppressFromFocusedTab => !window_has_focus || !in_active_tab,
         NotificationHandling::SuppressFromFocusedPane => !window_has_focus || is_inactive_pane,
     }
@@ -7574,7 +7573,6 @@ assert(overrides.window_padding.top == 0 and overrides.hide_tab_bar_if_only_one_
         let show = |h, (f, t, i)| should_show_toast(h, f, t, i);
 
         for h in [
-            AlwaysShow,
             SuppressFromFocusedWindow,
             SuppressFromFocusedTab,
             SuppressFromFocusedPane,
@@ -7591,8 +7589,20 @@ assert(overrides.window_padding.top == 0 and overrides.hide_tab_bar_if_only_one_
             );
         }
         assert!(!show(NeverShow, background));
-        assert!(!show(AlwaysShow, focused_other_pane));
-        assert!(!show(AlwaysShow, focused_other_tab));
+        // AlwaysShow means what it says, as in WezTerm and before V0.23.0;
+        // the default keeps the focused window quiet (#630).
+        for state in [
+            background,
+            focused_active,
+            focused_other_pane,
+            focused_other_tab,
+        ] {
+            assert!(show(AlwaysShow, state));
+        }
+        assert_eq!(
+            config::NotificationHandling::default(),
+            SuppressFromFocusedWindow
+        );
         assert!(show(SuppressFromFocusedPane, focused_other_pane));
         assert!(!show(SuppressFromFocusedTab, focused_other_pane));
         assert!(show(SuppressFromFocusedTab, focused_other_tab));
