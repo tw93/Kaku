@@ -22,7 +22,7 @@
 | Action | Shortcut |
 | :--- | :--- |
 | New tab | `Cmd + T` |
-| Switch to tab 1–8 / last tab | `Cmd + 1` – `Cmd + 8` / `Cmd + 9` |
+| Switch to tab 1–9 | `Cmd + 1` – `Cmd + 9` |
 | Previous tab | `Cmd + Shift + [` |
 | Next tab | `Cmd + Shift + ]` |
 | Next tab needing you (dot lit) | `Cmd + J` |

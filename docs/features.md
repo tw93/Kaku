@@ -141,7 +141,7 @@ Requirements: `sshfs` installed (`brew install --cask sshfs-mac`) and passwordle
 
 ## Remote Access
 
-Run `kaku remote` to use this Mac's terminals from a desktop browser on another computer. It asks before turning remote access on, then prints a link that pairs one browser; bookmark the page after pairing to come back. The page has your tabs and splits, copy and paste, dropping files to upload them to the Mac, and Cmd+Click on a path to download it, and what you type and see is encrypted between the browser and Kaku. Remote access is off by default, and free: the relay is a server I pay for myself ([FAQ](faq.md#is-remote-access-free)). Commands are in the [CLI reference](cli.md#kaku-remote).
+Run `kaku remote` to use this Mac's terminals from a browser on another computer or a phone. It asks before turning remote access on, then prints a link that pairs one browser; bookmark the page after pairing to come back. The page has your tabs and splits, copy and paste, dropping files to upload them to the Mac, and Cmd+Click on a path to download it, and what you type and see is encrypted between the browser and Kaku. On a phone, tabs sit in a side drawer that shows each agent's topic and status, and the keyboard comes up only from the keyboard key in the key row, so scrolling does not raise it. Remote access is off by default, and free: the relay is a server I pay for myself ([FAQ](faq.md#is-remote-access-free)). Commands are in the [CLI reference](cli.md#kaku-remote).
 
 ## Shell Suite
 
