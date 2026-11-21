@@ -317,7 +317,11 @@ fn capture_pane_content(
         return None;
     }
     let dims = pane.get_dimensions();
-    let end: wezterm_term::StableRowIndex = dims.physical_top + dims.viewport_rows as isize;
+    let mut end: wezterm_term::StableRowIndex = dims.physical_top + dims.viewport_rows as isize;
+    if !pane.is_alt_screen_active() {
+        let zones = pane.get_semantic_zones().unwrap_or_default();
+        end = end.min(current_prompt_start(pane.get_cursor_position().y, &zones));
+    }
     let start = (end - cap as isize).max(dims.scrollback_top);
     if start >= end {
         return None;
@@ -327,6 +331,38 @@ fn capture_pane_content(
         return None;
     }
     Some((lines, dims.cols, dims.viewport_rows))
+}
+
+/// First row of the prompt the cursor sits in, where a capture of the
+/// primary screen ends. The new shell draws its own prompt, so a saved copy
+/// only lands in scrollback, and a window that grows after the restore
+/// pulls it into view above the live one (#632). Without OSC 133 marks this
+/// is the cursor row, which is the whole prompt for the bundled one-line
+/// Starship prompt; with them it is the start of the last prompt zone, so a
+/// multi-line prompt goes too, unless command output follows that zone.
+fn current_prompt_start(
+    cursor_y: wezterm_term::StableRowIndex,
+    zones: &[wezterm_term::SemanticZone],
+) -> wezterm_term::StableRowIndex {
+    use wezterm_term::SemanticType;
+    let before_cursor = |z: &&wezterm_term::SemanticZone| z.start_y <= cursor_y;
+    let Some(prompt) = zones
+        .iter()
+        .filter(before_cursor)
+        .filter(|z| z.semantic_type == SemanticType::Prompt)
+        .max_by_key(|z| (z.start_y, z.start_x))
+    else {
+        return cursor_y;
+    };
+    let output_after = zones.iter().filter(before_cursor).any(|z| {
+        z.semantic_type == SemanticType::Output
+            && (z.start_y, z.start_x) > (prompt.start_y, prompt.start_x)
+    });
+    if output_after {
+        cursor_y
+    } else {
+        prompt.start_y.min(cursor_y)
+    }
 }
 
 /// Atomic write for bincode payloads, mirroring `write_json_atomic`.
@@ -2152,6 +2188,35 @@ mod tests {
             (0..2000).map(|i| make_line(&format!("L{i}"))).collect();
         let out = reflow_lines(lines, 10);
         assert!(out.len() <= PANE_CONTENT_CAP_LINES);
+    }
+
+    #[test]
+    fn capture_ends_before_the_prompt_the_cursor_sits_in() {
+        use wezterm_term::{SemanticType, SemanticZone};
+        let zone = |start_y, end_y, semantic_type| SemanticZone {
+            start_y,
+            start_x: 0,
+            end_y,
+            end_x: 2,
+            semantic_type,
+        };
+        // No marks: the cursor row is the bundled one-line prompt (#632).
+        assert_eq!(current_prompt_start(5, &[]), 5);
+        // A two-line prompt with typed input goes as a whole.
+        let marked = [
+            zone(0, 3, SemanticType::Output),
+            zone(4, 5, SemanticType::Prompt),
+            zone(5, 5, SemanticType::Input),
+        ];
+        assert_eq!(current_prompt_start(5, &marked), 4);
+        // Output after the last prompt means a command is still running, so
+        // only the cursor row is left out.
+        let running = [
+            zone(0, 0, SemanticType::Prompt),
+            zone(0, 0, SemanticType::Input),
+            zone(1, 5, SemanticType::Output),
+        ];
+        assert_eq!(current_prompt_start(5, &running), 5);
     }
 
     #[test]
