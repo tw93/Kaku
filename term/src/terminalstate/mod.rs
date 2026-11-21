@@ -2184,7 +2184,12 @@ impl TerminalState {
                     self.primary_peek = false;
                     self.screen.activate_primary_screen(self.seqno);
                     self.dec_restore_cursor();
-                    self.cursor_visible = self.saved_cursor_visible;
+                    // Only ever bring a hidden cursor back. Visibility is
+                    // global in xterm; the save rescues a TUI that exits
+                    // without showing it, but must not re-hide a cursor the
+                    // app showed before leaving (sshs: ?25l ?1049h .. ?25h
+                    // ?1049l, #631).
+                    self.cursor_visible |= self.saved_cursor_visible;
                 }
             }
             Mode::SaveDecPrivateMode(DecPrivateMode::Code(n))

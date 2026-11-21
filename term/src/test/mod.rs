@@ -1790,19 +1790,25 @@ fn test_cursor_visible_restored_after_alt_screen() {
 }
 
 #[test]
-fn test_cursor_hidden_before_alt_screen_stays_hidden() {
+fn cursor_shown_before_leaving_alt_screen_stays_visible() {
+    // sshs (crossterm) hides the cursor, enters the alt screen, then shows
+    // it and leaves: ?25l ?1049h .. ?25h ?1049l. xterm keeps it visible, so
+    // the ssh session it then starts has a cursor (#631).
     let mut term = TestTerm::new(5, 10, 100);
 
-    // Hide cursor on primary screen first
     term.set_mode("?25", false);
-    assert_eq!(term.cursor_pos().visibility, CursorVisibility::Hidden);
-
-    // Enter alt screen, show cursor there
     term.set_mode("?1049", true);
     term.set_mode("?25", true);
+    term.set_mode("?1049", false);
     assert_eq!(term.cursor_pos().visibility, CursorVisibility::Visible);
+}
 
-    // Exit alt screen -- cursor must restore to hidden (as it was before entering)
+#[test]
+fn cursor_hidden_on_primary_and_untouched_in_alt_screen_stays_hidden() {
+    let mut term = TestTerm::new(5, 10, 100);
+
+    term.set_mode("?25", false);
+    term.set_mode("?1049", true);
     term.set_mode("?1049", false);
     assert_eq!(term.cursor_pos().visibility, CursorVisibility::Hidden);
 }
