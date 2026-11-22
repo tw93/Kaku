@@ -370,25 +370,47 @@ impl Screen {
     /// would exceed the configured scrollback cap are dropped from the
     /// oldest end. Each injected line's change seqno is bumped so the
     /// renderer marks the prepended block dirty.
-    pub fn prepend_scrollback_lines(&mut self, mut lines: Vec<Line>, seqno: SequenceNo) {
+    /// Returns how many of the prepended lines moved into the viewport: up
+    /// to `reveal` blank rows at the bottom are dropped so the tail of
+    /// `lines` shows above the content, which moves down by that many rows.
+    pub fn prepend_scrollback_lines(
+        &mut self,
+        mut lines: Vec<Line>,
+        seqno: SequenceNo,
+        reveal: usize,
+    ) -> usize {
         if lines.is_empty() {
-            return;
+            return 0;
         }
         let cap = self.scrollback_size();
         if lines.len() > cap {
             let drop = lines.len() - cap;
             lines.drain(0..drop);
         }
+        let reveal = reveal.min(lines.len());
         for line in lines.iter_mut() {
             line.update_last_change_seqno(seqno);
         }
         for line in lines.into_iter().rev() {
             self.lines.push_front(line);
         }
+        let mut revealed = 0;
+        while revealed < reveal && self.lines.back().is_some_and(|line| line.is_whitespace()) {
+            self.lines.pop_back();
+            revealed += 1;
+        }
+        if revealed > 0 {
+            // The rows that slid into the top of the viewport were drawn in
+            // scrollback; mark the whole viewport for repaint.
+            for line in self.lines.iter_mut().rev().take(self.physical_rows) {
+                line.update_last_change_seqno(seqno);
+            }
+        }
         let max_total = cap + self.physical_rows;
         while self.lines.len() > max_total {
             self.lines.pop_front();
         }
+        revealed
     }
 
     /// Sets a line dirty.  The line is relative to the visible origin.

@@ -834,15 +834,28 @@ impl TerminalState {
     /// briefly on the alt screen at save time still receives its main-screen
     /// history when restored. Each line gets the current seqno so the
     /// renderer marks the prepended block dirty in one tick.
+    ///
+    /// On the primary screen the tail of `lines` also fills the blank rows
+    /// below the cursor, and the cursor and whatever the shell has drawn move
+    /// down with it, so a restored pane looks like it did at quit instead of
+    /// a lone prompt with the history scrolled off above (#632).
     pub fn prepend_primary_scrollback(&mut self, lines: Vec<wezterm_surface::Line>) {
         if lines.is_empty() {
             return;
         }
         self.increment_seqno();
         let seqno = self.seqno;
-        self.screen
+        let reveal = if self.screen.is_alt_screen_active() {
+            0
+        } else {
+            let rows = self.screen.physical_rows as i64;
+            (rows - 1 - self.cursor.y).max(0) as usize
+        };
+        let revealed = self
+            .screen
             .primary_screen_mut()
-            .prepend_scrollback_lines(lines, seqno);
+            .prepend_scrollback_lines(lines, seqno, reveal);
+        self.cursor.y += revealed as VisibleRowIndex;
     }
 
     fn set_clipboard_contents(

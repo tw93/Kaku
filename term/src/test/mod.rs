@@ -2151,3 +2151,52 @@ fn visible_seqno_ignores_metadata_only_output() {
         assert_eq!(term.visible_seqno(), term.current_seqno(), "{:?}", seq);
     }
 }
+
+fn restored(texts: &[&str]) -> Vec<wezterm_surface::Line> {
+    texts.iter().map(|s| (*s).into()).collect()
+}
+
+#[test]
+fn restored_history_shows_above_the_new_prompt() {
+    // A restored pane looks like it did at quit: the history fills the
+    // screen above the shell's prompt instead of sitting off-screen in
+    // scrollback with the prompt alone on row 1 (#632).
+    let mut term = TestTerm::new(5, 10, 100);
+    term.print("$ ");
+    term.prepend_primary_scrollback(restored(&["a", "b", "c"]));
+    assert_visible_contents(&term, file!(), line!(), &["a", "b", "c", "$ ", ""]);
+    assert_eq!(term.cursor_pos().y, 3);
+    assert_eq!(term.cursor_pos().x, 2);
+}
+
+#[test]
+fn restored_history_longer_than_the_screen_keeps_its_tail_in_view() {
+    let mut term = TestTerm::new(5, 10, 100);
+    term.print("$ ");
+    let lines: Vec<String> = (0..10).map(|i| format!("l{i}")).collect();
+    let texts: Vec<&str> = lines.iter().map(String::as_str).collect();
+    term.prepend_primary_scrollback(restored(&texts));
+    assert_visible_contents(&term, file!(), line!(), &["l6", "l7", "l8", "l9", "$ "]);
+    assert_eq!(term.cursor_pos().y, 4);
+}
+
+#[test]
+fn restored_history_moves_down_only_into_blank_rows() {
+    // The shell may already have drawn output; it moves down with the
+    // cursor and is never overwritten.
+    let mut term = TestTerm::new(5, 10, 100);
+    term.print("x1\r\nx2\r\n$ ");
+    term.prepend_primary_scrollback(restored(&["a", "b", "c"]));
+    assert_visible_contents(&term, file!(), line!(), &["b", "c", "x1", "x2", "$ "]);
+    assert_eq!(term.cursor_pos().y, 4);
+}
+
+#[test]
+fn restored_history_stays_in_scrollback_while_the_alt_screen_is_active() {
+    let mut term = TestTerm::new(5, 10, 100);
+    term.set_mode("?1049", true);
+    term.print("tui");
+    term.prepend_primary_scrollback(restored(&["a", "b"]));
+    assert_eq!(term.cursor_pos().y, 0);
+    assert_visible_contents(&term, file!(), line!(), &["tui", "", "", "", ""]);
+}
