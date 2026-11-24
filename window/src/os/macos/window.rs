@@ -1147,6 +1147,37 @@ fn fit_frame_to_visible_frame(frame: NSRect, visible_frame: NSRect) -> Option<NS
     }
 }
 
+/// Frame a programmatic content resize (font size or DPI change, Lua
+/// `set_inner_size`) lands on: the top-left corner stays where it is, as with
+/// `setContentSize:`, and the result is fit inside the visible frame. The
+/// `constrainFrameRect:toScreen:` override accepts every frame so tiling window
+/// managers do not fight AppKit (#131, #183), which also dropped the screen
+/// clamp WezTerm gets from AppKit, so each font size step grew an unmaximized
+/// window past the screen edges (#633). None when the anchored frame fits.
+fn content_resize_frame(
+    current: NSRect,
+    frame_size: NSSize,
+    visible_frame: NSRect,
+) -> Option<NSRect> {
+    let top = current.origin.y + current.size.height;
+    let anchored = NSRect::new(
+        NSPoint::new(current.origin.x, top - frame_size.height),
+        frame_size,
+    );
+    fit_frame_to_visible_frame(anchored, visible_frame)
+}
+
+fn fit_new_window_to_visible_frame(window: id) {
+    unsafe {
+        let frame = NSWindow::frame(window);
+        if let Some(fitted) = visible_frame_for_window(window)
+            .and_then(|visible| fit_frame_to_visible_frame(frame, visible))
+        {
+            NSWindow::setFrame_display_(window, fitted, NO);
+        }
+    }
+}
+
 fn frame_after_display_change(
     frame: NSRect,
     simple_fullscreen: bool,
@@ -1918,6 +1949,12 @@ impl Window {
             } else {
                 // No position memory/cascade: keep startup deterministic.
                 window.center();
+            }
+            if explicit_initial_pos.is_none() {
+                // A size persisted while font steps grew windows past the screen
+                // (#633) would otherwise reopen off screen: the
+                // constrainFrameRect:toScreen: override no longer clamps it.
+                fit_new_window_to_visible_frame(*window);
             }
 
             window.setTitle_(*nsstring(&name));
@@ -3603,11 +3640,38 @@ impl WindowInner {
                 self.cancel_hotkey_slide();
             }
 
-            NSWindow::setContentSize_(*self.window, size);
+            if let Some(fitted) = self.screen_fitted_content_resize_frame(size) {
+                self.window.setFrame_display_(fitted, YES);
+                // The GUI already stashed the requested size. A fitted frame can
+                // keep the old content size, and then AppKit posts no
+                // windowDidResize:, so report the size the window really has.
+                self.dispatch_resize_event();
+            } else {
+                NSWindow::setContentSize_(*self.window, size);
+            }
 
             // setContentSize_ doesn't explicitly invalidate,
             // so we need to do it ourselves
             self.invalidate();
+        }
+    }
+
+    /// The screen-fitted frame for a content resize of an ordinary window, or
+    /// None when the plain `setContentSize:` already stays on screen. Hotkey
+    /// drawers and fullscreen windows own frames outside the visible frame.
+    fn screen_fitted_content_resize_frame(&mut self, content_size: NSSize) -> Option<NSRect> {
+        if is_hotkey_panel(*self.window) || self.is_fullscreen() {
+            return None;
+        }
+        unsafe {
+            let window_frame = NSWindow::frame(*self.window);
+            let content_frame = NSWindow::contentRectForFrameRect_(*self.window, window_frame);
+            let frame_size = NSSize::new(
+                content_size.width + window_frame.size.width - content_frame.size.width,
+                content_size.height + window_frame.size.height - content_frame.size.height,
+            );
+            let visible = visible_frame_for_window(*self.window)?;
+            content_resize_frame(window_frame, frame_size, visible)
         }
     }
 
@@ -7542,6 +7606,50 @@ mod tests {
         assert_eq!(adjusted.origin.y, 300.0);
         assert_eq!(adjusted.size.width, 800.0);
         assert_eq!(adjusted.size.height, 600.0);
+    }
+
+    #[test]
+    fn font_size_growth_stays_inside_the_visible_frame() {
+        // #633: a 1440x900 screen with a 25pt menu bar, window top at y=775.
+        let visible = NSRect::new(NSPoint::new(0.0, 0.0), NSSize::new(1440.0, 875.0));
+        let current = NSRect::new(NSPoint::new(200.0, 175.0), NSSize::new(900.0, 600.0));
+
+        // Room left below the window: plain setContentSize: keeps the top-left.
+        assert!(content_resize_frame(current, NSSize::new(990.0, 660.0), visible).is_none());
+
+        // Growing past the bottom edge moves the window up, keeping its x.
+        let grown = content_resize_frame(current, NSSize::new(990.0, 800.0), visible).unwrap();
+        assert_eq!(grown.origin.x, 200.0);
+        assert_eq!(grown.origin.y, 0.0);
+        assert_eq!(grown.size.width, 990.0);
+        assert_eq!(grown.size.height, 800.0);
+
+        // Larger than the screen: capped to the visible frame, title bar reachable.
+        let capped = content_resize_frame(current, NSSize::new(2000.0, 1200.0), visible).unwrap();
+        assert!(nsrect_approx_eq(capped, visible, 0.01));
+    }
+
+    #[test]
+    fn content_resize_is_fit_to_screen_and_reported() {
+        let source = include_str!("window.rs");
+        let resize = production_method(source, "fn set_inner_size(&mut self,");
+        assert!(
+            resize.contains("if let Some(fitted) = self.screen_fitted_content_resize_frame(size)")
+        );
+        // The GUI stashed the requested size; a fitted frame that keeps the old
+        // size gets no windowDidResize:, so the real size must be reported.
+        let set_frame = resize.find("setFrame_display_(fitted, YES)").unwrap();
+        assert!(set_frame < resize.find("self.dispatch_resize_event()").unwrap());
+        let fitted = production_method(source, "fn screen_fitted_content_resize_frame(");
+        assert!(fitted.contains("if is_hotkey_panel(*self.window) || self.is_fullscreen()"));
+        assert!(fitted.contains("content_resize_frame(window_frame, frame_size, visible)"));
+        // A size persisted while windows grew past the screen must not reopen
+        // off screen; an explicit --position is left where it was asked to be.
+        let create = production_method(source, "pub async fn new_window<");
+        let center = create.find("window.center();").unwrap();
+        let fit = create.find("fit_new_window_to_visible_frame(*window);").unwrap();
+        assert!(center < fit);
+        assert!(create[..fit].rfind("if explicit_initial_pos.is_none() {").unwrap() > center);
     }
 
     #[test]
