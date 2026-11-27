@@ -60,7 +60,7 @@ use mux_lua::MuxPane;
 use smol::channel::Sender;
 use smol::Timer;
 use std::cell::{RefCell, RefMut};
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::ops::Add;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
@@ -379,6 +379,16 @@ fn should_show_toast(
         NotificationHandling::SuppressFromFocusedTab => !window_has_focus || !in_active_tab,
         NotificationHandling::SuppressFromFocusedPane => !window_has_focus || is_inactive_pane,
     }
+}
+
+/// Whether a bell in `pane_id` bounces the Dock icon: only while the window
+/// is in the background, and once per pane until the window is focused again.
+fn dock_bounce_for_bell(
+    window_has_focus: bool,
+    pane_id: PaneId,
+    bounced: &mut HashSet<PaneId>,
+) -> bool {
+    !window_has_focus && bounced.insert(pane_id)
 }
 
 fn bell_notification_message(
@@ -1063,6 +1073,9 @@ pub struct TermWindow {
     os_parameters: Option<parameters::Parameters>,
     /// When we most recently received keyboard focus
     pub focused: Option<Instant>,
+    /// Panes whose bell already bounced the Dock icon since this window
+    /// last lost focus.
+    dock_bounced_panes: HashSet<PaneId>,
     fonts: Rc<FontConfiguration>,
     /// Window dimensions and dpi
     pub dimensions: Dimensions,
@@ -1317,6 +1330,9 @@ impl TermWindow {
             self.arm_layout_sticky_fullscreen();
         }
         self.focused = if focused { Some(Instant::now()) } else { None };
+        if focused {
+            self.dock_bounced_panes.clear();
+        }
         self.quad_generation += 1;
         self.load_os_parameters();
         self.invalidate_fancy_tab_bar();
@@ -1809,6 +1825,7 @@ impl TermWindow {
             config_overrides: wezterm_dynamic::Value::default(),
             palette: None,
             focused: None,
+            dock_bounced_panes: HashSet::new(),
             mux_window_id,
             mux_window_id_for_subscriptions: Arc::new(Mutex::new(mux_window_id)),
             mux_subscription_dead: Arc::new(AtomicBool::new(false)),
@@ -2626,20 +2643,25 @@ impl TermWindow {
                     }
                     drop(per_pane);
 
+                    // The bounce is decided apart from the unread mark: a
+                    // pane already marked while the window had focus still
+                    // bounces once its next bell rings in the background.
+                    if dock_bounce_for_bell(window_has_focus, pane_id, &mut self.dock_bounced_panes)
+                    {
+                        match self.config.bell_dock_bounce {
+                            DockBounce::Disabled => {}
+                            DockBounce::Once => Connection::get()
+                                .expect("on main thread")
+                                .request_attention(false),
+                            DockBounce::UntilFocused => Connection::get()
+                                .expect("on main thread")
+                                .request_attention(true),
+                        }
+                    }
+
                     // Update global Dock badge count
                     if should_mark_unread {
                         front_end().adjust_unread_bell_count(1);
-                        if !window_has_focus {
-                            match self.config.bell_dock_bounce {
-                                DockBounce::Disabled => {}
-                                DockBounce::Once => Connection::get()
-                                    .expect("on main thread")
-                                    .request_attention(false),
-                                DockBounce::UntilFocused => Connection::get()
-                                    .expect("on main thread")
-                                    .request_attention(true),
-                            }
-                        }
                         // The web terminal reads tab titles from the title
                         // pass, which a repaint alone does not run, so the
                         // bell dot would only show there on some later event.
@@ -7011,12 +7033,13 @@ impl Drop for TermWindow {
 #[cfg(test)]
 mod tests {
     use super::{
-        aggregate_tab_progress, bell_notification_message, next_attention_pane,
-        scrollback_erase_mode_for_pane, FileLinkTarget, MouseCapture, RenderableDimensions,
-        TermWindow,
+        aggregate_tab_progress, bell_notification_message, dock_bounce_for_bell,
+        next_attention_pane, scrollback_erase_mode_for_pane, FileLinkTarget, MouseCapture,
+        RenderableDimensions, TermWindow,
     };
     use config::keyassignment::ScrollbackEraseMode;
     use mux::pane::PaneId;
+    use std::collections::HashSet;
     use std::path::PathBuf;
     use wezterm_term::{Progress, StableRowIndex};
 
@@ -7679,6 +7702,22 @@ assert(overrides.window_padding.top == 0 and overrides.hide_tab_bar_if_only_one_
             bell_notification_message(Some("sudo -u root cargo build"), None, "kaku", None),
             "Task complete: cargo build"
         );
+    }
+
+    #[test]
+    fn a_pane_marked_unread_in_the_foreground_still_bounces_later() {
+        let mut bounced = HashSet::new();
+        let (seven, eight) = (PaneId::new(7), PaneId::new(8));
+        // A bell in an inactive split while the window has focus.
+        assert!(!dock_bounce_for_bell(true, seven, &mut bounced));
+        // The user switches away; the same pane rings again.
+        assert!(dock_bounce_for_bell(false, seven, &mut bounced));
+        // Further bells from it stay quiet, another pane still bounces.
+        assert!(!dock_bounce_for_bell(false, seven, &mut bounced));
+        assert!(dock_bounce_for_bell(false, eight, &mut bounced));
+        // Focusing the window starts over.
+        bounced.clear();
+        assert!(dock_bounce_for_bell(false, seven, &mut bounced));
     }
 
     #[test]
