@@ -2812,6 +2812,36 @@ mod tests {
     }
 
     #[test]
+    fn bundled_word_boundary_keeps_paths_whole_on_double_click() {
+        // Double-click stops at these characters. A path such as
+        // ~/my-project/src_v2/app.rs must select in one go, as in iTerm2,
+        // Ghostty, kitty and WezTerm (#635).
+        let source = include_str!("../../assets/macos/Kaku.app/Contents/Resources/kaku.lua");
+        let line = source
+            .lines()
+            .find(|l| {
+                l.trim_start()
+                    .starts_with("config.selection_word_boundary =")
+            })
+            .expect("bundled kaku.lua sets selection_word_boundary");
+        let lua = mlua::Lua::new();
+        lua.load("config = {}").exec().unwrap();
+        lua.load(line).exec().unwrap();
+        let boundary: String = lua
+            .load("return config.selection_word_boundary")
+            .eval()
+            .unwrap();
+        for ch in ['-', '.', '/', '_', '~'] {
+            assert!(
+                !boundary.contains(ch),
+                "{:?} splits paths on double-click",
+                ch
+            );
+        }
+        assert!(boundary.contains(' ') && boundary.contains('"'));
+    }
+
+    #[test]
     fn bundled_lua_with_hotkey_follow_mouse_compiles() {
         let source = include_str!("../../assets/macos/Kaku.app/Contents/Resources/kaku.lua");
         mlua::Lua::new()

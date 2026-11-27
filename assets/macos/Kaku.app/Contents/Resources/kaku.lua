@@ -4183,7 +4183,7 @@ config.scrollback_lines = 10000
 -- config.file_link_editor = 'zed'
 
 -- ===== Text Selection =====
-config.selection_word_boundary = ' \t\n{}[]()"\'-'  -- Smart selection boundaries
+config.selection_word_boundary = ' \t\n{}[]()"\''  -- Smart selection boundaries
 
 -- ===== Window Layout =====
 -- Disable OS-level resize increments. AppKit applies these on the
