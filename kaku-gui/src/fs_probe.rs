@@ -23,6 +23,10 @@ pub enum Kind {
 /// How long hover waits for a network check before treating the path as
 /// missing; a later hover reads the cached answer.
 const NETWORK_WAIT: Duration = Duration::from_millis(30);
+/// One hover checks up to 64 candidate paths. Network waits within this
+/// window share one `NETWORK_WAIT`, so a server that answers each check in
+/// 25ms cannot add up to seconds.
+const WAIT_WINDOW: Duration = Duration::from_millis(250);
 /// How long a network check's answer is reused.
 const RESULT_TTL: Duration = Duration::from_secs(10);
 /// How often the mount table is read again.
@@ -34,7 +38,7 @@ pub fn kind(path: &Path) -> Kind {
     let mut guard = PROBE.lock().unwrap();
     let probe = guard.get_or_insert_with(Probe::default);
     let mounts = probe.network_mounts().to_vec();
-    match mount_for(path, &mounts) {
+    match network_mount_for(path, &mounts) {
         None => {
             drop(guard);
             stat_kind(path)
@@ -65,6 +69,56 @@ fn mount_for(path: &Path, mounts: &[PathBuf]) -> Option<PathBuf> {
         .cloned()
 }
 
+/// The network mount `path` reaches, following symlinks on the way: zsh
+/// reports the logical `$PWD`, so `~/nas/x` with `~/nas -> /Volumes/nas`
+/// is a network path although no mount point is its prefix. Each prefix is
+/// checked against the mounts before it is looked at, so only local paths
+/// are ever `lstat`ed.
+fn network_mount_for(path: &Path, mounts: &[PathBuf]) -> Option<PathBuf> {
+    use std::collections::VecDeque;
+    use std::path::Component;
+    if mounts.is_empty() {
+        return None;
+    }
+    let mut resolved = PathBuf::new();
+    let mut pending: VecDeque<PathBuf> = path
+        .components()
+        .map(|c| PathBuf::from(c.as_os_str()))
+        .collect();
+    let mut links = 0;
+    while let Some(part) = pending.pop_front() {
+        match part.components().next() {
+            Some(Component::RootDir) => resolved = PathBuf::from("/"),
+            Some(Component::ParentDir) => {
+                resolved.pop();
+            }
+            Some(Component::Normal(name)) => {
+                resolved.push(name);
+                if let Some(mount) = mount_for(&resolved, mounts) {
+                    return Some(mount);
+                }
+                let is_link = std::fs::symlink_metadata(&resolved)
+                    .map_or(false, |meta| meta.file_type().is_symlink());
+                if is_link {
+                    links += 1;
+                    let Ok(target) = std::fs::read_link(&resolved) else {
+                        return None;
+                    };
+                    if links > 32 {
+                        return None;
+                    }
+                    resolved.pop();
+                    for part in target.components().rev() {
+                        pending.push_front(PathBuf::from(part.as_os_str()));
+                    }
+                }
+            }
+            _ => {}
+        }
+    }
+    None
+}
+
 #[derive(Default)]
 struct Probe {
     mounts: Option<(Instant, Vec<PathBuf>)>,
@@ -72,6 +126,8 @@ struct Probe {
     /// Mounts with a check still running; a hung server gets one stuck
     /// thread, not one per hovered word.
     pending: HashSet<PathBuf>,
+    /// Start of the current `WAIT_WINDOW` and the time waited in it.
+    waited: Option<(Instant, Duration)>,
 }
 
 /// Shared between `Probe` and the helper threads it starts.
@@ -115,6 +171,12 @@ impl Probe {
         if !self.pending.insert(mount.clone()) {
             return Kind::Missing;
         }
+        let now = Instant::now();
+        let spent = match self.waited {
+            Some((start, spent)) if now.duration_since(start) < WAIT_WINDOW => spent,
+            _ => Duration::ZERO,
+        };
+        let wait = wait.saturating_sub(spent);
         let (tx, rx) = std::sync::mpsc::channel();
         let owned = path.to_path_buf();
         std::thread::spawn(move || {
@@ -122,7 +184,13 @@ impl Probe {
             RESULTS.lock().unwrap().push((owned, mount, kind));
             tx.send(kind).ok();
         });
-        match rx.recv_timeout(wait) {
+        let answer = rx.recv_timeout(wait);
+        let start = match self.waited {
+            Some((start, _)) if now.duration_since(start) < WAIT_WINDOW => start,
+            _ => now,
+        };
+        self.waited = Some((start, spent + now.elapsed()));
+        match answer {
             Ok(kind) => {
                 self.collect_finished();
                 kind
@@ -175,6 +243,55 @@ mod tests {
         );
         // A sibling whose name only starts the same is not on the mount.
         assert_eq!(mount_for(Path::new("/Volumes/shared/c"), &mounts), None);
+    }
+
+    #[test]
+    fn a_symlink_into_a_network_mount_is_a_network_path() {
+        let dir = tempfile::tempdir().unwrap();
+        let home = dir.path().canonicalize().unwrap();
+        let mount = PathBuf::from("/Volumes/kaku-probe-test-share");
+        let mounts = vec![mount.clone()];
+        std::os::unix::fs::symlink(&mount, home.join("nas")).unwrap();
+        std::os::unix::fs::symlink("nas/sub", home.join("rel")).unwrap();
+        std::fs::create_dir(home.join("local")).unwrap();
+
+        assert_eq!(
+            network_mount_for(&home.join("nas/notes.md"), &mounts),
+            Some(mount.clone())
+        );
+        assert_eq!(
+            network_mount_for(&home.join("rel/notes.md"), &mounts),
+            Some(mount.clone())
+        );
+        assert_eq!(
+            network_mount_for(&home.join("local/../nas"), &mounts),
+            Some(mount.clone())
+        );
+        assert_eq!(network_mount_for(&home.join("local/a.txt"), &mounts), None);
+        assert_eq!(network_mount_for(&mount.join("x"), &mounts), Some(mount));
+        // No network mounts: nothing is looked at.
+        assert_eq!(network_mount_for(&home.join("nas/notes.md"), &[]), None);
+    }
+
+    #[test]
+    fn many_quick_network_checks_share_one_wait() {
+        fn quick(_: &Path) -> Kind {
+            std::thread::sleep(Duration::from_millis(20));
+            Kind::File
+        }
+        let mut probe = Probe::default();
+        let started = Instant::now();
+        // Twenty candidates, each on its own mount so none waits on another.
+        for i in 0..20 {
+            let mount = PathBuf::from(format!("/Volumes/quick-probe-test-{i}"));
+            probe.network_kind(&mount.join("a"), mount.clone(), quick, NETWORK_WAIT);
+        }
+        // Without a shared budget this takes 20 x 20ms.
+        assert!(
+            started.elapsed() < Duration::from_millis(150),
+            "{:?}",
+            started.elapsed()
+        );
     }
 
     #[test]
