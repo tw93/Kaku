@@ -122,3 +122,5 @@
 46	按 Cmd+J 跳到下一个需要你处理的标签
 47	Backspace removes a whole Chinese character or emoji in line input
 47	按行输入时 Backspace 会删掉整个中文字符或表情
+48	Cmd+V pastes a screenshot into an ssh session
+48	在 ssh 会话里按 Cmd+V 可以直接粘贴截图

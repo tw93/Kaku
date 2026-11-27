@@ -47,5 +47,6 @@ instruction files; read the txt file instead.
 | v45 | V0.28.0 | No schema change. Increments because the release gate requires a bump every release; the highlight covers restored long sessions no longer crashing on every launch. |
 | v46 | V0.29.0 | No schema change. The bundled `kaku.lua` binds Cmd+J to the new `ActivateNextAttentionTab`, which the highlight covers. |
 | v47 | V0.30.0 | No schema change. `detect_password_input` now defaults to false; the key already existed, so a config that sets it keeps its value and no migration is needed. Increments because the release gate requires a bump every release; the highlight covers Backspace on UTF-8 input. |
+| v48 | V0.31.0 | No schema change. `bell_dock_bounce` is a new key whose default keeps the Dock still, so no migration is needed. The bump also delivers the zsh integration's new OSC 133 prompt marks to existing installs, since only a bump regenerates `kaku.zsh`; the highlight covers pasting images over ssh. |
 
 When you bump the version, add a row here in the same change.
