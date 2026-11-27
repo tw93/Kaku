@@ -161,6 +161,10 @@ pub trait ConnectionOps {
     /// Pass None to clear the badge.
     fn set_dock_badge(&self, _label: Option<&str>) {}
 
+    /// Ask the OS for the user's attention (macOS: bounce the Dock icon).
+    /// `until_focused` keeps it going until the app is activated.
+    fn request_attention(&self, _until_focused: bool) {}
+
     /// Returns information about the screens
     fn screens(&self) -> anyhow::Result<Screens> {
         anyhow::bail!("Unable to query screen information");

@@ -39,8 +39,9 @@ use config::keyassignment::{
 };
 use config::window::WindowLevel;
 use config::{
-    configuration, AudibleBell, ConfigHandle, Dimension, DimensionContext, FrontEndSelection,
-    GeometryOrigin, GuiPosition, NotificationHandling, TermConfig, WindowCloseConfirmation,
+    configuration, AudibleBell, ConfigHandle, Dimension, DimensionContext, DockBounce,
+    FrontEndSelection, GeometryOrigin, GuiPosition, NotificationHandling, TermConfig,
+    WindowCloseConfirmation,
 };
 use lfucache::*;
 use mlua::{FromLua, LuaSerdeExt, UserData, UserDataFields};
@@ -2628,6 +2629,17 @@ impl TermWindow {
                     // Update global Dock badge count
                     if should_mark_unread {
                         front_end().adjust_unread_bell_count(1);
+                        if !window_has_focus {
+                            match self.config.bell_dock_bounce {
+                                DockBounce::Disabled => {}
+                                DockBounce::Once => Connection::get()
+                                    .expect("on main thread")
+                                    .request_attention(false),
+                                DockBounce::UntilFocused => Connection::get()
+                                    .expect("on main thread")
+                                    .request_attention(true),
+                            }
+                        }
                         // The web terminal reads tab titles from the title
                         // pass, which a repaint alone does not run, so the
                         // bell dot would only show there on some later event.

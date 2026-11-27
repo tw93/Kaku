@@ -81,3 +81,19 @@ impl Default for AudibleBell {
         Self::SystemBeep
     }
 }
+
+/// How the Dock icon bounces when a bell fires while Kaku is in the background.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, FromDynamic, ToDynamic)]
+pub enum DockBounce {
+    Disabled,
+    /// Bounce once.
+    Once,
+    /// Keep bouncing until Kaku is brought to the front.
+    UntilFocused,
+}
+
+impl Default for DockBounce {
+    fn default() -> DockBounce {
+        Self::Disabled
+    }
+}

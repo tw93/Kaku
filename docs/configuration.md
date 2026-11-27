@@ -257,6 +257,15 @@ The trailing cell stays blank until a pane wants your attention, then shows an a
 config.bell_tab_indicator = false
 ```
 
+When a bell fires while Kaku is in the background, the Dock icon can show the unread count and bounce. Both are off by default:
+
+```lua
+config.bell_dock_badge = true          -- unread bell count on the Dock icon
+config.bell_dock_bounce = 'Once'       -- 'Disabled', 'Once', or 'UntilFocused'
+```
+
+`'Once'` bounces the icon once per new unread bell. `'UntilFocused'` keeps it bouncing until you bring Kaku to the front.
+
 **Scrollbar**
 
 Disabled by default. Enable via `kaku config` (toggle the scrollbar style option) or in Lua:

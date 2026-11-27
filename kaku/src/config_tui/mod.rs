@@ -577,6 +577,15 @@ impl App {
             },
             ConfigField {
                 section: "Behavior",
+                key: "Bell Dock Bounce",
+                lua_key: "bell_dock_bounce",
+                value: String::new(),
+                default: "Off".into(),
+                options: choices(&["Off", "Once", "Until Focused"]),
+                skip_write: false,
+            },
+            ConfigField {
+                section: "Behavior",
                 key: "Remember Last Directory",
                 lua_key: "remember_last_cwd",
                 value: String::new(),
@@ -1043,6 +1052,15 @@ impl App {
                     Some("Top".into())
                 } else {
                     None
+                }
+            }
+            "bell_dock_bounce" => {
+                let value = raw.trim().trim_matches('\'').trim_matches('"');
+                match value {
+                    "Disabled" => Some("Off".into()),
+                    "Once" => Some("Once".into()),
+                    "UntilFocused" => Some("Until Focused".into()),
+                    _ => None,
                 }
             }
             "smart_tab_mode" => {
@@ -1553,6 +1571,18 @@ impl App {
                     "true".into()
                 } else {
                     "false".into()
+                }
+            }
+            "bell_dock_bounce" => {
+                let effective = if field.value.is_empty() {
+                    &field.default
+                } else {
+                    &field.value
+                };
+                match effective.as_str() {
+                    "Once" => "'Once'".into(),
+                    "Until Focused" => "'UntilFocused'".into(),
+                    _ => "'Disabled'".into(),
                 }
             }
             "smart_tab_mode" => {
@@ -2099,6 +2129,35 @@ return config
             App::normalize_value("tab_title_show_foreground_process", "false"),
             Some("Off".into())
         );
+    }
+
+    #[test]
+    fn bell_dock_bounce_round_trips_between_lua_and_settings() {
+        assert_eq!(
+            App::normalize_value("bell_dock_bounce", "'Disabled'"),
+            Some("Off".into())
+        );
+        assert_eq!(
+            App::normalize_value("bell_dock_bounce", "\"Once\""),
+            Some("Once".into())
+        );
+        assert_eq!(
+            App::normalize_value("bell_dock_bounce", "'UntilFocused'"),
+            Some("Until Focused".into())
+        );
+        assert_eq!(App::normalize_value("bell_dock_bounce", "true"), None);
+
+        let mut app = test_app();
+        let index = app
+            .fields
+            .iter()
+            .position(|f| f.lua_key == "bell_dock_bounce")
+            .expect("bell_dock_bounce field to exist");
+        assert_eq!(app.to_lua_value(&app.fields[index]), "'Disabled'");
+        for (shown, lua) in [("Once", "'Once'"), ("Until Focused", "'UntilFocused'")] {
+            app.fields[index].value = shown.into();
+            assert_eq!(app.to_lua_value(&app.fields[index]), lua);
+        }
     }
 
     #[test]
