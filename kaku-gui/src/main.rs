@@ -117,6 +117,7 @@ mod session_restore;
 mod shapecache;
 mod soul;
 mod spawn;
+mod ssh_image_paste;
 mod stall_watchdog;
 mod startup_trace;
 mod stats;

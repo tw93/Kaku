@@ -1,7 +1,8 @@
+use crate::ssh_image_paste::SshTarget;
 use crate::termwindow::TermWindowNotif;
 use crate::TermWindow;
 use config::keyassignment::{ClipboardCopyDestination, ClipboardPasteSource};
-use mux::pane::Pane;
+use mux::pane::{CachePolicy, Pane};
 use smol::Timer;
 use std::collections::HashMap;
 use std::path::PathBuf;
@@ -194,7 +195,18 @@ impl TermWindow {
             match future.await {
                 Ok(data) => {
                     window.notify(TermWindowNotif::Apply(Box::new(move |myself| {
-                        if let window::ClipboardData::Image(_) = &data {
+                        if let window::ClipboardData::Image(image) = &data {
+                            // ssh has no clipboard on the far side for Ctrl+V
+                            // to read, so copy the image there instead (#634).
+                            if let Some(ssh) = target_pane
+                                .get_foreground_process_info(CachePolicy::FetchImmediate)
+                                .and_then(|p| {
+                                    SshTarget::from_process(&p.executable, &p.argv, p.pid, &p.cwd)
+                                })
+                            {
+                                myself.paste_image_over_ssh(&target_pane, ssh, image.clone());
+                                return;
+                            }
                             // Clipboard holds an image, not text.  Instead of
                             // pasting the temp-file path (which confuses TUI
                             // apps), forward a Ctrl+V byte so the TUI app can
@@ -228,6 +240,46 @@ impl TermWindow {
         })
         .detach();
         self.maybe_scroll_to_bottom_for_input(&pane);
+    }
+
+    /// Uploads `image` to the host the pane's `ssh` is connected to, then
+    /// pastes its remote path. If the upload fails, the pane gets the Ctrl+V
+    /// a local image paste sends, and a toast says why.
+    fn paste_image_over_ssh(&mut self, pane: &Arc<dyn Pane>, ssh: SshTarget, image: PathBuf) {
+        let Some(window) = self.window.clone() else {
+            return;
+        };
+        let pane = pane.clone();
+        std::thread::spawn(move || {
+            let result = ssh.upload(&image);
+            window.notify(TermWindowNotif::Apply(Box::new(move |myself| {
+                let pane_id = pane.pane_id();
+                // The upload can take seconds; if that ssh has exited or another
+                // program took over the pane, typing the path there is wrong.
+                let same_session = pane
+                    .get_foreground_process_info(CachePolicy::FetchImmediate)
+                    .map_or(false, |p| p.pid == ssh.pid);
+                if !same_session {
+                    log::warn!(
+                        "image upload to {} finished after its ssh session left pane {pane_id}",
+                        ssh.host
+                    );
+                    return;
+                }
+                let written: anyhow::Result<()> = match &result {
+                    Ok(remote_path) => pane.send_paste(remote_path),
+                    Err(err) => {
+                        log::warn!("image paste over ssh to {} failed: {err:#}", ssh.host);
+                        myself
+                            .show_toast(format!("Couldn't copy the image to {}: {err}", ssh.host));
+                        pane.writer().write_all(b"\x16").map_err(Into::into)
+                    }
+                };
+                if let Err(err) = myself.finish_terminal_input(&pane, written) {
+                    log::warn!("failed to paste image into pane {pane_id}: {err:#}");
+                }
+            })));
+        });
     }
 }
 

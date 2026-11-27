@@ -116,6 +116,10 @@ Since V0.12.1 the viewport no longer jumps to the top during streaming output. I
 
 The yazi remote-files feature (`Cmd+Shift+R`) is designed for SSH sessions and mounts the remote filesystem via sshfs. `Cmd+Shift+Y` is for local yazi. Use `Cmd+Shift+R` when you are inside an SSH pane.
 
+## How do I paste a screenshot into Claude Code over SSH?
+
+When `ssh` is the program running in the pane, `Cmd+V` with an image on the clipboard copies it to `/tmp` on the remote host with `scp` and pastes that path, which Claude Code and Codex attach as an image. The copy reuses the options `ssh` was started with and your `~/.ssh/config`, and it cannot ask for a password, so it needs key or agent login, or a `ControlMaster` connection to share. If the copy fails, a toast shows why and the pane gets `Ctrl+V` as before. It does not apply when `ssh` runs inside a local tmux or through mosh.
+
 ## Kaku's prompt shows up in other terminals, or is missing from them.
 
 Kaku's shell integration is loaded by every zsh and fish, but the Starship prompt and Smart Tab only start inside Kaku, including tmux sessions started from Kaku. Other terminals keep whatever prompt you already had.
