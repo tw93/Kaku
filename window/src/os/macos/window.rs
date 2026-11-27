@@ -1153,7 +1153,10 @@ fn fit_frame_to_visible_frame(frame: NSRect, visible_frame: NSRect) -> Option<NS
 /// `constrainFrameRect:toScreen:` override accepts every frame so tiling window
 /// managers do not fight AppKit (#131, #183), which also dropped the screen
 /// clamp WezTerm gets from AppKit, so each font size step grew an unmaximized
-/// window past the screen edges (#633). None when the anchored frame fits.
+/// window past the screen edges (#633). Only what the resize itself adds is
+/// pulled back: a window the user parked partly off screen keeps the part
+/// that was already off it, so shrinking it (Cmd+-) or a DPI change leaves it
+/// where it is. None when the anchored frame fits.
 fn content_resize_frame(
     current: NSRect,
     frame_size: NSSize,
@@ -1164,7 +1167,23 @@ fn content_resize_frame(
         NSPoint::new(current.origin.x, top - frame_size.height),
         frame_size,
     );
-    fit_frame_to_visible_frame(anchored, visible_frame)
+    let visible_max_x = visible_frame.origin.x + visible_frame.size.width;
+    let visible_max_y = visible_frame.origin.y + visible_frame.size.height;
+    let left = (visible_frame.origin.x - current.origin.x).max(0.0);
+    let right = (current.origin.x + current.size.width - visible_max_x).max(0.0);
+    let bottom = (visible_frame.origin.y - current.origin.y).max(0.0);
+    let above = (top - visible_max_y).max(0.0);
+    let allowed = NSRect::new(
+        NSPoint::new(
+            visible_frame.origin.x - left,
+            visible_frame.origin.y - bottom,
+        ),
+        NSSize::new(
+            visible_frame.size.width + left + right,
+            visible_frame.size.height + bottom + above,
+        ),
+    );
+    fit_frame_to_visible_frame(anchored, allowed)
 }
 
 fn fit_new_window_to_visible_frame(window: id) {
@@ -7627,6 +7646,23 @@ mod tests {
         // Larger than the screen: capped to the visible frame, title bar reachable.
         let capped = content_resize_frame(current, NSSize::new(2000.0, 1200.0), visible).unwrap();
         assert!(nsrect_approx_eq(capped, visible, 0.01));
+    }
+
+    #[test]
+    fn a_window_parked_partly_off_screen_stays_put() {
+        let visible = NSRect::new(NSPoint::new(0.0, 0.0), NSSize::new(1440.0, 875.0));
+        // Half past the right edge and below the bottom.
+        let current = NSRect::new(NSPoint::new(1000.0, -200.0), NSSize::new(900.0, 600.0));
+
+        // Shrinking (Cmd+-) keeps the top-left, off screen or not.
+        assert!(content_resize_frame(current, NSSize::new(810.0, 540.0), visible).is_none());
+
+        // Growing further only gives back the new part.
+        let grown = content_resize_frame(current, NSSize::new(990.0, 800.0), visible).unwrap();
+        assert_eq!(grown.origin.x, 1000.0 - 90.0);
+        assert_eq!(grown.origin.y, -200.0);
+        assert_eq!(grown.size.width, 990.0);
+        assert_eq!(grown.size.height, 800.0);
     }
 
     #[test]
