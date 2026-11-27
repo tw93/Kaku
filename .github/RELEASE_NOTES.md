@@ -15,7 +15,7 @@
 6. **Cursor After Full Screen Apps**: The cursor an app shows before leaving its full screen view stays visible, such as after connecting through sshs.
 7. **Paths and Links**: Double-click selects a path with dashes in full, Cmd-hover links file paths that contain spaces and paths a TUI wraps on the first rows of a window, and plain text such as `3/4` or `and/or` no longer shows a link.
 8. **Nerd Font Icons**: The bundled Symbols Nerd Font is updated to 3.5.1, so newer CLI icons render without a font warning.
-9. **Tabs at the Top**: With the tab bar at the top, a narrow window keeps every tab and the + button inside it.
+9. **Narrow Windows**: With the tab bar at the top, a narrow window keeps every tab and the + button inside it, and a long notice wraps instead of running off its left edge.
 10. **Auto Theme**: Writing `config.color_scheme = 'Auto'` in kaku.lua now follows the macOS appearance instead of falling back to the plain default colors.
 
 ### 更新日志
@@ -27,7 +27,7 @@
 6. **全屏程序退出后的光标**：程序退出全屏界面前显示的光标会保留下来，比如通过 sshs 连接后光标不再消失。
 7. **路径与链接**：双击能选中带短横线的完整路径，Cmd 悬停能识别带空格的文件路径和窗口顶部几行里被 TUI 折开的路径，`3/4`、`and/or` 这类普通文字也不再显示成链接。
 8. **Nerd Font 图标**：内置的 Symbols Nerd Font 升级到 3.5.1，较新的 CLI 图标能正常显示，不再弹出字体提示。
-9. **顶部标签栏**：标签栏放在顶部时，窄窗口里的所有标签和 + 按钮都能完整显示。
+9. **窄窗口**：标签栏放在顶部时，窄窗口里的所有标签和 + 按钮都能完整显示，较长的提示也会换行，不再超出窗口左边。
 10. **自动主题**：在 kaku.lua 里手写 `config.color_scheme = 'Auto'` 现在会跟随系统深浅色，不再退回到没有主题的默认配色。
 
 Special thanks to @nuyhman and @Erchoc for their contributions to this release.
