@@ -98,6 +98,7 @@ mod commands;
 mod customglyph;
 mod download;
 mod frontend;
+mod fs_probe;
 mod glyphcache;
 mod inline_ai;
 mod inputmap;

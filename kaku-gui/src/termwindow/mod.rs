@@ -5775,10 +5775,23 @@ impl TermWindow {
             .zip(&texts)
             .map(|(line, text)| wrapped_link::LinkRow::new(line, text, cols))
             .collect();
-        let path_kind = |uri: &str| match self.resolve_file_path(pane, uri) {
-            Some(target) if target.path.is_dir() => wrapped_link::PathKind::Dir,
-            Some(target) if target.path.exists() => wrapped_link::PathKind::File,
-            _ => wrapped_link::PathKind::Missing,
+        // Hover runs on the GUI thread, so these checks go through fs_probe,
+        // which never waits long on a network mount.
+        let path_kind = |uri: &str| {
+            let target = Self::resolve_file_uri_with(
+                uri,
+                dirs_next::home_dir(),
+                || {
+                    pane.get_current_working_dir(CachePolicy::AllowStale)
+                        .and_then(|url| url.to_file_path().ok())
+                },
+                crate::fs_probe::exists,
+            );
+            match target.map(|target| crate::fs_probe::kind(&target.path)) {
+                Some(crate::fs_probe::Kind::Dir) => wrapped_link::PathKind::Dir,
+                Some(crate::fs_probe::Kind::File) => wrapped_link::PathKind::File,
+                _ => wrapped_link::PathKind::Missing,
+            }
         };
         let Some(rejoined) = wrapped_link::hover_link(
             &rows,
@@ -5843,12 +5856,53 @@ impl TermWindow {
         })
     }
 
+    /// A link the hyperlink rules found in plain text that names a relative
+    /// path (`3/4`, `and/or`, `../notes.md`), which only counts as a link
+    /// when the path exists: the rule cannot tell a fraction from a folder,
+    /// and a click on a missing path opens nothing. Absolute paths keep the
+    /// link, since an `open-uri` handler may map them to a remote host.
+    pub(crate) fn rule_link_needs_existing_target(link: &Hyperlink) -> bool {
+        link.is_implicit()
+            && link
+                .uri()
+                .strip_prefix("file://")
+                .is_some_and(|path| !path.starts_with('/'))
+    }
+
+    /// Whether hover shows `link` as a link at all.
+    fn hover_shows_link(&self, pane: &Arc<dyn Pane>, link: &Hyperlink) -> bool {
+        if !Self::rule_link_needs_existing_target(link) {
+            return true;
+        }
+        Self::resolve_file_uri_with(
+            link.uri(),
+            dirs_next::home_dir(),
+            || {
+                pane.get_current_working_dir(CachePolicy::AllowStale)
+                    .and_then(|url| url.to_file_path().ok())
+            },
+            crate::fs_probe::exists,
+        )
+        .is_some_and(|target| crate::fs_probe::exists(&target.path))
+    }
+
     /// `resolve_file_path` without the pane: `~/` resolves against `home`
     /// and a relative path against `cwd()`.
     fn resolve_file_uri(
         uri: &str,
         home: Option<PathBuf>,
         cwd: impl FnOnce() -> Option<PathBuf>,
+    ) -> Option<FileLinkTarget> {
+        Self::resolve_file_uri_with(uri, home, cwd, |path| path.exists())
+    }
+
+    /// `resolve_file_uri` with the existence check supplied, so hover can
+    /// use one that does not block on a network mount.
+    fn resolve_file_uri_with(
+        uri: &str,
+        home: Option<PathBuf>,
+        cwd: impl FnOnce() -> Option<PathBuf>,
+        exists: impl Fn(&std::path::Path) -> bool,
     ) -> Option<FileLinkTarget> {
         let decoded_uri_path = url::Url::parse(uri)
             .ok()
@@ -5876,7 +5930,7 @@ impl TermWindow {
         // A name that exists as written wins over reading its tail as a
         // location: `Archive (1)` and `Project(1)` are folders, not line 1.
         let literal = locate(path_str)?;
-        if literal.exists() {
+        if exists(&literal) {
             return Some(FileLinkTarget {
                 path: literal,
                 line: None,

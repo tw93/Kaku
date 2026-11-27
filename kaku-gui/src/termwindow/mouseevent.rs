@@ -2090,7 +2090,9 @@ impl super::TermWindow {
             column,
         };
         pane.with_lines_mut(stable_row..stable_row + 1, &mut find_link);
-        let new_highlight = find_link.current;
+        let new_highlight = find_link
+            .current
+            .filter(|link| self.hover_shows_link(&pane, link));
 
         match (self.current_highlight.as_ref(), new_highlight) {
             (Some(old_link), Some(new_link)) if Arc::ptr_eq(&old_link, &new_link) => {

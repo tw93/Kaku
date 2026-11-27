@@ -226,9 +226,15 @@ fn clicked_uri(fx: &Fixture, case: &Case) -> Result<Option<String>, String> {
             wrapped_link::apply_link_to_line(&mut lines[*row], bytes, &rejoined.link);
         }
     }
+    // Hover shows no link for a relative rule path that does not exist.
     Ok(lines[hover_row]
         .get_cell(column)
-        .and_then(|cell| cell.attrs().hyperlink().map(|l| l.uri().to_string())))
+        .and_then(|cell| cell.attrs().hyperlink().cloned())
+        .filter(|link| {
+            !TermWindow::rule_link_needs_existing_target(link)
+                || fx.kind(link.uri()) != PathKind::Missing
+        })
+        .map(|link| link.uri().to_string()))
 }
 
 fn check(fx: &Fixture, case: &Case) -> Result<(), String> {
@@ -823,6 +829,17 @@ fn corpus() -> Vec<Case> {
             (1, "done"),
             Nothing,
         ),
+        // ---- pre-release review: ordinary text stays plain ----
+        one("fraction", "about 3/4 of the runs passed", "3/4", Nothing),
+        one("and/or", "read and/or write the file", "and", Nothing),
+        one("version tag", "released v1.2.3 today", "1.2", Nothing),
+        one("clock time", "started at 12:30:45 and ended", "30", Nothing),
+        one("missing dotted name", "edit notes.txt later", "notes", Nothing),
+        one("attribute chain", "call os.path.join(a, b) here", "path", Nothing),
+        one("shell prompt host", "tw93@devbox ~ % ls", "devbox", Nothing),
+        one("lone tilde", "~ is your home", "~", Nothing),
+        one("cjk slash", "这个/那个都可以", "那个", Nothing),
+        one("missing relative path", "look in ../nowhere/else.md", "nowhere", Nothing),
     ]
 }
 
