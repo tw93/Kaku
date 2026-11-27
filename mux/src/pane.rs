@@ -425,6 +425,12 @@ pub trait Pane: Downcast + Send + Sync {
         None
     }
 
+    /// Stable row and column where the shell last marked a prompt start
+    /// (OSC 133 A, N or P), if available.
+    fn get_last_prompt_start(&self) -> Option<(StableRowIndex, usize)> {
+        None
+    }
+
     /// Returns true if the terminal has grabbed the mouse and wants to
     /// give the embedded application a chance to process events.
     /// In practice this controls whether the gui will perform local

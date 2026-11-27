@@ -157,6 +157,31 @@ if command -v zsh >/dev/null 2>&1; then
   ')" || fail "mouse hook must not stop later prompt hooks outside Kaku"
   [[ -z "$outside_reset" ]] || fail "mouse hook changed a different terminal"
 
+  # OSC 133 prompt marks: session restore cuts history at the marked prompt.
+  semantic_marks="$(HOME="$tmp_home" TERM=xterm-256color TERM_PROGRAM=Kaku zsh -dfc '
+    add-zsh-hook() { :; }
+    source "$HOME/.config/kaku/zsh/kaku.zsh" >/dev/null
+    (( ${precmd_functions[(Ie)_kaku_semantic_precmd]} )) || exit 1
+    (( ${preexec_functions[(Ie)_kaku_semantic_preexec]} )) || exit 1
+    # Powerlevel10k still captures stdout at its first precmd (#561).
+    __p9k_instant_prompt_active=1
+    [[ -z "$(_kaku_semantic_precmd)" ]] || exit 1
+    unset __p9k_instant_prompt_active
+    _kaku_semantic_precmd
+    _kaku_semantic_preexec
+  ')" || fail "semantic prompt hooks are not registered or wrote during instant prompt"
+  [[ "$semantic_marks" == $'\e]133;P;k=i\a\e]133;C\a' ]] \
+    || fail "prompt and command did not send OSC 133 marks"
+
+  outside_marks="$(HOME="$tmp_home" TERM_PROGRAM=Apple_Terminal zsh -dfc '
+    add-zsh-hook() { :; }
+    source "$HOME/.config/kaku/zsh/kaku.zsh" >/dev/null
+    unset TMUX
+    _kaku_semantic_precmd || exit 1
+    _kaku_semantic_preexec || exit 1
+  ')" || fail "semantic prompt hooks must not stop later hooks outside Kaku"
+  [[ -z "$outside_marks" ]] || fail "semantic prompt marks reached a different terminal"
+
   starship_stub_dir="$tmp_dir/starship-bin"
   starship_marker="$tmp_dir/starship-initialized"
   mkdir -p "$starship_stub_dir"

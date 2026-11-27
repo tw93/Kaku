@@ -2157,6 +2157,38 @@ fn restored(texts: &[&str]) -> Vec<wezterm_surface::Line> {
 }
 
 #[test]
+fn prompt_marks_record_where_the_prompt_starts() {
+    // Kaku's zsh integration sends OSC 133;P before the prompt and 133;C
+    // before a command's output. Session restore cuts the history at the
+    // recorded prompt start, so both rows of a two-line prompt go.
+    let mut term = TestTerm::new(5, 20, 100);
+    term.print("out\r\n\x1b]133;P;k=i\x07~/proj main\r\n> ");
+    assert_eq!(term.get_last_prompt_start(), Some((1, 0)));
+    assert_eq!(term.cursor_pos().x, 2, "P adds no fresh line");
+    assert_eq!(term.get_last_command_output_start(), None);
+
+    // A command without output, then the next prompt: the mark moves to
+    // it, so the earlier command line stays in the history.
+    term.print("cd src\r\n\x1b]133;C\x07\x1b]133;P;k=i\x07~/proj/src\r\n> ");
+    assert_eq!(term.get_last_prompt_start(), Some((3, 0)));
+    assert_eq!(term.get_last_command_output_start(), None);
+
+    // Running a command records where its output starts.
+    term.print("ls\r\n\x1b]133;C\x07a.txt");
+    assert_eq!(term.get_last_command_output_start(), Some(5));
+
+    // P sent right after output without a final newline lands mid-row.
+    let mut sp = TestTerm::new(5, 20, 100);
+    sp.print("abc\x1b]133;P;k=i\x07> ");
+    assert_eq!(sp.get_last_prompt_start(), Some((0, 3)));
+
+    // OSC 133;A starts on a fresh line itself.
+    let mut fish = TestTerm::new(5, 20, 100);
+    fish.print("abc\x1b]133;A\x07> ");
+    assert_eq!(fish.get_last_prompt_start(), Some((1, 0)));
+}
+
+#[test]
 fn restored_history_shows_above_the_new_prompt() {
     // A restored pane looks like it did at quit: the history fills the
     // screen above the shell's prompt instead of sitting off-screen in

@@ -1543,6 +1543,33 @@ if [[ \${precmd_functions[(Ie)_kaku_reset_mouse_tracking]} -eq 0 ]]; then
     precmd_functions+=(_kaku_reset_mouse_tracking)
 fi
 
+# OSC 133 semantic prompt zones, as the fish integration emits: where each
+# prompt starts and where command output begins. Session restore saves the
+# history above the current prompt, so a two-line prompt is no longer saved
+# half and shown again above the new one. P rather than A: zsh's PROMPT_SP
+# has already moved to a fresh line before precmd. Powerlevel10k's instant
+# prompt still captures stdout at the first precmd (#561); that prompt stays
+# unmarked unless p10k emits its own marks (POWERLEVEL9K_TERM_SHELL_INTEGRATION).
+_kaku_semantic_precmd() {
+    (( \${+__p9k_instant_prompt_active} )) && return 0
+    if [[ "\${TERM_PROGRAM:-}" == "Kaku" || ( -n "\${TMUX:-}" && -n "\${KAKU_SESSION:-}" ) ]]; then
+        printf '\033]133;P;k=i\007'
+    fi
+    return 0
+}
+_kaku_semantic_preexec() {
+    if [[ "\${TERM_PROGRAM:-}" == "Kaku" || ( -n "\${TMUX:-}" && -n "\${KAKU_SESSION:-}" ) ]]; then
+        printf '\033]133;C\007'
+    fi
+    return 0
+}
+if [[ \${precmd_functions[(Ie)_kaku_semantic_precmd]} -eq 0 ]]; then
+    precmd_functions+=(_kaku_semantic_precmd)
+fi
+if [[ \${preexec_functions[(Ie)_kaku_semantic_preexec]} -eq 0 ]]; then
+    preexec_functions+=(_kaku_semantic_preexec)
+fi
+
 # Kaku AI fix hooks (error-only):
 # - preexec captures the command text
 # - precmd captures the previous command exit code

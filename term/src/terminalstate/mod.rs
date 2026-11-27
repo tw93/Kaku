@@ -470,6 +470,11 @@ pub struct TerminalState {
     /// Stable row index where the last command's output started (OSC 133 C).
     /// Used to extract the output region when building AI context.
     last_command_output_start: Option<StableRowIndex>,
+
+    /// Where the cursor was when the shell last marked a prompt start
+    /// (OSC 133 A, N or P): the stable row and the column. Session restore
+    /// saves the history above it.
+    last_prompt_start: Option<(StableRowIndex, usize)>,
 }
 
 #[derive(Debug)]
@@ -667,6 +672,7 @@ impl TerminalState {
             primary_peek: false,
             last_command_status: None,
             last_command_output_start: None,
+            last_prompt_start: None,
         }
     }
 
@@ -3014,5 +3020,9 @@ impl TerminalState {
 
     pub fn get_last_command_output_start(&self) -> Option<StableRowIndex> {
         self.last_command_output_start
+    }
+
+    pub fn get_last_prompt_start(&self) -> Option<(StableRowIndex, usize)> {
+        self.last_prompt_start
     }
 }

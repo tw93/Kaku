@@ -23,7 +23,14 @@ const SNAPSHOT_VERSION: u32 = 4;
 /// Bincode-format version for per-pane scrollback sidecars. Bumped
 /// independently of `SNAPSHOT_VERSION` so content changes do not force the
 /// envelope to invalidate older snapshots.
-const CONTENT_SCHEMA_VERSION: u32 = 1;
+///
+/// 2: the capture ends before the prompt the cursor sits in (#632).
+const CONTENT_SCHEMA_VERSION: u32 = 2;
+
+/// Sidecars from V0.30.0 and before, which end with the prompt row the
+/// cursor sat in. Still read, minus that row, so the first restore after
+/// upgrading does not show the old prompt above the new one.
+const LEGACY_CONTENT_SCHEMA: u32 = 1;
 
 /// Sentinel constant for the `Line`/`Cell` serde layout from wezterm-surface.
 /// Bump manually when pulling an upstream wezterm change that touches the
@@ -319,8 +326,13 @@ fn capture_pane_content(
     let dims = pane.get_dimensions();
     let mut end: wezterm_term::StableRowIndex = dims.physical_top + dims.viewport_rows as isize;
     if !pane.is_alt_screen_active() {
-        let zones = pane.get_semantic_zones().unwrap_or_default();
-        end = end.min(current_prompt_start(pane.get_cursor_position().y, &zones));
+        if let Some(prompt) = current_prompt_start(
+            pane.get_cursor_position().y,
+            pane.get_last_prompt_start(),
+            pane.get_last_command_output_start(),
+        ) {
+            end = end.min(prompt);
+        }
     }
     let start = (end - cap as isize).max(dims.scrollback_top);
     if start >= end {
@@ -335,34 +347,29 @@ fn capture_pane_content(
 
 /// First row of the prompt the cursor sits in, where a capture of the
 /// primary screen ends. The new shell draws its own prompt, so a saved copy
-/// only lands in scrollback, and a window that grows after the restore
-/// pulls it into view above the live one (#632). Without OSC 133 marks this
-/// is the cursor row, which is the whole prompt for the bundled one-line
-/// Starship prompt; with them it is the start of the last prompt zone, so a
-/// multi-line prompt goes too, unless command output follows that zone.
+/// would show again above the live one (#632). The zsh and fish
+/// integrations mark where each prompt starts with OSC 133, so a
+/// multi-line prompt goes as a whole; a mark past column 0 has output
+/// before it on that row, and that row stays. Without
+/// a mark (bash, Powerlevel10k's first prompt) it is the cursor row, the
+/// whole bundled one-line Starship prompt. None while a command runs
+/// (output marked after the prompt): then everything is kept, its last
+/// line included.
 fn current_prompt_start(
     cursor_y: wezterm_term::StableRowIndex,
-    zones: &[wezterm_term::SemanticZone],
-) -> wezterm_term::StableRowIndex {
-    use wezterm_term::SemanticType;
-    let before_cursor = |z: &&wezterm_term::SemanticZone| z.start_y <= cursor_y;
-    let Some(prompt) = zones
-        .iter()
-        .filter(before_cursor)
-        .filter(|z| z.semantic_type == SemanticType::Prompt)
-        .max_by_key(|z| (z.start_y, z.start_x))
-    else {
-        return cursor_y;
-    };
-    let output_after = zones.iter().filter(before_cursor).any(|z| {
-        z.semantic_type == SemanticType::Output
-            && (z.start_y, z.start_x) > (prompt.start_y, prompt.start_x)
-    });
-    if output_after {
-        cursor_y
-    } else {
-        prompt.start_y.min(cursor_y)
+    prompt_mark: Option<(wezterm_term::StableRowIndex, usize)>,
+    output_start: Option<wezterm_term::StableRowIndex>,
+) -> Option<wezterm_term::StableRowIndex> {
+    if let Some(output) = output_start {
+        if prompt_mark.map_or(true, |(row, _)| output >= row) {
+            return None;
+        }
     }
+    let Some((row, col)) = prompt_mark else {
+        return Some(cursor_y);
+    };
+    let start = if col > 0 { row + 1 } else { row };
+    Some(start.min(cursor_y))
 }
 
 /// Atomic write for bincode payloads, mirroring `write_json_atomic`.
@@ -489,7 +496,7 @@ fn load_pane_payload(
             return None;
         }
     };
-    if payload.schema != CONTENT_SCHEMA_VERSION {
+    if payload.schema != CONTENT_SCHEMA_VERSION && payload.schema != LEGACY_CONTENT_SCHEMA {
         log::warn!(
             "scrollback sidecar at {} has schema {} (expected {}); skipping",
             path.display(),
@@ -536,14 +543,23 @@ fn reflow_lines(lines: Vec<wezterm_term::Line>, target_cols: usize) -> Vec<wezte
 /// screenful of blank rows. Those are padding, not content: once in
 /// scrollback, a window that grows after spawning (a maximized window on an
 /// Intel Mac) pulls them into view and pushes the new prompt to the bottom
-/// row (#632). Drop them before reflowing.
+/// row (#632). Drop them before reflowing. A `legacy` capture also ends
+/// with the prompt row the cursor sat in, which the new shell draws again.
 fn lines_for_restore(
     mut lines: Vec<wezterm_term::Line>,
     saved_cols: usize,
     target_cols: usize,
+    legacy: bool,
 ) -> Vec<wezterm_term::Line> {
-    while lines.last().is_some_and(|line| line.is_whitespace()) {
+    let trim = |lines: &mut Vec<wezterm_term::Line>| {
+        while lines.last().is_some_and(|line| line.is_whitespace()) {
+            lines.pop();
+        }
+    };
+    trim(&mut lines);
+    if legacy {
         lines.pop();
+        trim(&mut lines);
     }
     if saved_cols != target_cols {
         reflow_lines(lines, target_cols)
@@ -1280,7 +1296,8 @@ async fn spawn_panes_for_tab(
         // scrollback so the structural restore is never blocked.
         if let (Some(dir), Some(content_ref)) = (content_dir, entry.content_ref.as_ref()) {
             if let Some(payload) = load_pane_payload(dir, content_ref) {
-                let lines = lines_for_restore(payload.lines, payload.cols, entry.size.cols);
+                let legacy = payload.schema == LEGACY_CONTENT_SCHEMA;
+                let lines = lines_for_restore(payload.lines, payload.cols, entry.size.cols, legacy);
                 if let Err(e) = pane.inject_scrollback(lines) {
                     log::warn!("inject scrollback for pane {}: {e:#}", entry.pane_id);
                 }
@@ -2132,6 +2149,24 @@ mod tests {
     }
 
     #[test]
+    fn a_v0_30_sidecar_still_loads() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("pane_8.bin");
+        let mut payload = sample_payload(80, 24, 2);
+        payload.schema = LEGACY_CONTENT_SCHEMA;
+        write_bincode_atomic(&path, &payload, None).unwrap();
+        let content_ref = PaneContentRef {
+            filename: "pane_8.bin".into(),
+            schema: LEGACY_CONTENT_SCHEMA,
+            saved_cols: 80,
+            saved_rows: 24,
+            line_count: 2,
+        };
+        let loaded = load_pane_payload(dir.path(), &content_ref).expect("legacy sidecar");
+        assert_eq!(loaded.schema, LEGACY_CONTENT_SCHEMA);
+    }
+
+    #[test]
     fn pane_content_skipped_when_fingerprint_mismatched() {
         let dir = tempfile::tempdir().unwrap();
         let path = dir.path().join("pane_8.bin");
@@ -2192,31 +2227,20 @@ mod tests {
 
     #[test]
     fn capture_ends_before_the_prompt_the_cursor_sits_in() {
-        use wezterm_term::{SemanticType, SemanticZone};
-        let zone = |start_y, end_y, semantic_type| SemanticZone {
-            start_y,
-            start_x: 0,
-            end_y,
-            end_x: 2,
-            semantic_type,
-        };
         // No marks: the cursor row is the bundled one-line prompt (#632).
-        assert_eq!(current_prompt_start(5, &[]), 5);
-        // A two-line prompt with typed input goes as a whole.
-        let marked = [
-            zone(0, 3, SemanticType::Output),
-            zone(4, 5, SemanticType::Prompt),
-            zone(5, 5, SemanticType::Input),
-        ];
-        assert_eq!(current_prompt_start(5, &marked), 4);
-        // Output after the last prompt means a command is still running, so
-        // only the cursor row is left out.
-        let running = [
-            zone(0, 0, SemanticType::Prompt),
-            zone(0, 0, SemanticType::Input),
-            zone(1, 5, SemanticType::Output),
-        ];
-        assert_eq!(current_prompt_start(5, &running), 5);
+        assert_eq!(current_prompt_start(5, None, None), Some(5));
+        // A two-line prompt marked at row 4 goes as a whole.
+        assert_eq!(current_prompt_start(5, Some((4, 0)), None), Some(4));
+        // A mark sent mid-row, after output without a final newline: that
+        // output row stays.
+        assert_eq!(current_prompt_start(5, Some((3, 3)), None), Some(4));
+        // Output marked after the prompt means a command is still running,
+        // so nothing is cut: a progress line on the cursor row is output.
+        assert_eq!(current_prompt_start(5, Some((0, 0)), Some(1)), None);
+        assert_eq!(current_prompt_start(5, None, Some(1)), None);
+        // Output from an earlier command, before the current prompt (OSC
+        // 133 N keeps it), does not count.
+        assert_eq!(current_prompt_start(5, Some((4, 0)), Some(1)), Some(4));
     }
 
     #[test]
@@ -2226,15 +2250,20 @@ mod tests {
         // the window grew (#632); blank rows between output stay.
         let mut lines = vec![make_line("$ ls"), make_line(""), make_line("~ $")];
         lines.extend((0..32).map(|_| make_line("")));
-        let out = lines_for_restore(lines.clone(), 80, 80);
+        let out = lines_for_restore(lines.clone(), 80, 80, false);
         let text: Vec<String> = out.iter().map(|l| l.as_str().into_owned()).collect();
         assert_eq!(text, ["$ ls", "", "~ $"]);
 
-        let reflowed = lines_for_restore(lines, 80, 40);
+        let reflowed = lines_for_restore(lines.clone(), 80, 40, false);
         assert_eq!(reflowed.len(), 3);
 
         let blank: Vec<_> = (0..33).map(|_| make_line("")).collect();
-        assert!(lines_for_restore(blank, 80, 80).is_empty());
+        assert!(lines_for_restore(blank, 80, 80, false).is_empty());
+
+        // A V0.30.0 sidecar still holds the prompt the cursor sat in.
+        let legacy = lines_for_restore(lines, 80, 80, true);
+        let text: Vec<String> = legacy.iter().map(|l| l.as_str().into_owned()).collect();
+        assert_eq!(text, ["$ ls"]);
     }
 
     #[test]

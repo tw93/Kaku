@@ -993,6 +993,7 @@ impl<'a> Performer<'a> {
             ) => {
                 self.fresh_line();
                 self.pen.set_semantic_type(SemanticType::Prompt);
+                self.mark_prompt_start();
                 // Reset per-command state so stale exit code + output can't mismatch
                 // between the end of the previous command and the start of the next.
                 self.last_command_status = None;
@@ -1003,6 +1004,7 @@ impl<'a> Performer<'a> {
                 FinalTermSemanticPrompt::StartPrompt(_),
             ) => {
                 self.pen.set_semantic_type(SemanticType::Prompt);
+                self.mark_prompt_start();
                 self.last_command_status = None;
                 self.last_command_output_start = None;
                 self.drop_live_program_status();
@@ -1012,6 +1014,7 @@ impl<'a> Performer<'a> {
             ) => {
                 self.fresh_line();
                 self.pen.set_semantic_type(SemanticType::Prompt);
+                self.mark_prompt_start();
             }
             OperatingSystemCommand::FinalTermSemanticPrompt(
                 FinalTermSemanticPrompt::MarkEndOfPromptAndStartOfInputUntilNextMarker,
@@ -1303,6 +1306,11 @@ impl<'a> Performer<'a> {
 
     /// A new prompt means the program that reported working or blocked has
     /// gone; done and error stay until the program replaces them.
+    fn mark_prompt_start(&mut self) {
+        let row = self.screen().visible_row_to_stable_row(self.cursor.y);
+        self.last_prompt_start = Some((row, self.cursor.x));
+    }
+
     fn drop_live_program_status(&mut self) {
         if matches!(
             self.program_status,

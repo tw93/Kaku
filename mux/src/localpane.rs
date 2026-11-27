@@ -772,6 +772,11 @@ impl Pane for LocalPane {
         term.get_last_command_output_start()
     }
 
+    fn get_last_prompt_start(&self) -> Option<(StableRowIndex, usize)> {
+        let term = self.terminal.lock();
+        term.get_last_prompt_start()
+    }
+
     async fn search(
         &self,
         pattern: Pattern,
