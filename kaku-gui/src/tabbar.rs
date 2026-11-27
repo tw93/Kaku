@@ -866,6 +866,30 @@ fn is_tab_hover(mouse_x: Option<usize>, x: usize, tab_title_len: usize) -> bool 
 /// bar lays itself out and is never truncated here).
 /// Cells kept at the end of each tab for the Touch Mode close button.
 const CLOSE_BUTTON_CELLS: usize = 2;
+/// Cells a top bar leaves free at its start for the native traffic lights.
+const NATIVE_TITLE_BUTTONS_CELLS: usize = 10;
+
+/// Cells the hide, maximize and close buttons that Kaku draws in the tab
+/// bar take, at their wider hover form.
+fn drawn_title_buttons_cells(config: &ConfigHandle) -> usize {
+    let len = |plain: &str, hover: &str| {
+        parse_status_text(plain, CellAttributes::default())
+            .len()
+            .max(parse_status_text(hover, CellAttributes::default()).len())
+    };
+    let style = &config.tab_bar_style;
+    config
+        .integrated_title_buttons
+        .iter()
+        .map(|button| match button {
+            IntegratedTitleButton::Hide => len(&style.window_hide, &style.window_hide_hover),
+            IntegratedTitleButton::Maximize => {
+                len(&style.window_maximize, &style.window_maximize_hover)
+            }
+            IntegratedTitleButton::Close => len(&style.window_close, &style.window_close_hover),
+        })
+        .sum()
+}
 
 fn tab_width_budget(
     title_width: usize,
@@ -1078,9 +1102,36 @@ impl TabBarState {
         } else {
             0
         };
+        // A top bar starts after the space it keeps for the native traffic
+        // lights and after the left status, so tabs get only what is left;
+        // otherwise a narrow window pushes the last tab and the new-tab
+        // button past its right edge.
+        let native_buttons_cells = if use_integrated_title_buttons
+            && config.integrated_title_button_style == IntegratedTitleButtonStyle::MacOsNative
+            && !config.use_fancy_tab_bar
+            && !config.tab_bar_at_bottom
+            && !is_fullscreen
+        {
+            NATIVE_TITLE_BUTTONS_CELLS
+        } else {
+            0
+        };
+        // Title buttons Kaku draws itself sit on the same row at either end.
+        let drawn_buttons_cells = if use_integrated_title_buttons
+            && config.integrated_title_button_style != IntegratedTitleButtonStyle::MacOsNative
+        {
+            drawn_title_buttons_cells(config)
+        } else {
+            0
+        };
+        let left_status_cells = parse_status_text(left_status, CellAttributes::default()).len();
         let tab_width_max = tab_width_budget(
             title_width,
-            controls_width + close_cells * number_of_tabs,
+            controls_width
+                + close_cells * number_of_tabs
+                + native_buttons_cells
+                + drawn_buttons_cells
+                + left_status_cells,
             number_of_tabs,
             config.tab_max_width,
             config.use_fancy_tab_bar,
@@ -1103,16 +1154,9 @@ impl TabBarState {
                 .clone(),
         );
 
-        if use_integrated_title_buttons
-            && config.integrated_title_button_style == IntegratedTitleButtonStyle::MacOsNative
-            && !config.use_fancy_tab_bar
-            && !config.tab_bar_at_bottom
-            && !is_fullscreen
-        {
-            for _ in 0..10_usize {
-                line.insert_cell(0, black_cell.clone(), title_width, SEQ_ZERO);
-                x += 1;
-            }
+        for _ in 0..native_buttons_cells {
+            line.insert_cell(0, black_cell.clone(), title_width, SEQ_ZERO);
+            x += 1;
         }
 
         if use_integrated_title_buttons
@@ -1313,46 +1357,7 @@ impl TabBarState {
             && config.integrated_title_button_style != IntegratedTitleButtonStyle::MacOsNative
             && config.integrated_title_button_alignment == IntegratedTitleButtonAlignment::Right
         {
-            let window_hide =
-                parse_status_text(&config.tab_bar_style.window_hide, CellAttributes::default());
-            let window_hide_hover = parse_status_text(
-                &config.tab_bar_style.window_hide_hover,
-                CellAttributes::default(),
-            );
-
-            let window_maximize = parse_status_text(
-                &config.tab_bar_style.window_maximize,
-                CellAttributes::default(),
-            );
-            let window_maximize_hover = parse_status_text(
-                &config.tab_bar_style.window_maximize_hover,
-                CellAttributes::default(),
-            );
-            let window_close = parse_status_text(
-                &config.tab_bar_style.window_close,
-                CellAttributes::default(),
-            );
-            let window_close_hover = parse_status_text(
-                &config.tab_bar_style.window_close_hover,
-                CellAttributes::default(),
-            );
-
-            let hide_len = window_hide.len().max(window_hide_hover.len());
-            let maximize_len = window_maximize.len().max(window_maximize_hover.len());
-            let close_len = window_close.len().max(window_close_hover.len());
-
-            let mut width_to_reserve = 0;
-            for button in &config.integrated_title_buttons {
-                use IntegratedTitleButton as Button;
-                let button_len = match button {
-                    Button::Hide => hide_len,
-                    Button::Maximize => maximize_len,
-                    Button::Close => close_len,
-                };
-                width_to_reserve += button_len;
-            }
-
-            title_width.saturating_sub(width_to_reserve)
+            title_width.saturating_sub(drawn_title_buttons_cells(config))
         } else {
             title_width
         };
@@ -1985,6 +1990,81 @@ return {{ use_fancy_tab_bar = false, show_new_tab_button_in_tab_bar = false,
         .expect("hover callback should produce a title");
 
         assert_eq!(plain_text(&hover), "HOVER");
+        Ok(())
+    }
+
+    /// A top bar in a narrow window fits every tab and the new-tab button
+    /// after the space it keeps for the traffic lights and the left status.
+    #[test]
+    fn top_bar_fits_its_tabs_after_the_traffic_lights() -> anyhow::Result<()> {
+        let _config = CONFIG_TEST_LOCK.lock();
+        config::designate_this_as_the_main_thread();
+        let config_file = tempfile::NamedTempFile::new()?;
+        std::fs::write(
+            config_file.path(),
+            "return { use_fancy_tab_bar = false, tab_bar_at_bottom = false, \
+             window_decorations = 'INTEGRATED_BUTTONS|RESIZE', tab_max_width = 48, \
+             show_new_tab_button_in_tab_bar = true, \
+             integrated_title_button_style = 'MacOsNative' }",
+        )?;
+        config::set_config_file_override(config_file.path());
+        config::reload();
+        let config = config::configuration_result()?;
+        let tabs: Vec<_> = (0..8)
+            .map(|i| make_tab(i, i, i == 5, "private/tmp"))
+            .collect();
+        let drawn = tempfile::NamedTempFile::new()?;
+        std::fs::write(
+            drawn.path(),
+            "return { use_fancy_tab_bar = false, tab_bar_at_bottom = false, \
+             window_decorations = 'INTEGRATED_BUTTONS|RESIZE', tab_max_width = 48, \
+             show_new_tab_button_in_tab_bar = true, \
+             integrated_title_button_style = 'Windows', \
+             integrated_title_button_alignment = 'Left' }",
+        )?;
+        config::set_config_file_override(drawn.path());
+        config::reload();
+        let drawn_config = config::configuration_result()?;
+        for (config, left_status) in [(&config, ""), (&config, "   "), (&drawn_config, "")] {
+            let bar = TabBarState::new(
+                56,
+                None,
+                &tabs,
+                &[],
+                false,
+                None,
+                config,
+                left_status,
+                "",
+                false,
+            );
+            let end = |item: &TabBarItem| {
+                bar.items
+                    .iter()
+                    .filter(|e| std::mem::discriminant(&e.item) == std::mem::discriminant(item))
+                    .map(|e| e.x + e.width)
+                    .max()
+                    .expect("item present")
+            };
+            let last_tab = bar
+                .items
+                .iter()
+                .filter(|e| matches!(e.item, TabBarItem::Tab { .. }))
+                .map(|e| e.x + e.width)
+                .max()
+                .expect("tabs");
+            assert!(
+                last_tab <= 56,
+                "last tab ends at {} with {:?}",
+                last_tab,
+                left_status
+            );
+            assert!(
+                end(&TabBarItem::NewTabButton) <= 56,
+                "new-tab button ends past the edge with {:?}",
+                left_status
+            );
+        }
         Ok(())
     }
 
