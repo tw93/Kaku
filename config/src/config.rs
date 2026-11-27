@@ -1,5 +1,5 @@
 use crate::background::{BackgroundLayer, Gradient};
-use crate::bell::{AudibleBell, EasingFunction, VisualBell};
+use crate::bell::{AudibleBell, DockBounce, EasingFunction, VisualBell};
 use crate::color::{
     ColorSchemeFile, HsbTransform, Palette, SrgbaTuple, TabBarStyle, WindowFrameConfig,
 };
@@ -1009,6 +1009,10 @@ pub struct Config {
     /// Show a badge on the Dock icon when bell fires in unfocused window
     #[dynamic(default)]
     pub bell_dock_badge: bool,
+
+    /// Bounce the Dock icon when a bell fires in an unfocused window
+    #[dynamic(default)]
+    pub bell_dock_bounce: DockBounce,
 
     /// Restore the last working directory when opening new tabs or windows
     #[dynamic(default = "default_true")]

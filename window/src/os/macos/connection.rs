@@ -13,7 +13,7 @@ use crate::spawn::*;
 use crate::Appearance;
 use cocoa::appkit::{NSApp, NSApplication, NSApplicationActivationPolicyRegular, NSScreen};
 use cocoa::base::{id, nil};
-use cocoa::foundation::{NSArray, NSInteger, NSPoint, NSString};
+use cocoa::foundation::{NSArray, NSInteger, NSPoint, NSString, NSUInteger};
 use core_foundation::base::TCFType;
 use core_foundation::string::{CFString, CFStringRef};
 use objc::runtime::{Object, BOOL, YES};
@@ -243,6 +243,16 @@ impl ConnectionOps for Connection {
             let () = msg_send![dock_tile, setBadgeLabel: ns_label];
             // Force refresh the dock tile display
             let () = msg_send![dock_tile, display];
+        }
+    }
+
+    fn request_attention(&self, until_focused: bool) {
+        // NSCriticalRequest (0) bounces until Kaku is activated,
+        // NSInformationalRequest (10) bounces once. macOS ignores
+        // both while Kaku is the active app.
+        let request_type: NSUInteger = if until_focused { 0 } else { 10 };
+        unsafe {
+            let _: NSInteger = msg_send![NSApp(), requestUserAttention: request_type];
         }
     }
 
