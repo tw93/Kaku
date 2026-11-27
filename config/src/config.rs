@@ -1429,6 +1429,43 @@ impl Config {
         }
     }
 
+    /// `config.color_scheme = 'Auto'` written by hand, as the comment in a
+    /// generated kaku.lua suggests, follows the macOS appearance the same way
+    /// as the expression Settings writes for Auto. Without this the name
+    /// reached the scheme lookup as is, which found nothing and fell back to
+    /// the plain default colors. A user scheme actually named "Auto" wins.
+    /// The config reloads when the appearance changes, so this tracks it.
+    fn resolve_auto_color_scheme<'lua>(
+        lua: &'lua mlua::Lua,
+        config: mlua::Value<'lua>,
+    ) -> anyhow::Result<mlua::Value<'lua>> {
+        let mlua::Value::Table(table) = &config else {
+            return Ok(config);
+        };
+        let scheme: Option<String> = table.get("color_scheme").unwrap_or(None);
+        if scheme.as_deref() != Some("Auto") {
+            return Ok(config);
+        }
+        if let Ok(mlua::Value::Table(schemes)) = table.get::<_, mlua::Value>("color_schemes") {
+            if schemes.contains_key("Auto").unwrap_or(false) {
+                return Ok(config);
+            }
+        }
+        let resolved: String = lua
+            .load(
+                "local wezterm = require 'wezterm'\n\
+                 return (wezterm.gui and wezterm.gui.get_appearance() or 'Dark'):find('Dark') \
+                 and 'Kaku Dark' or 'Kaku Light'",
+            )
+            .set_name("auto color scheme")
+            .eval()
+            .map_err(|err| anyhow::anyhow!("resolving color_scheme 'Auto': {err:#}"))?;
+        table
+            .set("color_scheme", resolved)
+            .map_err(|err| anyhow::anyhow!("setting color_scheme: {err:#}"))?;
+        Ok(config)
+    }
+
     fn try_load(
         path_item: &PathPossibility,
         overrides: &wezterm_dynamic::Value,
@@ -1543,6 +1580,7 @@ impl Config {
                     config
                 };
                 let config = Config::apply_overrides_obj_to(&lua, config, overrides)?;
+                let config = Config::resolve_auto_color_scheme(&lua, config)?;
                 let t3 = std::time::Instant::now();
                 let cfg = Config::from_lua(config, &lua).with_context(|| {
                     format!(
@@ -2451,6 +2489,24 @@ mod tests {
             [p.left, p.right, p.top, p.bottom].map(|d| d.evaluate_as_pixels(context)),
             expected
         );
+    }
+
+    #[test]
+    fn a_hand_written_auto_color_scheme_follows_the_appearance() {
+        let null = wezterm_dynamic::Value::Null;
+        // Without a GUI, Auto resolves like the Settings expression: dark.
+        let config = hotkey_fixture("return {color_scheme='Auto'}", &null, false);
+        assert_eq!(config.color_scheme.as_deref(), Some("Kaku Dark"));
+        // A user scheme really named Auto is kept.
+        let config = hotkey_fixture(
+            "return {color_scheme='Auto', color_schemes={Auto={foreground='#111111'}}}",
+            &null,
+            false,
+        );
+        assert_eq!(config.color_scheme.as_deref(), Some("Auto"));
+        // Any other name passes through.
+        let config = hotkey_fixture("return {color_scheme='Kaku Light'}", &null, false);
+        assert_eq!(config.color_scheme.as_deref(), Some("Kaku Light"));
     }
 
     #[test]
