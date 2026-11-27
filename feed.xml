@@ -5,8 +5,37 @@
 <link>https://kaku.fun/changelog</link>
 <description>Stable Kaku releases. Nightly builds are not included.</description>
 <language>en</language>
-<lastBuildDate>Mon, 16 Nov 2026 03:40:14 +0000</lastBuildDate>
+<lastBuildDate>Fri, 27 Nov 2026 11:33:35 +0000</lastBuildDate>
 <atom:link href="https://kaku.fun/feed.xml" rel="self" type="application/rss+xml"/>
+<item>
+<title>V0.31.0 Bridge</title>
+<link>https://kaku.fun/changelog#v0.31.0</link>
+<guid isPermaLink="true">https://kaku.fun/changelog#v0.31.0</guid>
+<pubDate>Fri, 27 Nov 2026 11:33:35 +0000</pubDate>
+<description><![CDATA[<h2>Changelog</h2><ol>
+<li><b>Images Over SSH</b>: When <code>ssh</code> runs in the pane, Cmd+V with a screenshot copies it to the remote host and pastes its path, so Claude Code and Codex there attach it as an image.</li>
+<li><b>Reopening Sessions</b>: After reopening Kaku, the restored history shows above the new prompt with no second copy of the old one, including two-line zsh prompts and the last line of a command still running at quit.</li>
+<li><b>Font Size and Screen Edges</b>: Increasing the font size in an unmaximized window keeps it inside the screen, and a window reopens where it fits.</li>
+<li><b>Dock Bounce on Bell</b>: Set <code>config.bell_dock_bounce</code> to bounce the Dock icon when a bell rings while Kaku is in the background, once per pane or until you come back.</li>
+<li><b>Notifications While Focused</b>: With <code>notification_handling = "AlwaysShow"</code>, OSC 9 and OSC 777 notifications show again while the window is focused.</li>
+<li><b>Cursor After Full Screen Apps</b>: The cursor an app shows before leaving its full screen view stays visible, such as after connecting through sshs.</li>
+<li><b>Paths and Links</b>: Double-click selects a path with dashes in full, Cmd-hover links file paths that contain spaces and paths a TUI wraps on the first rows of a window, and plain text such as <code>3/4</code> or <code>and/or</code> no longer shows a link.</li>
+<li><b>Nerd Font Icons</b>: The bundled Symbols Nerd Font is updated to 3.5.1, so newer CLI icons render without a font warning.</li>
+<li><b>Narrow Windows</b>: With the tab bar at the top, a narrow window keeps every tab and the + button inside it, and a long notice wraps instead of running off its left edge.</li>
+<li><b>Auto Theme</b>: Writing <code>config.color_scheme = 'Auto'</code> in kaku.lua now follows the macOS appearance instead of falling back to the plain default colors.</li>
+</ol><h2>更新日志</h2><ol>
+<li><b>SSH 里粘贴图片</b>：在 ssh 会话里按 Cmd+V 粘贴截图，Kaku 会把图片传到远端并贴上路径，远端的 Claude Code 和 Codex 会把它当成图片附件。</li>
+<li><b>重新打开会话</b>：重开 Kaku 后，恢复的内容显示在新提示符上方，不会多出一份旧提示符，两行的 zsh 提示符和退出时还在运行的命令最后一行也都正常保留。</li>
+<li><b>字号与屏幕边缘</b>：未最大化的窗口放大字号时不会超出屏幕，重新打开时窗口也会落在屏幕内。</li>
+<li><b>响铃时 Dock 跳动</b>：设置 <code>config.bell_dock_bounce</code> 后，Kaku 在后台时有面板响铃，Dock 图标会跳动一次或一直跳到你回来。</li>
+<li><b>前台时的通知</b>：<code>notification_handling</code> 设为 <code>"AlwaysShow"</code> 时，窗口在前台也会显示 OSC 9 和 OSC 777 通知。</li>
+<li><b>全屏程序退出后的光标</b>：程序退出全屏界面前显示的光标会保留下来，比如通过 sshs 连接后光标不再消失。</li>
+<li><b>路径与链接</b>：双击能选中带短横线的完整路径，Cmd 悬停能识别带空格的文件路径和窗口顶部几行里被 TUI 折开的路径，<code>3/4</code>、<code>and/or</code> 这类普通文字也不再显示成链接。</li>
+<li><b>Nerd Font 图标</b>：内置的 Symbols Nerd Font 升级到 3.5.1，较新的 CLI 图标能正常显示，不再弹出字体提示。</li>
+<li><b>窄窗口</b>：标签栏放在顶部时，窄窗口里的所有标签和 + 按钮都能完整显示，较长的提示也会换行，不再超出窗口左边。</li>
+<li><b>自动主题</b>：在 kaku.lua 里手写 <code>config.color_scheme = 'Auto'</code> 现在会跟随系统深浅色，不再退回到没有主题的默认配色。</li>
+</ol><p>Special thanks to @nuyhman and @Erchoc for their contributions to this release.</p>]]></description>
+</item>
 <item>
 <title>V0.30.0 Steady</title>
 <link>https://kaku.fun/changelog#v0.30.0</link>

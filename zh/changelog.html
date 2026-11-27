@@ -21,8 +21,8 @@
   <link rel="alternate" type="text/markdown" href="https://kaku.fun/zh/changelog.md">
   <link rel="alternate" hreflang="en" href="https://kaku.fun/changelog">
   <link rel="alternate" hreflang="x-default" href="https://kaku.fun/changelog">
-  <link rel="preload" as="font" type="font/woff2" href="/fonts/kaku-serif-sc-regular.woff2?v=e27028af5b4b" crossorigin fetchpriority="high">
-  <link rel="preload" as="font" type="font/woff2" href="/fonts/kaku-serif-sc-semibold.woff2?v=4cda9bfe07da" crossorigin fetchpriority="high">
+  <link rel="preload" as="font" type="font/woff2" href="/fonts/kaku-serif-sc-regular.woff2?v=67ba20e2d263" crossorigin fetchpriority="high">
+  <link rel="preload" as="font" type="font/woff2" href="/fonts/kaku-serif-sc-semibold.woff2?v=35ed4f490d79" crossorigin fetchpriority="high">
   <link rel="stylesheet" href="/styles.css">
   <script type="application/ld+json">
 {
@@ -82,6 +82,22 @@
   <nav class="site-nav" aria-label="主导航"><div class="wide nav-inner"><a class="brand" href="/zh"><strong>Kaku</strong></a><div class="nav-links"><a href="/zh/docs">文档</a><a href="/zh/compare">对比</a><a href="/zh/changelog" aria-current="page">更新日志</a><a href="/zh/blog">博客</a></div><div class="nav-actions"><details class="lang-switch"><summary class="lang-trigger" aria-label="切换语言"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/></svg><span class="lang-current-code" aria-hidden="true">中</span><span class="lang-current-name">简体中文</span></summary><div class="lang-menu"><a class="lang-option" aria-current="page" href="/zh/changelog" hreflang="zh-CN">简体中文</a><a class="lang-option" href="/changelog" hreflang="en">English</a></div></details><script src="/navigation.js" defer></script><a class="nav-icon" href="https://github.com/tw93/Kaku" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a><a class="nav-icon" href="https://x.com/HiTw93" target="_blank" rel="noopener noreferrer" aria-label="X"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a></div></div></nav>
   <main id="main-content"><header class="page-hero"><div class="wide"><h1>更新日志</h1><p>Kaku 正式版更新，从新到旧。Nightly 仍在 GitHub，可以用 <a href="/feed.xml">RSS</a> 订阅。</p></div></header>
 <section class="section"><div class="wide"><div class="release-doc">
+<h2 id="v0.31.0">V0.31.0 Bridge <span class="release-date">2026-11-27</span></h2>
+<ol>
+<li><b>SSH 里粘贴图片</b>：在 ssh 会话里按 Cmd+V 粘贴截图，Kaku 会把图片传到远端并贴上路径，远端的 Claude Code 和 Codex 会把它当成图片附件。</li>
+<li><b>重新打开会话</b>：重开 Kaku 后，恢复的内容显示在新提示符上方，不会多出一份旧提示符，两行的 zsh 提示符和退出时还在运行的命令最后一行也都正常保留。</li>
+<li><b>字号与屏幕边缘</b>：未最大化的窗口放大字号时不会超出屏幕，重新打开时窗口也会落在屏幕内。</li>
+<li><b>响铃时 Dock 跳动</b>：设置 <code>config.bell_dock_bounce</code> 后，Kaku 在后台时有面板响铃，Dock 图标会跳动一次或一直跳到你回来。</li>
+<li><b>前台时的通知</b>：<code>notification_handling</code> 设为 <code>"AlwaysShow"</code> 时，窗口在前台也会显示 OSC 9 和 OSC 777 通知。</li>
+<li><b>全屏程序退出后的光标</b>：程序退出全屏界面前显示的光标会保留下来，比如通过 sshs 连接后光标不再消失。</li>
+<li><b>路径与链接</b>：双击能选中带短横线的完整路径，Cmd 悬停能识别带空格的文件路径和窗口顶部几行里被 TUI 折开的路径，<code>3/4</code>、<code>and/or</code> 这类普通文字也不再显示成链接。</li>
+<li><b>Nerd Font 图标</b>：内置的 Symbols Nerd Font 升级到 3.5.1，较新的 CLI 图标能正常显示，不再弹出字体提示。</li>
+<li><b>窄窗口</b>：标签栏放在顶部时，窄窗口里的所有标签和 + 按钮都能完整显示，较长的提示也会换行，不再超出窗口左边。</li>
+<li><b>自动主题</b>：在 kaku.lua 里手写 <code>config.color_scheme = 'Auto'</code> 现在会跟随系统深浅色，不再退回到没有主题的默认配色。</li>
+</ol>
+<p class="release-more"><a href="https://github.com/tw93/Kaku/releases/tag/V0.31.0">GitHub</a> · <a href="https://github.com/tw93/Kaku/releases/download/V0.31.0/Kaku.dmg">DMG</a></p>
+<p class="release-more">Special thanks to @nuyhman and @Erchoc for their contributions to this release.</p>
+<hr>
 <h2 id="v0.30.0">V0.30.0 Steady <span class="release-date">2026-11-16</span></h2>
 <ol>
 <li><b>全屏卡死</b>：全屏时点开更新提示后，按键、滚动和切换标签都能正常响应，通过 Lua 动作显示窗口也不会再崩溃。</li>

@@ -2,6 +2,25 @@
 
 Kaku 正式版更新，从新到旧。Nightly 仍在 GitHub，可以用 [RSS](https://kaku.fun/feed.xml) 订阅。
 
+## V0.31.0 Bridge 2026-11-27
+
+1. **SSH 里粘贴图片**：在 ssh 会话里按 Cmd+V 粘贴截图，Kaku 会把图片传到远端并贴上路径，远端的 Claude Code 和 Codex 会把它当成图片附件。
+2. **重新打开会话**：重开 Kaku 后，恢复的内容显示在新提示符上方，不会多出一份旧提示符，两行的 zsh 提示符和退出时还在运行的命令最后一行也都正常保留。
+3. **字号与屏幕边缘**：未最大化的窗口放大字号时不会超出屏幕，重新打开时窗口也会落在屏幕内。
+4. **响铃时 Dock 跳动**：设置 `config.bell_dock_bounce` 后，Kaku 在后台时有面板响铃，Dock 图标会跳动一次或一直跳到你回来。
+5. **前台时的通知**：`notification_handling` 设为 `"AlwaysShow"` 时，窗口在前台也会显示 OSC 9 和 OSC 777 通知。
+6. **全屏程序退出后的光标**：程序退出全屏界面前显示的光标会保留下来，比如通过 sshs 连接后光标不再消失。
+7. **路径与链接**：双击能选中带短横线的完整路径，Cmd 悬停能识别带空格的文件路径和窗口顶部几行里被 TUI 折开的路径，`3/4`、`and/or` 这类普通文字也不再显示成链接。
+8. **Nerd Font 图标**：内置的 Symbols Nerd Font 升级到 3.5.1，较新的 CLI 图标能正常显示，不再弹出字体提示。
+9. **窄窗口**：标签栏放在顶部时，窄窗口里的所有标签和 + 按钮都能完整显示，较长的提示也会换行，不再超出窗口左边。
+10. **自动主题**：在 kaku.lua 里手写 `config.color_scheme = 'Auto'` 现在会跟随系统深浅色，不再退回到没有主题的默认配色。
+
+[GitHub](https://github.com/tw93/Kaku/releases/tag/V0.31.0) · [DMG](https://github.com/tw93/Kaku/releases/download/V0.31.0/Kaku.dmg)
+
+Special thanks to @nuyhman and @Erchoc for their contributions to this release.
+
+---
+
 ## V0.30.0 Steady 2026-11-16
 
 1. **全屏卡死**：全屏时点开更新提示后，按键、滚动和切换标签都能正常响应，通过 Lua 动作显示窗口也不会再崩溃。

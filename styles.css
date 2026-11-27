@@ -6,7 +6,7 @@
    drew as narrow Latin marks against the Han (as on mole.fit, 2026-10-25). */
 @font-face {
   font-family: "Kaku Serif SC";
-  src: url("/fonts/kaku-serif-sc-regular.woff2?v=e27028af5b4b") format("woff2");
+  src: url("/fonts/kaku-serif-sc-regular.woff2?v=67ba20e2d263") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: block;
@@ -25,7 +25,7 @@
 }
 @font-face {
   font-family: "Kaku Mark";
-  src: url("/fonts/kaku-mark.woff2?v=c3a33e6a3713") format("woff2");
+  src: url("/fonts/kaku-mark.woff2?v=da7d76b08f0a") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: block;
@@ -62,7 +62,7 @@
 }
 @font-face {
   font-family: "Kaku Serif SC";
-  src: url("/fonts/kaku-serif-sc-semibold.woff2?v=4cda9bfe07da") format("woff2");
+  src: url("/fonts/kaku-serif-sc-semibold.woff2?v=35ed4f490d79") format("woff2");
   font-weight: 500 700;
   font-style: normal;
   font-display: block;

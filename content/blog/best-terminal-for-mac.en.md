@@ -13,7 +13,7 @@ There is no single best terminal for Mac, but the choice gets simple once you kn
 | Warp | Rolling | AGPL-3.0 client | Free plan, paid plans from $20 a month | Settings window | Yes |
 | Kitty | 0.49.2 | GPL-3.0 | Free | Text file | Yes |
 | Alacritty | 0.17.0 | Apache-2.0 | Free | TOML file | No |
-| Kaku | 0.30.0 | MIT | Free | Lua | Yes |
+| Kaku | 0.31.0 | MIT | Free | Lua | Yes |
 
 ## Terminal.app
 

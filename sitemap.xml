@@ -35,8 +35,8 @@
   <url><loc>https://kaku.fun/privacy</loc><lastmod>2026-11-14</lastmod><priority>0.5</priority></url>
   <url><loc>https://kaku.fun/zh/privacy</loc><lastmod>2026-11-16</lastmod><priority>0.5</priority></url>
   <!-- blog:start -->
-  <url><loc>https://kaku.fun/blog</loc><lastmod>2026-11-21</lastmod><priority>0.7</priority></url>
-  <url><loc>https://kaku.fun/zh/blog</loc><lastmod>2026-11-21</lastmod><priority>0.7</priority></url>
+  <url><loc>https://kaku.fun/blog</loc><lastmod>2026-11-27</lastmod><priority>0.7</priority></url>
+  <url><loc>https://kaku.fun/zh/blog</loc><lastmod>2026-11-27</lastmod><priority>0.7</priority></url>
   <url><loc>https://kaku.fun/blog/modern-cli-tools-mac</loc><lastmod>2026-11-05</lastmod><priority>0.6</priority></url>
   <url><loc>https://kaku.fun/zh/blog/modern-cli-tools-mac</loc><lastmod>2026-11-05</lastmod><priority>0.6</priority></url>
   <url><loc>https://kaku.fun/blog/warp-terminal-alternative</loc><lastmod>2026-11-04</lastmod><priority>0.6</priority></url>
@@ -111,8 +111,8 @@
   <url><loc>https://kaku.fun/zh/blog/claude-code-plan-mode</loc><lastmod>2026-10-19</lastmod><priority>0.6</priority></url>
   <url><loc>https://kaku.fun/blog/ghostty-vs-iterm2-vs-wezterm</loc><lastmod>2026-10-20</lastmod><priority>0.6</priority></url>
   <url><loc>https://kaku.fun/zh/blog/ghostty-vs-iterm2-vs-wezterm</loc><lastmod>2026-10-20</lastmod><priority>0.6</priority></url>
-  <url><loc>https://kaku.fun/blog/best-terminal-for-mac</loc><lastmod>2026-11-21</lastmod><priority>0.6</priority></url>
-  <url><loc>https://kaku.fun/zh/blog/best-terminal-for-mac</loc><lastmod>2026-11-21</lastmod><priority>0.6</priority></url>
+  <url><loc>https://kaku.fun/blog/best-terminal-for-mac</loc><lastmod>2026-11-27</lastmod><priority>0.6</priority></url>
+  <url><loc>https://kaku.fun/zh/blog/best-terminal-for-mac</loc><lastmod>2026-11-27</lastmod><priority>0.6</priority></url>
   <url><loc>https://kaku.fun/blog/claude-code-notifications</loc><lastmod>2026-11-21</lastmod><priority>0.6</priority></url>
   <url><loc>https://kaku.fun/zh/blog/claude-code-notifications</loc><lastmod>2026-11-21</lastmod><priority>0.6</priority></url>
   <url><loc>https://kaku.fun/blog/best-terminal-for-claude-code</loc><lastmod>2026-11-21</lastmod><priority>0.6</priority></url>

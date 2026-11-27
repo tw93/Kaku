@@ -2,6 +2,25 @@
 
 Stable Kaku releases, newest first. Nightly builds stay on GitHub. Subscribe with [RSS](https://kaku.fun/feed.xml).
 
+## V0.31.0 Bridge 2026-11-27
+
+1. **Images Over SSH**: When `ssh` runs in the pane, Cmd+V with a screenshot copies it to the remote host and pastes its path, so Claude Code and Codex there attach it as an image.
+2. **Reopening Sessions**: After reopening Kaku, the restored history shows above the new prompt with no second copy of the old one, including two-line zsh prompts and the last line of a command still running at quit.
+3. **Font Size and Screen Edges**: Increasing the font size in an unmaximized window keeps it inside the screen, and a window reopens where it fits.
+4. **Dock Bounce on Bell**: Set `config.bell_dock_bounce` to bounce the Dock icon when a bell rings while Kaku is in the background, once per pane or until you come back.
+5. **Notifications While Focused**: With `notification_handling = "AlwaysShow"`, OSC 9 and OSC 777 notifications show again while the window is focused.
+6. **Cursor After Full Screen Apps**: The cursor an app shows before leaving its full screen view stays visible, such as after connecting through sshs.
+7. **Paths and Links**: Double-click selects a path with dashes in full, Cmd-hover links file paths that contain spaces and paths a TUI wraps on the first rows of a window, and plain text such as `3/4` or `and/or` no longer shows a link.
+8. **Nerd Font Icons**: The bundled Symbols Nerd Font is updated to 3.5.1, so newer CLI icons render without a font warning.
+9. **Narrow Windows**: With the tab bar at the top, a narrow window keeps every tab and the + button inside it, and a long notice wraps instead of running off its left edge.
+10. **Auto Theme**: Writing `config.color_scheme = 'Auto'` in kaku.lua now follows the macOS appearance instead of falling back to the plain default colors.
+
+[GitHub](https://github.com/tw93/Kaku/releases/tag/V0.31.0) · [DMG](https://github.com/tw93/Kaku/releases/download/V0.31.0/Kaku.dmg)
+
+Special thanks to @nuyhman and @Erchoc for their contributions to this release.
+
+---
+
 ## V0.30.0 Steady 2026-11-16
 
 1. **Full Screen Freeze**: After an update notice in full screen, Kaku keeps responding to keys, scrolling and tab switches, and showing the window from a Lua action no longer crashes.
