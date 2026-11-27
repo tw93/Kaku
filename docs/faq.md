@@ -118,7 +118,9 @@ The yazi remote-files feature (`Cmd+Shift+R`) is designed for SSH sessions and m
 
 ## How do I paste a screenshot into Claude Code over SSH?
 
-When `ssh` is the program running in the pane, `Cmd+V` with an image on the clipboard copies it to `/tmp` on the remote host with `scp` and pastes that path, which Claude Code and Codex attach as an image. The copy reuses the options `ssh` was started with and your `~/.ssh/config`, and it cannot ask for a password, so it needs key or agent login, or a `ControlMaster` connection to share. If the copy fails, a toast shows why and the pane gets `Ctrl+V` as before. It does not apply when `ssh` runs inside a local tmux or through mosh.
+When `ssh` is the program running in the pane, `Cmd+V` with an image on the clipboard copies it to `/tmp` on the remote host with `scp` and pastes that path, which Claude Code and Codex attach as an image. The copy reuses the options `ssh` was started with and your `~/.ssh/config`, and it cannot ask for a password, so it needs key or agent login, or a `ControlMaster` connection to share. If the copy fails, a toast shows why and the pane gets `Ctrl+V` as before. It does not apply when `ssh` runs inside a local tmux or through mosh, or when `~/.ssh/config` gives the host a `RemoteCommand`.
+
+Kaku only sees the first `ssh`. If you go on from that shell to another host, a container or another user (`ssh inner`, `docker exec`, `sudo -i`), the image still lands on the first host and the pasted path does not exist where you are. The copy runs with Kaku's environment, so an `SSH_AUTH_SOCK` exported in `.zshrc` does not reach it; point `IdentityAgent` in `~/.ssh/config` at that agent instead. The copies stay in the remote `/tmp`, readable only by your user, until the system clears it.
 
 ## Kaku's prompt shows up in other terminals, or is missing from them.
 

@@ -1,4 +1,4 @@
-use crate::ssh_image_paste::SshTarget;
+use crate::ssh_image_paste::{SshTarget, LATE_FALLBACK};
 use crate::termwindow::TermWindowNotif;
 use crate::TermWindow;
 use config::keyassignment::{ClipboardCopyDestination, ClipboardPasteSource};
@@ -243,36 +243,73 @@ impl TermWindow {
     }
 
     /// Uploads `image` to the host the pane's `ssh` is connected to, then
-    /// pastes its remote path. If the upload fails, the pane gets the Ctrl+V
-    /// a local image paste sends, and a toast says why.
+    /// pastes its remote path. If the upload fails, a toast says why and the
+    /// pane gets the Ctrl+V a local image paste sends, unless the failure
+    /// came so late that the Ctrl+V would land in whatever the user is doing
+    /// by then.
     fn paste_image_over_ssh(&mut self, pane: &Arc<dyn Pane>, ssh: SshTarget, image: PathBuf) {
         let Some(window) = self.window.clone() else {
             return;
         };
         let pane = pane.clone();
         std::thread::spawn(move || {
-            let result = ssh.upload(&image);
+            // ssh_config can start another program first (`RemoteCommand
+            // tmux attach`, a further ssh); the image would not land where
+            // the TUI reads it, so keep the plain Ctrl+V.
+            let outcome = if ssh.configured_remote_command() {
+                SshPasteOutcome::CtrlV
+            } else {
+                let started = Instant::now();
+                let notice_window = window.clone();
+                let host = ssh.host.clone();
+                let result = ssh.upload(&image, move || {
+                    notice_window.notify(TermWindowNotif::Apply(Box::new(move |myself| {
+                        myself.show_toast_for(format!("{SSH_UPLOAD_TOAST} {host}…"), 15_000);
+                    })));
+                });
+                match result {
+                    Ok(remote_path) => SshPasteOutcome::Path(remote_path),
+                    Err(err) => SshPasteOutcome::Failed {
+                        err,
+                        late: started.elapsed() > LATE_FALLBACK,
+                    },
+                }
+            };
             window.notify(TermWindowNotif::Apply(Box::new(move |myself| {
                 let pane_id = pane.pane_id();
+                let uploading = myself.toast.as_ref().map_or(false, |(_, message, _)| {
+                    message.starts_with(SSH_UPLOAD_TOAST)
+                });
+                if uploading {
+                    myself.toast = None;
+                    if let Some(window) = myself.window.as_ref() {
+                        window.invalidate();
+                    }
+                }
                 // The upload can take seconds; if that ssh has exited or another
-                // program took over the pane, typing the path there is wrong.
+                // program took over the pane, typing there is wrong.
                 let same_session = pane
                     .get_foreground_process_info(CachePolicy::FetchImmediate)
                     .map_or(false, |p| p.pid == ssh.pid);
                 if !same_session {
                     log::warn!(
-                        "image upload to {} finished after its ssh session left pane {pane_id}",
+                        "image paste to {} finished after its ssh session left pane {pane_id}",
                         ssh.host
                     );
                     return;
                 }
-                let written: anyhow::Result<()> = match &result {
-                    Ok(remote_path) => pane.send_paste(remote_path),
-                    Err(err) => {
+                let written: anyhow::Result<()> = match outcome {
+                    SshPasteOutcome::Path(remote_path) => pane.send_paste(&remote_path),
+                    SshPasteOutcome::CtrlV => pane.writer().write_all(b"\x16").map_err(Into::into),
+                    SshPasteOutcome::Failed { err, late } => {
                         log::warn!("image paste over ssh to {} failed: {err:#}", ssh.host);
                         myself
                             .show_toast(format!("Couldn't copy the image to {}: {err}", ssh.host));
-                        pane.writer().write_all(b"\x16").map_err(Into::into)
+                        if late {
+                            Ok(())
+                        } else {
+                            pane.writer().write_all(b"\x16").map_err(Into::into)
+                        }
                     }
                 };
                 if let Err(err) = myself.finish_terminal_input(&pane, written) {
@@ -281,6 +318,22 @@ impl TermWindow {
             })));
         });
     }
+}
+
+/// The start of the toast shown while a slow image upload runs; the result
+/// clears it.
+const SSH_UPLOAD_TOAST: &str = "Copying the image to";
+
+enum SshPasteOutcome {
+    /// The image is on the remote host at this path.
+    Path(String),
+    /// Send the Ctrl+V a local image paste sends.
+    CtrlV,
+    Failed {
+        err: anyhow::Error,
+        /// The failure took longer than `LATE_FALLBACK`.
+        late: bool,
+    },
 }
 
 fn data_to_paste_string(

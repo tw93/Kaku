@@ -7,15 +7,30 @@
 //! `ssh` was started with, and its remote path is pasted like typed text.
 //! cmux does the same for SSH sessions it detects.
 
+use std::io::Read;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
+use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
-const UPLOAD_TIMEOUT: Duration = Duration::from_secs(60);
+const UPLOAD_TIMEOUT: Duration = Duration::from_secs(30);
+/// `ssh -G` only reads configuration; it never connects.
+const CONFIG_TIMEOUT: Duration = Duration::from_secs(5);
+/// An upload still running after this long gets a toast, so a slow host or a
+/// key waiting for a touch is not mistaken for a paste that did nothing.
+pub const SLOW_UPLOAD_NOTICE: Duration = Duration::from_secs(1);
+/// A failure that took longer than this no longer sends the fallback Ctrl+V:
+/// by then the user may be typing something else, where a stray Ctrl+V is
+/// bash's quoted-insert or vim's literal-next.
+pub const LATE_FALLBACK: Duration = Duration::from_secs(3);
 
 /// How to reach the host a running `ssh` is connected to, as `scp` arguments.
 #[derive(Debug, PartialEq, Eq)]
 pub struct SshTarget {
+    /// The running `ssh` binary, asked for its effective configuration.
+    pub ssh: PathBuf,
+    /// The arguments that `ssh` was started with.
+    pub args: Vec<String>,
     /// The `ssh` binary's own directory, so the matching `scp` is used.
     pub scp: PathBuf,
     /// Options carried over from the `ssh` command line.
@@ -73,6 +88,7 @@ impl SshTarget {
             PathBuf::from("/usr/bin/scp")
         };
         let mut target = Self::from_argv(argv.get(1..)?, scp)?;
+        target.ssh = executable.to_path_buf();
         target.pid = pid;
         target.cwd = cwd.to_path_buf();
         Some(target)
@@ -187,6 +203,8 @@ impl SshTarget {
             None => host_part,
         };
         Some(Self {
+            ssh: PathBuf::new(),
+            args: args.to_vec(),
             scp,
             options,
             destination,
@@ -211,9 +229,27 @@ impl SshTarget {
         args
     }
 
+    /// True when ssh_config gives this session a `RemoteCommand` or a
+    /// non-shell session type, which the command line does not show: the
+    /// host then runs something else first (`tmux attach`, a further `ssh`),
+    /// so the image may not land where the TUI reads it. Blocks while
+    /// `ssh -G` reads the configuration.
+    pub fn configured_remote_command(&self) -> bool {
+        let mut args = vec!["-G".to_string()];
+        args.extend(self.args.iter().cloned());
+        match run_with_timeout(&self.ssh, &args, &self.cwd, CONFIG_TIMEOUT, || {}) {
+            Ok(config) => config_runs_a_command(&config),
+            Err(err) => {
+                log::debug!("ssh -G for {} failed: {err:#}", self.host);
+                false
+            }
+        }
+    }
+
     /// Copies `local` to the remote temporary directory and returns the
-    /// remote path. Blocks until `scp` exits or the timeout passes.
-    pub fn upload(&self, local: &Path) -> anyhow::Result<String> {
+    /// remote path. Blocks until `scp` exits or the timeout passes; `on_slow`
+    /// runs once if that takes longer than `SLOW_UPLOAD_NOTICE`.
+    pub fn upload(&self, local: &Path, on_slow: impl FnOnce()) -> anyhow::Result<String> {
         let nanos = SystemTime::now()
             .duration_since(UNIX_EPOCH)
             .map(|d| d.as_nanos())
@@ -225,6 +261,7 @@ impl SshTarget {
             &self.scp_args(local, &remote_path),
             &self.cwd,
             UPLOAD_TIMEOUT,
+            on_slow,
         )?;
         Ok(remote_path)
     }
@@ -261,46 +298,161 @@ fn split_destination(dest: &str) -> Option<(Option<String>, String, Option<Strin
     Some((user, host, port))
 }
 
+/// Whether `ssh -G` output sets a remote command or a non-shell session.
+fn config_runs_a_command(config: &str) -> bool {
+    config.lines().any(|line| {
+        let (key, value) = line.split_once(' ').unwrap_or((line, ""));
+        let value = value.trim();
+        match key.to_ascii_lowercase().as_str() {
+            "remotecommand" => !value.is_empty() && !value.eq_ignore_ascii_case("none"),
+            "sessiontype" => !value.eq_ignore_ascii_case("default"),
+            _ => false,
+        }
+    })
+}
+
+/// The line of `scp`'s stderr that says why it failed. ssh prints notices
+/// before the real error (an sshd `Banner`, OpenSSH 10's post-quantum
+/// warning, a new known_hosts entry) and scp ends with a generic
+/// `Connection closed`, so neither the first nor the last line will do.
+fn failure_reason(stderr: &str) -> Option<String> {
+    let lines: Vec<&str> = stderr
+        .lines()
+        .map(str::trim)
+        .filter(|line| !line.is_empty())
+        .filter(|line| !line.starts_with("**"))
+        .filter(|line| !line.starts_with("Warning: Permanently added"))
+        // `LogLevel DEBUG` in ssh_config.
+        .filter(|line| !line.starts_with("debug1:") && !line.starts_with("debug2:"))
+        .filter(|line| !line.starts_with("debug3:"))
+        .collect();
+    let generic = |line: &str| {
+        let line = line.trim_start_matches("scp: ");
+        line.eq_ignore_ascii_case("Connection closed")
+            || line.eq_ignore_ascii_case("lost connection")
+    };
+    lines
+        .iter()
+        .rev()
+        .find(|line| !generic(line))
+        .or_else(|| lines.last())
+        .map(|line| line.to_string())
+}
+
+/// Reads a child's pipe on its own thread. Waiting for the child before
+/// reading would let a chatty `LogLevel DEBUG3` fill the pipe and stall
+/// scp; reading to the end on the waiting thread would hang when a
+/// `ProxyCommand` leaves a process holding the pipe open.
+struct PipeReader {
+    buffer: Arc<Mutex<(Vec<u8>, bool)>>,
+}
+
+impl PipeReader {
+    fn spawn(mut pipe: impl Read + Send + 'static) -> Self {
+        let buffer = Arc::new(Mutex::new((Vec::new(), false)));
+        let shared = Arc::clone(&buffer);
+        std::thread::spawn(move || {
+            let mut chunk = [0u8; 4096];
+            loop {
+                match pipe.read(&mut chunk) {
+                    Ok(0) | Err(_) => break,
+                    Ok(n) => {
+                        let mut buffer = shared.lock().unwrap();
+                        buffer.0.extend_from_slice(&chunk[..n]);
+                        // Keep the tail, where the reason is, and only drain
+                        // the rest.
+                        if buffer.0.len() > 128 * 1024 {
+                            let excess = buffer.0.len() - 64 * 1024;
+                            buffer.0.drain(..excess);
+                        }
+                    }
+                }
+            }
+            shared.lock().unwrap().1 = true;
+        });
+        Self { buffer }
+    }
+
+    /// What was read, waiting briefly for the end of the stream.
+    fn take(self) -> String {
+        let deadline = Instant::now() + Duration::from_millis(500);
+        while !self.buffer.lock().unwrap().1 && Instant::now() < deadline {
+            std::thread::sleep(Duration::from_millis(10));
+        }
+        let buffer = self.buffer.lock().unwrap();
+        String::from_utf8_lossy(&buffer.0).into_owned()
+    }
+}
+
+/// The PATH a child gets: Kaku's own, plus the usual Homebrew and user bin
+/// directories. A Kaku opened from the Dock has launchd's minimal PATH, and
+/// a `ProxyCommand` or `Match exec` in ssh_config often names a Homebrew
+/// tool (`cloudflared`, `tsh`, `aws`).
+fn child_path() -> String {
+    let mut dirs: Vec<String> = std::env::var("PATH")
+        .unwrap_or_default()
+        .split(':')
+        .filter(|dir| !dir.is_empty())
+        .map(str::to_string)
+        .collect();
+    let mut extra = vec![];
+    if let Some(home) = dirs_next::home_dir() {
+        extra.push(home.join(".local/bin").to_string_lossy().into_owned());
+    }
+    extra.extend(["/opt/homebrew/bin", "/usr/local/bin", "/usr/bin", "/bin"].map(str::to_string));
+    for dir in extra {
+        if !dirs.contains(&dir) {
+            dirs.push(dir);
+        }
+    }
+    dirs.join(":")
+}
+
+/// Runs `program` and returns its stdout. Fails with the reason from its
+/// stderr when it exits unsuccessfully, or when `timeout` passes.
 fn run_with_timeout(
     program: &Path,
     args: &[String],
     cwd: &Path,
     timeout: Duration,
-) -> anyhow::Result<()> {
+    on_slow: impl FnOnce(),
+) -> anyhow::Result<String> {
     let mut command = Command::new(program);
     if cwd.is_dir() {
         command.current_dir(cwd);
     }
     let mut child = command
         .args(args)
+        .env("PATH", child_path())
         .stdin(Stdio::null())
-        .stdout(Stdio::null())
+        .stdout(Stdio::piped())
         .stderr(Stdio::piped())
         .spawn()
         .map_err(|err| anyhow::anyhow!("{}: {err}", program.display()))?;
+    let stdout = child.stdout.take().map(PipeReader::spawn);
+    let stderr = child.stderr.take().map(PipeReader::spawn);
     let started = Instant::now();
+    let mut on_slow = Some(on_slow);
     loop {
         if let Some(status) = child.try_wait()? {
             if status.success() {
-                return Ok(());
+                return Ok(stdout.map(PipeReader::take).unwrap_or_default());
             }
-            let mut stderr = String::new();
-            if let Some(mut pipe) = child.stderr.take() {
-                use std::io::Read;
-                pipe.read_to_string(&mut stderr).ok();
-            }
-            let reason = stderr
-                .lines()
-                .map(str::trim)
-                .find(|l| !l.is_empty())
-                .map(str::to_string)
-                .unwrap_or_else(|| format!("scp exited with {status}"));
+            let stderr = stderr.map(PipeReader::take).unwrap_or_default();
+            let reason = failure_reason(&stderr)
+                .unwrap_or_else(|| format!("{} exited with {status}", program.display()));
             anyhow::bail!("{reason}");
         }
-        if started.elapsed() > timeout {
+        let elapsed = started.elapsed();
+        if elapsed > timeout {
             child.kill().ok();
             child.wait().ok();
             anyhow::bail!("timed out after {}s", timeout.as_secs());
+        }
+        if elapsed > SLOW_UPLOAD_NOTICE {
+            if let Some(notice) = on_slow.take() {
+                notice();
+            }
         }
         std::thread::sleep(Duration::from_millis(50));
     }
@@ -489,7 +641,7 @@ mod tests {
     }
 
     #[test]
-    fn upload_reports_the_remote_path_or_the_first_error_line() {
+    fn upload_reports_the_remote_path_or_why_it_failed() {
         let dir = tempfile::tempdir().unwrap();
         let image = dir.path().join("clip.png");
         std::fs::write(&image, b"png").unwrap();
@@ -516,7 +668,9 @@ mod tests {
         let mut t = target(&["me@host"]).unwrap();
         t.scp = fake_scp.clone();
         t.cwd = ssh_cwd.clone();
-        let remote = t.upload(&image).unwrap();
+        let remote = t
+            .upload(&image, || panic!("a quick copy needs no notice"))
+            .unwrap();
         // Relative -i/-F paths resolve where ssh was started.
         assert_eq!(
             std::fs::read_to_string(dir.path().join("cwd"))
@@ -530,12 +684,93 @@ mod tests {
             b"png"
         );
 
+        // OpenSSH 10 warns before the real error, and scp closes with a
+        // generic line after it.
         std::fs::write(
             &fake_scp,
-            "#!/bin/sh\necho >&2\necho 'me@host: Permission denied (publickey).' >&2\nexit 1\n",
+            "#!/bin/sh\necho >&2\n\
+             echo '** WARNING: connection is not using a post-quantum key exchange algorithm.' >&2\n\
+             echo '** This session may be vulnerable to \"store now, decrypt later\" attacks.' >&2\n\
+             echo 'Welcome to the build farm' >&2\n\
+             echo 'me@host: Permission denied (publickey).' >&2\n\
+             echo 'scp: Connection closed' >&2\nexit 1\n",
         )
         .unwrap();
-        let err = t.upload(&image).unwrap_err().to_string();
+        let err = t.upload(&image, || {}).unwrap_err().to_string();
         assert_eq!(err, "me@host: Permission denied (publickey).");
+
+        // More stderr than a pipe holds must not stall scp until the timeout.
+        std::fs::write(
+            &fake_scp,
+            "#!/bin/sh\nyes 'debug3: chatty' | head -c 300000 >&2\n\
+             echo 'ssh: connect to host host port 22: Connection refused' >&2\nexit 255\n",
+        )
+        .unwrap();
+        let started = Instant::now();
+        let err = t.upload(&image, || {}).unwrap_err().to_string();
+        assert!(started.elapsed() < Duration::from_secs(10), "{}", err);
+        assert_eq!(err, "ssh: connect to host host port 22: Connection refused");
+
+        // A slow copy announces itself once.
+        std::fs::write(&fake_scp, "#!/bin/sh\nsleep 1.5\nexit 1\n").unwrap();
+        let mut notices = 0;
+        t.upload(&image, || notices += 1).unwrap_err();
+        assert_eq!(notices, 1);
+    }
+
+    #[test]
+    fn failure_reason_skips_notices_and_the_closing_line() {
+        assert_eq!(failure_reason(""), None);
+        assert_eq!(
+            failure_reason("scp: Connection closed\n").as_deref(),
+            Some("scp: Connection closed")
+        );
+        assert_eq!(
+            failure_reason(
+                "Warning: Permanently added 'h' (ED25519) to the list of known hosts.\n\
+                 ssh: connect to host h port 22: Operation timed out\nlost connection\n"
+            )
+            .as_deref(),
+            Some("ssh: connect to host h port 22: Operation timed out")
+        );
+    }
+
+    #[test]
+    fn a_configured_remote_command_keeps_ctrl_v() {
+        assert!(!config_runs_a_command(
+            "user me\nhostname h\nrequesttty auto\nsessiontype default\n"
+        ));
+        assert!(config_runs_a_command(
+            "sessiontype default\nremotecommand tmux attach\n"
+        ));
+        assert!(config_runs_a_command("sessiontype none\n"));
+        assert!(config_runs_a_command("sessiontype subsystem\n"));
+
+        // Asks the session's own ssh, with the arguments it started with.
+        let dir = tempfile::tempdir().unwrap();
+        let fake_ssh = dir.path().join("ssh");
+        std::fs::write(
+            &fake_ssh,
+            format!(
+                "#!/bin/sh\necho \"$@\" > '{}/args'\n\
+                 echo 'sessiontype default'\necho 'remotecommand ssh inner'\n",
+                dir.path().display()
+            ),
+        )
+        .unwrap();
+        std::fs::set_permissions(
+            &fake_ssh,
+            std::os::unix::fs::PermissionsExt::from_mode(0o755),
+        )
+        .unwrap();
+        let mut t = target(&["-p", "2222", "bastion"]).unwrap();
+        t.ssh = fake_ssh;
+        assert!(t.configured_remote_command());
+        assert_eq!(
+            std::fs::read_to_string(dir.path().join("args"))
+                .unwrap()
+                .trim(),
+            "-G -p 2222 bastion"
+        );
     }
 }
