@@ -1307,6 +1307,21 @@ impl<'a> Performer<'a> {
     fn mark_prompt_start(&mut self) {
         let row = self.screen().visible_row_to_stable_row(self.cursor.y);
         self.last_prompt_start = Some((row, self.cursor.x));
+        // A prompt starts a new logical line. zsh's PROMPT_SP pads the row
+        // before it with spaces until it soft-wraps; left joined, a later
+        // rewrap would pull the prompt onto that row, and session restore
+        // would keep it as history.
+        if self.cursor.x == 0 {
+            let seqno = self.seqno;
+            let y = self.cursor.y;
+            let screen = self.screen_mut();
+            let phys = screen.phys_row(y);
+            if phys > 0 {
+                screen
+                    .line_mut(phys - 1)
+                    .set_last_cell_was_wrapped(false, seqno);
+            }
+        }
     }
 
     /// A new prompt means the program that reported working or blocked has

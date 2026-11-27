@@ -2235,6 +2235,15 @@ fn prompt_marks_follow_their_text_when_lines_rewrap() {
     assert!(output_row(&term).starts_with("cccc"));
     term.resize(size(40));
     assert!(output_row(&term).starts_with("cccc"));
+
+    // zsh's PROMPT_SP after `printf abc`: `%` and padding soft-wrap the
+    // output row, then precmd marks the prompt at column 0 of the next one.
+    // A later rewrap must not join the prompt onto the output row.
+    let mut sp = TestTerm::new(6, 10, 100);
+    sp.print("abc%         \r \r\x1b]133;P;k=i\x07~/p\r\n> ");
+    sp.resize(size(30));
+    assert_eq!(sp.get_last_prompt_start().map(|(_, x)| x), Some(0));
+    assert_eq!(prompt_row(&sp).trim_end(), "~/p");
 }
 
 #[test]
