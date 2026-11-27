@@ -9,6 +9,8 @@ const MAX_SIXEL_SIZE: usize = 100_000_000;
 /// far below this; without it an unterminated `ESC P q` stream grows memory
 /// at 8x its input with no limit.
 pub(crate) const MAX_SIXEL_DATA_LEN: usize = 32 * 1024 * 1024;
+/// Upper bound on what raster attributes may pre-allocate.
+const MAX_SIXEL_RESERVE: usize = 1024 * 1024;
 
 pub struct SixelBuilder {
     pub sixel: Sixel,
@@ -197,8 +199,10 @@ impl SixelBuilder {
                         return;
                     }
                     // `size` counts pixels while each entry covers a 1x6
-                    // column, so never pre-allocate past the data cap.
-                    self.sixel.data.reserve(size.min(MAX_SIXEL_DATA_LEN));
+                    // column. The raster size is only a hint from the
+                    // program, so pre-allocate at most a modest amount and
+                    // let the vector grow with the data that really arrives.
+                    self.sixel.data.reserve((size / 6).min(MAX_SIXEL_RESERVE));
                 }
             }
             _ => {}
@@ -365,6 +369,6 @@ mod test {
             builder.push(b);
         }
         builder.finish();
-        assert!(builder.sixel.data.capacity() <= MAX_SIXEL_DATA_LEN);
+        assert!(builder.sixel.data.capacity() <= MAX_SIXEL_RESERVE);
     }
 }

@@ -58,6 +58,9 @@ struct ParseState {
     get_tcap: Option<GetTcapBuilder>,
     /// Bytes buffered for the current `dcs` or `get_tcap` request.
     buffered_dcs_len: usize,
+    /// Set once a buffered DCS payload ran past `MAX_BUFFERED_DCS_LEN`, so
+    /// a payload of exactly the cap is still answered.
+    buffered_dcs_overflow: bool,
     #[cfg(feature = "tmux_cc")]
     tmux_state: Option<RefCell<crate::tmux_cc::Parser>>,
 }
@@ -248,6 +251,7 @@ impl<'a, F: FnMut(Action)> VTActor for Performer<'a, F> {
         self.state.get_tcap.take();
         self.state.dcs.take();
         self.state.buffered_dcs_len = 0;
+        self.state.buffered_dcs_overflow = false;
         if byte == b'q' && intermediates.is_empty() && !ignored_extra_intermediates {
             self.state.sixel.replace(SixelBuilder::new(params));
         } else if byte == b'q' && intermediates == [b'+'] {
@@ -282,6 +286,7 @@ impl<'a, F: FnMut(Action)> VTActor for Performer<'a, F> {
             if self.state.buffered_dcs_len >= MAX_BUFFERED_DCS_LEN {
                 // Keep swallowing bytes until the terminator; dcs_unhook
                 // then drops the request instead of answering it.
+                self.state.buffered_dcs_overflow = true;
                 return;
             }
             self.state.buffered_dcs_len += 1;
@@ -316,8 +321,9 @@ impl<'a, F: FnMut(Action)> VTActor for Performer<'a, F> {
     }
 
     fn dcs_unhook(&mut self) {
-        let buffered_overflow = self.state.buffered_dcs_len >= MAX_BUFFERED_DCS_LEN;
+        let buffered_overflow = self.state.buffered_dcs_overflow;
         self.state.buffered_dcs_len = 0;
+        self.state.buffered_dcs_overflow = false;
         if buffered_overflow && (self.state.dcs.is_some() || self.state.get_tcap.is_some()) {
             log::error!(
                 "Ignoring DCS request because its payload exceeds {} bytes",
@@ -1393,6 +1399,27 @@ mod test {
             next.extend_from_slice(b"544e\x1b\\");
             let actions = p.parse_as_vec(&next);
             assert_eq!(actions.len(), 2, "{actions:?}");
+        }
+    }
+
+    #[test]
+    fn a_request_of_exactly_the_cap_is_still_answered() {
+        for intro in [&b"\x1bP$q"[..], &b"\x1bP+q"[..]] {
+            let mut p = Parser::new();
+            let mut answered = 0;
+            let mut count = |a: Action| {
+                if matches!(
+                    a,
+                    Action::XtGetTcap(_)
+                        | Action::DeviceControl(DeviceControlMode::ShortDeviceControl(_))
+                ) {
+                    answered += 1;
+                }
+            };
+            p.parse(intro, &mut count);
+            p.parse(&vec![b'6'; MAX_BUFFERED_DCS_LEN], &mut count);
+            p.parse(b"\x1b\\", &mut count);
+            assert_eq!(answered, 1, "a payload at the cap must not be dropped");
         }
     }
 }
