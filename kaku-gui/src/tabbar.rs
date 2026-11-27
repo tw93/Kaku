@@ -1532,11 +1532,18 @@ pub fn parse_status_text(text: &str, default_cell: CellAttributes) -> Line {
 }
 
 #[cfg(test)]
-mod test {
+pub(crate) mod test {
     use super::*;
+
+    /// Held by every test that sets, clears or replaces the process-wide
+    /// configuration or its file override, so cargo's parallel runner cannot
+    /// swap one test's config out in the middle of another (a reload here
+    /// turned the tab index off under the SSH title test).
+    pub(crate) static CONFIG_TEST_LOCK: parking_lot::Mutex<()> = parking_lot::Mutex::new(());
 
     #[test]
     fn ssh_pane_titles_keep_the_formatter_on_hover() -> anyhow::Result<()> {
+        let _config = CONFIG_TEST_LOCK.lock();
         config::designate_this_as_the_main_thread();
         let config_file = tempfile::NamedTempFile::new()?;
         let mut tab = make_tab(0, 0, false, "");
@@ -1985,6 +1992,7 @@ return {{ use_fancy_tab_bar = false, show_new_tab_button_in_tab_bar = false,
     /// close button, and its hit target wins over the tab beneath it.
     #[test]
     fn touch_mode_keeps_a_close_slot_at_the_end_of_each_tab() -> anyhow::Result<()> {
+        let _config = CONFIG_TEST_LOCK.lock();
         config::designate_this_as_the_main_thread();
         let config_file = tempfile::NamedTempFile::new()?;
         std::fs::write(

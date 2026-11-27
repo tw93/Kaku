@@ -188,6 +188,7 @@ mod test {
 
     #[test]
     fn ligatures_fira() {
+        let _config = crate::tabbar::test::CONFIG_TEST_LOCK.lock();
         config::use_test_configuration();
         let _ = env_logger::Builder::new()
             .is_test(true)
@@ -257,6 +258,7 @@ mod test {
 
     #[test]
     fn bench_shaping() {
+        let _config = crate::tabbar::test::CONFIG_TEST_LOCK.lock();
         config::use_test_configuration();
 
         // let mut glyph_cache = GlyphCache::new_in_memory(&fonts, 128, &render_metrics).unwrap();
@@ -307,6 +309,7 @@ mod test {
 
     #[test]
     fn ligatures_jetbrains() {
+        let _config = crate::tabbar::test::CONFIG_TEST_LOCK.lock();
         config::use_test_configuration();
         let _ = env_logger::Builder::new()
             .is_test(true)

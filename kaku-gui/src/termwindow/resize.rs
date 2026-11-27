@@ -1409,6 +1409,7 @@ mod tests {
 
     #[test]
     fn font_size_persistence_roundtrip_isolates_drawer_and_ordinary() {
+        let _config = crate::tabbar::test::CONFIG_TEST_LOCK.lock();
         const FIXTURE_ROOT: &str = "KAKU_TEST_FONT_STATE_ROOT";
         let Some(root) = std::env::var_os(FIXTURE_ROOT) else {
             // Lazy config directories must initialize in an isolated process, not race other tests.
@@ -1826,6 +1827,7 @@ mod tests {
 
     #[test]
     fn custom_padding_path_defaults_to_user_config() {
+        let _config = crate::tabbar::test::CONFIG_TEST_LOCK.lock();
         config::clear_config_file_override();
         assert_eq!(
             user_custom_window_padding_config_path(),
@@ -1835,6 +1837,7 @@ mod tests {
 
     #[test]
     fn explicit_override_path_wins_for_custom_padding_detection() {
+        let _config = crate::tabbar::test::CONFIG_TEST_LOCK.lock();
         config::clear_config_file_override();
         let override_path = PathBuf::from("/tmp/kaku-override.lua");
         config::set_config_file_override(&override_path);

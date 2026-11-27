@@ -1199,6 +1199,7 @@ mod tests {
 
     #[test]
     fn half_intensity_dims_resolved_foreground_color() {
+        let _config = crate::tabbar::test::CONFIG_TEST_LOCK.lock();
         use_test_configuration();
         let config = configuration();
         let palette: ColorPalette = config.resolved_palette.clone().into();
