@@ -13,9 +13,31 @@ use std::ops::Range;
 use std::sync::Arc;
 use termwiz::hyperlink::{Hyperlink, Rule};
 use termwiz::surface::Line;
+use wezterm_term::StableRowIndex;
 
 /// Rows above and below the hovered row that a rejoined link may span.
 pub const MAX_SPAN: usize = 4;
+
+/// The rows within `MAX_SPAN` of `stable_row`, and where `stable_row` sits
+/// in them, with the stable index of the first row. The range starts no higher than `scrollback_top`: for a start
+/// above it `get_lines` returns rows from the bottom of the buffer instead,
+/// so a link on one of the first rows after `clear` or in a new window was
+/// never rejoined.
+pub fn rows_around(
+    stable_row: StableRowIndex,
+    scrollback_top: StableRowIndex,
+    get_lines: impl FnOnce(Range<StableRowIndex>) -> (StableRowIndex, Vec<Line>),
+) -> Option<(StableRowIndex, usize, Vec<Line>)> {
+    let span = MAX_SPAN as StableRowIndex;
+    let start = (stable_row - span).max(scrollback_top);
+    let (top, lines) = get_lines(start..stable_row + span + 1);
+    let hover_row = stable_row - top;
+    (hover_row >= 0 && (hover_row as usize) < lines.len()).then_some((
+        top,
+        hover_row as usize,
+        lines,
+    ))
+}
 
 /// Columns a TUI may leave free at the right edge when it wraps there.
 /// Claude Code stops about four columns short; a wide glyph adds one.
@@ -723,6 +745,35 @@ mod tests {
             ],
             "segments cover each fragment without the indent or the trailing sentence"
         );
+    }
+
+    #[test]
+    fn rows_near_the_top_of_the_scrollback_are_the_rows_around_the_hover() {
+        // A fresh 22-row screen: rows above the hovered one do not exist,
+        // and asking for them used to bring back the bottom of the buffer.
+        let mut term = wezterm_term::Terminal::new(
+            wezterm_term::TerminalSize {
+                rows: 22,
+                cols: 40,
+                pixel_width: 320,
+                pixel_height: 352,
+                dpi: 0,
+            },
+            Arc::new(config::TermConfig::new()),
+            "test",
+            "test",
+            Box::new(std::io::sink()),
+        );
+        term.advance_bytes("  see /tmp/kaku-wr\r\n  ap/sheet.png here\r\n");
+        for hovered in 0..2 {
+            let (_, hover_row, lines) = rows_around(hovered, 0, |range| {
+                mux::renderable::terminal_get_lines(&mut term, range)
+            })
+            .expect("the hovered row is in range");
+            assert_eq!(hover_row, hovered as usize);
+            assert_eq!(lines[0].as_str().trim_end(), "  see /tmp/kaku-wr");
+            assert_eq!(lines[1].as_str().trim_end(), "  ap/sheet.png here");
+        }
     }
 
     #[test]

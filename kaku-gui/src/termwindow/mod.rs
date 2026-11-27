@@ -5759,13 +5759,14 @@ impl TermWindow {
         stable_row: StableRowIndex,
         column: usize,
     ) {
-        let span = wrapped_link::MAX_SPAN as StableRowIndex;
-        let (top, lines) = pane.get_lines(stable_row - span..stable_row + span + 1);
-        let hover_row = stable_row - top;
-        if hover_row < 0 || hover_row as usize >= lines.len() {
+        let dims = pane.get_dimensions();
+        let Some((top, hover_row, lines)) =
+            wrapped_link::rows_around(stable_row, dims.scrollback_top, |range| {
+                pane.get_lines(range)
+            })
+        else {
             return;
-        }
-        let hover_row = hover_row as usize;
+        };
         let line = &lines[hover_row];
         let Some(hover_byte) = wrapped_link::byte_offset_of_column(line, column) else {
             return;
@@ -5788,7 +5789,7 @@ impl TermWindow {
         let hovered = line
             .get_cell(column)
             .and_then(|cell| cell.attrs().hyperlink().cloned());
-        let cols = pane.get_dimensions().cols;
+        let cols = dims.cols;
         let texts: Vec<String> = lines
             .iter()
             .map(|line| line.as_str().into_owned())
