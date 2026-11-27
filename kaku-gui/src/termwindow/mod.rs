@@ -381,14 +381,28 @@ fn should_show_toast(
     }
 }
 
-/// Whether a bell in `pane_id` bounces the Dock icon: only while the window
-/// is in the background, and once per pane until the window is focused again.
-fn dock_bounce_for_bell(
-    window_has_focus: bool,
-    pane_id: PaneId,
-    bounced: &mut HashSet<PaneId>,
-) -> bool {
-    !window_has_focus && bounced.insert(pane_id)
+/// Whether Kaku is the active app, as opposed to one of its windows having
+/// focus while another Kaku window is in front.
+pub(crate) fn app_is_active() -> bool {
+    #[allow(unexpected_cfgs)]
+    unsafe {
+        use cocoa::appkit::NSApp;
+        use objc::*;
+        let app = NSApp();
+        let active: cocoa::base::BOOL = msg_send![app, isActive];
+        active != cocoa::base::NO
+    }
+}
+
+/// Panes whose bell already bounced the Dock icon since Kaku was last
+/// active. Shared by all windows: the Dock icon belongs to the app, and a
+/// pane in one window must bounce again whichever window brings Kaku back.
+static DOCK_BOUNCED_PANES: std::sync::Mutex<Option<HashSet<PaneId>>> = std::sync::Mutex::new(None);
+
+/// Whether a bell in `pane_id` bounces the Dock icon: only while Kaku is in
+/// the background, and once per pane until Kaku is active again.
+fn dock_bounce_for_bell(app_active: bool, pane_id: PaneId, bounced: &mut HashSet<PaneId>) -> bool {
+    !app_active && bounced.insert(pane_id)
 }
 
 fn bell_notification_message(
@@ -1073,9 +1087,6 @@ pub struct TermWindow {
     os_parameters: Option<parameters::Parameters>,
     /// When we most recently received keyboard focus
     pub focused: Option<Instant>,
-    /// Panes whose bell already bounced the Dock icon since this window
-    /// last lost focus.
-    dock_bounced_panes: HashSet<PaneId>,
     fonts: Rc<FontConfiguration>,
     /// Window dimensions and dpi
     pub dimensions: Dimensions,
@@ -1331,7 +1342,9 @@ impl TermWindow {
         }
         self.focused = if focused { Some(Instant::now()) } else { None };
         if focused {
-            self.dock_bounced_panes.clear();
+            if let Some(bounced) = DOCK_BOUNCED_PANES.lock().unwrap().as_mut() {
+                bounced.clear();
+            }
         }
         self.quad_generation += 1;
         self.load_os_parameters();
@@ -1825,7 +1838,6 @@ impl TermWindow {
             config_overrides: wezterm_dynamic::Value::default(),
             palette: None,
             focused: None,
-            dock_bounced_panes: HashSet::new(),
             mux_window_id,
             mux_window_id_for_subscriptions: Arc::new(Mutex::new(mux_window_id)),
             mux_subscription_dead: Arc::new(AtomicBool::new(false)),
@@ -2646,8 +2658,15 @@ impl TermWindow {
                     // The bounce is decided apart from the unread mark: a
                     // pane already marked while the window had focus still
                     // bounces once its next bell rings in the background.
-                    if dock_bounce_for_bell(window_has_focus, pane_id, &mut self.dock_bounced_panes)
-                    {
+                    let bounce = dock_bounce_for_bell(
+                        app_is_active(),
+                        pane_id,
+                        DOCK_BOUNCED_PANES
+                            .lock()
+                            .unwrap()
+                            .get_or_insert_with(HashSet::new),
+                    );
+                    if bounce {
                         match self.config.bell_dock_bounce {
                             DockBounce::Disabled => {}
                             DockBounce::Once => Connection::get()
@@ -7762,14 +7781,15 @@ assert(overrides.window_padding.top == 0 and overrides.hide_tab_bar_if_only_one_
     fn a_pane_marked_unread_in_the_foreground_still_bounces_later() {
         let mut bounced = HashSet::new();
         let (seven, eight) = (PaneId::new(7), PaneId::new(8));
-        // A bell in an inactive split while the window has focus.
+        // A bell in an inactive split, or in a window behind another Kaku
+        // window, while Kaku is the active app.
         assert!(!dock_bounce_for_bell(true, seven, &mut bounced));
-        // The user switches away; the same pane rings again.
+        // The user switches to another app; the same pane rings again.
         assert!(dock_bounce_for_bell(false, seven, &mut bounced));
         // Further bells from it stay quiet, another pane still bounces.
         assert!(!dock_bounce_for_bell(false, seven, &mut bounced));
         assert!(dock_bounce_for_bell(false, eight, &mut bounced));
-        // Focusing the window starts over.
+        // Any Kaku window taking focus starts over.
         bounced.clear();
         assert!(dock_bounce_for_bell(false, seven, &mut bounced));
     }

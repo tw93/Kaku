@@ -625,20 +625,8 @@ fn emit_assistant_markdown(
 
 // ─── System notification helpers ─────────────────────────────────────────────
 
-#[cfg(target_os = "macos")]
-fn app_is_active() -> bool {
-    #[allow(unexpected_cfgs)]
-    unsafe {
-        use cocoa::appkit::NSApp;
-        use objc::*;
-        let app = NSApp();
-        let active: cocoa::base::BOOL = msg_send![app, isActive];
-        active != cocoa::base::NO
-    }
-}
-
 fn send_unfocused_notification(title: &str, body: &str) {
-    if app_is_active() {
+    if crate::termwindow::app_is_active() {
         return;
     }
     wezterm_toast_notification::ToastNotification {
