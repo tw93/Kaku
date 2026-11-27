@@ -156,6 +156,8 @@ When a check needs clicks on the built app, hand the maintainer an isolated laun
 
 Tag format is `V0.x.x`. `scripts/release.sh` is the source of truth for tagged releases. The GitHub Release title comes from the first heading in `.github/RELEASE_NOTES.md`.
 
+Fix everything before tagging (maintainer 2026-11-27): every problem found before a release, whether from a review, the smoke checklist, a red CI or Security Audit run, or a report against Nightly, is fixed and verified on `main` before the tag. Do not ship with a known-issues list and fix it in the next release, even with release authorization in hand. An item left unfixed needs a stated reason it is not a defect (by design, undetectable, upstream), written into the review report.
+
 Before drafting release notes, read the previous formal release (`gh release view <latest-tag>`) and treat it as the format template: title `V{version} {Codename}` with a one-word codename, a centered logo header with the product tagline, `### Changelog` as numbered `**Label**: one sentence` items, a `### 更新日志` section whose Chinese items map one-to-one by number, and a `> https://github.com/tw93/Kaku` footer. After publishing, add all six positive reactions (`+1`, `laugh`, `heart`, `hooray`, `rocket`, `eyes`) to the release via `gh api` and read them back to confirm; never add `-1` or `confused`.
 
 ## Pre-release Runtime Smoke
