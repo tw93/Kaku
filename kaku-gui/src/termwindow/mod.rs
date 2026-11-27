@@ -1222,12 +1222,12 @@ pub struct TermWindow {
 
     /// Toast notification: (start_time, message, lifetime)
     toast: Option<(Instant, String, Duration)>,
-    /// Shaped pixel width of the current toast message, keyed by
-    /// (message, dpi, config generation). The toast repaints every frame
-    /// while fading, and the message never changes mid-toast, so shaping it
-    /// once is enough; the generation guards against a config reload
-    /// changing the font under a repeated message.
-    toast_shaped_width: Option<(String, usize, usize, f32)>,
+    /// The current toast message as shaped, keyed by message, dpi and
+    /// config generation. The toast repaints every frame while fading, and
+    /// the message never changes mid-toast, so shaping it once is enough;
+    /// the generation guards against a config reload changing the font
+    /// under a repeated message.
+    toast_shaped_width: Option<render::paint::ToastShape>,
     /// Title of the AI agent running in the active pane, drawn in the top
     /// strip (`render/agent_title.rs`); refreshed with the window title.
     agent_title: Option<render::agent_title::AgentTitle>,

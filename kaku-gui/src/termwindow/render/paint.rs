@@ -683,15 +683,83 @@ impl crate::TermWindow {
         let (bg_color, text_color) = toast_colors_for_palette(&palette, alpha);
         let toast_radius = Dimension::Pixels(8.0);
 
-        let text = Element::new(&font, ElementContent::Text(message.clone()))
-            .colors(ElementColors {
-                border: BorderColor::default(),
-                bg: LinearRgba::TRANSPARENT.into(),
-                text: text_color.into(),
-            })
-            .display(DisplayType::Block);
+        let dimensions = self.dimensions;
+        let border = self.get_os_border();
+        // The toast repaints every frame while animating its fade, but the
+        // message text is fixed for the toast's lifetime: shape it once and
+        // reuse the measured width on subsequent frames.
+        let config_generation = self.config.generation();
+        let shape = match &self.toast_shaped_width {
+            Some(shape)
+                if shape.message == message
+                    && shape.dpi == dimensions.dpi
+                    && shape.generation == config_generation =>
+            {
+                shape.clone()
+            }
+            _ => {
+                let shape_window = self.window.as_ref().unwrap().clone();
+                let shaped = font.shape(
+                    &message,
+                    move || shape_window.notify(TermWindowNotif::InvalidateShapeCache),
+                    |_| {},
+                    None,
+                    wezterm_bidi::Direction::LeftToRight,
+                    None,
+                    None,
+                )?;
+                let mut starts = Vec::with_capacity(shaped.len());
+                let mut width = 0.0f32;
+                for glyph in &shaped {
+                    starts.push((glyph.cluster as usize, width));
+                    width += glyph.x_advance.get() as f32;
+                }
+                let shape = ToastShape {
+                    message: message.clone(),
+                    dpi: dimensions.dpi,
+                    generation: config_generation,
+                    width,
+                    starts,
+                };
+                self.toast_shaped_width = Some(shape.clone());
+                shape
+            }
+        };
+        // Use consistent margin based on cell size
+        let h_margin = metrics.cell_size.width as f32 * 2.0;
+        let v_margin = metrics.cell_size.height as f32 * 2.0;
+        // 1.5 cells matches the Cells(0.75) horizontal padding; ceil + 1 px guards against rounding.
+        let padding = 1.5 * metrics.cell_size.width as f32;
+        // A message wider than the window wraps at spaces instead of running
+        // off its left edge.
+        let room = dimensions.pixel_width as f32
+            - 2.0 * h_margin
+            - border.left.get() as f32
+            - border.right.get() as f32
+            - padding
+            - 1.0;
+        let lines = toast_lines(&shape, room);
+        let text_pixel_width = lines.iter().map(|l| l.1).fold(0.0f32, f32::max);
+        let approx_width = (text_pixel_width + padding).ceil() + 1.0;
+        let toast_height = metrics.cell_size.height as f32 * (0.5 + lines.len() as f32);
 
-        let element = Element::new(&font, ElementContent::Children(vec![text]))
+        let text_lines: Vec<Element> = lines
+            .iter()
+            .map(|(range, _)| {
+                Element::new(
+                    &font,
+                    ElementContent::Text(message[range.clone()].to_string()),
+                )
+                .colors(ElementColors {
+                    border: BorderColor::default(),
+                    bg: LinearRgba::TRANSPARENT.into(),
+                    text: text_color.into(),
+                })
+                .display(DisplayType::Block)
+            })
+            .collect();
+
+        let element = Element::new(&font, ElementContent::Children(text_lines))
             .colors(ElementColors {
                 // Rounded corner polys use border colors even if the border
                 // width is zero; match bg to avoid corner gaps.
@@ -728,44 +796,6 @@ impl crate::TermWindow {
                     poly: BOTTOM_RIGHT_ROUNDED_CORNER,
                 },
             }));
-
-        let dimensions = self.dimensions;
-        let border = self.get_os_border();
-        // The toast repaints every frame while animating its fade, but the
-        // message text is fixed for the toast's lifetime: shape it once and
-        // reuse the measured width on subsequent frames.
-        let config_generation = self.config.generation();
-        let text_pixel_width: f32 = match &self.toast_shaped_width {
-            Some((cached_message, cached_dpi, cached_generation, width))
-                if *cached_message == message
-                    && *cached_dpi == dimensions.dpi
-                    && *cached_generation == config_generation =>
-            {
-                *width
-            }
-            _ => {
-                let shape_window = self.window.as_ref().unwrap().clone();
-                let shaped = font.shape(
-                    &message,
-                    move || shape_window.notify(TermWindowNotif::InvalidateShapeCache),
-                    |_| {},
-                    None,
-                    wezterm_bidi::Direction::LeftToRight,
-                    None,
-                    None,
-                )?;
-                let width: f32 = shaped.iter().map(|g| g.x_advance.get() as f32).sum();
-                self.toast_shaped_width =
-                    Some((message.clone(), dimensions.dpi, config_generation, width));
-                width
-            }
-        };
-        // 1.5 cells matches the Cells(0.75) horizontal padding; ceil + 1 px guards against rounding.
-        let approx_width = (text_pixel_width + 1.5 * metrics.cell_size.width as f32).ceil() + 1.0;
-        let toast_height = metrics.cell_size.height as f32 * 1.5;
-        // Use consistent margin based on cell size
-        let h_margin = metrics.cell_size.width as f32 * 2.0;
-        let v_margin = metrics.cell_size.height as f32 * 2.0;
 
         // Position at bottom-right with fixed margin from window edge
         let right_x =
@@ -812,8 +842,115 @@ impl crate::TermWindow {
     }
 }
 
+/// A toast message as shaped: its total width and the x offset at which
+/// each shaped cluster starts, keyed by the byte offset of the cluster.
+#[derive(Clone)]
+pub(crate) struct ToastShape {
+    pub message: String,
+    pub dpi: usize,
+    pub generation: usize,
+    pub width: f32,
+    pub starts: Vec<(usize, f32)>,
+}
+
+impl ToastShape {
+    /// The x offset at which byte `at` of the message starts.
+    fn x_at(&self, at: usize) -> f32 {
+        if at >= self.message.len() {
+            return self.width;
+        }
+        match self.starts.iter().rev().find(|(byte, _)| *byte <= at) {
+            Some((_, x)) => *x,
+            None => 0.0,
+        }
+    }
+}
+
+/// Split a toast message at spaces into lines no wider than `room`, with
+/// each line's byte range and width. A single word wider than `room` keeps
+/// a line of its own.
+fn toast_lines(shape: &ToastShape, room: f32) -> Vec<(std::ops::Range<usize>, f32)> {
+    let text = shape.message.as_str();
+    if shape.width <= room {
+        return vec![(0..text.len(), shape.width)];
+    }
+    let width_of = |range: &std::ops::Range<usize>| shape.x_at(range.end) - shape.x_at(range.start);
+    let mut lines = vec![];
+    let mut start = 0;
+    let mut fit: Option<usize> = None;
+    let mut search = 0;
+    loop {
+        let end = text[search..]
+            .find(' ')
+            .map_or(text.len(), |offset| search + offset);
+        if width_of(&(start..end)) > room {
+            if let Some(cut) = fit {
+                lines.push((start..cut, width_of(&(start..cut))));
+                start = cut + 1;
+                fit = None;
+                continue;
+            }
+        }
+        if end == text.len() {
+            lines.push((start..end, width_of(&(start..end))));
+            return lines;
+        }
+        fit = Some(end);
+        search = end + 1;
+    }
+}
+
 #[cfg(test)]
 mod tests {
+    use super::{toast_lines, ToastShape};
+
+    fn shape(message: &str) -> ToastShape {
+        // Ten pixels per byte, the way a monospace ASCII message shapes.
+        ToastShape {
+            message: message.to_string(),
+            dpi: 144,
+            generation: 0,
+            width: message.len() as f32 * 10.0,
+            starts: (0..message.len()).map(|i| (i, i as f32 * 10.0)).collect(),
+        }
+    }
+
+    fn texts(message: &str, room: f32) -> Vec<String> {
+        let shape = shape(message);
+        toast_lines(&shape, room)
+            .into_iter()
+            .map(|(range, width)| {
+                assert_eq!(width, range.len() as f32 * 10.0);
+                message[range].to_string()
+            })
+            .collect()
+    }
+
+    #[test]
+    fn a_toast_wider_than_the_window_wraps_at_spaces() {
+        let message =
+            "Notifications are off for Kaku. Turn them on in Kaku > Notification Settings";
+        assert_eq!(texts(message, 2000.0), vec![message.to_string()]);
+        let lines = texts(message, 300.0);
+        assert_eq!(
+            lines,
+            vec![
+                "Notifications are off for",
+                "Kaku. Turn them on in Kaku >",
+                "Notification Settings",
+            ]
+        );
+        assert!(lines.iter().all(|line| line.len() * 10 <= 300));
+        // A word wider than the room keeps a line of its own.
+        assert_eq!(
+            texts("a verylongword b", 60.0),
+            vec!["a", "verylongword", "b"]
+        );
+    }
+}
+
+#[cfg(test)]
+mod palette_tests {
     use super::toast_colors_for_palette;
     use wezterm_term::color::{ColorPalette, SrgbaTuple};
     use window::color::LinearRgba;
