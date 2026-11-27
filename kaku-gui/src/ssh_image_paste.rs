@@ -23,6 +23,9 @@ pub const SLOW_UPLOAD_NOTICE: Duration = Duration::from_secs(1);
 /// by then the user may be typing something else, where a stray Ctrl+V is
 /// bash's quoted-insert or vim's literal-next.
 pub const LATE_FALLBACK: Duration = Duration::from_secs(3);
+/// How long the slow-paste toast stays up at most: the configuration check
+/// and the upload both time out within it, and the result clears it sooner.
+pub const SLOW_TOAST_MS: u64 = (CONFIG_TIMEOUT.as_secs() + UPLOAD_TIMEOUT.as_secs() + 5) * 1000;
 
 /// How to reach the host a running `ssh` is connected to, as `scp` arguments.
 #[derive(Debug, PartialEq, Eq)]
@@ -234,10 +237,10 @@ impl SshTarget {
     /// host then runs something else first (`tmux attach`, a further `ssh`),
     /// so the image may not land where the TUI reads it. Blocks while
     /// `ssh -G` reads the configuration.
-    pub fn configured_remote_command(&self) -> bool {
+    pub fn configured_remote_command(&self, on_slow: impl FnOnce()) -> bool {
         let mut args = vec!["-G".to_string()];
         args.extend(self.args.iter().cloned());
-        match run_with_timeout(&self.ssh, &args, &self.cwd, CONFIG_TIMEOUT, || {}) {
+        match run_with_timeout(&self.ssh, &args, &self.cwd, CONFIG_TIMEOUT, on_slow) {
             Ok(config) => config_runs_a_command(&config),
             Err(err) => {
                 log::debug!("ssh -G for {} failed: {err:#}", self.host);
@@ -765,12 +768,22 @@ mod tests {
         .unwrap();
         let mut t = target(&["-p", "2222", "bastion"]).unwrap();
         t.ssh = fake_ssh;
-        assert!(t.configured_remote_command());
+        assert!(t.configured_remote_command(|| {}));
         assert_eq!(
             std::fs::read_to_string(dir.path().join("args"))
                 .unwrap()
                 .trim(),
             "-G -p 2222 bastion"
         );
+
+        // A slow check (`Match exec` in ssh_config) gets the toast too.
+        std::fs::write(
+            &dir.path().join("ssh"),
+            "#!/bin/sh\nsleep 1.5\necho 'sessiontype default'\n",
+        )
+        .unwrap();
+        let slow = std::cell::Cell::new(0);
+        assert!(!t.configured_remote_command(|| slow.set(slow.get() + 1)));
+        assert_eq!(slow.get(), 1);
     }
 }

@@ -1087,6 +1087,9 @@ pub struct TermWindow {
     os_parameters: Option<parameters::Parameters>,
     /// When we most recently received keyboard focus
     pub focused: Option<Instant>,
+    /// Image pastes over ssh still running; the slow-paste toast is cleared
+    /// when the last one finishes.
+    pub(crate) ssh_pastes_in_flight: usize,
     fonts: Rc<FontConfiguration>,
     /// Window dimensions and dpi
     pub dimensions: Dimensions,
@@ -1838,6 +1841,7 @@ impl TermWindow {
             config_overrides: wezterm_dynamic::Value::default(),
             palette: None,
             focused: None,
+            ssh_pastes_in_flight: 0,
             mux_window_id,
             mux_window_id_for_subscriptions: Arc::new(Mutex::new(mux_window_id)),
             mux_subscription_dead: Arc::new(AtomicBool::new(false)),

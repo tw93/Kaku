@@ -1,4 +1,4 @@
-use crate::ssh_image_paste::{SshTarget, LATE_FALLBACK};
+use crate::ssh_image_paste::{SshTarget, LATE_FALLBACK, SLOW_TOAST_MS};
 use crate::termwindow::TermWindowNotif;
 use crate::TermWindow;
 use config::keyassignment::{ClipboardCopyDestination, ClipboardPasteSource};
@@ -252,21 +252,39 @@ impl TermWindow {
             return;
         };
         let pane = pane.clone();
+        self.ssh_pastes_in_flight += 1;
         std::thread::spawn(move || {
+            // One toast for a slow paste, whether the configuration check or
+            // the upload is what takes long.
+            let noticed = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
+            let on_slow = || {
+                let window = window.clone();
+                let host = ssh.host.clone();
+                let noticed = noticed.clone();
+                move || {
+                    if noticed.swap(true, std::sync::atomic::Ordering::Relaxed) {
+                        return;
+                    }
+                    window.notify(TermWindowNotif::Apply(Box::new(move |myself| {
+                        // Past show_toast_for's 15s cap: an upload may run
+                        // 30s, and the result clears the toast itself.
+                        myself.show_toast_internal(
+                            format!("{SSH_UPLOAD_TOAST} {host}…"),
+                            Duration::from_millis(SLOW_TOAST_MS),
+                        );
+                    })));
+                }
+            };
             // ssh_config can start another program first (`RemoteCommand
             // tmux attach`, a further ssh); the image would not land where
-            // the TUI reads it, so keep the plain Ctrl+V.
-            let outcome = if ssh.configured_remote_command() {
+            // the TUI reads it, so keep the plain Ctrl+V. It is the paste the
+            // user asked for, so it is sent even when the check was slow; the
+            // toast said it was still coming.
+            let outcome = if ssh.configured_remote_command(on_slow()) {
                 SshPasteOutcome::CtrlV
             } else {
                 let started = Instant::now();
-                let notice_window = window.clone();
-                let host = ssh.host.clone();
-                let result = ssh.upload(&image, move || {
-                    notice_window.notify(TermWindowNotif::Apply(Box::new(move |myself| {
-                        myself.show_toast_for(format!("{SSH_UPLOAD_TOAST} {host}…"), 15_000);
-                    })));
-                });
+                let result = ssh.upload(&image, on_slow());
                 match result {
                     Ok(remote_path) => SshPasteOutcome::Path(remote_path),
                     Err(err) => SshPasteOutcome::Failed {
@@ -277,10 +295,11 @@ impl TermWindow {
             };
             window.notify(TermWindowNotif::Apply(Box::new(move |myself| {
                 let pane_id = pane.pane_id();
+                myself.ssh_pastes_in_flight = myself.ssh_pastes_in_flight.saturating_sub(1);
                 let uploading = myself.toast.as_ref().map_or(false, |(_, message, _)| {
                     message.starts_with(SSH_UPLOAD_TOAST)
                 });
-                if uploading {
+                if uploading && myself.ssh_pastes_in_flight == 0 {
                     myself.toast = None;
                     if let Some(window) = myself.window.as_ref() {
                         window.invalidate();
