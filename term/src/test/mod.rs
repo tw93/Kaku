@@ -2189,6 +2189,55 @@ fn prompt_marks_record_where_the_prompt_starts() {
 }
 
 #[test]
+fn prompt_marks_follow_their_text_when_lines_rewrap() {
+    // Widening, narrowing, Cmd+= and closing a split rewrap the history
+    // above the prompt; the recorded marks must still name the prompt's
+    // first row and the output start, or session restore cuts in the
+    // wrong place.
+    let size = |cols| TerminalSize {
+        rows: 6,
+        cols,
+        pixel_width: 0,
+        pixel_height: 0,
+        dpi: 0,
+    };
+    let mut term = TestTerm::new(6, 10, 100);
+    term.print("$ ls\r\n\x1b]133;C\x07aaaaaaaaaaaaaaa\r\nbbbbbbbbbbbbbbb\r\n");
+    term.print("\x1b]133;P;k=i\x07~/p\r\n> ");
+    let prompt_row = |term: &TestTerm| {
+        let (row, x) = term.get_last_prompt_start().unwrap();
+        assert_eq!(x, 0);
+        let screen = term.screen();
+        let phys = screen.stable_row_to_phys(row).unwrap();
+        screen.lines_in_phys_range(phys..phys + 1)[0]
+            .as_str()
+            .into_owned()
+    };
+    assert_eq!(prompt_row(&term).trim_end(), "~/p");
+
+    term.resize(size(5));
+    assert_eq!(prompt_row(&term).trim_end(), "~/p");
+    term.resize(size(30));
+    assert_eq!(prompt_row(&term).trim_end(), "~/p");
+
+    // The output start moves with its text too.
+    term.print("cat x\r\n\x1b]133;C\x07cccccccccccccccccccc\r\nddd");
+    let output_row = |term: &TestTerm| {
+        let row = term.get_last_command_output_start().unwrap();
+        let screen = term.screen();
+        let phys = screen.stable_row_to_phys(row).unwrap();
+        screen.lines_in_phys_range(phys..phys + 1)[0]
+            .as_str()
+            .into_owned()
+    };
+    assert!(output_row(&term).starts_with("cccc"));
+    term.resize(size(7));
+    assert!(output_row(&term).starts_with("cccc"));
+    term.resize(size(40));
+    assert!(output_row(&term).starts_with("cccc"));
+}
+
+#[test]
 fn restored_history_shows_above_the_new_prompt() {
     // A restored pane looks like it did at quit: the history fills the
     // screen above the shell's prompt instead of sitting off-screen in

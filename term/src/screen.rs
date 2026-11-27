@@ -113,11 +113,14 @@ impl Screen {
         cursor_x: usize,
         cursor_y: PhysRowIndex,
         seqno: SequenceNo,
+        marks: &mut [Option<(PhysRowIndex, usize)>],
     ) -> (usize, PhysRowIndex) {
         let mut rewrapped = VecDeque::new();
         let mut logical_line: Option<Line> = None;
         let mut logical_cursor_x: Option<usize> = None;
         let mut adjusted_cursor = (cursor_x, cursor_y);
+        // Offset of each mark within the logical line being assembled.
+        let mut logical_marks: Vec<Option<usize>> = vec![None; marks.len()];
 
         for (phys_idx, mut line) in self.lines.drain(..).enumerate() {
             line.update_last_change_seqno(seqno);
@@ -127,6 +130,14 @@ impl Screen {
                 line.set_last_cell_was_wrapped(false, seqno);
             }
 
+            let prior_len = logical_line.as_ref().map_or(0, Line::len);
+            for (mark, logical) in marks.iter().zip(logical_marks.iter_mut()) {
+                if let Some((y, x)) = mark {
+                    if *y == phys_idx {
+                        *logical = Some(x + prior_len);
+                    }
+                }
+            }
             let line = match logical_line.take() {
                 None => {
                     if phys_idx == cursor_y {
@@ -146,6 +157,12 @@ impl Screen {
             if was_wrapped {
                 logical_line.replace(line);
                 continue;
+            }
+
+            for (mark, logical) in marks.iter_mut().zip(logical_marks.iter_mut()) {
+                if let Some(x) = logical.take() {
+                    *mark = Some((rewrapped.len() + x / physical_cols, x % physical_cols));
+                }
             }
 
             if let Some(x) = logical_cursor_x.take() {
@@ -198,13 +215,16 @@ impl Screen {
         adjusted_cursor
     }
 
-    /// Resize the physical, viewable portion of the screen
+    /// Resize the physical, viewable portion of the screen. `marks` are
+    /// positions (stable row, column) that move with the text when lines
+    /// rewrap, as the cursor does.
     pub fn resize(
         &mut self,
         size: TerminalSize,
         cursor: CursorPosition,
         seqno: SequenceNo,
         is_conpty: bool,
+        marks: &mut [(StableRowIndex, usize)],
     ) -> CursorPosition {
         let physical_rows = size.rows.max(1);
         let physical_cols = size.cols.max(1);
@@ -248,7 +268,24 @@ impl Screen {
             // screen (hence the check for allow_scrollback), to avoid
             // conflicting screen updates with full screen apps.
             if self.allow_scrollback {
-                self.rewrap_lines(physical_cols, physical_rows, cursor.x, cursor_phys, seqno)
+                let mut phys_marks: Vec<Option<(PhysRowIndex, usize)>> = marks
+                    .iter()
+                    .map(|&(row, x)| self.stable_row_to_phys(row).map(|y| (y, x)))
+                    .collect();
+                let cursor = self.rewrap_lines(
+                    physical_cols,
+                    physical_rows,
+                    cursor.x,
+                    cursor_phys,
+                    seqno,
+                    &mut phys_marks,
+                );
+                for (mark, phys) in marks.iter_mut().zip(phys_marks) {
+                    if let Some((y, x)) = phys {
+                        *mark = (self.phys_to_stable_row_index(y), x);
+                    }
+                }
+                cursor
             } else {
                 for line in &mut self.lines {
                     if physical_cols < self.physical_cols {

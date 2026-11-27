@@ -1304,13 +1304,13 @@ impl<'a> Performer<'a> {
         }
     }
 
-    /// A new prompt means the program that reported working or blocked has
-    /// gone; done and error stay until the program replaces them.
     fn mark_prompt_start(&mut self) {
         let row = self.screen().visible_row_to_stable_row(self.cursor.y);
         self.last_prompt_start = Some((row, self.cursor.x));
     }
 
+    /// A new prompt means the program that reported working or blocked has
+    /// gone; done and error stay until the program replaces them.
     fn drop_live_program_status(&mut self) {
         if matches!(
             self.program_status,

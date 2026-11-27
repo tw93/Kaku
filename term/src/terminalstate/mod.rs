@@ -241,9 +241,14 @@ impl ScreenOrAlt {
         cursor_alt: CursorPosition,
         seqno: SequenceNo,
         is_conpty: bool,
+        marks: &mut [(StableRowIndex, usize)],
     ) -> (CursorPosition, CursorPosition) {
-        let cursor_main = self.screen.resize(size, cursor_main, seqno, is_conpty);
-        let cursor_alt = self.alt_screen.resize(size, cursor_alt, seqno, is_conpty);
+        let cursor_main = self
+            .screen
+            .resize(size, cursor_main, seqno, is_conpty, marks);
+        let cursor_alt = self
+            .alt_screen
+            .resize(size, cursor_alt, seqno, is_conpty, &mut []);
         (cursor_main, cursor_alt)
     }
 
@@ -1131,13 +1136,28 @@ impl TerminalState {
             )
         };
 
+        // Shell-integration marks on the primary screen move with its text
+        // when lines rewrap.
+        let mut marks: Vec<(StableRowIndex, usize)> = self
+            .last_prompt_start
+            .into_iter()
+            .chain(self.last_command_output_start.map(|row| (row, 0)))
+            .collect();
         let (adjusted_cursor_main, adjusted_cursor_alt) = self.screen.resize(
             size,
             cursor_main,
             cursor_alt,
             self.seqno,
             self.enable_conpty_quirks,
+            &mut marks,
         );
+        let mut marks = marks.into_iter();
+        if self.last_prompt_start.is_some() {
+            self.last_prompt_start = marks.next();
+        }
+        if self.last_command_output_start.is_some() {
+            self.last_command_output_start = marks.next().map(|(row, _)| row);
+        }
         self.top_and_bottom_margins = 0..size.rows as i64;
         self.left_and_right_margins = 0..size.cols;
         self.pixel_height = size.pixel_height;
