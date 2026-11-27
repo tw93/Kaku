@@ -280,18 +280,18 @@ mod tests {
             Kind::File
         }
         let mut probe = Probe::default();
-        let started = Instant::now();
         // Twenty candidates, each on its own mount so none waits on another.
-        for i in 0..20 {
-            let mount = PathBuf::from(format!("/Volumes/quick-probe-test-{i}"));
-            probe.network_kind(&mount.join("a"), mount.clone(), quick, NETWORK_WAIT);
-        }
-        // Without a shared budget this takes 20 x 20ms.
-        assert!(
-            started.elapsed() < Duration::from_millis(150),
-            "{:?}",
-            started.elapsed()
-        );
+        let answered = (0..20)
+            .filter(|i| {
+                let mount = PathBuf::from(format!("/Volumes/quick-probe-test-{i}"));
+                probe.network_kind(&mount.join("a"), mount.clone(), quick, NETWORK_WAIT)
+                    == Kind::File
+            })
+            .count();
+        // Each check fits in NETWORK_WAIT, so without a shared budget all
+        // twenty are waited for (20 x 20ms). Counting answers rather than
+        // timing the loop keeps a busy CI runner from failing it.
+        assert!(answered <= 2, "{} checks were waited for", answered);
     }
 
     #[test]
