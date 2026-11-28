@@ -1553,7 +1553,7 @@ fi
 _kaku_semantic_precmd() {
     (( \${+__p9k_instant_prompt_active} )) && return 0
     if [[ "\${TERM_PROGRAM:-}" == "Kaku" || ( -n "\${TMUX:-}" && -n "\${KAKU_SESSION:-}" ) ]]; then
-        printf '\033]133;P;k=i\007'
+        printf '\033]133;P;k=i;redraw=1\007'
     fi
     return 0
 }
@@ -1568,6 +1568,13 @@ if [[ \${precmd_functions[(Ie)_kaku_semantic_precmd]} -eq 0 ]]; then
 fi
 if [[ \${preexec_functions[(Ie)_kaku_semantic_preexec]} -eq 0 ]]; then
     preexec_functions+=(_kaku_semantic_preexec)
+fi
+# Powerlevel10k's instant prompt draws the first prompt before any precmd,
+# so the hooks above cannot mark it, and a resize right after launch then
+# reflows its two-line prompt into stacked copies. p10k marks its own
+# prompts, instant prompt included, when asked; a value the user set wins.
+if [[ "\${TERM_PROGRAM:-}" == "Kaku" || ( -n "\${TMUX:-}" && -n "\${KAKU_SESSION:-}" ) ]]; then
+    (( \${+POWERLEVEL9K_TERM_SHELL_INTEGRATION} )) || typeset -g POWERLEVEL9K_TERM_SHELL_INTEGRATION=true
 fi
 
 # Kaku AI fix hooks (error-only):

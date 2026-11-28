@@ -234,6 +234,7 @@ impl ScreenOrAlt {
         }
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub fn resize(
         &mut self,
         size: TerminalSize,
@@ -242,13 +243,14 @@ impl ScreenOrAlt {
         seqno: SequenceNo,
         is_conpty: bool,
         marks: &mut [(StableRowIndex, usize)],
+        prompt: Option<StableRowIndex>,
     ) -> (CursorPosition, CursorPosition) {
         let cursor_main = self
             .screen
-            .resize(size, cursor_main, seqno, is_conpty, marks);
+            .resize(size, cursor_main, seqno, is_conpty, marks, prompt);
         let cursor_alt = self
             .alt_screen
-            .resize(size, cursor_alt, seqno, is_conpty, &mut []);
+            .resize(size, cursor_alt, seqno, is_conpty, &mut [], None);
         (cursor_main, cursor_alt)
     }
 
@@ -480,6 +482,10 @@ pub struct TerminalState {
     /// (OSC 133 A, N or P): the stable row and the column. Session restore
     /// saves the history above it.
     last_prompt_start: Option<(StableRowIndex, usize)>,
+
+    /// Whether the shell redraws its whole prompt after a resize, as zsh
+    /// and fish do. The last OSC 133;A says; bash's says it does not.
+    shell_redraws_prompt: bool,
 }
 
 #[derive(Debug)]
@@ -678,6 +684,7 @@ impl TerminalState {
             last_command_status: None,
             last_command_output_start: None,
             last_prompt_start: None,
+            shell_redraws_prompt: true,
         }
     }
 
@@ -862,10 +869,29 @@ impl TerminalState {
             let rows = self.screen.physical_rows as i64;
             (rows - 1 - self.cursor.y).max(0) as usize
         };
-        let revealed = self
-            .screen
-            .primary_screen_mut()
-            .prepend_scrollback_lines(lines, seqno, reveal);
+        // Prepending shifts every row's index, so the shell-integration
+        // marks are kept by their distance from the end of the buffer; only
+        // blank rows under the cursor come off that end.
+        let screen = self.screen.primary_screen();
+        let len = screen.scrollback_rows();
+        let from_end = |row: StableRowIndex| screen.stable_row_to_phys(row).map(|phys| len - phys);
+        let prompt = self.last_prompt_start.map(|(row, x)| (from_end(row), x));
+        let output = self.last_command_output_start.map(from_end);
+
+        let screen = self.screen.primary_screen_mut();
+        let revealed = screen.prepend_scrollback_lines(lines, seqno, reveal);
+        let len = screen.scrollback_rows();
+        let to_row = |distance: Option<usize>| {
+            distance
+                .filter(|&distance| distance > revealed && distance - revealed <= len)
+                .map(|distance| screen.phys_to_stable_row_index(len - (distance - revealed)))
+        };
+        if let Some((distance, x)) = prompt {
+            self.last_prompt_start = to_row(distance).map(|row| (row, x));
+        }
+        if let Some(distance) = output {
+            self.last_command_output_start = to_row(distance);
+        }
         self.cursor.y += revealed as VisibleRowIndex;
     }
 
@@ -1143,6 +1169,17 @@ impl TerminalState {
             .into_iter()
             .chain(self.last_command_output_start.map(|row| (row, 0)))
             .collect();
+        // The shell is waiting at its prompt: a prompt was marked at the
+        // start of a row and no command output has started since. It
+        // redraws the prompt itself.
+        let prompt = match (self.last_prompt_start, self.last_command_output_start) {
+            (Some((row, 0)), None)
+                if self.shell_redraws_prompt && !self.screen.alt_screen_is_active =>
+            {
+                Some(row)
+            }
+            _ => None,
+        };
         let (adjusted_cursor_main, adjusted_cursor_alt) = self.screen.resize(
             size,
             cursor_main,
@@ -1150,6 +1187,7 @@ impl TerminalState {
             self.seqno,
             self.enable_conpty_quirks,
             &mut marks,
+            prompt,
         );
         let mut marks = marks.into_iter();
         if self.last_prompt_start.is_some() {

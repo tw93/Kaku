@@ -62,4 +62,22 @@ probe "other terminal"              "0 0 _" TERM_PROGRAM=vscode
 probe "other terminal, opt-in"      "1 0 _" TERM_PROGRAM=vscode KAKU_PROMPT_EVERYWHERE=1
 probe "leaked marker, no tmux"      "0 0 _" TERM_PROGRAM=vscode KAKU_SESSION=1
 
+# Powerlevel10k marks its own prompts inside Kaku, so a resize does not
+# reflow the instant prompt; a value the user set is kept.
+p10k() {
+  local label="$1" expected="$2"; shift 2
+  local out
+  out="$(env -i PATH="$tmp_dir/bin:/usr/bin:/bin" HOME="$HOME" ZDOTDIR="$ZDOTDIR" TERM=xterm-256color "$@" \
+    zsh -f -c '
+[[ -n "${P10K_PRESET:-}" ]] && typeset -g POWERLEVEL9K_TERM_SHELL_INTEGRATION="$P10K_PRESET"
+source "$HOME/.config/kaku/zsh/kaku.zsh"
+print -r -- "${POWERLEVEL9K_TERM_SHELL_INTEGRATION:-unset}"
+' 2>&1 | tail -n 1)" || fail "$label: zsh exited non-zero: $out"
+  [[ "$out" == "$expected" ]] || fail "$label: expected [$expected] got [$out]"
+  echo "prompt_scope: $label ok ($out)" >&2
+}
+p10k "p10k marks inside Kaku"       "true"  TERM_PROGRAM=Kaku
+p10k "p10k user value kept"         "false" TERM_PROGRAM=Kaku P10K_PRESET=false
+p10k "p10k untouched elsewhere"     "unset" TERM_PROGRAM=vscode
+
 echo "prompt_scope: all cases passed" >&2

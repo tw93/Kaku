@@ -989,8 +989,9 @@ impl<'a> Performer<'a> {
                 self.fresh_line();
             }
             OperatingSystemCommand::FinalTermSemanticPrompt(
-                FinalTermSemanticPrompt::FreshLineAndStartPrompt { .. },
+                FinalTermSemanticPrompt::FreshLineAndStartPrompt { redraw, .. },
             ) => {
+                self.shell_redraws_prompt = redraw;
                 self.fresh_line();
                 self.pen.set_semantic_type(SemanticType::Prompt);
                 self.mark_prompt_start();
@@ -1001,8 +1002,14 @@ impl<'a> Performer<'a> {
                 self.drop_live_program_status();
             }
             OperatingSystemCommand::FinalTermSemanticPrompt(
-                FinalTermSemanticPrompt::StartPrompt(_),
+                FinalTermSemanticPrompt::StartPrompt(_, redraw),
             ) => {
+                // P inside bash's PS1 states nothing and keeps what its A
+                // said; Kaku's zsh hook states it, so a pane back in zsh
+                // after a bash session redraws again.
+                if let Some(redraw) = redraw {
+                    self.shell_redraws_prompt = redraw;
+                }
                 self.pen.set_semantic_type(SemanticType::Prompt);
                 self.mark_prompt_start();
                 self.last_command_status = None;

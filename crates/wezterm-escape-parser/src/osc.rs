@@ -731,6 +731,10 @@ pub enum FinalTermSemanticPrompt {
     FreshLineAndStartPrompt {
         aid: Option<String>,
         cl: Option<FinalTermClick>,
+        /// Whether the shell redraws the whole prompt when the window is
+        /// resized. `redraw=0` (kitty) and `redraw=last` (Ghostty, for
+        /// bash) say it does not.
+        redraw: bool,
     },
 
     /// Denote the end of a command output and then perform FreshLine
@@ -739,8 +743,9 @@ pub enum FinalTermSemanticPrompt {
         cl: Option<FinalTermClick>,
     },
 
-    /// Start a prompt
-    StartPrompt(FinalTermPromptKind),
+    /// Start a prompt. The second field is the shell's `redraw` claim
+    /// when it states one, as on OSC 133;A.
+    StartPrompt(FinalTermPromptKind, Option<bool>),
 
     /// Mark the end of a prompt and the start of the user input.
     /// The terminal considers all subsequent output to be "user input"
@@ -800,6 +805,7 @@ impl FinalTermSemanticPrompt {
                     Some(&cl) => Some(cl.try_into()?),
                     None => None,
                 },
+                redraw: matches!(params.get("redraw"), None | Some(&"1")),
             });
         }
 
@@ -835,10 +841,13 @@ impl FinalTermSemanticPrompt {
         }
 
         if param == "P" {
-            return Ok(Self::StartPrompt(match params.get("k") {
-                Some(&cl) => cl.try_into()?,
-                None => FinalTermPromptKind::default(),
-            }));
+            return Ok(Self::StartPrompt(
+                match params.get("k") {
+                    Some(&cl) => cl.try_into()?,
+                    None => FinalTermPromptKind::default(),
+                },
+                params.get("redraw").map(|&redraw| redraw == "1"),
+            ));
         }
 
         bail!(
@@ -854,13 +863,16 @@ impl Display for FinalTermSemanticPrompt {
         write!(f, "133;")?;
         match self {
             Self::FreshLine => write!(f, "L")?,
-            Self::FreshLineAndStartPrompt { aid, cl } => {
+            Self::FreshLineAndStartPrompt { aid, cl, redraw } => {
                 write!(f, "A")?;
                 if let Some(aid) = aid {
                     write!(f, ";aid={}", aid)?;
                 }
                 if let Some(cl) = cl {
                     write!(f, ";cl={}", cl)?;
+                }
+                if !redraw {
+                    write!(f, ";redraw=0")?;
                 }
             }
             Self::MarkEndOfCommandWithFreshLine { aid, cl } => {
@@ -872,8 +884,11 @@ impl Display for FinalTermSemanticPrompt {
                     write!(f, ";cl={}", cl)?;
                 }
             }
-            Self::StartPrompt(kind) => {
+            Self::StartPrompt(kind, redraw) => {
                 write!(f, "P;k={}", kind)?;
+                if let Some(redraw) = redraw {
+                    write!(f, ";redraw={}", if *redraw { 1 } else { 0 })?;
+                }
             }
             Self::MarkEndOfPromptAndStartOfInputUntilNextMarker => write!(f, "B")?,
             Self::MarkEndOfPromptAndStartOfInputUntilEndOfLine => write!(f, "I")?,
@@ -1870,34 +1885,42 @@ mod test {
         assert_eq!(
             parse(&["133", "P"], "\x1b]133;P;k=i\x1b\\"),
             OperatingSystemCommand::FinalTermSemanticPrompt(FinalTermSemanticPrompt::StartPrompt(
-                FinalTermPromptKind::Initial
+                FinalTermPromptKind::Initial, None
             ))
         );
 
         assert_eq!(
             parse(&["133", "P", "k=i"], "\x1b]133;P;k=i\x1b\\"),
             OperatingSystemCommand::FinalTermSemanticPrompt(FinalTermSemanticPrompt::StartPrompt(
-                FinalTermPromptKind::Initial
+                FinalTermPromptKind::Initial, None
             ))
         );
 
         assert_eq!(
             parse(&["133", "P", "k=r"], "\x1b]133;P;k=r\x1b\\"),
             OperatingSystemCommand::FinalTermSemanticPrompt(FinalTermSemanticPrompt::StartPrompt(
-                FinalTermPromptKind::RightSide
+                FinalTermPromptKind::RightSide, None
             ))
         );
 
         assert_eq!(
             parse(&["133", "P", "k=c"], "\x1b]133;P;k=c\x1b\\"),
             OperatingSystemCommand::FinalTermSemanticPrompt(FinalTermSemanticPrompt::StartPrompt(
-                FinalTermPromptKind::Continuation
+                FinalTermPromptKind::Continuation, None
             ))
         );
         assert_eq!(
             parse(&["133", "P", "k=s"], "\x1b]133;P;k=s\x1b\\"),
             OperatingSystemCommand::FinalTermSemanticPrompt(FinalTermSemanticPrompt::StartPrompt(
-                FinalTermPromptKind::Secondary
+                FinalTermPromptKind::Secondary, None
+            ))
+        );
+
+        assert_eq!(
+            parse(&["133", "P", "k=i", "redraw=1"], "\x1b]133;P;k=i;redraw=1\x1b\\"),
+            OperatingSystemCommand::FinalTermSemanticPrompt(FinalTermSemanticPrompt::StartPrompt(
+                FinalTermPromptKind::Initial,
+                Some(true)
             ))
         );
 
@@ -1995,6 +2018,18 @@ mod test {
                 FinalTermSemanticPrompt::FreshLineAndStartPrompt {
                     aid: Some("12".to_owned()),
                     cl: Some(FinalTermClick::SmartVertical),
+                    redraw: true,
+                }
+            ),
+        );
+
+        assert_eq!(
+            parse(&["133", "A", "aid=12", "redraw=0"], "\x1b]133;A;aid=12;redraw=0\x1b\\"),
+            OperatingSystemCommand::FinalTermSemanticPrompt(
+                FinalTermSemanticPrompt::FreshLineAndStartPrompt {
+                    aid: Some("12".to_owned()),
+                    cl: None,
+                    redraw: false,
                 }
             ),
         );

@@ -499,7 +499,8 @@ fn test_semantic() {
         OperatingSystemCommand::FinalTermSemanticPrompt(
             FinalTermSemanticPrompt::FreshLineAndStartPrompt {
                 aid: None,
-                cl: None
+                cl: None,
+                redraw: true,
             }
         )
     ));
@@ -2247,6 +2248,107 @@ fn prompt_marks_follow_their_text_when_lines_rewrap() {
 }
 
 #[test]
+fn a_two_line_prompt_redraws_once_after_a_resize() {
+    // Powerlevel10k's two-line prompt fills its first row with a dotted
+    // gap and a right-aligned clock. On SIGWINCH zsh returns to the first
+    // prompt row, counting the rows it drew at the old width, clears to the
+    // end of the screen and draws the prompt again. Reflowing the prompt
+    // first changes that count and leaves a stale copy above the new one.
+    let size = |cols| TerminalSize {
+        rows: 6,
+        cols,
+        pixel_width: 0,
+        pixel_height: 0,
+        dpi: 0,
+    };
+    let redraw = |term: &mut TestTerm, cols: usize| {
+        let gap = ".".repeat(cols - 7);
+        term.print(format!("\r\x1b[1A\x1b[J~/p{gap} at\r\n> "));
+    };
+    // Erasing to the end of the screen leaves blank cells, so compare
+    // the text without trailing blanks.
+    let rows = |term: &TestTerm| -> Vec<String> {
+        term.screen()
+            .visible_lines()
+            .iter()
+            .map(|line| line.as_str().trim_end().to_string())
+            .collect()
+    };
+    let mut term = TestTerm::new(6, 20, 100);
+    term.print("out\r\n\x1b]133;P;k=i\x07~/p............. at\r\n> ");
+    assert_eq!(rows(&term), ["out", "~/p............. at", ">", "", "", ""]);
+
+    term.resize(size(10));
+    redraw(&mut term, 10);
+    assert_eq!(rows(&term), ["out", "~/p... at", ">", "", "", ""]);
+    assert_eq!(term.cursor_pos().x, 2);
+
+    term.resize(size(30));
+    redraw(&mut term, 30);
+    assert_eq!(
+        rows(&term),
+        ["out", "~/p....................... at", ">", "", "", ""]
+    );
+
+    // Typed input that wraps stays where zsh left it, so the redraw still
+    // lands on the first prompt row.
+    term.print("echo aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+    term.resize(size(20));
+    term.print("\r\x1b[2A\x1b[J~/p............. at\r\n> echo");
+    assert_eq!(
+        rows(&term),
+        ["out", "~/p............. at", "> echo", "", "", ""]
+    );
+}
+
+#[test]
+fn zsh_redraws_again_after_a_bash_session_in_the_same_pane() {
+    // bash says redraw=0 and its PS1 repeats a bare P; back in zsh, the
+    // hook's P says redraw=1, so the two-line prompt is kept for zsh.
+    let size = |cols| TerminalSize {
+        rows: 6,
+        cols,
+        pixel_width: 0,
+        pixel_height: 0,
+        dpi: 0,
+    };
+    let mut term = TestTerm::new(6, 20, 100);
+    term.print("\x1b]133;A;redraw=0\x07\x1b]133;P;k=i\x07$ exit\r\n\x1b]133;C\x07");
+    term.print("\x1b]133;P;k=i;redraw=1\x07~/p............. at\r\n> ");
+    term.resize(size(10));
+    term.print("\r\x1b[1A\x1b[J~/p... at\r\n> ");
+    let rows: Vec<String> = term
+        .screen()
+        .visible_lines()
+        .iter()
+        .map(|line| line.as_str().trim_end().to_string())
+        .collect();
+    assert_eq!(rows, ["$ exit", "~/p... at", ">", "", "", ""]);
+}
+
+#[test]
+fn command_output_still_rewraps_after_the_prompt() {
+    // Once a command runs (OSC 133;C) the rows below the prompt are its
+    // output, and a resize reflows them as before.
+    let size = |cols| TerminalSize {
+        rows: 6,
+        cols,
+        pixel_width: 0,
+        pixel_height: 0,
+        dpi: 0,
+    };
+    let mut term = TestTerm::new(6, 10, 100);
+    term.print("\x1b]133;P;k=i\x07> cat\r\n\x1b]133;C\x07aaaaaaaaaabbbbb");
+    term.resize(size(20));
+    assert_visible_contents(
+        &term,
+        file!(),
+        line!(),
+        &["> cat", "aaaaaaaaaabbbbb", "", "", "", ""],
+    );
+}
+
+#[test]
 fn restored_history_shows_above_the_new_prompt() {
     // A restored pane looks like it did at quit: the history fills the
     // screen above the shell's prompt instead of sitting off-screen in
@@ -2257,6 +2359,59 @@ fn restored_history_shows_above_the_new_prompt() {
     assert_visible_contents(&term, file!(), line!(), &["a", "b", "c", "$ ", ""]);
     assert_eq!(term.cursor_pos().y, 3);
     assert_eq!(term.cursor_pos().x, 2);
+}
+
+#[test]
+fn restored_history_keeps_the_prompt_mark_on_the_prompt() {
+    // The shell can mark its first prompt before the previous session's
+    // history is put back above it; the mark must still name the prompt
+    // row, or a resize would freeze restored history as prompt rows and
+    // the next save would cut the history in the wrong place.
+    let mut term = TestTerm::new(5, 10, 100);
+    term.print("\x1b]133;P;k=i\x07~/p\r\n> ");
+    term.prepend_primary_scrollback(restored(&["a", "b", "c"]));
+    let row_text = |term: &TestTerm, row| {
+        let screen = term.screen();
+        let phys = screen.stable_row_to_phys(row).unwrap();
+        screen.lines_in_phys_range(phys..phys + 1)[0]
+            .as_str()
+            .trim_end()
+            .to_string()
+    };
+    let (row, x) = term.get_last_prompt_start().unwrap();
+    assert_eq!((row_text(&term, row).as_str(), x), ("~/p", 0));
+
+    // More history than the screen holds pushes the prompt off nothing:
+    // the mark still follows it.
+    let lines: Vec<String> = (0..10).map(|i| format!("l{i}")).collect();
+    let texts: Vec<&str> = lines.iter().map(String::as_str).collect();
+    term.prepend_primary_scrollback(restored(&texts));
+    let (row, _) = term.get_last_prompt_start().unwrap();
+    assert_eq!(row_text(&term, row), "~/p");
+}
+
+#[test]
+fn a_prompt_that_says_it_is_not_redrawn_still_rewraps() {
+    // bash redraws only the last line of its prompt, so its integration
+    // sends redraw=0 and the prompt reflows as before instead of losing
+    // the text a narrower window cut off.
+    let size = |cols| TerminalSize {
+        rows: 6,
+        cols,
+        pixel_width: 0,
+        pixel_height: 0,
+        dpi: 0,
+    };
+    let mut term = TestTerm::new(6, 20, 100);
+    term.print("\x1b]133;A;redraw=0\x07~/p............. at\r\n> ");
+    term.resize(size(10));
+    term.resize(size(20));
+    assert_visible_contents(
+        &term,
+        file!(),
+        line!(),
+        &["~/p............. at", "> ", "", "", "", ""],
+    );
 }
 
 #[test]

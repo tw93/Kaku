@@ -217,7 +217,8 @@ impl Screen {
 
     /// Resize the physical, viewable portion of the screen. `marks` are
     /// positions (stable row, column) that move with the text when lines
-    /// rewrap, as the cursor does.
+    /// rewrap, as the cursor does. `prompt` is the first row of the shell
+    /// prompt the cursor is sitting in, when the shell marked one.
     pub fn resize(
         &mut self,
         size: TerminalSize,
@@ -225,6 +226,7 @@ impl Screen {
         seqno: SequenceNo,
         is_conpty: bool,
         marks: &mut [(StableRowIndex, usize)],
+        prompt: Option<StableRowIndex>,
     ) -> CursorPosition {
         let physical_rows = size.rows.max(1);
         let physical_cols = size.cols.max(1);
@@ -250,6 +252,9 @@ impl Screen {
         // real history is untouched. Growing does not prune, so a cleared
         // screen does not pull pre-clear history back into view.
         let cursor_phys = self.phys_row(cursor.y);
+        // The first row on screen before this resize; the prune below only
+        // removes rows under the cursor.
+        let first_visible = self.lines.len().saturating_sub(self.physical_rows);
         if physical_rows < self.physical_rows {
             let keep = (cursor_phys + 1).max(physical_rows);
             while self.lines.len() > keep
@@ -272,6 +277,31 @@ impl Screen {
                     .iter()
                     .map(|&(row, x)| self.stable_row_to_phys(row).map(|y| (y, x)))
                     .collect();
+                // The shell redraws its prompt on SIGWINCH from the first
+                // prompt row, which it finds by counting the rows it drew
+                // at the old width. Reflowing those rows changes the count
+                // and leaves a stale copy above the redrawn prompt, so they
+                // keep their rows, cut to the new width (as kitty does).
+                let prompt_start = prompt
+                    .and_then(|row| self.stable_row_to_phys(row))
+                    .filter(|&row| row >= first_visible && row <= cursor_phys);
+                let prompt_rows = prompt_start.map(|start| {
+                    if let Some(above) = start.checked_sub(1) {
+                        self.lines[above].set_last_cell_was_wrapped(false, seqno);
+                    }
+                    self.lines.split_off(start)
+                });
+                // Marks inside the prompt are placed after the rewrap.
+                let prompt_marks: Vec<Option<(usize, usize)>> = phys_marks
+                    .iter_mut()
+                    .map(|mark| match (*mark, prompt_start) {
+                        (Some((y, x)), Some(start)) if y >= start => {
+                            *mark = None;
+                            Some((y - start, x))
+                        }
+                        _ => None,
+                    })
+                    .collect();
                 let cursor = self.rewrap_lines(
                     physical_cols,
                     physical_rows,
@@ -280,6 +310,30 @@ impl Screen {
                     seqno,
                     &mut phys_marks,
                 );
+                let cursor = match (prompt_start, prompt_rows) {
+                    (Some(start), Some(rows)) => {
+                        let new_start = self.lines.len();
+                        for mut line in rows {
+                            line.set_last_cell_was_wrapped(false, seqno);
+                            if line.len() > physical_cols {
+                                line.resize(physical_cols, seqno);
+                            } else {
+                                line.update_last_change_seqno(seqno);
+                            }
+                            self.lines.push_back(line);
+                        }
+                        for (mark, moved) in phys_marks.iter_mut().zip(prompt_marks) {
+                            if let Some((offset, x)) = moved {
+                                *mark = Some((new_start + offset, x.min(physical_cols - 1)));
+                            }
+                        }
+                        (
+                            cursor.0.min(physical_cols - 1),
+                            new_start + (cursor_phys - start),
+                        )
+                    }
+                    _ => cursor,
+                };
                 for (mark, phys) in marks.iter_mut().zip(phys_marks) {
                     if let Some((y, x)) = phys {
                         *mark = (self.phys_to_stable_row_index(y), x);

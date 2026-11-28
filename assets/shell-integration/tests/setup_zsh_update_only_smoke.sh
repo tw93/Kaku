@@ -170,7 +170,7 @@ if command -v zsh >/dev/null 2>&1; then
     _kaku_semantic_precmd
     _kaku_semantic_preexec
   ')" || fail "semantic prompt hooks are not registered or wrote during instant prompt"
-  [[ "$semantic_marks" == $'\e]133;P;k=i\a\e]133;C\a' ]] \
+  [[ "$semantic_marks" == $'\e]133;P;k=i;redraw=1\a\e]133;C\a' ]] \
     || fail "prompt and command did not send OSC 133 marks"
 
   outside_marks="$(HOME="$tmp_home" TERM_PROGRAM=Apple_Terminal zsh -dfc '

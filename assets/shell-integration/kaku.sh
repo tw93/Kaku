@@ -572,8 +572,12 @@ __wezterm_semantic_precmd() {
     # position adjustment is already performed ble.sh so unnecessary here.  We
     # here only perform StartPrompt.
     printf "\033]133;P\007"
-  else
+  elif [[ -n "${ZSH_NAME-}" ]]; then
     printf "\033]133;A;cl=m;aid=%s\007" "$$"
+  else
+    # bash redraws only the last line of a multi-line prompt after a
+    # resize, so the terminal must reflow the rest as usual.
+    printf "\033]133;A;cl=m;aid=%s;redraw=0\007" "$$"
   fi
   __wezterm_semantic_precmd_executing=0
 }
